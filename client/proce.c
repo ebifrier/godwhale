@@ -41,7 +41,9 @@ static int CONV cmd_sendpv( char **lasts );
 #if defined(MNJ_LAN)
 static int CONV proce_mnj( tree_t * restrict ptree );
 static int CONV cmd_mnjignore( tree_t *restrict ptree, char **lasts );
+static int CONV cmd_mnjinit( char **lasts );
 static int CONV cmd_mnj( char **lasts );
+static int CONV cmd_mnjini( tree_t * restrict ptree, char **lasts );
 static int CONV cmd_mnjmove( tree_t * restrict ptree, char **lasts,
 			     int num_alter );
 #endif
@@ -157,6 +159,7 @@ static int CONV proce_cui( tree_t * restrict ptree )
   if ( ! strcmp( token, "sendpv" ) )    { return cmd_sendpv( &last ); }
 #endif
 #if defined(MNJ_LAN)
+  if ( ! strcmp( token, "mnjinit" ) )   { return cmd_mnjinit( &last ); }
   if ( ! strcmp( token, "mnj" ) )       { return cmd_mnj( &last ); }
 #endif
 #if defined(MPV)
@@ -269,6 +272,8 @@ static int CONV proce_mnj( tree_t * restrict ptree )
       moves_ignore[0] = MOVE_NA;
       return analyze( ptree );
     }
+  if ( ! strcmp( token, "init" ) )   { return cmd_mnjini( ptree, &last ); }
+  if ( ! strcmp( token, "quit" ) )   { return cmd_quit(); }
   if ( ! strcmp( token, "ignore" ) ) { return cmd_mnjignore( ptree, &last ); }
   if ( ! strcmp( token, "idle" ) )   { return cmd_suspend(); }
   if ( ! strcmp( token, "alter" ) )  { return cmd_mnjmove( ptree, &last, 1 ); }
@@ -295,6 +300,46 @@ static int CONV proce_mnj( tree_t * restrict ptree )
 
   str_error = str_bad_cmdline;
   return -2;
+}
+
+
+static int CONV
+cmd_mnjini( tree_t *restrict ptree, char **lasts )
+{
+  const char *token;
+  char *ptr;
+  int i, iret;
+  unsigned int move;
+  long lid;
+
+  token = strtok_r( NULL, str_delimiters, lasts );
+  if ( token == NULL )
+    {
+      str_error = str_bad_cmdline;
+      return -1;
+    }
+  lid = strtol( token, &ptr, 0 );
+  if ( ptr == token || lid == LONG_MAX || lid < 1 )
+    {
+      str_error = str_bad_cmdline;
+      return -1;
+    }
+
+  for ( i = 0; ; i += 1 )
+    {
+      token = strtok_r( NULL, str_delimiters, lasts );
+      if ( token == NULL ) { break; }
+
+      if ( interpret_CSA_move( ptree, &move, token ) < 0 ) { return -1; }
+
+      iret = make_move_root( ptree, move, ( flag_time | flag_rep
+					| flag_detect_hang ) );
+      if ( iret < 0 ) { return iret; }
+    }
+
+  mnj_posi_id = (int)lid;
+  moves_ignore[0] = MOVE_NA;
+  return analyze( ptree );
 }
 
 
@@ -352,7 +397,7 @@ cmd_mnjmove( tree_t * restrict ptree, char **lasts, int num_alter )
   char *ptr;
   long lid;
   unsigned int move;
-  int iret;
+  int iret, i;
 
   if ( sckt_mnj == SCKT_NULL ||  str1 == NULL || str2 == NULL )
     {
@@ -369,12 +414,10 @@ cmd_mnjmove( tree_t * restrict ptree, char **lasts, int num_alter )
 
   AbortDifficultCommand;
  
-  while ( num_alter )
+  for ( i = 0; i < num_alter; ++i )
     {
       iret = unmake_move_root( ptree );
       if ( iret < 0 ) { return iret; }
-
-      num_alter -= 1;
     }
 
   iret = interpret_CSA_move( ptree, &move, str1 );
@@ -393,6 +436,8 @@ cmd_mnjmove( tree_t * restrict ptree, char **lasts, int num_alter )
   iret = out_board( ptree, stdout, 0, 0 );
   if ( iret < 0 ) { return iret; }
 #  endif
+
+  OutCsaShogi( "move %s %d %d\n", str1, num_alter, mnj_posi_id );
 
   moves_ignore[0] = MOVE_NA;
   return analyze( ptree );
@@ -1984,17 +2029,14 @@ static int CONV cmd_sendpv( char **lasts )
 
 
 #if defined(MNJ_LAN)
-/* mnj sd seed addr port name factor stable_depth */
-static int CONV cmd_mnj( char **lasts )
+/* mnjinit sd seed */
+static int CONV cmd_mnjinit( char **lasts )
 {
-  char client_str_addr[256];
-  char client_str_id[256];
   const char *str;
   char *ptr;
   unsigned int seed;
   long l;
-  int client_port, sd;
-  double factor;
+  int sd;
 
   str = strtok_r( NULL, str_delimiters, lasts );
   if ( ! str )
@@ -2024,6 +2066,37 @@ static int CONV cmd_mnj( char **lasts )
       return -2;
     }
   seed = (unsigned int)l;
+
+  if ( mnj_reset_tbl( sd, seed ) < 0 )
+    {
+      OutCsaShogi( "info mnjinit failed\n" );
+      return -1;
+    }
+
+  str_buffer_cmdline[0] = '\0';
+
+  Out( "mnjinit ok\n" );
+  OutCsaShogi( "info mnjinit ok\n" );
+
+  return 1;
+}
+
+/* mnj addr port factor stable_depth */
+static int CONV cmd_mnj( char **lasts )
+{
+  char client_str_id[256];
+  char client_str_addr[256];
+  const char *str;
+  char *ptr;
+  long l;
+  int client_port;
+  double factor;
+
+  if ( ! mnj_table_reseted )
+    {
+      str_error = str_bad_cmdline;
+      return -2;
+    }
 
 
   str = strtok_r( NULL, str_delimiters, lasts );
@@ -2074,7 +2147,6 @@ static int CONV cmd_mnj( char **lasts )
 
   resign_threshold  = 65535;
   game_status      |= ( flag_noponder | flag_noprompt );
-  if ( mnj_reset_tbl( sd, seed ) < 0 ) { return -1; }
 
   sckt_mnj = sckt_connect( client_str_addr, (int)client_port );
   if ( sckt_mnj == SCKT_NULL ) { return -2; }
@@ -2082,7 +2154,7 @@ static int CONV cmd_mnj( char **lasts )
   str_buffer_cmdline[0] = '\0';
 
   Out( "Sending my name %s", client_str_id );
-  MnjOut( "%s %g final%s\n", client_str_id, factor,
+  MnjOut( "login %s %g final%s\n", client_str_id, factor,
 	  ( mnj_depth_stable == INT_MAX ) ? "" : " stable" );
 
   return cmd_suspend();

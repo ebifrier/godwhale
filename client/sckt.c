@@ -187,7 +187,7 @@ sckt_connect( const char *str_addr, int iport )
     sin.sin_port        = htons( (u_short)iport );
     if ( connect( sd, (struct sockaddr *)&sin, sizeof(sin) ) != SOCKET_ERROR )
       {
-	break;
+          break;
       }
     
     if ( ! count ) { Out( "connect() failed.  try again " ); }

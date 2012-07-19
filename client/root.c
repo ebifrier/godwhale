@@ -3,7 +3,7 @@
 #include "shogi.h"
 
 #if defined(USI) || defined(MNJ_LAN)
-static int is_move_ignore( unsigned int move );
+static int CONV is_move_ignore( unsigned int move );
 #endif
 
 int

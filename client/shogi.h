@@ -1279,6 +1279,7 @@ extern unsigned int moves_ignore[MAX_LEGAL_MOVES];
 #  define MnjOut( ... ) if ( sckt_mnj != SCKT_NULL ) \
                           sckt_out( sckt_mnj, __VA_ARGS__ )
 extern sckt_t sckt_mnj;
+extern int mnj_table_reseted;
 extern int mnj_posi_id;
 extern int mnj_depth_stable;
 void CONV mnj_check_results( void );

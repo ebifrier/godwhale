@@ -655,6 +655,7 @@ int CONV mnj_reset_tbl( int sd, unsigned int seed )
   Out( "  actual average:            % .7f\n", average );
   Out( "  actual standard deviation: % .7f\n", deviation );
   Out( "rand seed = %x\n", u );
+  mnj_table_reseted = 1;
 
   return 1;
 }
