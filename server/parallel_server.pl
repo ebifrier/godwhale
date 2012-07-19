@@ -36,6 +36,7 @@ sub out_log ($$);
 
 
 my $global_pid = 0;
+my @movelist = ();
 
 {
     # defaults of command-line options
@@ -88,9 +89,8 @@ my $global_pid = 0;
 	    my $line = get_line \$client_ref->{in_buf};
 	    if ( 'unknown' eq $client_ref->{id} ) {
 		my ( $final, $stable ) = ( 0, 0 );
-		print( "LOGIN: $line"
-		       . " ($client_ref->{iaddr}:$client_ref->{port})\n" );
-		$client_ref->{id} = ( split ' ', $line )[0];
+		$client_ref->{id} = ( split ' ', $line )[1];
+		print( "LOGIN: $line $client_ref->{id}" );
 		if ( $line =~ /stable/ ) { $stable = 1; }
 		if ( $line =~ /final/ )  { $final  = 1; }
 		$status{stable} &= $stable;
@@ -122,6 +122,7 @@ my $global_pid = 0;
 	}
     }
 
+#    undef $listening_sckt;
 
     # main loop
     my $server_buf       = q{};
@@ -333,6 +334,8 @@ sub parse_smsg($$$) {
 	$status_ref->{server_send_mmsg} = q{};
 	$status_ref->{server_pid}       = 0;
 	$global_pid                     = 0;
+	@movelist                       = ();
+
 	foreach my $ref ( values %$client_ref ) {
 	    out_log $status_ref, "$ref->{id}< new\n";
 	    print { $ref->{sckt} } "new\n";
@@ -349,6 +352,7 @@ sub parse_smsg($$$) {
 	$status_ref->{sent_final}  = 0;
 	$status_ref->{server_pid}  = $2;
 	$global_pid               += 1;
+	push @movelist, $1;
 
 	my $pid = $global_pid;
 	foreach my $ref ( values %$client_ref ) {
@@ -390,6 +394,9 @@ sub parse_smsg($$$) {
 	$status_ref->{sent_final}  = 0;
 	$status_ref->{server_pid}  = $2;
 	$global_pid               += 1;
+	pop @movelist;
+	push @movelist, $1;
+
 	foreach my $ref ( values %$client_ref ) {
 
 	    if ( defined $ref->{played_move} ) {
@@ -427,8 +434,20 @@ sub parse_cmsg($$$) {
 
     if( $line =~ /pid=(\d+)/ ) { $client_pid = $1; }
 
-    if ( not defined $client_pid )           { return 0; }
-    if ( $client_pid != $client_ref->{pid} ) { return 1; }
+    if ( $line =~ /^login/ ) {
+	$client_ref->{id}  = ( split ' ', $line )[1];
+	$client_ref->{pid} = $global_pid;
+
+	my $movestr = join ' ', @movelist;
+	print { $client_ref->{sckt} } "new\n";
+	print { $client_ref->{sckt} } "init $global_pid $movestr\n";
+
+	print( "LOGIN: $line $client_ref->{id}\n" );
+	print( "init $global_pid $movestr\n" );
+    }
+    elsif ( not defined $client_pid ) { return 0; }
+
+    if ( defined $client_pid and $client_pid != $client_ref->{pid} ) { return 1; }
 
     my $client_final  = 0;
     my $client_stable = 0;
@@ -457,7 +476,7 @@ sub parse_cmsg($$$) {
     return 1;
 }
     
-
+# 各クライアント/サーバーのどれかがメッセージを受信するのを待ちます。
 sub wait_messages($$$$$) {
 
     my ( $listening_sckt, $client_ref, $server_sckt, $server_buf_ref,
@@ -465,9 +484,9 @@ sub wait_messages($$$$$) {
     my ( @ready_keys );
     
     # get all handles to wait for messages
-    my ( @handles ) = ( $listening_sckt,
-			map { $client_ref->{$_}->{sckt} } keys %$client_ref );
-    if ( defined $server_sckt ) { push @handles, $server_sckt; }
+    my ( @handles ) = map { $client_ref->{$_}->{sckt} } keys %$client_ref;
+    if ( defined $listening_sckt ) { push @handles, $listening_sckt; }
+    if ( defined $server_sckt )    { push @handles, $server_sckt; }
 
     my $selector = new IO::Select( @handles );
     
@@ -487,7 +506,7 @@ sub wait_messages($$$$$) {
 
 	foreach my $in ( @sckts ) {
 	    
-	    if ( $in eq $listening_sckt ) {
+	    if ( defined $listening_sckt and $in eq $listening_sckt ) {
 		
 		# accept the connection for a client
 		my $accepted_sckt = $in->accept or die "accept failed: $!\n";
@@ -529,10 +548,13 @@ sub wait_messages($$$$$) {
 	    my $in_buf;
 	    $in->recv( $in_buf, 65536 );
 	    if ( not $in_buf ) {
-		die( "connection from $client_ref->{$in}->{iaddr}"
-		     . " $client_ref->{$in}->{port}"
-		     . " ($client_ref->{$in}->{id}) is down.\n" );
+		print "$client_ref->{$in}->{id} is down.\n";
+
+		$selector->remove( $in );
+		delete $client_ref->{$in};
+		next;
 	    }
+
 	    $client_ref->{$in}->{in_buf} .= $in_buf;
 	    $client_ref->{$in}->{in_buf}  =~ s/\015?\012/\n/g;
 	}
