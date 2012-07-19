@@ -1,0 +1,30 @@
+# 'book narrow' allows Bonanza to play only famous opening-lines.
+# Use this only when Bonanza plays a small number of games.
+book wide
+# book narrow
+
+# Set the time control to 15 minutes - 0 second, limit of depth to 18.
+limit time 15 0 18
+
+# Set the time margin to 200 miliseconds.
+time response 200
+
+# In the case of this example, Bonanza uses two threads to search the
+# best move.
+tlp num 2
+
+# Do pondering.
+ponder on
+
+# Set the size of the transposition table to 192 MBytes.
+hash 22
+
+# Set the resign threashold to 65535 if you do not want Bonanza resigns.
+resign 1500
+# resign 65535
+
+# connect "hostname" "port #" "login id" "login password" "num games"
+connect wdoor.c.u-tokyo.ac.jp 4081 YourID floodgate-900-0,Something 999
+
+# quit Bonanza.
+quit

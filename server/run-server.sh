@@ -1,0 +1,14 @@
+perl majority_server.pl --client_port=4082 \
+                        --client_num=8 \
+                        --csa_host=hostname \
+                        --csa_port=port# \
+                        --csa_id=csa_id \
+                        --csa_pw=csa_password \
+                        --sec_limit=1500 \
+                        --sec_limit_up=0 \
+                        --time_response=0.15 \
+                        --time_stable_min=11.0 \
+                        --sec_spent_b=0 \
+                        --sec_spent_w=0 \
+                        --noaudio \
+                        --final_as_confident
