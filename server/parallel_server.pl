@@ -26,7 +26,7 @@ sub send_freq  ()    {   0.5 }
 sub maxeval_score () { 30_000 }
 
 # subroutines
-sub wait_messages($$$$$);
+sub wait_messages($$$$$$);
 sub out_clients ($$);
 sub parse_smsg($$$);
 sub parse_cmsg($$$);
@@ -79,7 +79,7 @@ my @movelist = ();
     my ( $server_sckt, $count );
     while ( 1 ) {
 
-	foreach my $ready_key ( wait_messages( $listening_sckt,
+	foreach my $ready_key ( wait_messages( \%status, $listening_sckt,
 					       \%client, undef, undef,
 					       10.0 ) ) {
 	    
@@ -90,7 +90,7 @@ my @movelist = ();
 	    if ( 'unknown' eq $client_ref->{id} ) {
 		my ( $final, $stable ) = ( 0, 0 );
 		$client_ref->{id} = ( split ' ', $line )[1];
-		print( "LOGIN: $line $client_ref->{id}" );
+		out_log \%status, "LOGIN: $line\n";
 		if ( $line =~ /stable/ ) { $stable = 1; }
 		if ( $line =~ /final/ )  { $final  = 1; }
 		$status{stable} &= $stable;
@@ -129,7 +129,7 @@ my @movelist = ();
     my $server_send_time = time;
     while ( 1 ) {
 	
-	my ( @ready_keys) = wait_messages( $listening_sckt, \%client,
+	my ( @ready_keys) = wait_messages( \%status, $listening_sckt, \%client,
 					   $server_sckt, \$server_buf,
 					   timeout );
 	my $time = time();
@@ -442,8 +442,8 @@ sub parse_cmsg($$$) {
 	print { $client_ref->{sckt} } "new\n";
 	print { $client_ref->{sckt} } "init $global_pid $movestr\n";
 
-	print( "LOGIN: $line $client_ref->{id}\n" );
-	print( "init $global_pid $movestr\n" );
+	out_log $status_ref, "LOGIN: $line\n";
+	out_log $status_ref, "init $global_pid $movestr\n";
     }
     elsif ( not defined $client_pid ) { return 0; }
 
@@ -477,9 +477,9 @@ sub parse_cmsg($$$) {
 }
     
 # 各クライアント/サーバーのどれかがメッセージを受信するのを待ちます。
-sub wait_messages($$$$$) {
+sub wait_messages($$$$$$) {
 
-    my ( $listening_sckt, $client_ref, $server_sckt, $server_buf_ref,
+    my ( $status_ref, $listening_sckt, $client_ref, $server_sckt, $server_buf_ref,
 	$timeout ) = @_;
     my ( @ready_keys );
     
@@ -548,7 +548,9 @@ sub wait_messages($$$$$) {
 	    my $in_buf;
 	    $in->recv( $in_buf, 65536 );
 	    if ( not $in_buf ) {
-		print "$client_ref->{$in}->{id} is down.\n";
+		my $size = keys %$client_ref;
+		$size = $size - 1;
+		out_log $status_ref, "$client_ref->{$in}->{id} is down. ($size)\n";
 
 		$selector->remove( $in );
 		delete $client_ref->{$in};
