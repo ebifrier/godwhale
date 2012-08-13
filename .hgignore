@@ -1,3 +1,4 @@
 syntax: regexp
 server/[0-9]+
 server/parallel_[0-9]+
+server/restart_[0-9]+
