@@ -9,6 +9,7 @@
 
 # load perl modules
 use strict;
+use warnings;
 use IO::Socket;
 use IO::Select;
 use IO::Handle;
@@ -27,15 +28,17 @@ sub maxeval_score () { 30_000 }
 
 # subroutines
 sub wait_messages($$$$$$);
-sub out_clients ($$);
+sub client_changed ($);
 sub parse_smsg($$$);
 sub parse_cmsg($$$);
 sub get_line ($);
 sub next_log ($);
 sub out_log ($$);
+sub out_clients ($$);
 
 
 my $global_pid = 0;
+my %client = ();
 my @movelist = ();
 
 {
@@ -75,7 +78,8 @@ my @movelist = ();
 
     print "wait for $status{client_num} clients:\n";
 
-    my ( %client );
+    client_changed \%status;
+
     my ( $server_sckt, $count );
     while ( 1 ) {
 
@@ -90,7 +94,9 @@ my @movelist = ();
 	    if ( 'unknown' eq $client_ref->{id} ) {
 		my ( $final, $stable ) = ( 0, 0 );
 		$client_ref->{id} = ( split ' ', $line )[1];
-		out_log \%status, "LOGIN: $line\n";
+		out_log \%status, "LOGIN: $client_ref->{id}\n";
+		client_changed \%status;
+
 		if ( $line =~ /stable/ ) { $stable = 1; }
 		if ( $line =~ /final/ )  { $final  = 1; }
 		$status{stable} &= $stable;
@@ -315,6 +321,28 @@ my @movelist = ();
 }
 
 
+sub client_changed($) {
+    my ( $status_ref ) = @_;
+
+    # 参加者一覧のリストを出力します。
+    my $filepath = "$ENV{'HOME'}/.whale_list";
+    open FH, ">$filepath";
+    foreach my $c ( values %client ) {
+	print FH "$c->{id}\n";
+    }
+    close FH;
+
+    # VoteServerにシグナルを出します。
+    my $command = "/bin/ps x | grep VoteServer.exe | grep mono | cut -c 1-5 |";
+    open PS, $command;
+    my $line = <PS>;
+    if ( $line ne '' ) {
+	kill 'SIGUSR2', $line;
+    }
+    close PS;
+}
+
+
 sub parse_smsg($$$) {
     my ( $status_ref, $client_ref, $line ) = @_;
 		
@@ -444,6 +472,8 @@ sub parse_cmsg($$$) {
 
 	out_log $status_ref, "LOGIN: $line\n";
 	out_log $status_ref, "init $global_pid $movestr\n";
+
+	client_changed \$status_ref;
     }
     elsif ( not defined $client_pid ) { return 0; }
 

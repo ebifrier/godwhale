@@ -1,5 +1,5 @@
 perl majority_server.pl --client_port=4082 \
-                        --client_num=1 \
+                        --client_num=2 \
                         --csa_host=localhost \
                         --csa_port=4081 \
                         --csa_id=bonachan \
@@ -10,5 +10,6 @@ perl majority_server.pl --client_port=4082 \
                         --time_stable_min=11.0 \
                         --sec_spent_b=0 \
                         --sec_spent_w=0 \
-                        --noaudio \
-                        --final_as_confident
+                        --noaudio
+
+#                        --final_as_confident
