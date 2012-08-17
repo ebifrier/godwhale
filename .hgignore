@@ -2,3 +2,9 @@ syntax: regexp
 server/[0-9]+
 server/parallel_[0-9]+
 server/restart_[0-9]+
+[.]user$
+[.]suo$
+[.]sdf$
+syntax: glob
+client/visualc10/Release/
+client/visualc10/ipch/
