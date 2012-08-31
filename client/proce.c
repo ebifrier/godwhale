@@ -41,9 +41,9 @@ static int CONV cmd_sendpv( char **lasts );
 #if defined(MNJ_LAN)
 static int CONV proce_mnj( tree_t * restrict ptree );
 static int CONV cmd_mnjignore( tree_t *restrict ptree, char **lasts );
-static int CONV cmd_mnjinit( char **lasts );
+static int CONV cmd_mnjprepare( char **lasts );
 static int CONV cmd_mnj( char **lasts );
-static int CONV cmd_mnjini( tree_t * restrict ptree, char **lasts );
+static int CONV cmd_mnjinit( tree_t * restrict ptree, char **lasts );
 static int CONV cmd_mnjmove( tree_t * restrict ptree, char **lasts,
 			     int num_alter );
 #endif
@@ -159,7 +159,7 @@ static int CONV proce_cui( tree_t * restrict ptree )
   if ( ! strcmp( token, "sendpv" ) )    { return cmd_sendpv( &last ); }
 #endif
 #if defined(MNJ_LAN)
-  if ( ! strcmp( token, "mnjinit" ) )   { return cmd_mnjinit( &last ); }
+  if ( ! strcmp( token, "mnjprepare" ) ){ return cmd_mnjprepare( &last ); }
   if ( ! strcmp( token, "mnj" ) )       { return cmd_mnj( &last ); }
 #endif
 #if defined(MPV)
@@ -265,14 +265,14 @@ static int CONV proce_mnj( tree_t * restrict ptree )
       iret = cmd_suspend();
       if ( iret != 1 ) { return iret; }
 
-      mnj_posi_id = 0;
+      mnj_posi_id = -1;
       iret = cmd_new( ptree, &last );
       if ( iret < 0 ) { return iret; }
 
       moves_ignore[0] = MOVE_NA;
       return analyze( ptree );
     }
-  if ( ! strcmp( token, "init" ) )   { return cmd_mnjini( ptree, &last ); }
+  if ( ! strcmp( token, "init" ) )   { return cmd_mnjinit( ptree, &last ); }
   if ( ! strcmp( token, "quit" ) )   { return cmd_quit(); }
   if ( ! strcmp( token, "ignore" ) ) { return cmd_mnjignore( ptree, &last ); }
   if ( ! strcmp( token, "idle" ) )   { return cmd_suspend(); }
@@ -304,7 +304,7 @@ static int CONV proce_mnj( tree_t * restrict ptree )
 
 
 static int CONV
-cmd_mnjini( tree_t *restrict ptree, char **lasts )
+cmd_mnjinit( tree_t *restrict ptree, char **lasts )
 {
   const char *token;
   char *ptr;
@@ -2029,8 +2029,8 @@ static int CONV cmd_sendpv( char **lasts )
 
 
 #if defined(MNJ_LAN)
-/* mnjinit sd seed */
-static int CONV cmd_mnjinit( char **lasts )
+/* mnjprepare sd seed */
+static int CONV cmd_mnjprepare( char **lasts )
 {
   const char *str;
   char *ptr;
@@ -2069,14 +2069,14 @@ static int CONV cmd_mnjinit( char **lasts )
 
   if ( mnj_reset_tbl( sd, seed ) < 0 )
     {
-      OutCsaShogi( "info mnjinit failed\n" );
+      OutCsaShogi( "info mnjprepare failed\n" );
       return -1;
     }
 
   str_buffer_cmdline[0] = '\0';
 
-  Out( "mnjinit ok\n" );
-  OutCsaShogi( "info mnjinit ok\n" );
+  Out( "mnjprepare ok\n" );
+  OutCsaShogi( "info mnjprepare ok\n" );
 
   return 1;
 }

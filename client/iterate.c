@@ -19,6 +19,10 @@ iterate( tree_t * restrict ptree )
   unsigned int cpu_start;
   int right_answer_made;
 
+#if defined(MNJ_LAN)
+  if ( mnj_posi_id < 0 ) return 1;
+#endif
+
   /* probe the opening book */
   if ( pf_book != NULL
 #if defined(USI) || defined(MNJ_LAN)
