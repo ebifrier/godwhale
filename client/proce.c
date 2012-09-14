@@ -319,7 +319,7 @@ cmd_mnjinit( tree_t *restrict ptree, char **lasts )
       return -1;
     }
   lid = strtol( token, &ptr, 0 );
-  if ( ptr == token || lid == LONG_MAX || lid < 1 )
+  if ( ptr == token || lid == LONG_MAX || lid < 0 )
     {
       str_error = str_bad_cmdline;
       return -1;
