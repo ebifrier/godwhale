@@ -151,8 +151,8 @@ extern unsigned char ailast_one[512];
 #  define SIZE_CMDLINE          ( 1024 * 16 )
 #  define SIZE_CMDBUFFER        ( 1024 * 16 )
 #else
-#  define SIZE_CMDLINE          512
-#  define SIZE_CMDBUFFER        512
+#  define SIZE_CMDLINE          2048
+#  define SIZE_CMDBUFFER        2048
 #endif
 
 #define IsMove(move)           ( (move) & 0xffffffU )
