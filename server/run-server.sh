@@ -1,5 +1,5 @@
 perl majority_server.pl --client_port=4082 \
-                        --client_num=2 \
+                        --client_num=1 \
                         --csa_host=localhost \
                         --csa_port=4081 \
                         --csa_id=bonachan \
