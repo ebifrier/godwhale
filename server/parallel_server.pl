@@ -367,6 +367,7 @@ sub parse_smsg($$$) {
 	foreach my $ref ( values %$client_ref ) {
 	    out_log $status_ref, "$ref->{id}< new\n";
 	    print { $ref->{sckt} } "new\n";
+	    print { $ref->{sckt} } "init 0\n";
 	    $ref->{played_move} = undef;
 	    $ref->{best_move}   = undef;
 	    $ref->{final}       = 0;
