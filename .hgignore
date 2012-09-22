@@ -8,3 +8,4 @@ server/restart_[0-9]+
 syntax: glob
 client/visualc10/Release/
 client/visualc10/ipch/
+client/visualc10/Debug/
