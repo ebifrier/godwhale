@@ -91,9 +91,9 @@ sub load_csafile() {
 	    last;
 	}
 
-	if ( $line =~ /(\+|\-)(\d\d\d\d[A-Z][A-Z])\,T(\d+)$/ ) {
+	if ( $line =~ /^(\+|\-)(\d\d\d\d[A-Z][A-Z])\,T(\d+)/ ) {
 	    push @move_list, $2;
-#	    print "$2\n";
+	    print "test: $2\n";
 	}
     }
     close FH;
