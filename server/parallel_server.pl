@@ -28,7 +28,8 @@ sub maxeval_score () { 30_000 }
 
 # subroutines
 sub wait_messages($$$$$$);
-sub client_changed ($);
+sub godwhale_changed($;$);
+sub update_godwhale($);
 sub parse_smsg($$$);
 sub parse_cmsg($$$);
 sub get_line ($);
@@ -40,6 +41,10 @@ sub out_clients ($$);
 my $global_pid = 0;
 my %client = ();
 my @movelist = ();
+my $g_eval_value = 0;
+my $g_update_lasttime = time();
+my $g_need_update = 0;
+
 
 {
     # defaults of command-line options
@@ -57,7 +62,6 @@ my @movelist = ();
 		       stable           => 1,
 		       server_pid       => 0,
 		       fh_log           => undef );
-
 
     # parse command-line options
     GetOptions( \%status,
@@ -78,7 +82,7 @@ my @movelist = ();
 
     print "wait for $status{client_num} clients:\n";
 
-    client_changed \%status;
+    godwhale_changed \%status, 0;
 
     my ( $server_sckt, $count );
     while ( 1 ) {
@@ -95,7 +99,7 @@ my @movelist = ();
 		my ( $final, $stable ) = ( 0, 0 );
 		$client_ref->{id} = ( split ' ', $line )[1];
 		out_log \%status, "LOGIN: $client_ref->{id}\n";
-		client_changed \%status;
+		godwhale_changed \%status, 0;
 
 		if ( $line =~ /stable/ ) { $stable = 1; }
 		if ( $line =~ /final/ )  { $final  = 1; }
@@ -156,6 +160,7 @@ my @movelist = ();
 	    }
 	}
 
+	update_godwhale \%status;
 
 	# no more messages to server after 'final'
 	if ( $status{sent_final} ) {
@@ -266,6 +271,9 @@ my @movelist = ();
 		$status{server_send_time} = $time;
 		$status{server_send_mmsg} = $mmsg;
 		if ( $final_str ) { $status{sent_final} = 1; }
+
+		# 評価値の更新を通知
+		godwhale_changed \%status, $best_value
 	    }
 	}
 
@@ -320,26 +328,53 @@ my @movelist = ();
     }
 }
 
+sub godwhale_changed($;$) {
+    my ( $status_ref, $eval_value ) = @_;
 
-sub client_changed($) {
+    # 最初に評価値を出力。
+    if ($#_ < 1) { $eval_value = $g_eval_value; }
+
+    # 評価値を保存。
+    $g_eval_value = $eval_value;
+    $g_need_update = 1;
+}
+
+
+sub update_godwhale($) {
     my ( $status_ref ) = @_;
+    my $time = time();
+    my $update_freq = 3.0; # 秒
+
+    if (!$g_need_update or
+	$time < $g_update_lasttime + $update_freq) {
+	return;
+    }
 
     # 参加者一覧のリストを出力します。
     my $filepath = "$ENV{'HOME'}/.whale_list";
     open FH, ">$filepath";
+
+    # 最初に評価値を出力。
+    print FH "$g_eval_value\n";
+
+    # 次に参加者を出力。
     foreach my $c ( values %client ) {
 	print FH "$c->{id}\n";
     }
     close FH;
 
     # VoteServerにシグナルを出します。
-    my $command = "/bin/ps x | grep VoteServer.exe | grep mono | cut -c 1-5 |";
+    my $command = "/bin/ps x | grep VoteServer.exe | grep -v grep | cut -c 1-5 |";
     open PS, $command;
     my $line = <PS>;
     if ( $line ne '' ) {
+	#print "kill $line";
 	kill 'SIGUSR2', $line;
     }
     close PS;
+
+    $g_update_lasttime = time();
+    $g_need_update = 0;
 }
 
 
@@ -474,7 +509,7 @@ sub parse_cmsg($$$) {
 	out_log $status_ref, "LOGIN: $line\n";
 	out_log $status_ref, "init $global_pid $movestr\n";
 
-	client_changed \$status_ref;
+	godwhale_changed \$status_ref;
     }
     elsif ( not defined $client_pid ) { return 0; }
 
