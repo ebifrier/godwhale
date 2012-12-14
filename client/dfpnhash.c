@@ -9,11 +9,11 @@ static int CONV dbg_is_hand_valid( unsigned int hand );
 #endif
 
 static unsigned int CONV calc_hand_win( const node_t *pnode,
-					unsigned int hand_b,
-					unsigned int hand_w );
+                                        unsigned int hand_b,
+                                        unsigned int hand_w );
 static unsigned int CONV calc_hand_lose( const node_t * restrict pnode,
-					 unsigned int hand_b,
-					 unsigned int hand_w );
+                                         unsigned int hand_b,
+                                         unsigned int hand_w );
 static unsigned int CONV hand_or( unsigned int a, unsigned int b );
 static unsigned int CONV hand_and( unsigned int a, unsigned int b );
 static int CONV dfpn_hand_supe( unsigned int u, unsigned int uref );
@@ -83,7 +83,7 @@ float CONV dfpn_hash_sat( void )
 #    pragma warning(disable:869)
 #  endif
 void CONV dfpn_hash_probe( const dfpn_tree_t * restrict pdfpn_tree,
-			   child_t * restrict pchild, int ply, int turn )
+                           child_t * restrict pchild, int ply, int turn )
 {
   uint64_t hash_key_curr, word1, word2, word3, hash_key, nodes;
   unsigned int index, hand_b, phi, delta, u, offset, hand_b_curr;
@@ -121,17 +121,17 @@ void CONV dfpn_hash_probe( const dfpn_tree_t * restrict pdfpn_tree,
 
     if ( hand_b_curr == hand_b )
       {
-	pchild->phi           = phi;
-	pchild->delta         = delta;
-	pchild->nodes         = nodes;
-	pchild->min_hand_b    = hand_b;
-	pchild->is_phi_loop   = is_phi_loop;
-	pchild->is_delta_loop = is_delta_loop;
-	DOut( ply, "HASH EXACT at %u+%u, %x, %x: [%u,%u] %u %x %c %c",
-	      index, offset, (unsigned int)hash_key_curr, hand_b_curr, phi,
-	      delta, (unsigned int)nodes, pchild->min_hand_b,
-	      is_phi_loop ? 'y' : 'n', is_delta_loop ? 'y' : 'n' );
-	return;
+        pchild->phi           = phi;
+        pchild->delta         = delta;
+        pchild->nodes         = nodes;
+        pchild->min_hand_b    = hand_b;
+        pchild->is_phi_loop   = is_phi_loop;
+        pchild->is_delta_loop = is_delta_loop;
+        DOut( ply, "HASH EXACT at %u+%u, %x, %x: [%u,%u] %u %x %c %c",
+              index, offset, (unsigned int)hash_key_curr, hand_b_curr, phi,
+              delta, (unsigned int)nodes, pchild->min_hand_b,
+              is_phi_loop ? 'y' : 'n', is_delta_loop ? 'y' : 'n' );
+        return;
       }
     
     if      ( dfpn_hand_supe( hand_b_curr, hand_b ) ) { relation = REL_SUPE; }
@@ -142,30 +142,30 @@ void CONV dfpn_hash_probe( const dfpn_tree_t * restrict pdfpn_tree,
 
     if ( relation == REL_SUPE && phi == 0 && delta == INF )
       {
-	pchild->phi           = phi;
-	pchild->delta         = delta;
-	pchild->nodes         = nodes;
-	pchild->min_hand_b    = hand_b;
-	pchild->is_phi_loop   = is_phi_loop;
-	pchild->is_delta_loop = is_delta_loop;
-	DOut( ply, "HASH SUPE at %u+%u, %x, %x: [%u,%u] %u %x n n", index,
-	      offset, (unsigned int)hash_key_curr, hand_b_curr, phi, delta,
-	      (unsigned int)nodes, pchild->min_hand_b );
-	return;
+        pchild->phi           = phi;
+        pchild->delta         = delta;
+        pchild->nodes         = nodes;
+        pchild->min_hand_b    = hand_b;
+        pchild->is_phi_loop   = is_phi_loop;
+        pchild->is_delta_loop = is_delta_loop;
+        DOut( ply, "HASH SUPE at %u+%u, %x, %x: [%u,%u] %u %x n n", index,
+              offset, (unsigned int)hash_key_curr, hand_b_curr, phi, delta,
+              (unsigned int)nodes, pchild->min_hand_b );
+        return;
       }
 
     if ( relation == REL_INFE && phi == INF && delta == 0 )
       {
-	pchild->phi           = phi;
-	pchild->delta         = delta;
-	pchild->nodes         = nodes;
-	pchild->min_hand_b    = hand_b;
-	pchild->is_phi_loop   = is_phi_loop;
-	pchild->is_delta_loop = is_delta_loop;
-	DOut( ply, "HASH INFE at %u+%u, %x, %x: [%u,%u] %u %x n n", index,
-	      offset, (unsigned int)hash_key_curr, hand_b_curr, phi, delta,
-	       (unsigned int)nodes, pchild->min_hand_b );
-	return;
+        pchild->phi           = phi;
+        pchild->delta         = delta;
+        pchild->nodes         = nodes;
+        pchild->min_hand_b    = hand_b;
+        pchild->is_phi_loop   = is_phi_loop;
+        pchild->is_delta_loop = is_delta_loop;
+        DOut( ply, "HASH INFE at %u+%u, %x, %x: [%u,%u] %u %x n n", index,
+              offset, (unsigned int)hash_key_curr, hand_b_curr, phi, delta,
+               (unsigned int)nodes, pchild->min_hand_b );
+        return;
       }
   }
 }
@@ -177,7 +177,7 @@ void CONV dfpn_hash_probe( const dfpn_tree_t * restrict pdfpn_tree,
 
 
 void CONV dfpn_hash_store( const tree_t * restrict ptree,
-			   dfpn_tree_t * restrict pdfpn_tree, int ply )
+                           dfpn_tree_t * restrict pdfpn_tree, int ply )
 {
   node_t * restrict pnode = pdfpn_tree->anode + ply;
   uint64_t word1, word2, word3, min_nodes, nodes, hash_key;
@@ -217,11 +217,11 @@ void CONV dfpn_hash_store( const tree_t * restrict ptree,
     n = pnode->nmove;
     for ( i = 0; i < n; i++ )
       {
-	if ( pnode->phi == pnode->children[i].delta )
-	  {
-	    is_phi_loop &= pnode->children[i].is_delta_loop;
-	  }
-	is_delta_loop |= pnode->children[i].is_phi_loop;
+        if ( pnode->phi == pnode->children[i].delta )
+          {
+            is_phi_loop &= pnode->children[i].is_delta_loop;
+          }
+        is_delta_loop |= pnode->children[i].is_phi_loop;
       }
 
     goto skip;
@@ -242,7 +242,7 @@ void CONV dfpn_hash_store( const tree_t * restrict ptree,
     if ( word1 == tmp1 )       { continue; }
     if ( ( word1 & ~UINT64_C(0x1fffff) ) != ( tmp1 & ~UINT64_C(0x1fffff) ) )
       {
-	continue;
+        continue;
       }
     
     hand_b = (unsigned int)tmp1 & 0x1fffffU;
@@ -298,20 +298,20 @@ void CONV dfpn_hash_store( const tree_t * restrict ptree,
       assert( offset <= u );
 
       if ( nodes == 0
-	   || age != dfpn_hash_age
-	   || ( index == u - offset && word1 == tmp1 ) )
-	{
-	  min_u = u;
-	  break;
-	}
+           || age != dfpn_hash_age
+           || ( index == u - offset && word1 == tmp1 ) )
+        {
+          min_u = u;
+          break;
+        }
 
       if ( index <= u - offset && offset == DFPN_NUM_REHASH - 1 ) { break; }
 
       if ( nodes < min_nodes )
-	{
-	  min_nodes = nodes;
-	  min_u = u;
-	}
+        {
+          min_nodes = nodes;
+          min_u = u;
+        }
     }
 
   if ( min_u == UINT_MAX )
@@ -409,8 +409,8 @@ void CONV dfpn_hash_store( const tree_t * restrict ptree,
   dfpn_hash_tbl[min_u].word3 = word3;
 
   DOut( ply, "STORE[%u+%u] %x, %x: [%d,%d] %c %c",
-	index, offset, (unsigned int)hash_key, min_hand_b, pnode->phi,
-	pnode->delta, is_phi_loop ? 'y': 'n', is_delta_loop ? 'y' : 'n' );
+        index, offset, (unsigned int)hash_key, min_hand_b, pnode->phi,
+        pnode->delta, is_phi_loop ? 'y': 'n', is_delta_loop ? 'y' : 'n' );
 }
 
 
@@ -444,7 +444,7 @@ dfpn_max_hand_w( unsigned int hand_b, unsigned hand_w )
 
 int CONV
 dfpn_detect_rep( const dfpn_tree_t * restrict pdfpn_tree, uint64_t hash_key,
-		 unsigned int hand_b, int ply, int * restrict ip )
+                 unsigned int hand_b, int ply, int * restrict ip )
 {
   const node_t * restrict pnode;
 
@@ -452,7 +452,7 @@ dfpn_detect_rep( const dfpn_tree_t * restrict pdfpn_tree, uint64_t hash_key,
     {
       pnode = pdfpn_tree->anode + *ip;
       if ( pnode->hash_key == hash_key
-	   && pnode->hand_b == hand_b ) { return 1; }
+           && pnode->hand_b == hand_b ) { return 1; }
     }
 
   return 0;
@@ -476,7 +476,7 @@ dfpn_hand_supe( unsigned int u, unsigned int uref )
 
 static unsigned int CONV
 calc_hand_lose( const node_t * restrict pnode,
-		unsigned int hand_b, unsigned int hand_w )
+                unsigned int hand_b, unsigned int hand_w )
 {
   int i, n;
   unsigned int hand_tot = hand_b + hand_w;
@@ -561,7 +561,7 @@ calc_hand_win( const node_t *pnode, unsigned int hand_b, unsigned int hand_w )
 
       h0 = hand_and( hand_b + hand_w, h0 );
 
-      if ( dfpn_hand_supe( h0, hand ) )	{ hand = h0; }
+      if ( dfpn_hand_supe( h0, hand ) )        { hand = h0; }
     }
 
     assert( dbg_is_hand_valid( hand ) && dfpn_hand_supe( hand_b, hand ) );
@@ -611,12 +611,12 @@ static int CONV
 dbg_is_hand_valid( unsigned int hand )
 {
   return ( I2HandPawn(hand) <= 18U
-	   && I2HandLance(hand)  <= 4U
-	   && I2HandKnight(hand) <= 4U
-	   && I2HandSilver(hand) <= 4U
-	   && I2HandGold(hand)   <= 4U
-	   && I2HandBishop(hand) <= 2U
-	   && I2HandRook(hand)   <= 2U );
+           && I2HandLance(hand)  <= 4U
+           && I2HandKnight(hand) <= 4U
+           && I2HandSilver(hand) <= 4U
+           && I2HandGold(hand)   <= 4U
+           && I2HandBishop(hand) <= 2U
+           && I2HandRook(hand)   <= 2U );
 }
 #endif
 

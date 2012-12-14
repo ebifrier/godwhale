@@ -7,19 +7,19 @@
 #define PcPcOnSqAny(k,i,j) ( i >= j ? PcPcOnSq(k,i,j) : PcPcOnSq(k,j,i) )
 
 static int CONV doacapt( const tree_t * restrict ptree, int pc, int turn,
-			 int hand_index, const int list0[52],
-			 const int list1[52], int nlist );
+                         int hand_index, const int list0[52],
+                         const int list1[52], int nlist );
 static int CONV doapc( const tree_t * restrict ptree, int pc, int sq,
-		       const int list0[52], const int list1[52], int nlist );
+                       const int list0[52], const int list1[52], int nlist );
 static int CONV ehash_probe( uint64_t current_key, unsigned int hand_b,
-			     int * restrict pscore );
+                             int * restrict pscore );
 static void CONV ehash_store( uint64_t key, unsigned int hand_b, int score );
 static int CONV calc_difference( const tree_t * restrict ptree, int ply,
-				 int turn, int list0[52], int list1[52],
-				 int * restrict pscore );
+                                 int turn, int list0[52], int list1[52],
+                                 int * restrict pscore );
 static int CONV make_list( const tree_t * restrict ptree,
-			   int * restrict pscore,
-			   int list0[52], int list1[52] );
+                           int * restrict pscore,
+                           int list0[52], int list1[52] );
 
 #if defined(INANIWA_SHIFT)
 static int inaniwa_score( const tree_t * restrict ptree );
@@ -157,13 +157,13 @@ evaluate( tree_t * restrict ptree, int ply, int turn )
       k0 = list0[i];
       k1 = list1[i];
       for ( j = 0; j <= i; j++ )
-	{
-	  l0 = list0[j];
-	  l1 = list1[j];
-	  assert( k0 >= l0 && k1 >= l1 );
-	  sum += PcPcOnSq( sq_bk, k0, l0 );
-	  sum -= PcPcOnSq( sq_wk, k1, l1 );
-	}
+        {
+          l0 = list0[j];
+          l1 = list1[j];
+          assert( k0 >= l0 && k1 >= l1 );
+          sum += PcPcOnSq( sq_bk, k0, l0 );
+          sum -= PcPcOnSq( sq_wk, k1, l1 );
+        }
     }
   
   score += sum;
@@ -196,7 +196,7 @@ void CONV ehash_clear( void ) { memset( ehash_tbl, 0, sizeof(ehash_tbl) ); }
 
 
 static int CONV ehash_probe( uint64_t current_key, unsigned int hand_b,
-			     int * restrict pscore )
+                             int * restrict pscore )
 {
   uint64_t hash_word, hash_key;
 
@@ -239,7 +239,7 @@ static void CONV ehash_store( uint64_t key, unsigned int hand_b, int score )
 
 static int CONV
 calc_difference( const tree_t * restrict ptree, int ply, int turn,
-		 int list0[52], int list1[52], int * restrict pscore )
+                 int list0[52], int list1[52], int * restrict pscore )
 {
   bitboard_t bb;
   int nlist, diff, from, to, sq, pc;
@@ -289,15 +289,15 @@ calc_difference( const tree_t * restrict ptree, int ply, int turn,
       hand = turn ? HAND_B : HAND_W;
 
       switch ( pc )
-	{
-	case pawn:   hand_index = I2HandPawn(hand);   break;
-	case lance:  hand_index = I2HandLance(hand);  break;
-	case knight: hand_index = I2HandKnight(hand); break;
-	case silver: hand_index = I2HandSilver(hand); break;
-	case gold:   hand_index = I2HandGold(hand);   break;
-	case bishop: hand_index = I2HandBishop(hand); break;
-	default:     hand_index = I2HandRook(hand);   break;
-	}
+        {
+        case pawn:   hand_index = I2HandPawn(hand);   break;
+        case lance:  hand_index = I2HandLance(hand);  break;
+        case knight: hand_index = I2HandKnight(hand); break;
+        case silver: hand_index = I2HandSilver(hand); break;
+        case gold:   hand_index = I2HandGold(hand);   break;
+        case bishop: hand_index = I2HandBishop(hand); break;
+        default:     hand_index = I2HandRook(hand);   break;
+        }
 
       diff += doacapt( ptree, pc, turn, hand_index, list0, list1, nlist );
 
@@ -311,44 +311,44 @@ calc_difference( const tree_t * restrict ptree, int ply, int turn,
     int pc_cap = UToCap(MOVE_LAST);
     if ( pc_cap )
       {
-	unsigned int hand;
-	int hand_index;
+        unsigned int hand;
+        int hand_index;
 
-	pc     = pc_cap & ~promote;
-	hand   = turn ? HAND_B : HAND_W;
-	pc_cap = turn ? -pc_cap : pc_cap;
-	diff  += turn ?  p_value_ex[15+pc_cap] * FV_SCALE
+        pc     = pc_cap & ~promote;
+        hand   = turn ? HAND_B : HAND_W;
+        pc_cap = turn ? -pc_cap : pc_cap;
+        diff  += turn ?  p_value_ex[15+pc_cap] * FV_SCALE
                       : -p_value_ex[15+pc_cap] * FV_SCALE;
 
-	switch ( pc )
-	  {
-	  case pawn:   hand_index = I2HandPawn(hand);   break;
-	  case lance:  hand_index = I2HandLance(hand);  break;
-	  case knight: hand_index = I2HandKnight(hand); break;
-	  case silver: hand_index = I2HandSilver(hand); break;
-	  case gold:   hand_index = I2HandGold(hand);   break;
-	  case bishop: hand_index = I2HandBishop(hand); break;
-	  default:     hand_index = I2HandRook(hand);   break;
-	  }
+        switch ( pc )
+          {
+          case pawn:   hand_index = I2HandPawn(hand);   break;
+          case lance:  hand_index = I2HandLance(hand);  break;
+          case knight: hand_index = I2HandKnight(hand); break;
+          case silver: hand_index = I2HandSilver(hand); break;
+          case gold:   hand_index = I2HandGold(hand);   break;
+          case bishop: hand_index = I2HandBishop(hand); break;
+          default:     hand_index = I2HandRook(hand);   break;
+          }
 
-	diff += doacapt( ptree, pc, turn, hand_index, list0, list1, nlist );
-	
-	list0[ 2*(pc-1) + 1 - turn ] -= 1;
-	list1[ 2*(pc-1) + turn     ] -= 1;
-	hand_index                   -= 1;
-	
-	diff -= doacapt( ptree, pc, turn, hand_index, list0, list1, nlist );
+        diff += doacapt( ptree, pc, turn, hand_index, list0, list1, nlist );
+        
+        list0[ 2*(pc-1) + 1 - turn ] -= 1;
+        list1[ 2*(pc-1) + turn     ] -= 1;
+        hand_index                   -= 1;
+        
+        diff -= doacapt( ptree, pc, turn, hand_index, list0, list1, nlist );
 
-	list0[nlist  ] = aikpp[15+pc_cap] + to;
-	list1[nlist++] = aikpp[15-pc_cap] + Inv(to);
+        list0[nlist  ] = aikpp[15+pc_cap] + to;
+        list1[nlist++] = aikpp[15-pc_cap] + Inv(to);
 
-	diff -= doapc( ptree, pc_cap, to, list0, list1, nlist );
+        diff -= doapc( ptree, pc_cap, to, list0, list1, nlist );
     }
 
     pc = I2PieceMove(MOVE_LAST);
     if ( I2IsPromote(MOVE_LAST) )
       {
-	diff += ( turn ? p_value_pm[7+pc] : -p_value_pm[7+pc] ) * FV_SCALE;
+        diff += ( turn ? p_value_pm[7+pc] : -p_value_pm[7+pc] ) * FV_SCALE;
       }
     
     pc = turn ? pc : -pc;
@@ -370,7 +370,7 @@ calc_difference( const tree_t * restrict ptree, int ply, int turn,
 
 static int CONV
 make_list( const tree_t * restrict ptree, int * restrict pscore,
-	   int list0[52], int list1[52] )
+           int list0[52], int list1[52] )
 {
   bitboard_t bb;
   int list2[34];
@@ -648,7 +648,7 @@ make_list( const tree_t * restrict ptree, int * restrict pscore,
 
 
 static int CONV doapc( const tree_t * restrict ptree, int pc, int sq,
-		       const int list0[52], const int list1[52], int nlist )
+                       const int list0[52], const int list1[52], int nlist )
 {
   int i, sum;
   int index_b = aikpp[15+pc] + sq;
@@ -687,7 +687,7 @@ static int CONV doapc( const tree_t * restrict ptree, int pc, int sq,
 
 static int CONV
 doacapt( const tree_t * restrict ptree, int pc, int turn, int hand_index,
-	 const int list0[52], const int list1[52], int nlist )
+         const int list0[52], const int list1[52], int nlist )
 {
   int i, sum, sq_bk, sq_wk, index_b, index_w;
   

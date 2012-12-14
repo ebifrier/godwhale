@@ -4,7 +4,7 @@
 
 unsigned int CONV
 is_pinned_on_white_king( const tree_t * restrict ptree, int isquare,
-			int idirec )
+                        int idirec )
 {
   bitboard_t bb_attacks, bb_attacker;
 
@@ -13,36 +13,36 @@ is_pinned_on_white_king( const tree_t * restrict ptree, int isquare,
     case direc_rank:
       bb_attacks = AttackRank( isquare );
       if ( BBContract( bb_attacks, BB_WKING ) )
-	{
-	  return BBContract( bb_attacks, BB_B_RD );
-	}
+        {
+          return BBContract( bb_attacks, BB_B_RD );
+        }
       break;
 
     case direc_file:
       bb_attacks = AttackFile( isquare );
       if ( BBContract( bb_attacks, BB_WKING ) )
-	{
-	  BBAnd( bb_attacker, BB_BLANCE, abb_plus_rays[isquare] );
-	  BBOr( bb_attacker, bb_attacker, BB_B_RD );
-	  return BBContract( bb_attacks, bb_attacker );  /* return! */
-	}
+        {
+          BBAnd( bb_attacker, BB_BLANCE, abb_plus_rays[isquare] );
+          BBOr( bb_attacker, bb_attacker, BB_B_RD );
+          return BBContract( bb_attacks, bb_attacker );  /* return! */
+        }
       break;
 
     case direc_diag1:
       bb_attacks = AttackDiag1( isquare );
       if ( BBContract( bb_attacks, BB_WKING ) )
-	{
-	  return BBContract( bb_attacks, BB_B_BH );      /* return! */
-	}
+        {
+          return BBContract( bb_attacks, BB_B_BH );      /* return! */
+        }
       break;
 
     default:
       assert( idirec == direc_diag2 );
       bb_attacks = AttackDiag2( isquare );
       if ( BBContract( bb_attacks, BB_WKING ) )
-	{
-	  return BBContract( bb_attacks, BB_B_BH );      /* return! */
-	}
+        {
+          return BBContract( bb_attacks, BB_B_BH );      /* return! */
+        }
       break;
     }
   
@@ -52,7 +52,7 @@ is_pinned_on_white_king( const tree_t * restrict ptree, int isquare,
 
 unsigned int CONV
 is_pinned_on_black_king( const tree_t * restrict ptree, int isquare,
-			int idirec )
+                        int idirec )
 {
   bitboard_t bb_attacks, bb_attacker;
 
@@ -61,36 +61,36 @@ is_pinned_on_black_king( const tree_t * restrict ptree, int isquare,
     case direc_rank:
       bb_attacks = AttackRank( isquare );
       if ( BBContract( bb_attacks, BB_BKING ) )
-	{
-	  return BBContract( bb_attacks, BB_W_RD );
-	}
+        {
+          return BBContract( bb_attacks, BB_W_RD );
+        }
       break;
 
     case direc_file:
       bb_attacks = AttackFile( isquare );
       if ( BBContract( bb_attacks, BB_BKING ) )
-	{
-	  BBAnd( bb_attacker, BB_WLANCE, abb_minus_rays[isquare] );
-	  BBOr( bb_attacker, bb_attacker, BB_W_RD );
-	  return BBContract( bb_attacks, bb_attacker );      /* return! */
-	}
+        {
+          BBAnd( bb_attacker, BB_WLANCE, abb_minus_rays[isquare] );
+          BBOr( bb_attacker, bb_attacker, BB_W_RD );
+          return BBContract( bb_attacks, bb_attacker );      /* return! */
+        }
       break;
 
     case direc_diag1:
       bb_attacks = AttackDiag1( isquare );
       if ( BBContract( bb_attacks, BB_BKING ) )
-	{
-	  return BBContract( bb_attacks, BB_W_BH );          /* return! */
-	}
+        {
+          return BBContract( bb_attacks, BB_W_BH );          /* return! */
+        }
       break;
 
     default:
       assert( idirec == direc_diag2 );
       bb_attacks = AttackDiag2( isquare );
       if ( BBContract( bb_attacks, BB_BKING ) )
-	{
-	  return BBContract( bb_attacks, BB_W_BH );          /* return! */
-	}
+        {
+          return BBContract( bb_attacks, BB_W_BH );          /* return! */
+        }
       break;
     }
   return 0;
@@ -139,10 +139,10 @@ is_mate_b_pawn_drop( tree_t * restrict ptree, int sq_drop )
     {
       ito = FirstOne( bb_move );
       if ( ! is_white_attacked( ptree, ito ) )
-	{
-	  iret = 0;
-	  break;
-	}
+        {
+          iret = 0;
+          break;
+        }
       Xor( ito, bb_move );
     }
 
@@ -196,10 +196,10 @@ is_mate_w_pawn_drop( tree_t * restrict ptree, int sq_drop )
     {
       ito = FirstOne( bb_move );
       if ( ! is_black_attacked( ptree, ito ) )
-	{
-	  iret = 0;
-	  break;
-	}
+        {
+          iret = 0;
+          break;
+        }
       Xor( ito, bb_move );
     }
 
@@ -227,7 +227,7 @@ is_move_check_b( const tree_t * restrict ptree, unsigned int move )
     
     idirec = (int)adirec[SQ_WKING][from];
     if ( idirec && idirec != (int)adirec[SQ_WKING][to]
-	 && is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
+         && is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
   }
   
   switch ( ipiece_move )
@@ -266,7 +266,7 @@ is_move_check_b( const tree_t * restrict ptree, unsigned int move )
       return BBContract( bb, BB_WKING );
     }
   /*
-    case gold:	       case pro_pawn:
+    case gold:               case pro_pawn:
     case pro_lance:    case pro_knight:
     case pro_silver:
   */
@@ -289,7 +289,7 @@ is_move_check_w( const tree_t * restrict ptree, unsigned int move )
     
     idirec = (int)adirec[SQ_BKING][from];
     if ( idirec && idirec != (int)adirec[SQ_BKING][to]
-	 && is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
+         && is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
   }
   
   switch ( ipiece_move )

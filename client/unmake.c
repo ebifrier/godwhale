@@ -31,27 +31,27 @@ unmake_move_b( tree_t * restrict ptree, unsigned int move, int ply )
   if ( from >= nsquare )
     {
       switch( From2Drop(from) )
-	{
-	case pawn:    Xor( to, BB_BPAWN );
+        {
+        case pawn:    Xor( to, BB_BPAWN );
                       Xor( to-nfile, BB_BPAWN_ATK );
                       HAND_B += flag_hand_pawn;     break;
-	case lance:   Xor( to, BB_BLANCE );
+        case lance:   Xor( to, BB_BLANCE );
                       HAND_B += flag_hand_lance;    break;
-	case knight:  Xor( to, BB_BKNIGHT );
+        case knight:  Xor( to, BB_BKNIGHT );
                       HAND_B += flag_hand_knight;   break;
-	case silver:  Xor( to, BB_BSILVER );
+        case silver:  Xor( to, BB_BSILVER );
                       HAND_B += flag_hand_silver;   break;
-	case gold:    Xor( to, BB_BGOLD );
+        case gold:    Xor( to, BB_BGOLD );
                       Xor( to, BB_BTGOLD );
                       HAND_B += flag_hand_gold;     break;
-	case bishop:  Xor( to, BB_BBISHOP );
+        case bishop:  Xor( to, BB_BBISHOP );
                       Xor( to, BB_B_BH );
                       HAND_B += flag_hand_bishop;   break;
-	default:      assert( From2Drop(from) == rook );
+        default:      assert( From2Drop(from) == rook );
                       Xor( to, BB_BROOK );
                       Xor( to, BB_B_RD );
                       HAND_B += flag_hand_rook;  break;
-	}
+        }
 
       BOARD[to] = empty;
       Xor( to, BB_BOCCUPY );
@@ -81,15 +81,15 @@ unmake_move_b( tree_t * restrict ptree, unsigned int move, int ply )
                     Xor( to, BB_BTGOLD );                        break;
       case bishop:  NocapPro( BBISHOP, BHORSE, bishop );
                     Xor( to, BB_B_HDK );
-		    SetClear( BB_B_BH );                         break;
+                    SetClear( BB_B_BH );                         break;
       default:      assert( ipiece_move == rook );
                     NocapPro( BROOK, BDRAGON, rook );
                     Xor( to, BB_B_HDK );
-		    SetClear( BB_B_RD );                         break;
+                    SetClear( BB_B_RD );                         break;
       }
     else switch ( ipiece_move )
       {
-      case pawn:	NocapNopro( BPAWN, pawn );
+      case pawn:        NocapNopro( BPAWN, pawn );
                         Xor( to-nfile, BB_BPAWN_ATK );
                         Xor( to,       BB_BPAWN_ATK );          break;
       case lance:       NocapNopro( BLANCE,  lance );           break;
@@ -101,7 +101,7 @@ unmake_move_b( tree_t * restrict ptree, unsigned int move, int ply )
                         SetClear( BB_B_BH );                    break;
       case rook:        NocapNopro( BROOK, rook);
                         SetClear( BB_B_RD );                    break;
-      case king:	BOARD[from] = king;
+      case king:        BOARD[from] = king;
                         SQ_BKING    = (char)from;
                         SetClear( BB_B_HDK );                   break;
       case pro_pawn:    NocapNopro( BPRO_PAWN, pro_pawn );
@@ -112,7 +112,7 @@ unmake_move_b( tree_t * restrict ptree, unsigned int move, int ply )
                         SetClear( BB_BTGOLD );                  break;
       case pro_silver:  NocapNopro( BPRO_SILVER, pro_silver );
                         SetClear( BB_BTGOLD );                  break;
-      case horse:	NocapNopro( BHORSE, horse );
+      case horse:        NocapNopro( BHORSE, horse );
                         SetClear( BB_B_HDK );
                         SetClear( BB_B_BH );                    break;
       default:          assert( ipiece_move == dragon );
@@ -123,35 +123,35 @@ unmake_move_b( tree_t * restrict ptree, unsigned int move, int ply )
 
     if ( ipiece_cap )
       {
-	switch( ipiece_cap )
-	  {
-	  case pawn:        CapW( PAWN,       pawn,   pawn );
+        switch( ipiece_cap )
+          {
+          case pawn:        CapW( PAWN,       pawn,   pawn );
                             Xor( to+nfile, BB_WPAWN_ATK );        break;
-	  case lance:       CapW( LANCE,      lance,  lance);     break;
-	  case knight:      CapW( KNIGHT,     knight, knight);    break;
-	  case silver:      CapW( SILVER,     silver, silver);    break;
-	  case gold:        CapW( GOLD,       gold,   gold);
+          case lance:       CapW( LANCE,      lance,  lance);     break;
+          case knight:      CapW( KNIGHT,     knight, knight);    break;
+          case silver:      CapW( SILVER,     silver, silver);    break;
+          case gold:        CapW( GOLD,       gold,   gold);
                             Xor( to, BB_WTGOLD );                 break;
-	  case bishop:      CapW( BISHOP,     bishop, bishop);
-			    Xor( to, BB_W_BH );                   break;
-	  case rook:        CapW( ROOK,       rook,   rook);
+          case bishop:      CapW( BISHOP,     bishop, bishop);
+                            Xor( to, BB_W_BH );                   break;
+          case rook:        CapW( ROOK,       rook,   rook);
                             Xor( to, BB_W_RD );                   break;
-	  case pro_pawn:    CapW( PRO_PAWN,   pawn,   pro_pawn);
+          case pro_pawn:    CapW( PRO_PAWN,   pawn,   pro_pawn);
                             Xor( to, BB_WTGOLD );                 break;
-	  case pro_lance:   CapW( PRO_LANCE,  lance,  pro_lance);
+          case pro_lance:   CapW( PRO_LANCE,  lance,  pro_lance);
                             Xor( to, BB_WTGOLD );                 break;
-	  case pro_knight:  CapW( PRO_KNIGHT, knight, pro_knight);
+          case pro_knight:  CapW( PRO_KNIGHT, knight, pro_knight);
                             Xor( to, BB_WTGOLD );                 break;
-	  case pro_silver:  CapW(PRO_SILVER, silver, pro_silver);
+          case pro_silver:  CapW(PRO_SILVER, silver, pro_silver);
                             Xor( to, BB_WTGOLD );                 break;
-	  case horse:       CapW(HORSE,     bishop, horse);
+          case horse:       CapW(HORSE,     bishop, horse);
                             Xor( to, BB_W_HDK );
-			    Xor( to, BB_W_BH );                   break;
-	  default:          assert( ipiece_cap == dragon );
+                            Xor( to, BB_W_BH );                   break;
+          default:          assert( ipiece_cap == dragon );
                             CapW(DRAGON,    rook,   dragon);
                             Xor( to, BB_W_HDK );
                             Xor( to, BB_W_RD );                   break;
-	  }
+          }
       Xor( to, BB_WOCCUPY );
       XorFile( from, OCCUPIED_FILE );
       XorDiag1( from, OCCUPIED_DIAG1 );
@@ -182,27 +182,27 @@ unmake_move_w( tree_t * restrict ptree, unsigned int move, int ply )
   if ( from >= nsquare )
     {
       switch( From2Drop(from) )
-	{
-	case pawn:    Xor( to, BB_WPAWN );
+        {
+        case pawn:    Xor( to, BB_WPAWN );
                       Xor( to+nfile, BB_WPAWN_ATK );
                       HAND_W += flag_hand_pawn;    break;
-	case lance:   Xor( to, BB_WLANCE );
+        case lance:   Xor( to, BB_WLANCE );
                       HAND_W += flag_hand_lance;   break;
-	case knight:  Xor( to, BB_WKNIGHT );
+        case knight:  Xor( to, BB_WKNIGHT );
                       HAND_W += flag_hand_knight;  break;
-	case silver:  Xor( to, BB_WSILVER );
+        case silver:  Xor( to, BB_WSILVER );
                       HAND_W += flag_hand_silver;  break;
-	case gold:    Xor( to, BB_WGOLD );
+        case gold:    Xor( to, BB_WGOLD );
                       Xor( to, BB_WTGOLD );
                       HAND_W += flag_hand_gold;    break;
-	case bishop:  Xor( to, BB_WBISHOP );
+        case bishop:  Xor( to, BB_WBISHOP );
                       Xor( to, BB_W_BH );
                       HAND_W += flag_hand_bishop;  break;
-	default:      assert( From2Drop(from) == rook );
+        default:      assert( From2Drop(from) == rook );
                       Xor( to, BB_WROOK );
                       Xor( to, BB_W_RD );
                       HAND_W += flag_hand_rook;    break;
-	}
+        }
 
       BOARD[to] = empty;
       Xor( to, BB_WOCCUPY );
@@ -232,11 +232,11 @@ unmake_move_w( tree_t * restrict ptree, unsigned int move, int ply )
                     Xor( to, BB_WTGOLD );                        break;
       case bishop:  NocapPro( WBISHOP, WHORSE, -bishop );
                     Xor( to, BB_W_HDK );
-		    SetClear( BB_W_BH );                         break;
+                    SetClear( BB_W_BH );                         break;
       default:      assert( ipiece_move == rook );
                     NocapPro( WROOK, WDRAGON, -rook );
                     Xor( to, BB_W_HDK );
-		    SetClear( BB_W_RD );                         break;
+                    SetClear( BB_W_RD );                         break;
       }
     else switch ( ipiece_move )
       {
@@ -252,7 +252,7 @@ unmake_move_w( tree_t * restrict ptree, unsigned int move, int ply )
                         SetClear( BB_W_BH );                    break;
       case rook:        NocapNopro( WROOK, -rook );
                         SetClear( BB_W_RD );                    break;
-      case king:	BOARD[from] = -king;
+      case king:        BOARD[from] = -king;
                         SQ_WKING    = (char)from;
                         SetClear( BB_W_HDK );                   break;
       case pro_pawn:    NocapNopro( WPRO_PAWN,  -pro_pawn );
@@ -274,39 +274,39 @@ unmake_move_w( tree_t * restrict ptree, unsigned int move, int ply )
     
     if ( ipiece_cap )
       {
-	switch( ipiece_cap )
-	  {
-	  case pawn:        CapB( PAWN,      pawn,   pawn );
-	                    Xor( to-nfile, BB_BPAWN_ATK );      break;
-	  case lance:       CapB( LANCE,     lance,  lance );   break;
-	  case knight:      CapB( KNIGHT,    knight, knight );  break;
-	  case silver:      CapB( SILVER,    silver, silver );  break;
-	  case gold:        CapB( GOLD,      gold,   gold );
+        switch( ipiece_cap )
+          {
+          case pawn:        CapB( PAWN,      pawn,   pawn );
+                            Xor( to-nfile, BB_BPAWN_ATK );      break;
+          case lance:       CapB( LANCE,     lance,  lance );   break;
+          case knight:      CapB( KNIGHT,    knight, knight );  break;
+          case silver:      CapB( SILVER,    silver, silver );  break;
+          case gold:        CapB( GOLD,      gold,   gold );
                             Xor( to, BB_BTGOLD );              break;
-	  case bishop:      CapB( BISHOP,    bishop, bishop );
+          case bishop:      CapB( BISHOP,    bishop, bishop );
                             Xor( to, BB_B_BH );                 break;
-	  case rook:        CapB( ROOK,      rook,   rook );
+          case rook:        CapB( ROOK,      rook,   rook );
                             Xor( to, BB_B_RD );                 break;
-	  case pro_pawn:    CapB( PRO_PAWN,   pawn,   pro_pawn );
+          case pro_pawn:    CapB( PRO_PAWN,   pawn,   pro_pawn );
                             Xor( to, BB_BTGOLD );              break;
-	  case pro_lance:   CapB( PRO_LANCE,  lance,  pro_lance );
+          case pro_lance:   CapB( PRO_LANCE,  lance,  pro_lance );
                             Xor( to, BB_BTGOLD );              break;
-	  case pro_knight:  CapB( PRO_KNIGHT, knight, pro_knight );
+          case pro_knight:  CapB( PRO_KNIGHT, knight, pro_knight );
                             Xor( to, BB_BTGOLD );              break;
-	  case pro_silver:  CapB( PRO_SILVER, silver, pro_silver );
+          case pro_silver:  CapB( PRO_SILVER, silver, pro_silver );
                             Xor( to, BB_BTGOLD );              break;
-	  case horse:       CapB( HORSE,     bishop, horse );
+          case horse:       CapB( HORSE,     bishop, horse );
                             Xor( to, BB_B_HDK );
                             Xor( to, BB_B_BH );                 break;
-	  default:          assert( ipiece_cap == dragon );
+          default:          assert( ipiece_cap == dragon );
                             CapB( DRAGON,    rook,   dragon);
                             Xor( to, BB_B_HDK );
                             Xor( to, BB_B_RD );                 break;
-	  }
-	Xor( to, BB_BOCCUPY );
-	XorFile( from, OCCUPIED_FILE );
-	XorDiag1( from, OCCUPIED_DIAG1 );
-	XorDiag2( from, OCCUPIED_DIAG2 );
+          }
+        Xor( to, BB_BOCCUPY );
+        XorFile( from, OCCUPIED_FILE );
+        XorDiag1( from, OCCUPIED_DIAG1 );
+        XorDiag2( from, OCCUPIED_DIAG2 );
       }
     else {
       BOARD[to] = empty;

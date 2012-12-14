@@ -49,14 +49,14 @@ typedef struct { unsigned short smove, freq; } book_move_t;
 typedef struct { int from, to; } ft_t;
 
 static int CONV book_read( uint64_t key, book_move_t *pbook_move,
-		      unsigned int *pposition );
+                      unsigned int *pposition );
 static uint64_t CONV book_hash_func( const tree_t * restrict ptree,
-				     int *pis_flip );
+                                     int *pis_flip );
 static unsigned int CONV bm2move( const tree_t * restrict ptree,
-				  unsigned int bmove, int is_flip );
+                                  unsigned int bmove, int is_flip );
 static ft_t CONV flip_ft( ft_t ft, int turn, int is_flip );
 static int CONV normalize_book_move( book_move_t * restrict pbook_move,
-				     int moves );
+                                     int moves );
 
 
 int CONV
@@ -115,24 +115,24 @@ book_probe( tree_t * restrict ptree )
     if ( game_status & flag_narrow_book )
       {
 #if defined(BK_ULTRA_NARROW)
-	freq_lower_limit = abook_move[0].freq;
+        freq_lower_limit = abook_move[0].freq;
 #else
-	freq_lower_limit = abook_move[0].freq / 2U;
+        freq_lower_limit = abook_move[0].freq / 2U;
 #endif
 
-	for ( i = 1; i < moves; i++ )
-	  {
-	    if ( abook_move[i].freq < freq_lower_limit ) { break; }
-	  }
-	moves = i;
-	normalize_book_move( abook_move, moves );
+        for ( i = 1; i < moves; i++ )
+          {
+            if ( abook_move[i].freq < freq_lower_limit ) { break; }
+          }
+        moves = i;
+        normalize_book_move( abook_move, moves );
       }
 
     for ( j = moves-1; j > 0; j-- )
       {
-	dscore = (double)( abook_move[j].freq ) / (double)USHRT_MAX;
-	if ( drand <= dscore ) { break; }
-	drand -= dscore;
+        dscore = (double)( abook_move[j].freq ) / (double)USHRT_MAX;
+        if ( drand <= dscore ) { break; }
+        drand -= dscore;
       }
     if ( ! abook_move[j].freq ) { j = 0; }
   }
@@ -143,16 +143,16 @@ book_probe( tree_t * restrict ptree )
       Out( "    move     freq\n" );
       OutCsaShogi( "info" );
       for ( i = 0; i < moves; i++ )
-	{
-	  const char *str;
-	  
-	  dscore = (double)abook_move[i].freq / (double)USHRT_MAX;
-	  move = bm2move( ptree, (unsigned int)abook_move[i].smove, is_flip );
-	  str  = str_CSA_move( move );
-	  
-	  Out( "  %c %s  %5.1f\n", i == j ? '*' : ' ', str, dscore * 100.0 );
-	  OutCsaShogi( " %s(%.0f%%)", str, dscore * 100.0 );
-	}
+        {
+          const char *str;
+          
+          dscore = (double)abook_move[i].freq / (double)USHRT_MAX;
+          move = bm2move( ptree, (unsigned int)abook_move[i].smove, is_flip );
+          str  = str_CSA_move( move );
+          
+          Out( "  %c %s  %5.1f\n", i == j ? '*' : ' ', str, dscore * 100.0 );
+          OutCsaShogi( " %s(%.0f%%)", str, dscore * 100.0 );
+        }
       OutCsaShogi( "\n" );
     }
 
@@ -213,7 +213,7 @@ book_read( uint64_t key, book_move_t *pbook_move, unsigned int *pposition )
       return -2;
     }
   if ( fread( book_section, sizeof(unsigned char), (size_t)size_section,
-	      pf_book ) != (size_t)size_section )
+              pf_book ) != (size_t)size_section )
     {
       str_error = str_io_error;
       return -2;
@@ -261,10 +261,10 @@ flip_ft( ft_t ft, int turn, int is_flip )
       ito_rank = rank9 - ito_rank;
       ito_file = file9 - ito_file;
       if ( ft.from < nsquare )
-	{
-	  ifrom_rank = rank9 - ifrom_rank;
-	  ifrom_file = file9 - ifrom_file;
-	}
+        {
+          ifrom_rank = rank9 - ifrom_rank;
+          ifrom_file = file9 - ifrom_file;
+        }
     }
 
   if ( is_flip )
@@ -340,51 +340,51 @@ book_hash_func( const tree_t * restrict ptree, int *pis_flip )
   for ( irank = rank1; irank <= rank9; irank++ )
     for ( ifile = file1; ifile <= file9; ifile++ )
       {
-	if ( root_turn )
-	  {
-	    i     = ( rank9 - irank ) * nfile + file9 - ifile;
-	    iflip = ( rank9 - irank ) * nfile + ifile;
-	    piece = -(int)BOARD[nsquare-i-1];
-	  }
-	else {
-	  i     = irank * nfile + ifile;
-	  iflip = irank * nfile + file9 - ifile;
-	  piece = (int)BOARD[i];
-	}
+        if ( root_turn )
+          {
+            i     = ( rank9 - irank ) * nfile + file9 - ifile;
+            iflip = ( rank9 - irank ) * nfile + ifile;
+            piece = -(int)BOARD[nsquare-i-1];
+          }
+        else {
+          i     = irank * nfile + ifile;
+          iflip = irank * nfile + file9 - ifile;
+          piece = (int)BOARD[i];
+        }
 
 #define Foo(t_pc)  key      ^= (t_pc ## _rand)[i];     \
                    key_flip ^= (t_pc ## _rand)[iflip];
-	switch ( piece )
-	  {
-	  case  pawn:        Foo( b_pawn );        break;
-	  case  lance:       Foo( b_lance );       break;
-	  case  knight:      Foo( b_knight );      break;
-	  case  silver:      Foo( b_silver );      break;
-	  case  gold:        Foo( b_gold );        break;
-	  case  bishop:      Foo( b_bishop );      break;
-	  case  rook:        Foo( b_rook );        break;
-	  case  king:        Foo( b_king );        break;
-	  case  pro_pawn:    Foo( b_pro_pawn );    break;
-	  case  pro_lance:   Foo( b_pro_lance );   break;
-	  case  pro_knight:  Foo( b_pro_knight );  break;
-	  case  pro_silver:  Foo( b_pro_silver );  break;
-	  case  horse:       Foo( b_horse );       break;
-	  case  dragon:      Foo( b_dragon );      break;
-	  case -pawn:        Foo( w_pawn );        break;
-	  case -lance:       Foo( w_lance );       break;
-	  case -knight:      Foo( w_knight );      break;
-	  case -silver:      Foo( w_silver );      break;
-	  case -gold:        Foo( w_gold );        break;
-	  case -bishop:      Foo( w_bishop );      break;
-	  case -rook:        Foo( w_rook );        break;
-	  case -king:        Foo( w_king );        break;
-	  case -pro_pawn:    Foo( w_pro_pawn );    break;
-	  case -pro_lance:   Foo( w_pro_lance );   break;
-	  case -pro_knight:  Foo( w_pro_knight );  break;
-	  case -pro_silver:  Foo( w_pro_silver );  break;
-	  case -horse:       Foo( w_horse );       break;
-	  case -dragon:      Foo( w_dragon );      break;
-	  }
+        switch ( piece )
+          {
+          case  pawn:        Foo( b_pawn );        break;
+          case  lance:       Foo( b_lance );       break;
+          case  knight:      Foo( b_knight );      break;
+          case  silver:      Foo( b_silver );      break;
+          case  gold:        Foo( b_gold );        break;
+          case  bishop:      Foo( b_bishop );      break;
+          case  rook:        Foo( b_rook );        break;
+          case  king:        Foo( b_king );        break;
+          case  pro_pawn:    Foo( b_pro_pawn );    break;
+          case  pro_lance:   Foo( b_pro_lance );   break;
+          case  pro_knight:  Foo( b_pro_knight );  break;
+          case  pro_silver:  Foo( b_pro_silver );  break;
+          case  horse:       Foo( b_horse );       break;
+          case  dragon:      Foo( b_dragon );      break;
+          case -pawn:        Foo( w_pawn );        break;
+          case -lance:       Foo( w_lance );       break;
+          case -knight:      Foo( w_knight );      break;
+          case -silver:      Foo( w_silver );      break;
+          case -gold:        Foo( w_gold );        break;
+          case -bishop:      Foo( w_bishop );      break;
+          case -rook:        Foo( w_rook );        break;
+          case -king:        Foo( w_king );        break;
+          case -pro_pawn:    Foo( w_pro_pawn );    break;
+          case -pro_lance:   Foo( w_pro_lance );   break;
+          case -pro_knight:  Foo( w_pro_knight );  break;
+          case -pro_silver:  Foo( w_pro_silver );  break;
+          case -horse:       Foo( w_horse );       break;
+          case -dragon:      Foo( w_dragon );      break;
+          }
 #undef Foo
       }
 
@@ -414,9 +414,9 @@ normalize_book_move( book_move_t * restrict pbook_move, int moves )
       u    = pbook_move[i].freq;
       swap = pbook_move[i];
       for ( j = i+1; pbook_move[j].freq > u; j++ )
-	{
-	  pbook_move[j-1] = pbook_move[j];
-	}
+        {
+          pbook_move[j-1] = pbook_move[j];
+        }
       pbook_move[j-1] = swap;
     }
       
@@ -470,12 +470,12 @@ static int CONV read_a_cell( cell_t *pcell, FILE *pf );
 static int compare( const void * p1, const void *p2 );
 static int CONV dump_cell( cell_t *pcell, int ncell, int num_tmpfile );
 static int CONV examine_game( tree_t * restrict ptree, record_t *pr,
-			      int *presult, unsigned int *pmoves );
+                              int *presult, unsigned int *pmoves );
 static int CONV move_selection( const record_move_t *p, int ngame, int nwin );
 static int CONV make_cell_csa( tree_t * restrict ptree, record_t *pr,
-			       cell_t *pcell, int num_tmpfile );
+                               cell_t *pcell, int num_tmpfile );
 static int CONV merge_cell( record_move_t *precord_move, FILE **ppf,
-			    int num_tmpfile );
+                            int num_tmpfile );
 static int CONV read_anti_book( tree_t * restrict ptree, record_t * pr );
 
 int CONV
@@ -542,12 +542,12 @@ book_create( tree_t * restrict ptree )
       snprintf( str_filename, SIZE_FILENAME, "tmp%02d.bin", i );
       ppf[i] = file_open( str_filename, "rb" );
       if ( ppf[i] == NULL )
-	{
-	  memory_free( precord_move );
-	  file_close( pf_book );
-	  for ( j = 0; j < i; j++ ) { file_close( ppf[j] ); }
-	  return -2;
-	}
+        {
+          memory_free( precord_move );
+          file_close( pf_book );
+          for ( j = 0; j < i; j++ ) { file_close( ppf[j] ); }
+          return -2;
+        }
     }
 
   iret = merge_cell( precord_move, ppf, num_tmpfile );
@@ -595,18 +595,18 @@ read_anti_book( tree_t * restrict ptree, record_t * pr )
     if ( istatus < 0 ) { return istatus; }
     if ( result == -2 )
       {
-	str_error = "no result in book_anti.csa";
-	return -2;
+        str_error = "no result in book_anti.csa";
+        return -2;
       }
 
     while ( pr->moves < umoves-1U )
       {
-	istatus = in_CSA( ptree, pr, NULL, 0 );
-	if ( istatus != record_misc )
-	  {
-	    str_error = "internal error at book.c";
-	    return -2;
-	  }
+        istatus = in_CSA( ptree, pr, NULL, 0 );
+        if ( istatus != record_misc )
+          {
+            str_error = "internal error at book.c";
+            return -2;
+          }
       }
 
     istatus = in_CSA( ptree, pr, &move, flag_nomake_move );
@@ -620,13 +620,13 @@ read_anti_book( tree_t * restrict ptree, record_t * pr )
     bm = move2bm( move, root_turn, is_flip );
     for ( i = 0; i < moves; i++ )
       {
-	if ( bm == abook_move[i].smove ) { break; }
+        if ( bm == abook_move[i].smove ) { break; }
       }
 
     if ( i == moves )
       {
-	out_board( ptree, stdout, 0, 0 );
-	printf( "%s is not found in the book\n\n", str_CSA_move(move) );
+        out_board( ptree, stdout, 0, 0 );
+        printf( "%s is not found in the book\n\n", str_CSA_move(move) );
       }
     else {
       abook_move[i].freq = 0;
@@ -635,20 +635,20 @@ read_anti_book( tree_t * restrict ptree, record_t * pr )
       if ( iret < 0 ) { return iret; }
 
       for ( i = 0; i < moves; i++ )
-	{
-	  *(unsigned short *)( book_section + i*BK_SIZE_MOVE )
-	    = abook_move[i].smove;
-	  *(unsigned short *)( book_section + i*BK_SIZE_MOVE + 2 )
-	    = abook_move[i].freq;
-	}
+        {
+          *(unsigned short *)( book_section + i*BK_SIZE_MOVE )
+            = abook_move[i].smove;
+          *(unsigned short *)( book_section + i*BK_SIZE_MOVE + 2 )
+            = abook_move[i].freq;
+        }
       size = (size_t)( moves * BK_SIZE_MOVE );
       if ( fseek( pf_book, (long)(position+BK_SIZE_HEADER), SEEK_SET ) == EOF
-	   || fwrite( book_section, sizeof(unsigned char),
-		      size, pf_book ) != size )
-	{
-	  str_error = str_io_error;
-	  return -2;
-	}
+           || fwrite( book_section, sizeof(unsigned char),
+                      size, pf_book ) != size )
+        {
+          str_error = str_io_error;
+          return -2;
+        }
       
       out_board( ptree, stdout, 0, 0 );
       printf( "%s is discarded\n\n", str_CSA_move(move) );
@@ -656,8 +656,8 @@ read_anti_book( tree_t * restrict ptree, record_t * pr )
 
     if ( istatus != record_eof && istatus != record_next )
       {
-	istatus = record_wind( pr );
-	if ( istatus < 0 ) { return istatus; }
+        istatus = record_wind( pr );
+        if ( istatus < 0 ) { return istatus; }
       }
   } while ( istatus != record_eof );
 
@@ -667,7 +667,7 @@ read_anti_book( tree_t * restrict ptree, record_t * pr )
 
 static int CONV
 make_cell_csa( tree_t * restrict ptree, record_t *pr, cell_t *pcell,
-	       int num_tmpfile )
+               int num_tmpfile )
 {
   struct {
     uint64_t hash_key;
@@ -700,69 +700,69 @@ make_cell_csa( tree_t * restrict ptree, record_t *pr, cell_t *pcell,
     for ( ply = 0;; ply++ ) {
       istatus = in_CSA( ptree, pr, &move, flag_nomake_move );
       if ( ! ply )
-	{
-	  black_bnz = strcmp( pr->str_name1, "Bonanza" ) ? 0 : 1;
-	  white_bnz = strcmp( pr->str_name2, "Bonanza" ) ? 0 : 1;
-	  if ( ! strcmp( pr->str_name1, "Bonanza" ) )
-	    {
-	      black_bnz   = 1;
-	      nbnz_black += 1;
-	    }
-	  else { black_bnz = 0; }
-	  if ( ! strcmp( pr->str_name2, "Bonanza" ) )
-	    {
-	      white_bnz   = 1;
-	      nbnz_white += 1;
-	    }
-	  else { white_bnz = 0; }
-	}
+        {
+          black_bnz = strcmp( pr->str_name1, "Bonanza" ) ? 0 : 1;
+          white_bnz = strcmp( pr->str_name2, "Bonanza" ) ? 0 : 1;
+          if ( ! strcmp( pr->str_name1, "Bonanza" ) )
+            {
+              black_bnz   = 1;
+              nbnz_black += 1;
+            }
+          else { black_bnz = 0; }
+          if ( ! strcmp( pr->str_name2, "Bonanza" ) )
+            {
+              white_bnz   = 1;
+              nbnz_white += 1;
+            }
+          else { white_bnz = 0; }
+        }
       if ( istatus < 0 ) { return istatus; }
       if ( istatus == record_resign && ! moves ) { break; }
       if ( istatus != record_misc )
-	{
-	  str_error = "internal error at book.c";
-	  return -2;
-	}
+        {
+          str_error = "internal error at book.c";
+          return -2;
+        }
 
       rep_tbl[ply].hash_key = HASH_KEY;
       rep_tbl[ply].hand     = HAND_B;
       rep_tbl[ply].move     = move;
       for ( i = ( ply & 1 ); i < ply; i += 2 )
-	{
-	  if ( rep_tbl[i].hash_key == HASH_KEY
-	       && rep_tbl[i].hand == HAND_B
-	       && rep_tbl[i].move == move ) { break; }
-	}
+        {
+          if ( rep_tbl[i].hash_key == HASH_KEY
+               && rep_tbl[i].hand == HAND_B
+               && rep_tbl[i].move == move ) { break; }
+        }
 
       if ( i == ply ) {
-	key     = book_hash_func( ptree, &is_flip );
-	uresult = (unsigned int)( root_turn ? -1*result+1 : result+1 );
-	if ( ( root_turn == black && black_bnz )
-	     || ( root_turn == white && white_bnz ) ) { uresult |= 0x4U; }
+        key     = book_hash_func( ptree, &is_flip );
+        uresult = (unsigned int)( root_turn ? -1*result+1 : result+1 );
+        if ( ( root_turn == black && black_bnz )
+             || ( root_turn == white && white_bnz ) ) { uresult |= 0x4U; }
 
-	pcell[icell].key    = key;
-	pcell[icell].result = (unsigned char)uresult;
-	pcell[icell].smove  = (unsigned short)move2bm( move, root_turn,
-						       is_flip );
-	icell++;
-	if ( icell == MaxNumCell ) {
-	  iret = dump_cell( pcell, icell, num_tmpfile++ );
-	  if ( iret < 0 ) { return iret; }
-	  icell = 0;
-	}
-	if ( ! ( (icell-1) & 0x1ffff ) ) { Out( "." ); }
+        pcell[icell].key    = key;
+        pcell[icell].result = (unsigned char)uresult;
+        pcell[icell].smove  = (unsigned short)move2bm( move, root_turn,
+                                                       is_flip );
+        icell++;
+        if ( icell == MaxNumCell ) {
+          iret = dump_cell( pcell, icell, num_tmpfile++ );
+          if ( iret < 0 ) { return iret; }
+          icell = 0;
+        }
+        if ( ! ( (icell-1) & 0x1ffff ) ) { Out( "." ); }
       }
       
       if ( pr->moves >= moves ) { break; }
 
       iret = make_move_root( ptree, move, 0 );
-      if ( iret < 0 ) {	return iret; }
+      if ( iret < 0 ) {        return iret; }
     }
 
     if ( istatus != record_eof && istatus != record_next )
       {
-	istatus = record_wind( pr );
-	if ( istatus < 0 ) { return istatus; }
+        istatus = record_wind( pr );
+        if ( istatus < 0 ) { return istatus; }
       }
   }
 
@@ -814,172 +814,172 @@ merge_cell( record_move_t *precord_move, FILE **ppf, int num_tmpfile )
       
       nwin = nmove = nwin_bnz = ngame = ngame_bnz = precord_move[0].move = 0;
       do {
-	move = (unsigned int)acell[imin].smove;
-	for ( i = 0; precord_move[i].move && precord_move[i].move != move;
-	      i++ );
-	if ( ! precord_move[i].move )
-	  {
-	    precord_move[i].nwin     = precord_move[i].ngame     = 0;
-	    precord_move[i].nwin_bnz = precord_move[i].ngame_bnz = 0;
-	    precord_move[i].move     = move;
-	    precord_move[i+1].move   = 0;
-	    nmove++;
-	  }
+        move = (unsigned int)acell[imin].smove;
+        for ( i = 0; precord_move[i].move && precord_move[i].move != move;
+              i++ );
+        if ( ! precord_move[i].move )
+          {
+            precord_move[i].nwin     = precord_move[i].ngame     = 0;
+            precord_move[i].nwin_bnz = precord_move[i].ngame_bnz = 0;
+            precord_move[i].move     = move;
+            precord_move[i+1].move   = 0;
+            nmove++;
+          }
 
-	if ( acell[imin].result & b0010 )
-	  {
-	    if ( acell[imin].result & b0100 )
-	      {
-		precord_move[i].nwin_bnz += 1;
-		nwin_bnz                 += 1;
-	      }
-	    precord_move[i].nwin     += 1;
-	    nwin                     += 1;
-	  }
+        if ( acell[imin].result & b0010 )
+          {
+            if ( acell[imin].result & b0100 )
+              {
+                precord_move[i].nwin_bnz += 1;
+                nwin_bnz                 += 1;
+              }
+            precord_move[i].nwin     += 1;
+            nwin                     += 1;
+          }
 
-	if ( acell[imin].result & b0100 )
-	  {
-	    precord_move[i].ngame_bnz += 1;
-	    ngame_bnz                 += 1;
-	  }
-	precord_move[i].ngame += 1;
-	ngame                 += 1;
+        if ( acell[imin].result & b0100 )
+          {
+            precord_move[i].ngame_bnz += 1;
+            ngame_bnz                 += 1;
+          }
+        precord_move[i].ngame += 1;
+        ngame                 += 1;
 
-	iret = read_a_cell( acell + imin, ppf[imin] );
-	if ( iret < 0 ) { return iret; }
-	
-	imin = find_min_cell( acell, num_tmpfile );
+        iret = read_a_cell( acell + imin, ppf[imin] );
+        if ( iret < 0 ) { return iret; }
+        
+        imin = find_min_cell( acell, num_tmpfile );
       } while ( key == acell[imin].key );
 
 #if defined(BK_COM)
       while ( nmove > 1 && ngame_bnz >= 128 )
-	{
-	  double max_rate, rate;
+        {
+          double max_rate, rate;
 
-	  max_rate = 0.0;
-	  for ( i = 0; i < nmove; i++ )
-	    {
-	      rate = ( (double)precord_move[i].nwin_bnz
-		       / (double)( precord_move[i].ngame_bnz + 7 ) );
-	      if ( rate > max_rate ) { max_rate = rate; }
-	    }
-	  if ( max_rate < 0.1 ) { break; }
+          max_rate = 0.0;
+          for ( i = 0; i < nmove; i++ )
+            {
+              rate = ( (double)precord_move[i].nwin_bnz
+                       / (double)( precord_move[i].ngame_bnz + 7 ) );
+              if ( rate > max_rate ) { max_rate = rate; }
+            }
+          if ( max_rate < 0.1 ) { break; }
 
-	  max_rate *= 0.85;
-	  i = 0;
-	  do {
-	    rate = ( (double)precord_move[i].nwin_bnz
-		     / (double)( precord_move[i].ngame_bnz + 7 ) );
-	    
-	    if ( rate > max_rate ) { i++; }
-	    else {
-	      precord_move[i] = precord_move[nmove-1];
-	      nmove -= 1;
-	    }
-	  } while ( i < nmove );
+          max_rate *= 0.85;
+          i = 0;
+          do {
+            rate = ( (double)precord_move[i].nwin_bnz
+                     / (double)( precord_move[i].ngame_bnz + 7 ) );
+            
+            if ( rate > max_rate ) { i++; }
+            else {
+              precord_move[i] = precord_move[nmove-1];
+              nmove -= 1;
+            }
+          } while ( i < nmove );
 
-	  break;
-	}
+          break;
+        }
 #endif
       if ( ! nmove ) { continue; }
       
       i = 0;
       do {
-	if ( move_selection( precord_move + i, ngame, nwin ) ) { i++; }
-	else {
-	  precord_move[i] = precord_move[nmove-1];
-	  nmove -= 1;
-	}
+        if ( move_selection( precord_move + i, ngame, nwin ) ) { i++; }
+        else {
+          precord_move[i] = precord_move[nmove-1];
+          nmove -= 1;
+        }
       } while ( i < nmove );
 
       if ( ! nmove ) { continue; }
 
       size_data = BK_SIZE_HEADER + BK_SIZE_MOVE * nmove;
       if ( size_section + size_data > MAX_SIZE_SECTION
-	   || size_data > UCHAR_MAX )
-	{
-	  str_error = "book_section buffer overflow";
-	  return -2;
-	}
+           || size_data > UCHAR_MAX )
+        {
+          str_error = "book_section buffer overflow";
+          return -2;
+        }
       if ( nmove > BK_MAX_MOVE )
-	{
-	  str_error = "BK_MAX_MOVE is too small";
-	  return -2;
-	}
+        {
+          str_error = "BK_MAX_MOVE is too small";
+          return -2;
+        }
 
       /* insertion sort by nwin */
       precord_move[nmove].nwin = 0;
       for ( i = nmove-2; i >= 0; i-- )
-	{
-	  u    = precord_move[i].nwin;
-	  swap = precord_move[i];
-	  for ( j = i+1; precord_move[j].nwin > u; j++ )
-	    {
-	      precord_move[j-1] = precord_move[j];
-	    }
-	  precord_move[j-1] = swap;
-	}
+        {
+          u    = precord_move[i].nwin;
+          swap = precord_move[i];
+          for ( j = i+1; precord_move[j].nwin > u; j++ )
+            {
+              precord_move[j-1] = precord_move[j];
+            }
+          precord_move[j-1] = swap;
+        }
 
       /* normalize nwin */
       for ( norm = 0, i = 0; i < nmove; i++ ) { norm += precord_move[i].nwin; }
       dscale = (double)USHRT_MAX / (double)norm;
       for ( norm = 0, i = 0; i < nmove; i++ )
-	{
-	  u = (unsigned int)( (double)precord_move[i].nwin * dscale );
-	  if ( ! u )           { u = 1U; }
-	  if ( u > USHRT_MAX ) { u = USHRT_MAX; }
-	  
-	  precord_move[i].nwin = u;
-	  norm                += u;
-	}
+        {
+          u = (unsigned int)( (double)precord_move[i].nwin * dscale );
+          if ( ! u )           { u = 1U; }
+          if ( u > USHRT_MAX ) { u = USHRT_MAX; }
+          
+          precord_move[i].nwin = u;
+          norm                += u;
+        }
       if ( norm > precord_move[0].nwin + USHRT_MAX )
-	{
-	  str_error = "normalization error\n";
-	  return -2;
-	}
+        {
+          str_error = "normalization error\n";
+          return -2;
+        }
       precord_move[0].nwin += USHRT_MAX - norm;
 
       book_section[size_section+0] = (unsigned char)size_data;
       *(uint64_t *)(book_section+size_section+1) = key;
 
       for ( u = size_section+BK_SIZE_HEADER, i = 0; i < nmove;
-	    u += BK_SIZE_MOVE, i++ )
-	{
-	  *(unsigned short *)(book_section+u)
-	    = (unsigned short)precord_move[i].move;
-	  *(unsigned short *)(book_section+u+2)
-	    = (unsigned short)precord_move[i].nwin;
-	}
+            u += BK_SIZE_MOVE, i++ )
+        {
+          *(unsigned short *)(book_section+u)
+            = (unsigned short)precord_move[i].move;
+          *(unsigned short *)(book_section+u+2)
+            = (unsigned short)precord_move[i].nwin;
+        }
       book_positions += 1;
       book_moves     += nmove;
       size_section   += size_data;
     }
     if ( fseek( pf_book, BK_SIZE_INDEX * ibook_section, SEEK_SET ) == EOF )
       {
-	str_error = str_io_error;
-	return -2;
+        str_error = str_io_error;
+        return -2;
       }
     if ( fwrite( &position, sizeof(unsigned int), 1, pf_book ) != 1 )
       {
-	str_error = str_io_error;
-	return -2;
+        str_error = str_io_error;
+        return -2;
       }
     s = (unsigned short)size_section;
     if ( fwrite( &s, sizeof(unsigned short), 1, pf_book ) != 1 )
       {
-	str_error = str_io_error;
-	return -2;
+        str_error = str_io_error;
+        return -2;
       }
     if ( fseek( pf_book, position, SEEK_SET ) == EOF )
       {
-	str_error = str_io_error;
-	return -2;
+        str_error = str_io_error;
+        return -2;
       }
     if ( fwrite( &book_section, sizeof(unsigned char), (size_t)size_section,
-		 pf_book ) != (size_t)size_section )
+                 pf_book ) != (size_t)size_section )
       {
-	str_error = str_io_error;
-	return -2;
+        str_error = str_io_error;
+        return -2;
       }
 
     if ( size_section > max_size_section ) { max_size_section = size_section; }
@@ -1040,10 +1040,10 @@ read_a_cell( cell_t *pcell, FILE *pf )
   if ( fread( &pcell->key, sizeof(uint64_t), 1, pf ) != 1 )
     {
       if ( feof( pf ) )
-	{
-	  pcell->key = UINT64_MAX;
-	  return 1;
-	}
+        {
+          pcell->key = UINT64_MAX;
+          return 1;
+        }
       str_error = str_io_error;
       return -2;
     }
@@ -1064,7 +1064,7 @@ read_a_cell( cell_t *pcell, FILE *pf )
 
 static int CONV
 examine_game( tree_t * restrict ptree, record_t *pr, int *presult,
-	      unsigned int *pmoves )
+              unsigned int *pmoves )
 {
   rpos_t rpos;
   int iret, istatus, is_lost, is_win;
@@ -1081,29 +1081,29 @@ examine_game( tree_t * restrict ptree, record_t *pr, int *presult,
     istatus = in_CSA( ptree, pr, NULL, flag_detect_hang );
     if ( istatus < 0 )
       {
-	/* the game is end, however the record is invalid */
-	if ( strstr( str_error, str_bad_record ) != NULL
-	     && ( game_status & mask_game_end ) )
-	  {
-	    break;
-	  }
+        /* the game is end, however the record is invalid */
+        if ( strstr( str_error, str_bad_record ) != NULL
+             && ( game_status & mask_game_end ) )
+          {
+            break;
+          }
 
-	/* a hang-king and a double-pawn are counted as a lost game */
-	if ( strstr( str_error, str_king_hang ) != NULL
-	     || strstr( str_error, str_double_pawn )  != NULL
-	     || strstr( str_error, str_mate_drppawn ) != NULL )
-	  {
-	    is_lost = 1;
-	    break;
-	  }
+        /* a hang-king and a double-pawn are counted as a lost game */
+        if ( strstr( str_error, str_king_hang ) != NULL
+             || strstr( str_error, str_double_pawn )  != NULL
+             || strstr( str_error, str_mate_drppawn ) != NULL )
+          {
+            is_lost = 1;
+            break;
+          }
 
-	return istatus;
+        return istatus;
       }
     /* previous move had an error, count as a won game */
     else if ( istatus == record_error )
       {
-	is_win = 1;
-	break;
+        is_win = 1;
+        break;
       }
     else if ( istatus == record_misc ) { moves++; }
   } while ( istatus != record_next && istatus != record_eof );
@@ -1153,23 +1153,23 @@ dump_cell( cell_t *pcell, int ncell, int num_tmpfile )
   for ( i = 0; i < ncell; i++ )
     {
       if ( fwrite( &pcell[i].key, sizeof(uint64_t), 1, pf ) != 1 )
-	{
-	  file_close( pf );
-	  str_error = str_io_error;
-	  return -2;
-	}
+        {
+          file_close( pf );
+          str_error = str_io_error;
+          return -2;
+        }
       if ( fwrite( &pcell[i].smove, sizeof(unsigned short), 1, pf ) != 1 )
-	{
-	  file_close( pf );
-	  str_error = str_io_error;
-	  return -2;
-	}
+        {
+          file_close( pf );
+          str_error = str_io_error;
+          return -2;
+        }
       if ( fwrite( &pcell[i].result, sizeof(unsigned char), 1, pf ) != 1 )
-	{
-	  file_close( pf );
-	  str_error = str_io_error;
-	  return -2;
-	}
+        {
+          file_close( pf );
+          str_error = str_io_error;
+          return -2;
+        }
     }
 
   iret = file_close( pf );

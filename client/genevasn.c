@@ -27,9 +27,9 @@ b_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
     {
       to = LastOne( bb_desti );
       if ( ! is_black_attacked( ptree, to ) )
-	{
-	  *pmove++ = To2Move(to) | Cap2Move(-BOARD[to]) | utemp;
-	}
+        {
+          *pmove++ = To2Move(to) | Cap2Move(-BOARD[to]) | utemp;
+        }
       Xor( to, bb_desti );
     }
   
@@ -57,12 +57,12 @@ b_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
       from = to + 9;
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
-	{
-	  utemp = ( To2Move(to) | From2Move(from) | Piece2Move(pawn)
-		    | Cap2Move(-BOARD[to]) );
-	  if ( to < A6 ) { utemp |= FLAG_PROMO; }
-	  *pmove++ = utemp;
-	}
+        {
+          utemp = ( To2Move(to) | From2Move(from) | Piece2Move(pawn)
+                    | Cap2Move(-BOARD[to]) );
+          if ( to < A6 ) { utemp |= FLAG_PROMO; }
+          *pmove++ = utemp;
+        }
     }
 
   bb_piece = BB_BLANCE;
@@ -78,14 +78,14 @@ b_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
 
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
-	{
-	  to = LastOne( bb_desti );
+        {
+          to = LastOne( bb_desti );
 
-	  utemp = ( To2Move(to) | From2Move(from) | Piece2Move(lance)
-		    | Cap2Move(-BOARD[to]) );
-	  if ( to <  A6 ) { *pmove++ = utemp | FLAG_PROMO; }
-	  if ( to >= A7 ) { *pmove++ = utemp; }
-	}
+          utemp = ( To2Move(to) | From2Move(from) | Piece2Move(lance)
+                    | Cap2Move(-BOARD[to]) );
+          if ( to <  A6 ) { *pmove++ = utemp | FLAG_PROMO; }
+          if ( to >= A7 ) { *pmove++ = utemp; }
+        }
     }
 
   bb_piece = BB_BKNIGHT;
@@ -99,16 +99,16 @@ b_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
 
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
-	do {
-	  to = LastOne( bb_desti );
-	  Xor( to, bb_desti );
+        do {
+          to = LastOne( bb_desti );
+          Xor( to, bb_desti );
 
-	  utemp = ( To2Move(to) | From2Move(from) | Piece2Move(knight)
-		    | Cap2Move(-BOARD[to]) );
-	  if ( to <  A6 ) { *pmove++ = utemp | FLAG_PROMO; }
-	  if ( to >= A7 ) { *pmove++ = utemp; }
-	  
-	} while ( BBTest( bb_desti ) );
+          utemp = ( To2Move(to) | From2Move(from) | Piece2Move(knight)
+                    | Cap2Move(-BOARD[to]) );
+          if ( to <  A6 ) { *pmove++ = utemp | FLAG_PROMO; }
+          if ( to >= A7 ) { *pmove++ = utemp; }
+          
+        } while ( BBTest( bb_desti ) );
     }
 
   bb_piece = BB_BSILVER;
@@ -122,14 +122,14 @@ b_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
 
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
-	do {
-	  to = LastOne( bb_desti );
-	  Xor( to, bb_desti );
-	  utemp = ( To2Move(to) | From2Move(from) | Piece2Move(silver)
-		    | Cap2Move(-BOARD[to]) );
-	  if ( from < A6 || to < A6 ) { *pmove++ = utemp | FLAG_PROMO; }
-	  *pmove++ = utemp;
-	} while ( BBTest( bb_desti ) );
+        do {
+          to = LastOne( bb_desti );
+          Xor( to, bb_desti );
+          utemp = ( To2Move(to) | From2Move(from) | Piece2Move(silver)
+                    | Cap2Move(-BOARD[to]) );
+          if ( from < A6 || to < A6 ) { *pmove++ = utemp | FLAG_PROMO; }
+          *pmove++ = utemp;
+        } while ( BBTest( bb_desti ) );
     }
 
   bb_piece = BB_BTGOLD;
@@ -143,13 +143,13 @@ b_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
 
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
-	do {
-	  to = LastOne( bb_desti );
-	  Xor( to, bb_desti );
-	  *pmove++ = ( To2Move(to) | From2Move(from)
-		       | Piece2Move(BOARD[from])
-		       | Cap2Move(-BOARD[to]) );
-	} while( BBTest( bb_desti ) );
+        do {
+          to = LastOne( bb_desti );
+          Xor( to, bb_desti );
+          *pmove++ = ( To2Move(to) | From2Move(from)
+                       | Piece2Move(BOARD[from])
+                       | Cap2Move(-BOARD[to]) );
+        } while( BBTest( bb_desti ) );
     }
 
   bb_piece = BB_BBISHOP;
@@ -163,15 +163,15 @@ b_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
       if ( ! BBTest( bb_desti ) ) { continue; }
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
-	do {
-	  to = LastOne( bb_desti );
-	  Xor( to, bb_desti );
+        do {
+          to = LastOne( bb_desti );
+          Xor( to, bb_desti );
 
-	  utemp = ( To2Move(to) | From2Move(from) | Piece2Move(bishop)
-		    | Cap2Move(-BOARD[to]) );
-	  if ( from < A6 || to < A6 ) { utemp |= FLAG_PROMO; }
-	  *pmove++ = utemp;
-	} while ( BBTest( bb_desti ) );
+          utemp = ( To2Move(to) | From2Move(from) | Piece2Move(bishop)
+                    | Cap2Move(-BOARD[to]) );
+          if ( from < A6 || to < A6 ) { utemp |= FLAG_PROMO; }
+          *pmove++ = utemp;
+        } while ( BBTest( bb_desti ) );
     }
 
   bb_piece = BB_BROOK;
@@ -185,15 +185,15 @@ b_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
       if ( ! BBTest( bb_desti ) ) { continue; }
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
-	do {
-	  to = LastOne( bb_desti );
-	  Xor( to, bb_desti );
+        do {
+          to = LastOne( bb_desti );
+          Xor( to, bb_desti );
 
-	  utemp = ( To2Move(to) | From2Move(from) | Piece2Move(rook)
-		    | Cap2Move(-BOARD[to]) );
-	  if ( from < A6 || to < A6 ) { utemp |= FLAG_PROMO; }
-	  *pmove++ = utemp;
-	} while ( BBTest( bb_desti ) );
+          utemp = ( To2Move(to) | From2Move(from) | Piece2Move(rook)
+                    | Cap2Move(-BOARD[to]) );
+          if ( from < A6 || to < A6 ) { utemp |= FLAG_PROMO; }
+          *pmove++ = utemp;
+        } while ( BBTest( bb_desti ) );
     }
 
   bb_piece = BB_BHORSE;
@@ -208,12 +208,12 @@ b_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
 
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
-	do {
-	  to = LastOne( bb_desti );
-	  Xor( to, bb_desti);
-	  *pmove++ = ( To2Move(to) | From2Move(from) | Piece2Move(horse)
-		       | Cap2Move(-BOARD[to]) );
-	} while ( BBTest( bb_desti ) );
+        do {
+          to = LastOne( bb_desti );
+          Xor( to, bb_desti);
+          *pmove++ = ( To2Move(to) | From2Move(from) | Piece2Move(horse)
+                       | Cap2Move(-BOARD[to]) );
+        } while ( BBTest( bb_desti ) );
     }
   
   bb_piece = BB_BDRAGON;
@@ -228,12 +228,12 @@ b_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
 
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
-	do {
-	  to = LastOne( bb_desti );
-	  Xor( to, bb_desti );
-	  *pmove++ = ( To2Move(to) | From2Move(from) | Piece2Move(dragon)
-		       | Cap2Move(-BOARD[to]) );
-	} while ( BBTest( bb_desti ) );
+        do {
+          to = LastOne( bb_desti );
+          Xor( to, bb_desti );
+          *pmove++ = ( To2Move(to) | From2Move(from) | Piece2Move(dragon)
+                       | Cap2Move(-BOARD[to]) );
+        } while ( BBTest( bb_desti ) );
     }
 
   if ( ! HAND_B )          { return pmove; }
@@ -272,44 +272,44 @@ b_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
       ais_pawn[8] = ubb_pawn_cmp & ( mask_file1 >> 8 );
  
       while ( BBTest( bb_target ) )
-	{
-	  to = LastOne( bb_target );
-	  utemp = To2Move(to);
-	  if ( ! ais_pawn[aifile[to]] && ! IsMateBPawnDrop( ptree, to ) )
-	    {
-	      *pmove++ = utemp | Drop2Move(pawn);
-	    }
-	  for ( i = 0; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
-	  Xor( to, bb_target );
-	}
+        {
+          to = LastOne( bb_target );
+          utemp = To2Move(to);
+          if ( ! ais_pawn[aifile[to]] && ! IsMateBPawnDrop( ptree, to ) )
+            {
+              *pmove++ = utemp | Drop2Move(pawn);
+            }
+          for ( i = 0; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
+          Xor( to, bb_target );
+        }
 
       while ( ubb_target0b )
-	{
-	  to = last_one0( ubb_target0b );
-	  utemp = To2Move(to);
-	  if ( ! ais_pawn[aifile[to]] && ! IsMateBPawnDrop( ptree, to ) )
-	    {
-	      *pmove++ = utemp | Drop2Move(pawn);
-	    }
-	  for ( i = noknight; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
-	  ubb_target0b ^= abb_mask[ to ].p[0];
-	}
+        {
+          to = last_one0( ubb_target0b );
+          utemp = To2Move(to);
+          if ( ! ais_pawn[aifile[to]] && ! IsMateBPawnDrop( ptree, to ) )
+            {
+              *pmove++ = utemp | Drop2Move(pawn);
+            }
+          for ( i = noknight; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
+          ubb_target0b ^= abb_mask[ to ].p[0];
+        }
     }
   else {
     while ( BBTest( bb_target ) )
       {
-	to = LastOne( bb_target );
-	utemp = To2Move(to);
-	for ( i = 0; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
-	Xor( to, bb_target );
+        to = LastOne( bb_target );
+        utemp = To2Move(to);
+        for ( i = 0; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
+        Xor( to, bb_target );
       }
 
     while ( ubb_target0b )
       {
-	to = last_one0( ubb_target0b );
-	utemp = To2Move(to);
-	for ( i = noknight; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
-	ubb_target0b ^= abb_mask[ to ].p[0];
+        to = last_one0( ubb_target0b );
+        utemp = To2Move(to);
+        for ( i = noknight; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
+        ubb_target0b ^= abb_mask[ to ].p[0];
       }
   }
 
@@ -349,9 +349,9 @@ w_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
     {
       to = FirstOne( bb_desti );
       if ( ! is_white_attacked( ptree, to ) )
-	{
-	  *pmove++ = To2Move(to) | Cap2Move(BOARD[to]) | utemp;
-	}
+        {
+          *pmove++ = To2Move(to) | Cap2Move(BOARD[to]) | utemp;
+        }
       Xor( to, bb_desti );
     }
 
@@ -379,12 +379,12 @@ w_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
       from = to - 9;
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
-	{
-	  utemp = ( To2Move(to) | From2Move(from) | Piece2Move(pawn)
-		    | Cap2Move(BOARD[to]) );
-	  if ( to > I4 ) { utemp |= FLAG_PROMO; }
-	  *pmove++ = utemp;
-	}
+        {
+          utemp = ( To2Move(to) | From2Move(from) | Piece2Move(pawn)
+                    | Cap2Move(BOARD[to]) );
+          if ( to > I4 ) { utemp |= FLAG_PROMO; }
+          *pmove++ = utemp;
+        }
     }
 
   bb_piece = BB_WLANCE;
@@ -400,14 +400,14 @@ w_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
 
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
-	{
-	  to = FirstOne( bb_desti );
+        {
+          to = FirstOne( bb_desti );
 
-	  utemp = ( To2Move(to) | From2Move(from) | Piece2Move(lance)
-		    | Cap2Move(BOARD[to]) );
-	  if ( to >  I4 ) { *pmove++ = utemp | FLAG_PROMO; }
-	  if ( to <= I3 ) { *pmove++ = utemp; }
-	}
+          utemp = ( To2Move(to) | From2Move(from) | Piece2Move(lance)
+                    | Cap2Move(BOARD[to]) );
+          if ( to >  I4 ) { *pmove++ = utemp | FLAG_PROMO; }
+          if ( to <= I3 ) { *pmove++ = utemp; }
+        }
     }
 
   bb_piece = BB_WKNIGHT;
@@ -421,15 +421,15 @@ w_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
 
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
-	do {
-	  to = FirstOne( bb_desti );
-	  Xor( to, bb_desti );
+        do {
+          to = FirstOne( bb_desti );
+          Xor( to, bb_desti );
 
-	  utemp = ( To2Move(to) | From2Move(from) | Piece2Move(knight)
-		    | Cap2Move(BOARD[to]) );
-	  if ( to >  I4 ) { *pmove++ = utemp | FLAG_PROMO; }
-	  if ( to <= I3 ) { *pmove++ = utemp; }
-	} while ( BBTest( bb_desti ) );
+          utemp = ( To2Move(to) | From2Move(from) | Piece2Move(knight)
+                    | Cap2Move(BOARD[to]) );
+          if ( to >  I4 ) { *pmove++ = utemp | FLAG_PROMO; }
+          if ( to <= I3 ) { *pmove++ = utemp; }
+        } while ( BBTest( bb_desti ) );
     }
 
   bb_piece = BB_WSILVER;
@@ -443,14 +443,14 @@ w_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
 
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
-	do {
-	  to = FirstOne( bb_desti );
-	  Xor( to, bb_desti );
-	  utemp = ( To2Move(to) | From2Move(from) | Piece2Move(silver)
-		    | Cap2Move(BOARD[to]) );
-	  if ( from > I4 || to > I4 ) { *pmove++ = utemp | FLAG_PROMO; }
-	  *pmove++ = utemp;
-	} while ( BBTest( bb_desti ) );
+        do {
+          to = FirstOne( bb_desti );
+          Xor( to, bb_desti );
+          utemp = ( To2Move(to) | From2Move(from) | Piece2Move(silver)
+                    | Cap2Move(BOARD[to]) );
+          if ( from > I4 || to > I4 ) { *pmove++ = utemp | FLAG_PROMO; }
+          *pmove++ = utemp;
+        } while ( BBTest( bb_desti ) );
     }
 
   bb_piece = BB_WTGOLD;
@@ -464,13 +464,13 @@ w_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
 
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
-	do {
-	  to = FirstOne( bb_desti );
-	  Xor( to, bb_desti );
-	  *pmove++ = ( To2Move(to) | From2Move(from)
-		       | Piece2Move(-BOARD[from])
-		       | Cap2Move(BOARD[to]) );
-	} while( BBTest( bb_desti ) );
+        do {
+          to = FirstOne( bb_desti );
+          Xor( to, bb_desti );
+          *pmove++ = ( To2Move(to) | From2Move(from)
+                       | Piece2Move(-BOARD[from])
+                       | Cap2Move(BOARD[to]) );
+        } while( BBTest( bb_desti ) );
     }
 
   bb_piece = BB_WBISHOP;
@@ -485,15 +485,15 @@ w_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
 
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
-	do {
-	  to = FirstOne( bb_desti );
-	  Xor( to, bb_desti );
+        do {
+          to = FirstOne( bb_desti );
+          Xor( to, bb_desti );
 
-	  utemp = ( To2Move(to) | From2Move(from) | Piece2Move(bishop)
-		    | Cap2Move(BOARD[to]) );
-	  if ( from > I4 || to > I4 ) { utemp |= FLAG_PROMO; }
-	  *pmove++ = utemp;
-	} while ( BBTest( bb_desti ) );
+          utemp = ( To2Move(to) | From2Move(from) | Piece2Move(bishop)
+                    | Cap2Move(BOARD[to]) );
+          if ( from > I4 || to > I4 ) { utemp |= FLAG_PROMO; }
+          *pmove++ = utemp;
+        } while ( BBTest( bb_desti ) );
     }
 
   bb_piece = BB_WROOK;
@@ -507,15 +507,15 @@ w_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
       if ( ! BBTest( bb_desti ) ) { continue; }
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
-	do {
-	  to = FirstOne( bb_desti );
-	  Xor( to, bb_desti );
+        do {
+          to = FirstOne( bb_desti );
+          Xor( to, bb_desti );
 
-	  utemp = ( To2Move(to) | From2Move(from) | Piece2Move(rook)
-		    | Cap2Move(BOARD[to]) );
-	  if ( from > I4 || to > I4 ) { utemp |= FLAG_PROMO; }
-	  *pmove++ = utemp;
-	} while ( BBTest( bb_desti ) );
+          utemp = ( To2Move(to) | From2Move(from) | Piece2Move(rook)
+                    | Cap2Move(BOARD[to]) );
+          if ( from > I4 || to > I4 ) { utemp |= FLAG_PROMO; }
+          *pmove++ = utemp;
+        } while ( BBTest( bb_desti ) );
     }
 
   bb_piece = BB_WHORSE;
@@ -530,12 +530,12 @@ w_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
 
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
-	do {
-	  to = FirstOne( bb_desti );
-	  Xor( to, bb_desti);
-	  *pmove++ = ( To2Move(to) | From2Move(from) | Piece2Move(horse)
-		       | Cap2Move(BOARD[to]) );
-	} while ( BBTest( bb_desti ) );
+        do {
+          to = FirstOne( bb_desti );
+          Xor( to, bb_desti);
+          *pmove++ = ( To2Move(to) | From2Move(from) | Piece2Move(horse)
+                       | Cap2Move(BOARD[to]) );
+        } while ( BBTest( bb_desti ) );
     }
   
   bb_piece = BB_WDRAGON;
@@ -550,12 +550,12 @@ w_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
 
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
-	do {
-	  to = FirstOne( bb_desti );
-	  Xor( to, bb_desti );
-	  *pmove++ = ( To2Move(to) | From2Move(from) | Piece2Move(dragon)
-		       | Cap2Move(BOARD[to]) );
-	} while ( BBTest( bb_desti ) );
+        do {
+          to = FirstOne( bb_desti );
+          Xor( to, bb_desti );
+          *pmove++ = ( To2Move(to) | From2Move(from) | Piece2Move(dragon)
+                       | Cap2Move(BOARD[to]) );
+        } while ( BBTest( bb_desti ) );
     }
 
   if ( ! HAND_W )          { return pmove; }
@@ -594,44 +594,44 @@ w_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
       ais_pawn[8] = ubb_pawn_cmp & ( mask_file1 >> 8 );
  
       while ( BBTest( bb_target ) )
-	{
-	  to = FirstOne( bb_target );
-	  utemp = To2Move(to);
-	  if ( ! ais_pawn[aifile[to]] && ! IsMateWPawnDrop( ptree, to ) )
-	    {
-	      *pmove++ = utemp | Drop2Move(pawn);
-	    }
-	  for ( i = 0; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
-	  Xor( to, bb_target );
-	}
+        {
+          to = FirstOne( bb_target );
+          utemp = To2Move(to);
+          if ( ! ais_pawn[aifile[to]] && ! IsMateWPawnDrop( ptree, to ) )
+            {
+              *pmove++ = utemp | Drop2Move(pawn);
+            }
+          for ( i = 0; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
+          Xor( to, bb_target );
+        }
 
       while ( ubb_target2b )
-	{
-	  to = first_one2( ubb_target2b );
-	  utemp = To2Move(to);
-	  if ( ! ais_pawn[aifile[to]] && ! IsMateWPawnDrop( ptree, to ) )
-	    {
-	      *pmove++ = utemp | Drop2Move(pawn);
-	    }
-	  for ( i = noknight; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
-	  ubb_target2b ^= abb_mask[ to ].p[2];
-	}
+        {
+          to = first_one2( ubb_target2b );
+          utemp = To2Move(to);
+          if ( ! ais_pawn[aifile[to]] && ! IsMateWPawnDrop( ptree, to ) )
+            {
+              *pmove++ = utemp | Drop2Move(pawn);
+            }
+          for ( i = noknight; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
+          ubb_target2b ^= abb_mask[ to ].p[2];
+        }
     }
   else {
     while ( BBTest( bb_target ) )
       {
-	to = FirstOne( bb_target );
-	utemp = To2Move(to);
-	for ( i = 0; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
-	Xor( to, bb_target );
+        to = FirstOne( bb_target );
+        utemp = To2Move(to);
+        for ( i = 0; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
+        Xor( to, bb_target );
       }
 
     while ( ubb_target2b )
       {
-	to = first_one2( ubb_target2b );
-	utemp = To2Move(to);
-	for ( i = noknight; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
-	ubb_target2b ^= abb_mask[ to ].p[2];
+        to = first_one2( ubb_target2b );
+        utemp = To2Move(to);
+        for ( i = noknight; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
+        ubb_target2b ^= abb_mask[ to ].p[2];
       }
   }
 
@@ -671,10 +671,10 @@ int CONV b_have_evasion( tree_t * restrict ptree )
       Xor( to, bb_desti );
 
       if ( ! is_black_attacked( ptree, to ) )
-	{
-	  flag = 1;
-	  break;
-	}
+        {
+          flag = 1;
+          break;
+        }
     }
 
   Xor( sq_bk, BB_BOCCUPY );
@@ -704,7 +704,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
       from = to + 9;
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec
-	   || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
 
   bb_piece = BB_BLANCE;
@@ -720,7 +720,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
 
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec
-	   || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
 
   bb_piece = BB_BKNIGHT;
@@ -734,7 +734,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
 
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec
-	   || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
 
   bb_piece = BB_BSILVER;
@@ -748,7 +748,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
 
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec
-	   || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
 
   bb_piece = BB_BTGOLD;
@@ -762,7 +762,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
 
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec
-	   || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
 
   bb_piece = BB_BBISHOP;
@@ -777,7 +777,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
 
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec
-	   || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
 
   bb_piece = BB_BROOK;
@@ -792,7 +792,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
 
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec
-	   || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
 
   bb_piece = BB_BHORSE;
@@ -807,7 +807,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
 
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec
-	   || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
   
   bb_piece = BB_BDRAGON;
@@ -822,7 +822,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
 
       idirec = (int)adirec[sq_bk][from];
       if ( ! idirec
-	   || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
 
   /* drops */
@@ -857,13 +857,13 @@ int CONV b_have_evasion( tree_t * restrict ptree )
       ais_pawn[8] = ubb_pawn_cmp & ( mask_file1 >> 8 );
  
       while ( BBTest( bb_target ) )
-	{
-	  to = LastOne( bb_target );
-	  Xor( to, bb_target );
-	  
-	  if ( ! ais_pawn[aifile[to]]
-	       && ! IsMateBPawnDrop( ptree, to ) ) { return 1; }
-	}
+        {
+          to = LastOne( bb_target );
+          Xor( to, bb_target );
+          
+          if ( ! ais_pawn[aifile[to]]
+               && ! IsMateBPawnDrop( ptree, to ) ) { return 1; }
+        }
     }
 
   return 0;
@@ -893,10 +893,10 @@ int CONV w_have_evasion( tree_t * restrict ptree )
       Xor( to, bb_desti );
 
       if ( ! is_white_attacked( ptree, to ) )
-	{
-	  flag = 1;
-	  break;
-	}
+        {
+          flag = 1;
+          break;
+        }
     }
 
   Xor( sq_wk, BB_WOCCUPY );
@@ -926,7 +926,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
       from = to - 9;
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec
-	   || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
 
   bb_piece = BB_WLANCE;
@@ -942,7 +942,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
 
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec
-	   || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
 
   bb_piece = BB_WKNIGHT;
@@ -956,7 +956,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
 
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec
-	   || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
 
   bb_piece = BB_WSILVER;
@@ -970,7 +970,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
 
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec
-	   || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
 
   bb_piece = BB_WTGOLD;
@@ -984,7 +984,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
 
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec
-	   || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
 
   bb_piece = BB_WBISHOP;
@@ -999,7 +999,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
 
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec
-	   || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
 
   bb_piece = BB_WROOK;
@@ -1014,7 +1014,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
 
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec
-	   || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
 
   bb_piece = BB_WHORSE;
@@ -1029,7 +1029,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
 
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec
-	   || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
   
   bb_piece = BB_WDRAGON;
@@ -1044,7 +1044,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
 
       idirec = (int)adirec[sq_wk][from];
       if ( ! idirec
-	   || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
+           || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
 
   /* drop */
@@ -1079,13 +1079,13 @@ int CONV w_have_evasion( tree_t * restrict ptree )
       ais_pawn[8] = ubb_pawn_cmp & ( mask_file1 >> 8 );
  
       while ( BBTest( bb_target ) )
-	{
-	  to = FirstOne( bb_target );
-	  Xor( to, bb_target );
+        {
+          to = FirstOne( bb_target );
+          Xor( to, bb_target );
 
-	  if ( ! ais_pawn[aifile[to]]
-	       && ! IsMateWPawnDrop( ptree, to ) ) { return 1; }
-	}
+          if ( ! ais_pawn[aifile[to]]
+               && ! IsMateWPawnDrop( ptree, to ) ) { return 1; }
+        }
     }
 
   return 0;

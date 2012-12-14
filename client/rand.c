@@ -37,27 +37,27 @@ rand32( void )
       rand_work.count = 0;
 
       for ( i = 0; i < RAND_N-RAND_M; i++ )
-	{
-	  u  = rand_work.vec[i]   & MASK_U;
-	  u |= rand_work.vec[i+1] & MASK_L;
-	  
-	  u0 = rand_work.vec[ i + RAND_M ];
-	  u1 = u >> 1;
-	  u2 = rand_work.cnst[ u & 1 ];
+        {
+          u  = rand_work.vec[i]   & MASK_U;
+          u |= rand_work.vec[i+1] & MASK_L;
+          
+          u0 = rand_work.vec[ i + RAND_M ];
+          u1 = u >> 1;
+          u2 = rand_work.cnst[ u & 1 ];
 
-	  rand_work.vec[i] = u0 ^ u1 ^ u2;
-	}
-	  
+          rand_work.vec[i] = u0 ^ u1 ^ u2;
+        }
+          
       for ( ; i < RAND_N-1 ;i++ )
-	{
-	  u  = rand_work.vec[i]   & MASK_U;
-	  u |= rand_work.vec[i+1] & MASK_L;
+        {
+          u  = rand_work.vec[i]   & MASK_U;
+          u |= rand_work.vec[i+1] & MASK_L;
 
-	  u0 = rand_work.vec[ i + RAND_M - RAND_N ];
-	  u1 = u >> 1;
-	  u2 = rand_work.cnst[ u & 1 ];
+          u0 = rand_work.vec[ i + RAND_M - RAND_N ];
+          u1 = u >> 1;
+          u2 = rand_work.cnst[ u & 1 ];
 
-	  rand_work.vec[i] = u0 ^ u1 ^ u2;
+          rand_work.vec[i] = u0 ^ u1 ^ u2;
         }
 
       u  = rand_work.vec[RAND_N-1] & MASK_U;

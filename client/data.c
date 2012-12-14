@@ -259,7 +259,7 @@ const char *str_myname = ( "Bonanza " BNZ_VER );
 #  endif
 #else
 const char *str_myname = ( "Bonanza " BNZ_VER " Debug Build ("
-			   __TIME__ " " __DATE__ ")" );
+                           __TIME__ " " __DATE__ ")" );
 #endif
 
 #if defined(DBG_EASY)
@@ -302,30 +302,30 @@ const char *str_server_err   = "received invalid message from the server";
 #endif
 
 const char *astr_table_piece[16]  = { "* ", "FU", "KY", "KE", "GI", "KI",
-				      "KA", "HI", "OU", "TO", "NY", "NK",
-				      "NG", "##", "UM", "RY" };
+                                      "KA", "HI", "OU", "TO", "NY", "NK",
+                                      "NG", "##", "UM", "RY" };
 
 const char ach_turn[2] = { '+', '-' };
 
 const int ashell_h[ SHELL_H_LEN ] = { 1, 3, 7, 15, 31, 63, 127 };
 
 const int aikpp[31] = { e_dragon, e_horse,  0,        e_gold,
-			e_gold,   e_gold,   e_gold,   0,
-			e_rook,   e_bishop, e_gold,   e_silver,
-			e_knight, e_lance,  e_pawn,   0,
-			f_pawn,   f_lance,  f_knight,
-			f_silver, f_gold,   f_bishop, f_rook,
-			0,        f_gold,   f_gold,   f_gold,
-			f_gold,   0,        f_horse,  f_dragon };
+                        e_gold,   e_gold,   e_gold,   0,
+                        e_rook,   e_bishop, e_gold,   e_silver,
+                        e_knight, e_lance,  e_pawn,   0,
+                        f_pawn,   f_lance,  f_knight,
+                        f_silver, f_gold,   f_bishop, f_rook,
+                        0,        f_gold,   f_gold,   f_gold,
+                        f_gold,   0,        f_horse,  f_dragon };
 
 const int aikkp[16] = { 0,          kkp_pawn, kkp_lance,  kkp_knight,
-			kkp_silver, kkp_gold, kkp_bishop, kkp_rook,
-			0,          kkp_gold, kkp_gold,   kkp_gold,
-			kkp_gold,   kkp_gold, kkp_horse,  kkp_dragon };
+                        kkp_silver, kkp_gold, kkp_bishop, kkp_rook,
+                        0,          kkp_gold, kkp_gold,   kkp_gold,
+                        kkp_gold,   kkp_gold, kkp_horse,  kkp_dragon };
 
 const int aikkp_hand[8] = { 0,               kkp_hand_pawn,   kkp_hand_lance,
-			    kkp_hand_knight, kkp_hand_silver, kkp_hand_gold,
-			    kkp_hand_bishop, kkp_hand_rook };
+                            kkp_hand_knight, kkp_hand_silver, kkp_hand_gold,
+                            kkp_hand_bishop, kkp_hand_rook };
 
 const unsigned char aifile[ nsquare ]= {
   file1, file2, file3, file4, file5, file6, file7, file8, file9,

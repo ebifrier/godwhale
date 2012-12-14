@@ -28,10 +28,10 @@ main()
   if ( argc != 2 || strcmp( argv[1], "csa_shogi" ) )
     {
       MessageBox( NULL,
-		  "The executable image is not intended\x0d"
-		  "as an independent program file.\x0d"
-		  "Execute CSA.EXE instead.",
-		  str_myname, MB_OK | MB_ICONINFORMATION );
+                  "The executable image is not intended\x0d"
+                  "as an independent program file.\x0d"
+                  "Execute CSA.EXE instead.",
+                  str_myname, MB_OK | MB_ICONINFORMATION );
       return EXIT_FAILURE;
     }
 #endif
@@ -51,17 +51,17 @@ main()
     {
       iret = main_child( ptree );
       if ( iret == -1 )
-	{
-	  out_error( "%s", str_error );
-	  ShutdownAll();
-	  break;
-	}
+        {
+          out_error( "%s", str_error );
+          ShutdownAll();
+          break;
+        }
       else if ( iret == -2 )
-	{
-	  out_warning( "%s", str_error );
-	  ShutdownAll();
-	  continue;
-	}
+        {
+          out_warning( "%s", str_error );
+          ShutdownAll();
+          continue;
+        }
       else if ( iret == -3 ) { break; }
     }
 

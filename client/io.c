@@ -23,7 +23,7 @@ static int out_board0( FILE *pf, int piece, int i, int ito, int ifrom );
 #  define OutBoard0(a,b,c,d,e,f) out_board0(a,b,c,d,e)
 #else
 static int out_board0( FILE *pf, int piece, int i, int ito, int ifrom,
-		       int is_promote );
+                       int is_promote );
 #  define OutBoard0(a,b,c,d,e,f) out_board0(a,b,c,d,e,f)
 #endif
 
@@ -31,9 +31,9 @@ static void CONV out_file( FILE *pf, const char *format, ... );
 static int CONV check_input_buffer( void );
 static int CONV read_command( char **pstr_line_end );
 static void CONV out_hand( FILE *pf, unsigned int hand,
-			   const char *str_prefix );
+                           const char *str_prefix );
 static void CONV out_hand0( FILE *pf, int n, const char *str_prefix,
-			    const char *str );
+                            const char *str );
 
 #if ! ( defined(NO_STDOUT) && defined(NO_LOGGING) )
 void
@@ -182,7 +182,7 @@ file_open( const char *str_file, const char *str_mode )
   if ( pf == NULL )
     {
       snprintf( str_message, SIZE_MESSAGE,
-		"%s, %s", str_fopen_error, str_file );
+                "%s, %s", str_fopen_error, str_file );
       str_error = str_message;
       return NULL;
     }
@@ -248,7 +248,7 @@ open_history( const char *str_name1, const char *str_name2 )
   if ( iret < 0 ) { return -1; }
 
   iret = record_open( &record_game, "game.csa", mode_read_write,
-		      str_name1, str_name2 );
+                      str_name1, str_name2 );
   if ( iret < 0 ) { return -1; }
 
   return 1;
@@ -263,32 +263,32 @@ open_history( const char *str_name1, const char *str_name2 )
       record_game.str_name2[0] = '\0';
 
       if ( str_name1 )
-	{
-	  strncpy( record_game.str_name1, str_name1, SIZE_PLAYERNAME-1 );
-	  record_game.str_name1[SIZE_PLAYERNAME-1] = '\0';
-	}
+        {
+          strncpy( record_game.str_name1, str_name1, SIZE_PLAYERNAME-1 );
+          record_game.str_name1[SIZE_PLAYERNAME-1] = '\0';
+        }
       
       if ( str_name2 )
-	{
-	  strncpy( record_game.str_name2, str_name2, SIZE_PLAYERNAME-1 );
-	  record_game.str_name2[SIZE_PLAYERNAME-1] = '\0';
-	}
+        {
+          strncpy( record_game.str_name2, str_name2, SIZE_PLAYERNAME-1 );
+          record_game.str_name2[SIZE_PLAYERNAME-1] = '\0';
+        }
       return 1;
     }
 
   if ( ( ( game_status & flag_nonewlog )
 #  if defined(USI)
-	 ||  usi_mode != usi_off
+         ||  usi_mode != usi_off
 #  endif
-	 ) && 0 <= record_num )
+         ) && 0 <= record_num )
     {
       iret = record_close( &record_game );
       if ( iret < 0 ) { return -1; }
       
       snprintf( str_file, SIZE_FILENAME, "%s/game%03d.csa",
-		str_dir_logs, record_num );
+                str_dir_logs, record_num );
       iret = record_open( &record_game, str_file, mode_read_write,
-			  str_name1, str_name2 );
+                          str_name1, str_name2 );
       if ( iret < 0 ) { return -1; }
     }
   else
@@ -300,25 +300,25 @@ open_history( const char *str_name1, const char *str_name2 )
       if ( iret < 0 ) { return -1; }
       
       for ( i = 0; i < 999; i++ )
-	{
-	  snprintf( str_file, SIZE_FILENAME, "%s/game%03d.csa",
-		    str_dir_logs, i );
-	  pf = file_open( str_file, "r" );
-	  if ( pf == NULL ) { break; }
-	  iret = file_close( pf );
-	  if ( iret < 0 ) { return -1; }
-	}
+        {
+          snprintf( str_file, SIZE_FILENAME, "%s/game%03d.csa",
+                    str_dir_logs, i );
+          pf = file_open( str_file, "r" );
+          if ( pf == NULL ) { break; }
+          iret = file_close( pf );
+          if ( iret < 0 ) { return -1; }
+        }
       record_num = i;
       
       snprintf( str_file, SIZE_FILENAME, "%s/n%03d.log",
-		str_dir_logs, i );
+                str_dir_logs, i );
       pf_log = file_open( str_file, "w" );
       if ( pf_log == NULL ) { return -1; }
       
       snprintf( str_file, SIZE_FILENAME, "%s/game%03d.csa",
-		str_dir_logs, i );
+                str_dir_logs, i );
       iret = record_open( &record_game, str_file, mode_read_write,
-			  str_name1, str_name2 );
+                          str_name1, str_name2 );
       if ( iret < 0 ) { return -1; }
     }
   
@@ -329,7 +329,7 @@ open_history( const char *str_name1, const char *str_name2 )
 
 int
 out_board( const tree_t * restrict ptree, FILE *pf, unsigned int move,
-	   int is_strict )
+           int is_strict )
 {
   int irank, ifile, i, iret, ito, ifrom;
 
@@ -360,32 +360,32 @@ out_board( const tree_t * restrict ptree, FILE *pf, unsigned int move,
       fprintf( pf, "'  1  2  3  4  5  6  7  8  9\n" );
 
       for ( irank = rank9; irank >= rank1; irank-- )
-	{
-	  fprintf( pf, "P%d", irank + 1 );
-	  
-	  for ( ifile = file9; ifile >= file1; ifile-- )
-	    {
-	      i = irank * nfile + ifile;
-	      iret = OutBoard0( pf, BOARD[i], i, ito, ifrom, is_promote );
-	      if ( iret < 0 ) { return iret; }
-	    }
-	  fprintf( pf, "\n" );
-	}
+        {
+          fprintf( pf, "P%d", irank + 1 );
+          
+          for ( ifile = file9; ifile >= file1; ifile-- )
+            {
+              i = irank * nfile + ifile;
+              iret = OutBoard0( pf, BOARD[i], i, ito, ifrom, is_promote );
+              if ( iret < 0 ) { return iret; }
+            }
+          fprintf( pf, "\n" );
+        }
     }
   else {
     fprintf( pf, "'  9  8  7  6  5  4  3  2  1\n" );
 
     for ( irank = rank1; irank <= rank9; irank++ )
       {
-	fprintf( pf, "P%d", irank + 1 );
-	
-	for ( ifile = file1; ifile <= file9; ifile++ )
-	  {
-	    i = irank * nfile + ifile;
-	    iret = OutBoard0( pf, BOARD[i], i, ito, ifrom, is_promote );
-	    if ( iret < 0 ) { return iret; }
-	  }
-	fprintf( pf, "\n" );
+        fprintf( pf, "P%d", irank + 1 );
+        
+        for ( ifile = file1; ifile <= file9; ifile++ )
+          {
+            i = irank * nfile + ifile;
+            iret = OutBoard0( pf, BOARD[i], i, ito, ifrom, is_promote );
+            if ( iret < 0 ) { return iret; }
+          }
+        fprintf( pf, "\n" );
       }
   }
     
@@ -409,29 +409,29 @@ next_cmdline( int is_wait )
   if ( ! str_line_end )
     {
       if ( is_wait )
-	{
-	  do {
-	    iret = read_command( & str_line_end );
-	    if ( iret < 0 ) { return iret; }
-	  } while ( ! str_line_end && iret );
-	  if ( ! iret )
-	    {
-	      game_status |= flag_quit;
-	      return 1;
-	    }
-	}
+        {
+          do {
+            iret = read_command( & str_line_end );
+            if ( iret < 0 ) { return iret; }
+          } while ( ! str_line_end && iret );
+          if ( ! iret )
+            {
+              game_status |= flag_quit;
+              return 1;
+            }
+        }
       else {
-	iret = check_input_buffer();
-	if ( iret <= 0 ) { return iret; }
+        iret = check_input_buffer();
+        if ( iret <= 0 ) { return iret; }
 
-	iret = read_command( & str_line_end );
-	if ( iret < 0 ) { return iret; }
-	if ( ! iret )
-	  {
-	    game_status |= flag_quit;
-	    return 1;
-	  }
-	if ( ! str_line_end ) { return 0; }
+        iret = read_command( & str_line_end );
+        if ( iret < 0 ) { return iret; }
+        if ( ! iret )
+          {
+            game_status |= flag_quit;
+            return 1;
+          }
+        if ( ! str_line_end ) { return 0; }
       }
     }
   
@@ -439,7 +439,7 @@ next_cmdline( int is_wait )
     {
       str_error = str_ovrflw_line;
       memmove( str_buffer_cmdline, str_line_end + 1,
-	       strlen( str_line_end + 1 ) + 1 );
+               strlen( str_line_end + 1 ) + 1 );
       return -2;
     }
   
@@ -451,7 +451,7 @@ next_cmdline( int is_wait )
     {
       out_file( NULL, "%s\n", str_cmdline );
       memmove( str_buffer_cmdline, str_line_end + 1,
-	       strlen( str_line_end + 1 ) + 1 );
+               strlen( str_line_end + 1 ) + 1 );
     }
 
   return 1;
@@ -475,37 +475,37 @@ out_board0( FILE *pf, int piece, int i, int ito, int ifrom, int is_promote )
       ch = piece < 0 ? '-' : '+';
 #if ! ( defined(NO_STDOUT) || defined(WIN32_PIPE) )
       if ( i == ito && pf == stdout && ! ( game_status & flag_nostress ) )
-	{
-	  iret = StdoutStress( is_promote, ifrom );
-	  if ( iret < 0 )
-	    {
-	      fprintf( pf, "\n" );
-	      return iret;
-	    }
-	}
+        {
+          iret = StdoutStress( is_promote, ifrom );
+          if ( iret < 0 )
+            {
+              fprintf( pf, "\n" );
+              return iret;
+            }
+        }
 #endif
       fprintf( pf, "%c%s", ch, astr_table_piece[ abs( piece ) ] );
 #if ! ( defined(NO_STDOUT) || defined(WIN32_PIPE) )
       if ( i == ito && pf == stdout && ! ( game_status & flag_nostress ) )
-	{
-	  iret = StdoutNormal();
-	  if ( iret < 0 )
-	    {
-	      fprintf( pf, "\n" );
-	      return iret;
-	    }
-	}
+        {
+          iret = StdoutNormal();
+          if ( iret < 0 )
+            {
+              fprintf( pf, "\n" );
+              return iret;
+            }
+        }
 #endif
     }
   else {
     if ( ifrom < nsquare
-	 && ( ifrom == i
-	      || ( adirec[ito][ifrom]
-		   && adirec[ito][ifrom] == adirec[ito][i]
-		   && ( ( ito < i && i <= ifrom )
-			|| ( ito > i && i >= ifrom ) ) ) ) )
+         && ( ifrom == i
+              || ( adirec[ito][ifrom]
+                   && adirec[ito][ifrom] == adirec[ito][i]
+                   && ( ( ito < i && i <= ifrom )
+                        || ( ito > i && i >= ifrom ) ) ) ) )
       {
-	fprintf( pf, "   " );
+        fprintf( pf, "   " );
       }
     else { fprintf( pf, " * " ); }
   }
@@ -584,7 +584,7 @@ stdout_stress( int is_promote, int ifrom )
     }
   else {
     wAttributes = ( BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE
-		    | BACKGROUND_INTENSITY );
+                    | BACKGROUND_INTENSITY );
   }
   if ( ! SetConsoleTextAttribute( hStdout, wAttributes ) )
     {
@@ -722,15 +722,15 @@ check_input_buffer( void )
     hHandle = GetStdHandle( STD_INPUT_HANDLE );
     if ( hHandle == INVALID_HANDLE_VALUE )
       {
-	str_error = "GetStdHandle() faild.";
-	return -1;
+        str_error = "GetStdHandle() faild.";
+        return -1;
       }
     bSuccess = PeekNamedPipe( hHandle, buf, 1, &dwBytesRead,
-			      &dwTotalBytesAvail, &dwBytesLeftThisMessage );
+                              &dwTotalBytesAvail, &dwBytesLeftThisMessage );
     if ( ! bSuccess )
       {
-	str_error = "PeekNamedPipe() faild.";
-	return -1;
+        str_error = "PeekNamedPipe() faild.";
+        return -1;
       }
     if ( dwBytesRead ) { return 1; }
     return 0;
@@ -758,8 +758,8 @@ check_input_buffer( void )
     iret       = select( 1, &readfds, NULL, NULL, &tv );
     if ( iret == -1 )
       {
-	str_error = "select() faild.";
-	return -1;
+        str_error = "select() faild.";
+        return -1;
       }
     return iret;
     

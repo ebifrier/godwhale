@@ -5,7 +5,7 @@
 #include "shogi.h"
 
 static int CONV save_result( tree_t * restrict ptree, int value, int beta,
-			     int turn );
+                             int turn );
 
 #if defined(MPV)
 static int CONV mpv_set_bound( int alpha );
@@ -13,7 +13,7 @@ static int CONV mpv_find_min( int *pnum );
 static int CONV mpv_add_result( tree_t * restrict ptree, int value );
 static void CONV mpv_sub_result( unsigned int move );
 static void CONV mpv_out( tree_t * restrict ptree, int turn,
-			  unsigned int time );
+                          unsigned int time );
 #endif
 
 #if defined(NO_STDOUT) && defined(NO_LOGGING)
@@ -26,7 +26,7 @@ static int CONV next_root_move( tree_t * restrict ptree, int turn );
 
 static int CONV
 search_wrapper( tree_t * restrict ptree, int alpha, int beta, int turn,
-		int depth, int ply, unsigned int state_node )
+                int depth, int ply, unsigned int state_node )
 {
   int value;
 
@@ -51,12 +51,12 @@ search_wrapper( tree_t * restrict ptree, int alpha, int beta, int turn,
   if ( game_status & flag_skip_root_move )
     {
       if ( root_index )
-	{
-	  Out( "- %s is proofed while searching.\n", str_CSA_move(MOVE_LAST) );
-	}
+        {
+          Out( "- %s is proofed while searching.\n", str_CSA_move(MOVE_LAST) );
+        }
       else {
-	Out( "- %s (best move) is proofed while searching.\n",
-	     str_CSA_move(MOVE_LAST) );
+        Out( "- %s (best move) is proofed while searching.\n",
+             str_CSA_move(MOVE_LAST) );
       }
 
       game_status &= ~flag_skip_root_move;
@@ -97,9 +97,9 @@ searchr( tree_t * restrict ptree, int alpha, int beta, int turn, int depth )
       root_nodes_start = ptree->node_searched;
 #if defined(USI)
       if ( usi_mode != usi_off )
-	{
-	  csa2usi( ptree, str_CSA_move(MOVE_CURR), str_usi );
-	}
+        {
+          csa2usi( ptree, str_CSA_move(MOVE_CURR), str_usi );
+        }
 #endif
 
       MakeMove( turn, MOVE_CURR, 1 );
@@ -107,67 +107,67 @@ searchr( tree_t * restrict ptree, int alpha, int beta, int turn, int depth )
       assert( ! InCheck( turn ) );
 
       state_node_new = ( node_do_mate | node_do_null | node_do_futile
-			 | node_do_recap | node_do_recursion
-			 | node_do_hashcut );
+                         | node_do_recap | node_do_recursion
+                         | node_do_hashcut );
       if ( InCheck(Flip(turn)) )
-	{
-	  ptree->check_extension_done++;
-	  ptree->nsuc_check[2] = (unsigned char)( ptree->nsuc_check[0] + 1U );
-	  extension            = EXT_CHECK - PLY_INC;
-	}
+        {
+          ptree->check_extension_done++;
+          ptree->nsuc_check[2] = (unsigned char)( ptree->nsuc_check[0] + 1U );
+          extension            = EXT_CHECK - PLY_INC;
+        }
       else {
-	extension            = - PLY_INC;
-	ptree->nsuc_check[2] = 0;
+        extension            = - PLY_INC;
+        ptree->nsuc_check[2] = 0;
       }
       
       if ( first_move )
-	{
+        {
 #if defined(MPV)
-	  if ( root_mpv ) { bound = alpha; }
+          if ( root_mpv ) { bound = alpha; }
 #endif
-	  new_depth = depth + extension;
-	  value = -search_wrapper( ptree, -beta, -alpha, Flip(turn),
-				   new_depth, 2, state_node_new );
-	  if ( root_abort )
-	    {
-	      UnMakeMove( turn, MOVE_CURR, 1 );
-	      return 0;
-	    }
+          new_depth = depth + extension;
+          value = -search_wrapper( ptree, -beta, -alpha, Flip(turn),
+                                   new_depth, 2, state_node_new );
+          if ( root_abort )
+            {
+              UnMakeMove( turn, MOVE_CURR, 1 );
+              return 0;
+            }
 
-	  if ( value <= alpha )
-	    {
-	      UnMakeMove( turn, MOVE_CURR, 1 );
-	      return value;
-	    }
+          if ( value <= alpha )
+            {
+              UnMakeMove( turn, MOVE_CURR, 1 );
+              return value;
+            }
 
-	  first_move = 0;
-	}
+          first_move = 0;
+        }
 #if defined(MPV)
       else if ( root_mpv )
-	{
-	  bound = mpv_set_bound( alpha );
-	  if ( depth + extension >= PLY_INC || ptree->nsuc_check[2] )
-	    {
-	      new_depth = depth + extension;
-	      
-	      value = -search_wrapper( ptree, -bound-1, -bound, Flip(turn),
-				       new_depth, 2, state_node_new );
-	      if ( ! root_abort && bound < value )
-		{
-		  new_depth = depth + extension;
-		  value = -search_wrapper( ptree, -beta, -bound, Flip(turn),
-					   new_depth, 2, state_node_new );
-		}
-	      if ( root_abort )
-		{
-		  UnMakeMove( turn, MOVE_CURR, 1 );
-		  return 0;
-		}
-	    }
-	  else {
-	    value = -search_quies( ptree, -beta, -bound, Flip(turn), 2, 1 );
-	  }
-	}
+        {
+          bound = mpv_set_bound( alpha );
+          if ( depth + extension >= PLY_INC || ptree->nsuc_check[2] )
+            {
+              new_depth = depth + extension;
+              
+              value = -search_wrapper( ptree, -bound-1, -bound, Flip(turn),
+                                       new_depth, 2, state_node_new );
+              if ( ! root_abort && bound < value )
+                {
+                  new_depth = depth + extension;
+                  value = -search_wrapper( ptree, -beta, -bound, Flip(turn),
+                                           new_depth, 2, state_node_new );
+                }
+              if ( root_abort )
+                {
+                  UnMakeMove( turn, MOVE_CURR, 1 );
+                  return 0;
+                }
+            }
+          else {
+            value = -search_quies( ptree, -beta, -bound, Flip(turn), 2, 1 );
+          }
+        }
 #endif /* MPV */
       else {
         int depth_reduced = 0;
@@ -193,117 +193,117 @@ searchr( tree_t * restrict ptree, int alpha, int beta, int turn, int depth )
           }
 
         value = -search_wrapper( ptree, -alpha-1, -alpha, Flip(turn),
-				 new_depth, 2, state_node_new );
+                                 new_depth, 2, state_node_new );
         if ( ! root_abort && alpha < value && depth_reduced )
           {
             new_depth += depth_reduced;
             value = -search_wrapper( ptree, -alpha-1, -alpha, Flip(turn),
-				     new_depth, 2, state_node_new );
+                                     new_depth, 2, state_node_new );
           }
-	if ( root_abort )
-	  {
-	    UnMakeMove( turn, MOVE_CURR, 1 );
-	    return 0;
-	  }
+        if ( root_abort )
+          {
+            UnMakeMove( turn, MOVE_CURR, 1 );
+            return 0;
+          }
 
-	if ( alpha < value )
-	  {
+        if ( alpha < value )
+          {
 #if defined(DFPN_CLIENT)
-	    if ( dfpn_client_sckt != SCKT_NULL
-		 && 4 < iteration_depth
-		 && dfpn_client_best_move != MOVE_CURR )
-	      {
-		dfpn_client_best_move = MOVE_CURR;
-		lock( &dfpn_client_lock );
-		dfpn_client_out( "BEST MOVE %s\n",
-				 str_CSA_move(dfpn_client_best_move) );
-		unlock( &dfpn_client_lock );
-	      }
+            if ( dfpn_client_sckt != SCKT_NULL
+                 && 4 < iteration_depth
+                 && dfpn_client_best_move != MOVE_CURR )
+              {
+                dfpn_client_best_move = MOVE_CURR;
+                lock( &dfpn_client_lock );
+                dfpn_client_out( "BEST MOVE %s\n",
+                                 str_CSA_move(dfpn_client_best_move) );
+                unlock( &dfpn_client_lock );
+              }
 #endif
-	    MnjOut( "pid=%d move=%s v=%dl n=% " PRIu64 "%s\n",
-		    mnj_posi_id, str_CSA_move(MOVE_CURR), alpha+1,
-		    ptree->node_searched,
-		    ( mnj_depth_stable <= iteration_depth ) ? " stable" : "" );
+            MnjOut( "pid=%d move=%s v=%dl n=% " PRIu64 "%s\n",
+                    mnj_posi_id, str_CSA_move(MOVE_CURR), alpha+1,
+                    ptree->node_searched,
+                    ( mnj_depth_stable <= iteration_depth ) ? " stable" : "" );
 
 #if defined(USI)
-	    if ( usi_mode != usi_off )
-	      {
-		USIOut( "info depth %d score cp %d nodes %" PRIu64 " pv %s\n",
-			iteration_depth, alpha+1, ptree->node_searched,
-			str_usi );
-	      }
+            if ( usi_mode != usi_off )
+              {
+                USIOut( "info depth %d score cp %d nodes %" PRIu64 " pv %s\n",
+                        iteration_depth, alpha+1, ptree->node_searched,
+                        str_usi );
+              }
 #endif
 
-	    new_depth = depth + extension;
-	    easy_abs  = 0;
-	    value = -search_wrapper( ptree, -beta, -alpha, Flip(turn),
-				     new_depth, 2, state_node_new );
-	    if ( root_abort )
-	      {
-		const char *str;
-		double dvalue;
-		char ch;
-		
-		UnMakeMove( turn, MOVE_CURR, 1 );
-		pv_close( ptree, 2, pv_fail_high );
-		time_last_result     = time_last_check;
-		root_value           = alpha+1;
-		ptree->pv[0]         = ptree->pv[1];
-		if ( turn )
-		  {
-		    dvalue = -(double)alpha;
-		    ch     = '-';
-		  }
-		else {
-		  dvalue = alpha;
-		  ch     = '+';
-		}
-		str = str_CSA_move(MOVE_CURR);
-		Out( "           %7.2f  1.%c%s [%c0!]\n",
-		     dvalue / 100.0, ch, str, ch );
-		if ( game_status & flag_pondering )
-		  {
-		    OutCsaShogi( "info%+.2f %c%s %c%s [%c0!]\n",
-				 dvalue / 100.0, ach_turn[Flip(turn)],
-				 str_CSA_move(ponder_move),
-				 ch, str, ch );
-		  }
-		else {
-		  OutCsaShogi( "info%+.2f %c%s [%c0!]\n",
-			       dvalue / 100.0, ch, str, ch );
-		}
-		return 0;
-	      }
-	  }
+            new_depth = depth + extension;
+            easy_abs  = 0;
+            value = -search_wrapper( ptree, -beta, -alpha, Flip(turn),
+                                     new_depth, 2, state_node_new );
+            if ( root_abort )
+              {
+                const char *str;
+                double dvalue;
+                char ch;
+                
+                UnMakeMove( turn, MOVE_CURR, 1 );
+                pv_close( ptree, 2, pv_fail_high );
+                time_last_result     = time_last_check;
+                root_value           = alpha+1;
+                ptree->pv[0]         = ptree->pv[1];
+                if ( turn )
+                  {
+                    dvalue = -(double)alpha;
+                    ch     = '-';
+                  }
+                else {
+                  dvalue = alpha;
+                  ch     = '+';
+                }
+                str = str_CSA_move(MOVE_CURR);
+                Out( "           %7.2f  1.%c%s [%c0!]\n",
+                     dvalue / 100.0, ch, str, ch );
+                if ( game_status & flag_pondering )
+                  {
+                    OutCsaShogi( "info%+.2f %c%s %c%s [%c0!]\n",
+                                 dvalue / 100.0, ach_turn[Flip(turn)],
+                                 str_CSA_move(ponder_move),
+                                 ch, str, ch );
+                  }
+                else {
+                  OutCsaShogi( "info%+.2f %c%s [%c0!]\n",
+                               dvalue / 100.0, ch, str, ch );
+                }
+                return 0;
+              }
+          }
       }
 
       UnMakeMove( turn, MOVE_CURR, 1 );
 
       root_move_list[root_index].nodes
-	= ptree->node_searched - root_nodes_start;
+        = ptree->node_searched - root_nodes_start;
 
 #if defined(MPV)
       if ( root_mpv && value < beta )
-	{
-	  mpv_sub_result( MOVE_CURR );
-	  if ( bound < value && mpv_add_result( ptree, value ) < 0 )
-	    {
-	      game_status |= flag_search_error;
-	      return 0;
-	    }
-	}
+        {
+          mpv_sub_result( MOVE_CURR );
+          if ( bound < value && mpv_add_result( ptree, value ) < 0 )
+            {
+              game_status |= flag_search_error;
+              return 0;
+            }
+        }
 #endif
       
       if ( alpha < value )
-	{
-	  if ( save_result( ptree, value, beta, turn ) < 0 )
-	    {
-	      game_status |= flag_search_error;
-	      return 0;
-	    }
-	  if ( beta <= value ) { return value; }
-	  alpha = value;
-	}
+        {
+          if ( save_result( ptree, value, beta, turn ) < 0 )
+            {
+              game_status |= flag_search_error;
+              return 0;
+            }
+          if ( beta <= value ) { return value; }
+          alpha = value;
+        }
     }
   if ( root_abort ) { return 0; }
 
@@ -344,42 +344,42 @@ out_pv( tree_t * restrict ptree, int value, int turn, unsigned int time )
       dvalue = (double)( turn ? -value : value ) / 100.0;
       OutCsaShogi( "info%+.2f", dvalue );
       if ( game_status & flag_pondering )
-	{
-	  OutCsaShogi( " %c%s", ach_turn[Flip(turn)],
-		       str_CSA_move(ponder_move) );
-	}
+        {
+          OutCsaShogi( " %c%s", ach_turn[Flip(turn)],
+                       str_CSA_move(ponder_move) );
+        }
 
       if ( ptree->pv[0].length )
-	{
-	  if ( root_move_list[root_index].status & flag_first )
-	    {
-	      Out( " %2d %6s %7.2f ", iteration_depth, str, dvalue );
-	    }
-	  else { Out( "    %6s %7.2f ", str, dvalue ); }
-	}
+        {
+          if ( root_move_list[root_index].status & flag_first )
+            {
+              Out( " %2d %6s %7.2f ", iteration_depth, str, dvalue );
+            }
+          else { Out( "    %6s %7.2f ", str, dvalue ); }
+        }
     }
 
   for ( ply = 1; ply <= ptree->pv[0].length; ply++ )
     {
       if ( is_out )
-	{
-	  if ( ply > 1 && ! ( (ply-1) % 5 ) )
-	    {
-	      Out( "\n                   " );
-	    }
-	  str = str_CSA_move( ptree->pv[0].a[ply] );
-	  OutCsaShogi( " %c%s", ach_turn[tt], str );
-	  Out( "%2d.%c%-7s", ply, ach_turn[tt], str );
+        {
+          if ( ply > 1 && ! ( (ply-1) % 5 ) )
+            {
+              Out( "\n                   " );
+            }
+          str = str_CSA_move( ptree->pv[0].a[ply] );
+          OutCsaShogi( " %c%s", ach_turn[tt], str );
+          Out( "%2d.%c%-7s", ply, ach_turn[tt], str );
 
 #if defined(USI)
-	  if ( usi_mode != usi_off && ply <= 4 )
-	    {
-	      char str_usi[6];
-	      csa2usi( ptree, str_CSA_move(ptree->pv[0].a[ply]), str_usi );
-	      ipv += snprintf( str_pv + ipv, 256 - ipv, " %s", str_usi );
-	    }
+          if ( usi_mode != usi_off && ply <= 4 )
+            {
+              char str_usi[6];
+              csa2usi( ptree, str_CSA_move(ptree->pv[0].a[ply]), str_usi );
+              ipv += snprintf( str_pv + ipv, 256 - ipv, " %s", str_usi );
+            }
 #endif
-	}
+        }
 
       MakeMove( tt, ptree->pv[0].a[ply], ply );
       tt    = Flip(tt);
@@ -392,73 +392,73 @@ out_pv( tree_t * restrict ptree, int value, int turn, unsigned int time )
       int i, value_type;
 
       for ( ; ply < PLY_MAX; ply++ )
-	{
-	  dummy = 0;
-	  ptree->amove_hash[ply] = 0;
-	  value_type = hash_probe( ptree, ply, 0, tt, -score_bound,
-				   score_bound, &dummy );
-	  if ( ! ( value_type == value_exact
-		   && value   == HASH_VALUE
-		   && is_move_valid( ptree, ptree->amove_hash[ply], tt ) ) )
-	    {
-	      break;
-	    }
-	  ptree->pv[0].a[ply] = ptree->amove_hash[ply];
-	  for ( i = 1; i < ply; i++ )
-	    if ( ptree->pv[0].a[i] == ptree->pv[0].a[ply] ) { goto rep_esc; }
-	  
-	  if ( is_out )
-	    {
-	      if ( ply > 1 && ! ( (ply-1) % 5 ) )
-		{
-		  Out( "\n                   " );
-		}
-	      str = str_CSA_move(ptree->pv[0].a[ply]);
-	      OutCsaShogi( " %c%s", ach_turn[tt], str );
-	      Out( "%2d:%c%-7s", ply, ach_turn[tt], str );
+        {
+          dummy = 0;
+          ptree->amove_hash[ply] = 0;
+          value_type = hash_probe( ptree, ply, 0, tt, -score_bound,
+                                   score_bound, &dummy );
+          if ( ! ( value_type == value_exact
+                   && value   == HASH_VALUE
+                   && is_move_valid( ptree, ptree->amove_hash[ply], tt ) ) )
+            {
+              break;
+            }
+          ptree->pv[0].a[ply] = ptree->amove_hash[ply];
+          for ( i = 1; i < ply; i++ )
+            if ( ptree->pv[0].a[i] == ptree->pv[0].a[ply] ) { goto rep_esc; }
+          
+          if ( is_out )
+            {
+              if ( ply > 1 && ! ( (ply-1) % 5 ) )
+                {
+                  Out( "\n                   " );
+                }
+              str = str_CSA_move(ptree->pv[0].a[ply]);
+              OutCsaShogi( " %c%s", ach_turn[tt], str );
+              Out( "%2d:%c%-7s", ply, ach_turn[tt], str );
 
 #if defined(USI)
-	      if ( usi_mode != usi_off && ply <= 4 )
-		{
-		  char str_usi[6];
-		  csa2usi( ptree, str_CSA_move(ptree->pv[0].a[ply]), str_usi );
-		  ipv += snprintf( str_pv + ipv, 256 - ipv, " %s", str_usi );
-		}
+              if ( usi_mode != usi_off && ply <= 4 )
+                {
+                  char str_usi[6];
+                  csa2usi( ptree, str_CSA_move(ptree->pv[0].a[ply]), str_usi );
+                  ipv += snprintf( str_pv + ipv, 256 - ipv, " %s", str_usi );
+                }
 #endif
-	    }
+            }
 
-	  MakeMove( tt, ptree->pv[0].a[ply], ply );
-	  if ( InCheck(tt) )
-	    {
-	      UnMakeMove( tt, ptree->amove_hash[ply], ply );
-	      break;
-	    }
-	  ptree->pv[0].length++;
-	  tt    = Flip(tt);
-	  value = -value;
-	}
+          MakeMove( tt, ptree->pv[0].a[ply], ply );
+          if ( InCheck(tt) )
+            {
+              UnMakeMove( tt, ptree->amove_hash[ply], ply );
+              break;
+            }
+          ptree->pv[0].length++;
+          tt    = Flip(tt);
+          value = -value;
+        }
     }
  rep_esc:
 
   if ( is_out && ptree->pv[0].type != no_rep )
     {
       if ( (((ply-1) % 5) == 0) && (ply != 1) )
-	{
-	  Out( "\n                   " );
-	}
+        {
+          Out( "\n                   " );
+        }
       str = NULL;
       switch ( ptree->pv[0].type )
-	{
-	case perpetual_check:  str = "PER. CHECK";     break;
-	case four_fold_rep:    str = "REPETITION";     break;
-	case black_superi_rep:
-	case white_superi_rep: str = "SUPERI. POSI.";  break;
-	case prev_solution:    str = "PREV. SEARCH";   break;
-	case hash_hit:         str = "HASH HIT";       break;
-	case book_hit:         str = "BOOK HIT";       break;
-	case pv_fail_high:     str = "FAIL HIGH";      break;
-	case mate_search:      str = "MATE SEARCH";    break;
-	}
+        {
+        case perpetual_check:  str = "PER. CHECK";     break;
+        case four_fold_rep:    str = "REPETITION";     break;
+        case black_superi_rep:
+        case white_superi_rep: str = "SUPERI. POSI.";  break;
+        case prev_solution:    str = "PREV. SEARCH";   break;
+        case hash_hit:         str = "HASH HIT";       break;
+        case book_hit:         str = "BOOK HIT";       break;
+        case pv_fail_high:     str = "FAIL HIGH";      break;
+        case mate_search:      str = "MATE SEARCH";    break;
+        }
       if ( str != NULL ) { Out( " <%s>", str ); }
     }
   for ( ply--; ply >= 1; ply-- )
@@ -473,7 +473,7 @@ out_pv( tree_t * restrict ptree, int value, int turn, unsigned int time )
       OutCsaShogi( "\n" );
       Out( "\n" );
       USIOut( "info depth %d score cp %d nodes %" PRIu64 " pv%s\n",
-	      iteration_depth, value, ptree->node_searched, str_pv );
+              iteration_depth, value, ptree->node_searched, str_pv );
     }
 } 
 
@@ -491,9 +491,9 @@ save_result( tree_t * restrict ptree, int value, int beta, int turn )
     {
       root_move_temp = root_move_list[index];
       for ( ; index > 0; index-- )
-	{
-	  root_move_list[index] = root_move_list[index-1];
-	}
+        {
+          root_move_list[index] = root_move_list[index-1];
+        }
       root_move_list[0] = root_move_temp;
     }
   root_index = 0;
@@ -506,20 +506,20 @@ save_result( tree_t * restrict ptree, int value, int beta, int turn )
     {
 #if defined(DFPN_CLIENT)
       if ( dfpn_client_sckt != SCKT_NULL
-	   && 4 < iteration_depth
-	   && dfpn_client_best_move != ptree->pv[1].a[1] )
-	{
-	  dfpn_client_best_move = ptree->pv[1].a[1];
-	  lock( &dfpn_client_lock );
-	  dfpn_client_out( "BEST MOVE %s\n",
-			   str_CSA_move(dfpn_client_best_move) );
-	  unlock( &dfpn_client_lock );
-	}
+           && 4 < iteration_depth
+           && dfpn_client_best_move != ptree->pv[1].a[1] )
+        {
+          dfpn_client_best_move = ptree->pv[1].a[1];
+          lock( &dfpn_client_lock );
+          dfpn_client_out( "BEST MOVE %s\n",
+                           str_CSA_move(dfpn_client_best_move) );
+          unlock( &dfpn_client_lock );
+        }
 #endif
       MnjOut( "pid=%d move=%s v=%de n=%" PRIu64 "%s\n",
-	      mnj_posi_id, str_CSA_move(ptree->pv[1].a[1]), value,
-	      ptree->node_searched,
-	      ( mnj_depth_stable <= iteration_depth ) ? " stable" : "" );
+              mnj_posi_id, str_CSA_move(ptree->pv[1].a[1]), value,
+              ptree->node_searched,
+              ( mnj_depth_stable <= iteration_depth ) ? " stable" : "" );
 
       out_pv( ptree, value, turn, time_last_result - time_start );
     }
@@ -547,22 +547,22 @@ next_root_move( tree_t * restrict ptree, int turn )
 
 #if ! ( defined(NO_STDOUT) && defined(NO_LOGGING) )
       if ( iteration_depth > 5 )
-	{
-	  const char *str_move;
-	  char str[9];
+        {
+          const char *str_move;
+          char str[9];
 
-	  str_move = str_CSA_move(ptree->current_move[1]);
-	  snprintf( str, 9, "%d/%d", i+1, root_nmove );
-	  if ( root_move_list[i].status & flag_first )
-	    {
-	      Out( "(%2d)       %7s* 1.%c%s     \r",
-		   iteration_depth, str, ach_turn[turn], str_move );
-	    }
-	  else {
-	    Out( "           %7s* 1.%c%s     \r",
-		 str, ach_turn[turn], str_move );
-	  }
-	}
+          str_move = str_CSA_move(ptree->current_move[1]);
+          snprintf( str, 9, "%d/%d", i+1, root_nmove );
+          if ( root_move_list[i].status & flag_first )
+            {
+              Out( "(%2d)       %7s* 1.%c%s     \r",
+                   iteration_depth, str, ach_turn[turn], str_move );
+            }
+          else {
+            Out( "           %7s* 1.%c%s     \r",
+                 str, ach_turn[turn], str_move );
+          }
+        }
 #endif
       
       return 1;
@@ -591,121 +591,121 @@ mpv_out( tree_t * restrict ptree, int turn, unsigned int time )
       tt     = turn;
       value  = (int)mpv_pv[ipv].a[0] - 32768;
       if ( mpv_out && value > best - mpv_width && ipv < mpv_num )
-	{
-	  is_out = 1;
-	}
+        {
+          is_out = 1;
+        }
       else { is_out = 0; }
 
       if ( is_out )
-	{
-	  dvalue = (double)( turn ? -value : value ) / 100.0;
-	  if ( is_out && ! ipv ) { OutCsaShogi( "info" ); }
-	  if ( is_out && ipv )   { OutCsaShogi( ":" ); }
+        {
+          dvalue = (double)( turn ? -value : value ) / 100.0;
+          if ( is_out && ! ipv ) { OutCsaShogi( "info" ); }
+          if ( is_out && ipv )   { OutCsaShogi( ":" ); }
 
-	  OutCsaShogi( "%+.2f", dvalue );
-	  if ( game_status & flag_pondering )
-	    {
-	      OutCsaShogi( " %c%s", ach_turn[Flip(turn)],
-			   str_CSA_move(ponder_move) );
-	    }
+          OutCsaShogi( "%+.2f", dvalue );
+          if ( game_status & flag_pondering )
+            {
+              OutCsaShogi( " %c%s", ach_turn[Flip(turn)],
+                           str_CSA_move(ponder_move) );
+            }
 
-	  str = str_time_symple( time );
-	  ply = mpv_pv[ipv].depth;
-	  if ( ! ipv ) { Out( "o%2d %6s %7.2f ", ply, str, dvalue ); }
-	  else         { Out( " %2d        %7.2f ", ply, dvalue ); }
-	}
+          str = str_time_symple( time );
+          ply = mpv_pv[ipv].depth;
+          if ( ! ipv ) { Out( "o%2d %6s %7.2f ", ply, str, dvalue ); }
+          else         { Out( " %2d        %7.2f ", ply, dvalue ); }
+        }
 
       for ( ply = 1; ply <= mpv_pv[ipv].length; ply++ )
-	{
-	  if ( is_out )
-	    {
-	      if ( ply > 1 && ! ( (ply-1) % 5 ) )
-		{
-		  Out( "\n                   " );
-		}
-	      str = str_CSA_move(mpv_pv[ipv].a[ply]);
-	      OutCsaShogi( " %c%s", ach_turn[tt], str );
-	      Out( "%2d.%c%-11s", ply, ach_turn[tt], str );
-	    }
-	  
-	  assert( is_move_valid( ptree, mpv_pv[ipv].a[ply], tt ) );
-	  MakeMove( tt, mpv_pv[ipv].a[ply], ply );
-	  tt    = Flip(tt);
-	  value = -value;
-	}
+        {
+          if ( is_out )
+            {
+              if ( ply > 1 && ! ( (ply-1) % 5 ) )
+                {
+                  Out( "\n                   " );
+                }
+              str = str_CSA_move(mpv_pv[ipv].a[ply]);
+              OutCsaShogi( " %c%s", ach_turn[tt], str );
+              Out( "%2d.%c%-11s", ply, ach_turn[tt], str );
+            }
+          
+          assert( is_move_valid( ptree, mpv_pv[ipv].a[ply], tt ) );
+          MakeMove( tt, mpv_pv[ipv].a[ply], ply );
+          tt    = Flip(tt);
+          value = -value;
+        }
 
       if ( mpv_pv[ipv].type == hash_hit )
-	{
-	  unsigned int dummy;
-	  int i, value_type;
+        {
+          unsigned int dummy;
+          int i, value_type;
 
-	  for ( ; ply < PLY_MAX; ply++ )
-	    {
-	      dummy = 0;
-	      ptree->amove_hash[ply] = 0;
-	      value_type = hash_probe( ptree, ply, 0, tt, -score_bound,
-				       score_bound, &dummy );
-	      if ( ! ( value_type == value_exact
-		       && value   == HASH_VALUE
-		       && is_move_valid(ptree,ptree->amove_hash[ply],tt) ) )
-		{
-		  break;
-		}
-	      mpv_pv[ipv].a[ply] = ptree->amove_hash[ply];
-	      for ( i = 1; i < ply; i++ )
-		if ( mpv_pv[ipv].a[i]
-		     == mpv_pv[ipv].a[ply] ) { goto rep_esc; }
-	      
-	      if ( is_out )
-		{
-		  if ( ply > 1 && ! ( (ply-1) % 5 ) )
-		    {
-		      Out( "\n                   " );
-		    }
-		  str = str_CSA_move(mpv_pv[ipv].a[ply]);
-		  OutCsaShogi( " %c%s", ach_turn[tt], str );
-		  Out( "%2d:%c%-11s", ply, ach_turn[tt], str );
-		}
+          for ( ; ply < PLY_MAX; ply++ )
+            {
+              dummy = 0;
+              ptree->amove_hash[ply] = 0;
+              value_type = hash_probe( ptree, ply, 0, tt, -score_bound,
+                                       score_bound, &dummy );
+              if ( ! ( value_type == value_exact
+                       && value   == HASH_VALUE
+                       && is_move_valid(ptree,ptree->amove_hash[ply],tt) ) )
+                {
+                  break;
+                }
+              mpv_pv[ipv].a[ply] = ptree->amove_hash[ply];
+              for ( i = 1; i < ply; i++ )
+                if ( mpv_pv[ipv].a[i]
+                     == mpv_pv[ipv].a[ply] ) { goto rep_esc; }
+              
+              if ( is_out )
+                {
+                  if ( ply > 1 && ! ( (ply-1) % 5 ) )
+                    {
+                      Out( "\n                   " );
+                    }
+                  str = str_CSA_move(mpv_pv[ipv].a[ply]);
+                  OutCsaShogi( " %c%s", ach_turn[tt], str );
+                  Out( "%2d:%c%-11s", ply, ach_turn[tt], str );
+                }
 
-	      MakeMove( tt, mpv_pv[ipv].a[ply], ply );
-	      if ( InCheck(tt) )
-		{
-		  UnMakeMove( tt, ptree->amove_hash[ply], ply );
-		  break;
-		}
-	      mpv_pv[ipv].length++;
-	      tt    = Flip(tt);
-	      value = -value;
-	    }
-	}
+              MakeMove( tt, mpv_pv[ipv].a[ply], ply );
+              if ( InCheck(tt) )
+                {
+                  UnMakeMove( tt, ptree->amove_hash[ply], ply );
+                  break;
+                }
+              mpv_pv[ipv].length++;
+              tt    = Flip(tt);
+              value = -value;
+            }
+        }
     rep_esc:
 
       if ( is_out && mpv_pv[ipv].type != no_rep )
-	{
-	  if ( (((ply-1) % 5) == 0) && (ply != 1) )
-	    {
-	      Out( "\n                   " );
-	    }
-	  str = NULL;
-	  switch ( mpv_pv[ipv].type )
-	    {
-	    case perpetual_check:  str = "PER. CHECK";     break;
-	    case four_fold_rep:    str = "REPETITION";     break;
-	    case black_superi_rep:
-	    case white_superi_rep: str = "SUPERI. POSI.";  break;
-	    case prev_solution:    str = "PREV. SEARCH";   break;
-	    case hash_hit:         str = "HASH HIT";       break;
-	    case book_hit:         str = "BOOK HIT";       break;
-	    case pv_fail_high:     str = "FAIL HIGH";      break;
-	    case mate_search:      str = "MATE SEARCH";    break;
-	    }
-	  if ( str != NULL ) { Out( " <%s>", str ); }
-	}
+        {
+          if ( (((ply-1) % 5) == 0) && (ply != 1) )
+            {
+              Out( "\n                   " );
+            }
+          str = NULL;
+          switch ( mpv_pv[ipv].type )
+            {
+            case perpetual_check:  str = "PER. CHECK";     break;
+            case four_fold_rep:    str = "REPETITION";     break;
+            case black_superi_rep:
+            case white_superi_rep: str = "SUPERI. POSI.";  break;
+            case prev_solution:    str = "PREV. SEARCH";   break;
+            case hash_hit:         str = "HASH HIT";       break;
+            case book_hit:         str = "BOOK HIT";       break;
+            case pv_fail_high:     str = "FAIL HIGH";      break;
+            case mate_search:      str = "MATE SEARCH";    break;
+            }
+          if ( str != NULL ) { Out( " <%s>", str ); }
+        }
       for ( ply--; ply >= 1; ply-- )
-	{
-	  tt = Flip(tt);
-	  UnMakeMove( tt, mpv_pv[ipv].a[ply], ply );
-	}
+        {
+          tt = Flip(tt);
+          UnMakeMove( tt, mpv_pv[ipv].a[ply], ply );
+        }
 
       if ( is_out ) { Out( "\n" ); }
     }
@@ -760,23 +760,23 @@ mpv_add_result( tree_t * restrict ptree, int value )
   if ( num == mpv_num )
     {
       for ( i = 0; mpv_pv[i].length; i++ )
-	{
-	  assert( i < mpv_num*2 );
-	  assert( i < root_nmove*2 );
-	  assert( mpv_pv[i].depth <= iteration_depth );
-	  assert( -score_bound < (int)mpv_pv[i].a[0]-32768 );
-	  assert( (int)mpv_pv[i].a[0]-32768 < score_bound );
+        {
+          assert( i < mpv_num*2 );
+          assert( i < root_nmove*2 );
+          assert( mpv_pv[i].depth <= iteration_depth );
+          assert( -score_bound < (int)mpv_pv[i].a[0]-32768 );
+          assert( (int)mpv_pv[i].a[0]-32768 < score_bound );
 
-	  if ( mpv_pv[i].depth == iteration_depth
-	       && mpv_pv[i].a[0] == (unsigned int)(vmin+32768) ) { break; }
-	}
+          if ( mpv_pv[i].depth == iteration_depth
+               && mpv_pv[i].a[0] == (unsigned int)(vmin+32768) ) { break; }
+        }
       assert( i != mpv_num*2 );
       assert( mpv_pv[i].length );
       do {
-	assert( i < mpv_num*2 );
-	assert( i < root_nmove*2 );
-	mpv_pv[i] = mpv_pv[i+1];
-	i++;
+        assert( i < mpv_num*2 );
+        assert( i < root_nmove*2 );
+        mpv_pv[i] = mpv_pv[i+1];
+        i++;
       } while ( mpv_pv[i].length );
     }
 
@@ -845,22 +845,22 @@ mpv_find_min( int *pnum )
       assert( mpv_pv[i].depth <= iteration_depth );
 
       if ( mpv_pv[i].depth == iteration_depth )
-	{
-	  u = mpv_pv[i].a[0];
-	  assert( -score_bound < (int)u-32768 );
-	  assert( (int)u-32768 < score_bound );
+        {
+          u = mpv_pv[i].a[0];
+          assert( -score_bound < (int)u-32768 );
+          assert( (int)u-32768 < score_bound );
 
-	  for ( num = 0; u <= a[num]; num++ );
-	  do {
-	    assert( num < mpv_num );
-	    assert( num < root_nmove );
-	    utemp  = a[num];
-	    a[num] = u;
-	    u      = utemp;
-	    num   += 1;
-	  } while ( u );
-	  a[num] = 0;
-	}
+          for ( num = 0; u <= a[num]; num++ );
+          do {
+            assert( num < mpv_num );
+            assert( num < root_nmove );
+            utemp  = a[num];
+            a[num] = u;
+            u      = utemp;
+            num   += 1;
+          } while ( u );
+          a[num] = 0;
+        }
     }
 
   if ( pnum ) { *pnum = num; }

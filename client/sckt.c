@@ -63,7 +63,7 @@ client_next_game( tree_t * restrict ptree, const char *str_addr, int iport )
       
     str_name1 = str_name2 = NULL;
     iret = sckt_out( sckt_csa, "LOGIN %s %s\n",
-		     client_str_id, client_str_pwd );
+                     client_str_id, client_str_pwd );
     if ( iret < 0 ) { return iret; }
 
     Out( "wait for next game-conditions...\n" );
@@ -78,17 +78,17 @@ client_next_game( tree_t * restrict ptree, const char *str_addr, int iport )
       if      ( ! strcmp( str_cmdline, "END Game_Summary" ) ) { break; }
       else if ( ! strcmp( str_cmdline, "Your_Turn:-" ) ) { my_turn = white; }
       else if ( ! memcmp( str_cmdline, "Name+:", 6 ) )
-	{
-	  strncpy( buf1, str_cmdline+6, SIZE_PLAYERNAME-1 );
-	  buf1[SIZE_PLAYERNAME-1] = '\0';
-	  str_name1 = buf1;
-	}
+        {
+          strncpy( buf1, str_cmdline+6, SIZE_PLAYERNAME-1 );
+          buf1[SIZE_PLAYERNAME-1] = '\0';
+          str_name1 = buf1;
+        }
       else if ( ! memcmp( str_cmdline, "Name-:", 6 ) )
-	{
-	  strncpy( buf2, str_cmdline+6, SIZE_PLAYERNAME-1 );
-	  buf2[SIZE_PLAYERNAME-1] = '\0';
-	  str_name2 = buf2;
-	}
+        {
+          strncpy( buf2, str_cmdline+6, SIZE_PLAYERNAME-1 );
+          buf2[SIZE_PLAYERNAME-1] = '\0';
+          str_name2 = buf2;
+        }
     }
 
     iret = sckt_out( sckt_csa, "AGREE\n" );
@@ -100,8 +100,8 @@ client_next_game( tree_t * restrict ptree, const char *str_addr, int iport )
 
     if ( ! memcmp( str_cmdline, "REJECT:", 7 ) )
       {
-	ShutdownAll();
-	continue;
+        ShutdownAll();
+        continue;
       }
     else if ( ! memcmp( str_cmdline, "START:", 6 ) )   { break; }
 
@@ -110,7 +110,7 @@ client_next_game( tree_t * restrict ptree, const char *str_addr, int iport )
   }
 
   if ( ini_game( ptree, &min_posi_no_handicap, flag_history,
-		 str_name1, str_name2 ) < 0 )
+                 str_name1, str_name2 ) < 0 )
     {
       return -1;
     }
@@ -149,8 +149,8 @@ sckt_connect( const char *str_addr, int iport )
     WSADATA wsaData;
     if ( WSAStartup( MAKEWORD(1,1), &wsaData ) )
       {
-	str_error = str_WSAError( "WSAStartup() failed." );
-	return SCKT_NULL;
+        str_error = str_WSAError( "WSAStartup() failed." );
+        return SCKT_NULL;
       }
   }
 #endif
@@ -160,13 +160,13 @@ sckt_connect( const char *str_addr, int iport )
     {
       phe = gethostbyname( str_addr );
       if ( ! phe )
-	{
-	  str_error = str_WSAError( "gethostbyname() faild." );
+        {
+          str_error = str_WSAError( "gethostbyname() faild." );
 #if defined(_WIN32)
-	  WSACleanup();
+          WSACleanup();
 #endif
-	  return SCKT_NULL;
-	}
+          return SCKT_NULL;
+        }
       ul_addr = *( (u_long *)phe->h_addr_list[0] );
     }
 
@@ -224,9 +224,9 @@ sckt_shutdown( sckt_t sd )
     iret = recv( sd, str_message, SIZE_MESSAGE, 0 );
     if ( iret == SOCKET_ERROR )
       {
-	str_error = str_WSAError( "recv() failed:" );
-	WSACleanup();
-	return -2;
+        str_error = str_WSAError( "recv() failed:" );
+        WSACleanup();
+        return -2;
       }
     else if ( ! iret ) { break; }
   }
@@ -258,8 +258,8 @@ sckt_shutdown( sckt_t sd )
     iret = (int)recv( sd, str_message, SIZE_MESSAGE, 0 );
     if ( iret == -1 )
       {
-	str_error = "recv() failed.";
-	return -2;
+        str_error = "recv() failed.";
+        return -2;
       }
     else if ( ! iret ) { break; }
   }
@@ -347,20 +347,20 @@ sckt_in( sckt_t sd, char *str, int n )
     iret = select( (int)sd+1, &readfds, NULL, NULL, &tv );
     if ( iret == SOCKET_ERROR )
       {
-	str_error = str_WSAError( "select() with a socket connected failed." );
-	return -1;
+        str_error = str_WSAError( "select() with a socket connected failed." );
+        return -1;
       }
     if ( iret )
       {
-	Out( "done.\n" );
-	break;
+        Out( "done.\n" );
+        break;
       }
     Out( "time out.\n" );
 
     if ( sckt_out( sd, "\n" ) == SOCKET_ERROR )
       {
-	str_error = str_WSAError( "send() failed:" );
-	return -1;
+        str_error = str_WSAError( "send() failed:" );
+        return -1;
       }
   }
 

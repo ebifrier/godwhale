@@ -8,16 +8,16 @@
 
 /* unacceptable when the program is thinking, or quit pondering */
 #define AbortDifficultCommand                                              \
-	  if ( game_status & flag_thinking )                               \
-	    {                                                              \
-	      str_error = str_busy_think;                                  \
-	      return -2;                                                   \
-	    }                                                              \
-	  else if ( game_status & ( flag_pondering | flag_puzzling ) )     \
-	    {                                                              \
-	      game_status |= flag_quit_ponder;                             \
-	      return 2;                                                    \
-	    }
+          if ( game_status & flag_thinking )                               \
+            {                                                              \
+              str_error = str_busy_think;                                  \
+              return -2;                                                   \
+            }                                                              \
+          else if ( game_status & ( flag_pondering | flag_puzzling ) )     \
+            {                                                              \
+              game_status |= flag_quit_ponder;                             \
+              return 2;                                                    \
+            }
 
 #if defined(MINIMUM)
 #  define CmdBook(x,y) cmd_book(y);
@@ -45,7 +45,7 @@ static int CONV cmd_mnjprepare( char **lasts );
 static int CONV cmd_mnj( char **lasts );
 static int CONV cmd_mnjinit( tree_t * restrict ptree, char **lasts );
 static int CONV cmd_mnjmove( tree_t * restrict ptree, char **lasts,
-			     int num_alter );
+                             int num_alter );
 #endif
 
 #if defined(USI)
@@ -73,7 +73,7 @@ static int CONV cmd_dfpn_client( tree_t * restrict ptree, char **lasts );
 
 static int CONV proce_cui( tree_t * restrict ptree );
 static int CONV cmd_usrmove( tree_t * restrict ptree, const char *str_move,
-			     char **last );
+                             char **last );
 static int CONV cmd_outmove( tree_t * restrict ptree );
 static int CONV cmd_move_now( void );
 static int CONV cmd_ponder( char **lasts );
@@ -170,7 +170,7 @@ static int CONV proce_cui( tree_t * restrict ptree )
 #endif
 #if defined(DFPN_CLIENT)
   if ( ! strcmp( token, "dfpn_client")) { return cmd_dfpn_client( ptree,
-								  &last ); }
+                                                                  &last ); }
 #endif
 #if defined(TLP)
   if ( ! strcmp( token, "tlp" ) )       { return cmd_thread( &last ); }
@@ -203,17 +203,17 @@ static int CONV proce_csalan( tree_t * restrict ptree )
 
       token = strtok_r( NULL, str_delimiters, &last );
       if ( token == NULL || *token != 'T' )
-	{
-	  str_error = str_bad_cmdline;
-	  return -1;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -1;
+        }
       
       l = strtol( token+1, &ptr, 0 );
       if ( token+1 == ptr || l == LONG_MAX || l < 1 )
-	{
-	  str_error = str_bad_cmdline;
-	  return -1;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -1;
+        }
 
       adjust_time( (unsigned int)l, client_turn );
       Out( "  elapsed: b%u, w%u\n", sec_b_total, sec_w_total );
@@ -230,10 +230,10 @@ static int CONV proce_csalan( tree_t * restrict ptree )
        || ! strcmp( token, "#CHUDAN" ) )
     {
       if ( game_status & ( flag_thinking | flag_pondering | flag_puzzling ) )
-	{
-	  game_status |= flag_suspend;
-	  return 2;
-	}
+        {
+          game_status |= flag_suspend;
+          return 2;
+        }
 
       if ( sckt_out( sckt_csa, "LOGOUT\n" ) < 0 ) { return -1; }
       if ( sckt_recv_all( sckt_csa )        < 0 ) { return -1; }
@@ -283,16 +283,16 @@ static int CONV proce_mnj( tree_t * restrict ptree )
       char *ptr;
       const char *str = strtok_r( NULL, str_delimiters, &last );
       if ( str == NULL )
-	{
-	  str_error = str_bad_cmdline;
-	  return -1;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -1;
+        }
       l = strtol( str, &ptr, 0 );
       if ( ptr == str || (long)NUM_UNMAKE < l )
-	{
-	  str_error = str_bad_cmdline;
-	  return -1;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -1;
+        }
       
       return cmd_mnjmove( ptree, &last, (int)l );
     }
@@ -333,7 +333,7 @@ cmd_mnjinit( tree_t *restrict ptree, char **lasts )
       if ( interpret_CSA_move( ptree, &move, token ) < 0 ) { return -1; }
 
       iret = make_move_root( ptree, move, ( flag_time | flag_rep
-					| flag_detect_hang ) );
+                                        | flag_detect_hang ) );
       if ( iret < 0 ) { return iret; }
     }
 
@@ -429,7 +429,7 @@ cmd_mnjmove( tree_t * restrict ptree, char **lasts, int num_alter )
   mnj_posi_id = (int)lid;
 
   iret = make_move_root( ptree, move, ( flag_time | flag_rep
-					| flag_detect_hang ) );
+                                        | flag_detect_hang ) );
   if ( iret < 0 ) { return iret; }
   
 #  if ! defined(NO_STDOUT)
@@ -567,17 +567,17 @@ usi_go( tree_t * restrict ptree, char **lasts )
     {
       token = strtok_r( NULL, str_delimiters, lasts );
       if ( token == NULL )
-	{
-	  str_error = str_bad_cmdline;
-	  return -1;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -1;
+        }
 
       l = strtol( token, &ptr, 0 );
       if ( ptr == token || l > UINT_MAX || l < 1 )
-	{
-	  str_error = str_bad_cmdline;
-	  return -1;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -1;
+        }
       
       usi_byoyomi     = (unsigned int)l;
       depth_limit     = PLY_MAX;
@@ -621,7 +621,7 @@ usi_posi( tree_t * restrict ptree, char **lasts )
     }
     
   if ( ini_game( ptree, &min_posi_no_handicap,
-		 flag_history, NULL, NULL ) < 0 ) { return -1; }
+                 flag_history, NULL, NULL ) < 0 ) { return -1; }
     
   token = strtok_r( NULL, str_delimiters, lasts );
   if ( token == NULL ) { return 1; }
@@ -640,10 +640,10 @@ usi_posi( tree_t * restrict ptree, char **lasts )
     if ( usi2csa( ptree, token, str_buf ) < 0 )            { return -1; }
     if ( interpret_CSA_move( ptree, &move, str_buf ) < 0 ) { return -1; }
     if ( make_move_root( ptree, move, ( flag_history | flag_time
-					| flag_rep
-					| flag_detect_hang ) ) < 0 )
+                                        | flag_rep
+                                        | flag_detect_hang ) ) < 0 )
       {
-	return -1;
+        return -1;
       }
   }
     
@@ -688,15 +688,15 @@ cmd_usrmove( tree_t * restrict ptree, const char *str_move, char **lasts )
   else {
     if ( *str != 'T' )
       {
-	str_error = str_bad_cmdline;
-	return -2;
+        str_error = str_bad_cmdline;
+        return -2;
       }
     str += 1;
     lelapsed = strtol( str, &ptr, 0 );
     if ( ptr == str || lelapsed == LONG_MAX || lelapsed < 1 )
       {
-	str_error = str_bad_cmdline;
-	return -2;
+        str_error = str_bad_cmdline;
+        return -2;
       }
   }
 
@@ -705,53 +705,53 @@ cmd_usrmove( tree_t * restrict ptree, const char *str_move, char **lasts )
       int i;
 
       for ( i = 0; i < ponder_nmove; i++ )
-	{
-	  if ( ! strcmp( str_move, str_CSA_move(ponder_move_list[i]) ) )
-	    {
-	      break;
-	    }
-	}
+        {
+          if ( ! strcmp( str_move, str_CSA_move(ponder_move_list[i]) ) )
+            {
+              break;
+            }
+        }
       if ( i == ponder_nmove )
-	{
+        {
 #if defined(CSA_LAN)
-	  if ( sckt_csa != SCKT_NULL ) { AbortDifficultCommand; }
+          if ( sckt_csa != SCKT_NULL ) { AbortDifficultCommand; }
 #endif
 
 #if defined(CSASHOGI)
-	  AbortDifficultCommand;
+          AbortDifficultCommand;
 #else
-	  str_error = str_illegal_move;
-	  return -2;
+          str_error = str_illegal_move;
+          return -2;
 #endif
-	}
+        }
 
       if ( ( game_status & flag_puzzling )
-	   || strcmp( str_move, str_CSA_move(ponder_move) ) )
-	{
-	  ponder_move  = MOVE_PONDER_FAILED;
-	  game_status |= flag_quit_ponder;
-	  return 2;
-	}
+           || strcmp( str_move, str_CSA_move(ponder_move) ) )
+        {
+          ponder_move  = MOVE_PONDER_FAILED;
+          game_status |= flag_quit_ponder;
+          return 2;
+        }
       else {
-	iret = update_time( Flip(root_turn) );
-	if ( iret < 0 ) { return iret; }
-	if ( lelapsed )
-	  {
-	    adjust_time( (unsigned int)lelapsed, Flip(root_turn) );
-	  }
+        iret = update_time( Flip(root_turn) );
+        if ( iret < 0 ) { return iret; }
+        if ( lelapsed )
+          {
+            adjust_time( (unsigned int)lelapsed, Flip(root_turn) );
+          }
 
-	out_CSA( ptree, &record_game, ponder_move );
+        out_CSA( ptree, &record_game, ponder_move );
 
-	game_status      &= ~flag_pondering;
-	game_status      |= flag_thinking;
-	set_search_limit_time( root_turn );
+        game_status      &= ~flag_pondering;
+        game_status      |= flag_thinking;
+        set_search_limit_time( root_turn );
 
-	OutCsaShogi( "info ponder end\n" );
+        OutCsaShogi( "info ponder end\n" );
 
-	str = str_time_symple( time_turn_start - time_start );
-	Out( "    %6s          MOVE PREDICTION HIT\n"
-	     "  elapsed: b%u, w%u\n", str, sec_b_total, sec_w_total );
-	return 1;
+        str = str_time_symple( time_turn_start - time_start );
+        Out( "    %6s          MOVE PREDICTION HIT\n"
+             "  elapsed: b%u, w%u\n", str, sec_b_total, sec_w_total );
+        return 1;
       }
     }
 
@@ -759,39 +759,39 @@ cmd_usrmove( tree_t * restrict ptree, const char *str_move, char **lasts )
   if ( iret < 0 ) { return iret; }
   move_evasion_pchk = 0;
   iret = make_move_root( ptree, move, ( flag_rep | flag_history | flag_time
-					| flag_detect_hang ) );
+                                        | flag_detect_hang ) );
   if ( iret < 0 )
       {
 
 #if defined(CSA_LAN)
-	if ( sckt_csa != SCKT_NULL )
-	  {
-	    if ( move_evasion_pchk )
-	      {
-		str  = str_CSA_move( move_evasion_pchk );
-		iret = sckt_out( sckt_csa, "%c%s\n",
-				 ach_turn[Flip(root_turn)], str );
-		if ( iret < 0 ) { return iret; }
-	      }
-	    return cmd_suspend();
-	  }
+        if ( sckt_csa != SCKT_NULL )
+          {
+            if ( move_evasion_pchk )
+              {
+                str  = str_CSA_move( move_evasion_pchk );
+                iret = sckt_out( sckt_csa, "%c%s\n",
+                                 ach_turn[Flip(root_turn)], str );
+                if ( iret < 0 ) { return iret; }
+              }
+            return cmd_suspend();
+          }
 #endif
 
-	if ( move_evasion_pchk )
-	  {
-	    str = str_CSA_move( move_evasion_pchk );
+        if ( move_evasion_pchk )
+          {
+            str = str_CSA_move( move_evasion_pchk );
 #if defined(CSASHOGI)
-	    OutCsaShogi( "move%s\n", str );
-	    return cmd_suspend();
+            OutCsaShogi( "move%s\n", str );
+            return cmd_suspend();
 #else
-	    snprintf( str_message, SIZE_MESSAGE, "perpetual check (%c%s)",
-		      ach_turn[Flip(root_turn)], str );
-	    str_error = str_message;
-	    return -2;
+            snprintf( str_message, SIZE_MESSAGE, "perpetual check (%c%s)",
+                      ach_turn[Flip(root_turn)], str );
+            str_error = str_message;
+            return -2;
 #endif
-	  }
+          }
 
-	return iret;
+        return iret;
       }
 
   if ( lelapsed ) { adjust_time( (unsigned int)lelapsed, Flip(root_turn) ); }
@@ -912,9 +912,9 @@ static int CONV cmd_ponder( char **lasts )
   else if ( ! strcmp( str, str_off ) )
     {
       if ( game_status & ( flag_pondering | flag_puzzling ) )
-	{
-	  game_status |= flag_quit_ponder;
-	}
+        {
+          game_status |= flag_quit_ponder;
+        }
       game_status |= flag_noponder;
     }
   else {
@@ -977,7 +977,7 @@ cmd_book( tree_t * restrict ptree, char **lasts )
       if ( iret < 0 ) { return iret; }
 
       iret = ini_game( ptree, &min_posi_no_handicap, flag_history,
-		       NULL, NULL );
+                       NULL, NULL );
       if ( iret < 0 ) { return iret; }
 
       iret = get_elapsed( &time_turn_start );
@@ -1003,15 +1003,15 @@ static int CONV cmd_display( tree_t * restrict ptree, char **lasts )
     {
       l = strtol( str, &ptr, 0 );
       if ( ptr == str )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       if      ( l == 1 ) { game_status &= ~flag_reverse; }
       else if ( l == 2 ) { game_status |= flag_reverse; }
       else {
-	str_error = str_bad_cmdline;
-	return -2;
+        str_error = str_bad_cmdline;
+        return -2;
       }
     }
   
@@ -1081,16 +1081,16 @@ static int CONV cmd_limit( char **lasts )
     {
       str = strtok_r( NULL, str_delimiters, lasts );
       if ( str == NULL )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       l1 = strtol( str, &ptr, 0 );
       if ( ptr == str || l1 == LONG_MAX || l1 < 1 )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       sec_limit_up = UINT_MAX;
       node_limit   = UINT64_MAX;
       depth_limit  = (int)l1;
@@ -1099,16 +1099,16 @@ static int CONV cmd_limit( char **lasts )
     {
       str = strtok_r( NULL, str_delimiters, lasts );
       if ( str == NULL )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       l1 = strtol( str, &ptr, 0 );
       if ( ptr == str || l1 == LONG_MAX || l1 < 1 )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       sec_limit_up = UINT_MAX;
       depth_limit  = PLY_MAX;
       node_limit   = (uint64_t)l1;
@@ -1117,59 +1117,59 @@ static int CONV cmd_limit( char **lasts )
     {
       str = strtok_r( NULL, str_delimiters, lasts );
       if ( str == NULL )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
 
       if ( ! strcmp( str, "extendable" ) )
-	{
-	  game_status |= flag_time_extendable;
-	}
+        {
+          game_status |= flag_time_extendable;
+        }
       else if ( ! strcmp( str, "strict" ) )
-	{
-	  game_status &= ~flag_time_extendable;
-	}
+        {
+          game_status &= ~flag_time_extendable;
+        }
       else {
-	l1 = strtol( str, &ptr, 0 );
-	if ( ptr == str || l1 == LONG_MAX || l1 < 0 )
-	  {
-	    str_error = str_bad_cmdline;
-	    return -2;
-	  }
+        l1 = strtol( str, &ptr, 0 );
+        if ( ptr == str || l1 == LONG_MAX || l1 < 0 )
+          {
+            str_error = str_bad_cmdline;
+            return -2;
+          }
 
-	str = strtok_r( NULL, str_delimiters, lasts );
-	if ( str == NULL )
-	  {
-	    str_error = str_bad_cmdline;
-	    return -2;
-	  }
-	l2 = strtol( str, &ptr, 0 );
-	if ( ptr == str || l2 == LONG_MAX || l2 < 0 )
-	  {
-	    str_error = str_bad_cmdline;
-	    return -2;
-	  }
+        str = strtok_r( NULL, str_delimiters, lasts );
+        if ( str == NULL )
+          {
+            str_error = str_bad_cmdline;
+            return -2;
+          }
+        l2 = strtol( str, &ptr, 0 );
+        if ( ptr == str || l2 == LONG_MAX || l2 < 0 )
+          {
+            str_error = str_bad_cmdline;
+            return -2;
+          }
 
-	str = strtok_r( NULL, str_delimiters, lasts );
-	if ( ! str ) { l3 = -1; }
-	else {
-	  l3 = strtol( str, &ptr, 0 );
-	  if ( ptr == str || l3 >= PLY_MAX || l3 < -1 )
-	    {
-	      str_error = str_bad_cmdline;
-	      return -2;
-	    }
-	}
+        str = strtok_r( NULL, str_delimiters, lasts );
+        if ( ! str ) { l3 = -1; }
+        else {
+          l3 = strtol( str, &ptr, 0 );
+          if ( ptr == str || l3 >= PLY_MAX || l3 < -1 )
+            {
+              str_error = str_bad_cmdline;
+              return -2;
+            }
+        }
 
-	if ( ! ( l1 | l2 ) ) { l2 = 1; }
+        if ( ! ( l1 | l2 ) ) { l2 = 1; }
 
-	depth_limit  = PLY_MAX;
-	node_limit   = UINT64_MAX;
-	sec_limit    = (unsigned int)l1 * 60U;
-	sec_limit_up = (unsigned int)l2;
-	if ( l3 == -1 ) { sec_limit_depth = UINT_MAX; }
-	else            { sec_limit_depth = (unsigned int)l3; }
+        depth_limit  = PLY_MAX;
+        node_limit   = UINT64_MAX;
+        sec_limit    = (unsigned int)l1 * 60U;
+        sec_limit_up = (unsigned int)l2;
+        if ( l3 == -1 ) { sec_limit_depth = UINT_MAX; }
+        else            { sec_limit_depth = (unsigned int)l3; }
       }
     }
   else {
@@ -1209,20 +1209,20 @@ cmd_read( tree_t * restrict ptree, char **lasts )
     {
       if ( ! strcmp( str2, "t" ) ) { flag |= flag_time; }
       else if ( strcmp( str2, "nil" ) )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
     }
 
   if ( str3 != NULL )
     {
       l = strtol( str3, &ptr, 0 );
       if ( ptr == str3 || l == LONG_MAX || l < 1 )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       moves = (unsigned int)l - 1U;
     }
 
@@ -1236,26 +1236,26 @@ cmd_read( tree_t * restrict ptree, char **lasts )
       strncpy( str_file, "game.csa", SIZE_FILENAME-1 );
 #else
       snprintf( str_file, SIZE_FILENAME, "%s/game%03d.csa",
-		str_dir_logs, record_num );
+                str_dir_logs, record_num );
 #endif
       pf_dest = file_open( str_tmp, "w" );
       if ( pf_dest == NULL ) { return -2; }
 
       pf_src = file_open( str_file, "r" );
       if ( pf_src == NULL )
-	{
-	  file_close( pf_dest );
-	  return -2;
-	}
+        {
+          file_close( pf_dest );
+          return -2;
+        }
 
       while ( ( c = getc(pf_src) ) != EOF ) { putc( c, pf_dest ); }
 
       iret = file_close( pf_src );
       if ( iret < 0 )
-	{
-	  file_close( pf_dest );
-	  return iret;
-	}
+        {
+          file_close( pf_dest );
+          return iret;
+        }
 
       iret = file_close( pf_dest );
       if ( iret < 0 ) { return iret; }
@@ -1300,8 +1300,8 @@ static int CONV cmd_resign( tree_t * restrict ptree, char **lasts )
     l = strtol( str, &ptr, 0 );
     if ( ptr == str || l == LONG_MAX || l < MT_CAP_PAWN )
       {
-	str_error = str_bad_cmdline;
-	return -2;
+        str_error = str_bad_cmdline;
+        return -2;
       }
     resign_threshold = (int)l;
   }
@@ -1338,15 +1338,15 @@ static int CONV cmd_move( tree_t * restrict ptree, char **lasts )
   if ( str != ptr && l != LONG_MAX && l >= 1 && *ptr == '\0' )
     {
       for ( i = 0; i < l; i += 1 )
-	{
-	  if ( game_status & ( flag_move_now | mask_game_end ) ) { break; }
+        {
+          if ( game_status & ( flag_move_now | mask_game_end ) ) { break; }
 
-	  iret = get_elapsed( &time_turn_start );
-	  if ( iret < 0 ) { return iret; }
-	
-	  iret = com_turn_start( ptree, 0 );
-	  if ( iret < 0 ) { return iret; }
-	}
+          iret = get_elapsed( &time_turn_start );
+          if ( iret < 0 ) { return iret; }
+        
+          iret = com_turn_start( ptree, 0 );
+          if ( iret < 0 ) { return iret; }
+        }
 
       return 1;
     }
@@ -1359,8 +1359,8 @@ static int CONV cmd_move( tree_t * restrict ptree, char **lasts )
     if ( iret < 0 ) { return iret; }
     
     iret = make_move_root( ptree, move,
-			   ( flag_history | flag_time | flag_rep
-			     | flag_detect_hang ) );
+                           ( flag_history | flag_time | flag_rep
+                             | flag_detect_hang ) );
     if ( iret < 0 ) { return iret; }
     
     str = strtok_r( NULL, str_delimiters, lasts );
@@ -1389,14 +1389,14 @@ static int CONV cmd_new( tree_t * restrict ptree, char **lasts )
       if ( iret < 0 ) { return iret; }
 
       if ( str2 != NULL )
-	{
-	  if      ( ! strcmp( str2, "-" ) ) { min_posi.turn_to_move = white; }
-	  else if ( ! strcmp( str2, "+" ) ) { min_posi.turn_to_move = black; }
-	  else {
-	    str_error = str_bad_cmdline;
-	    return -2;
-	  }
-	}
+        {
+          if      ( ! strcmp( str2, "-" ) ) { min_posi.turn_to_move = white; }
+          else if ( ! strcmp( str2, "+" ) ) { min_posi.turn_to_move = black; }
+          else {
+            str_error = str_bad_cmdline;
+            return -2;
+          }
+        }
       else { min_posi.turn_to_move = black; }
 
       pmp = &min_posi;
@@ -1486,10 +1486,10 @@ static int CONV cmd_problem( tree_t * restrict ptree, char **lasts )
     {
       l = strtol( str, &ptr, 0 );
       if ( ptr == str || l == LONG_MAX || l < 1 )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       nposition = (unsigned int)l;
     }
   else { nposition = UINT_MAX; }
@@ -1553,16 +1553,16 @@ static int CONV cmd_time( char **lasts )
       long l;
       str = strtok_r( NULL, str_delimiters, lasts );
       if ( str == NULL )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       l = strtol( str, &ptr, 0 );
       if ( ptr == str || l == LONG_MAX || l < 0 || l > 1000 )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       time_response = (unsigned int)l;
       return 1;
     }
@@ -1572,35 +1572,35 @@ static int CONV cmd_time( char **lasts )
       
       str = strtok_r( NULL, str_delimiters, lasts );
       if ( str == NULL )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       l1 = strtol( str, &ptr, 0 );
       if ( ptr == str || l1 == LONG_MAX || l1 < 0 )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
 
       str = strtok_r( NULL, str_delimiters, lasts );
       if ( str == NULL )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       l2 = strtol( str, &ptr, 0 );
       if ( ptr == str || l2 == LONG_MAX || l2 < 0 )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
 
       if ( sec_limit_up == UINT_MAX )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
 
       return reset_time( (unsigned int)l1, (unsigned int)l2 );
     }
@@ -1647,10 +1647,10 @@ static int CONV cmd_learn( tree_t * restrict ptree, char **lasts )
     {
       l = strtol( str2, &ptr, 0 );
       if ( ptr == str2 || l == LONG_MAX || l < 1 )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       nsteps = (int)l;
     }
 
@@ -1658,10 +1658,10 @@ static int CONV cmd_learn( tree_t * restrict ptree, char **lasts )
     {
       l = strtol( str3, &ptr, 0 );
       if ( ptr == str3 || l == LONG_MAX || l == LONG_MIN )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       if ( l > 0 ) { max_games = (unsigned int)l; }
     }
 
@@ -1669,10 +1669,10 @@ static int CONV cmd_learn( tree_t * restrict ptree, char **lasts )
     {
       l = strtol( str4, &ptr, 0 );
       if ( ptr == str4 || l == LONG_MAX || l == LONG_MIN )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       if ( l > 0 ) { max_iterations = (int)l; }
     }
 
@@ -1681,10 +1681,10 @@ static int CONV cmd_learn( tree_t * restrict ptree, char **lasts )
     {
       l = strtol( str5, &ptr, 0 );
       if ( ptr == str5 || l > TLP_MAX_THREADS || l < 1 )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       nworker1 = (int)l;
     }
 
@@ -1692,10 +1692,10 @@ static int CONV cmd_learn( tree_t * restrict ptree, char **lasts )
     {
       l = strtol( str6, &ptr, 0 );
       if ( ptr == str6 || l > TLP_MAX_THREADS || l < 1 )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       nworker2 = (int)l;
     }
 #  endif
@@ -1710,7 +1710,7 @@ static int CONV cmd_learn( tree_t * restrict ptree, char **lasts )
   if ( iret < 0 ) { return iret; }
 
   iret = learn( ptree, is_ini, nsteps, max_games, max_iterations,
-		nworker1, nworker2 );
+                nworker1, nworker2 );
   if ( iret < 0 ) { return -1; }
 
   iret = ini_game( ptree, &min_posi_no_handicap, flag_history, NULL, NULL );
@@ -1740,16 +1740,16 @@ static int CONV cmd_mpv( char **lasts )
     {
       str = strtok_r( NULL, str_delimiters, lasts );
       if ( str == NULL )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       l = strtol( str, &ptr, 0 );
       if ( ptr == str || l == LONG_MAX || l < 1 || l > MPV_MAX_PV )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
 
       AbortDifficultCommand;
 
@@ -1761,16 +1761,16 @@ static int CONV cmd_mpv( char **lasts )
     {
       str = strtok_r( NULL, str_delimiters, lasts );
       if ( str == NULL )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       l = strtol( str, &ptr, 0 );
       if ( ptr == str || l == LONG_MAX || l < MT_CAP_PAWN )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
 
       AbortDifficultCommand;
 
@@ -1802,16 +1802,16 @@ static int CONV cmd_dfpn( tree_t * restrict ptree, char **lasts )
 
       str = strtok_r( NULL, str_delimiters, lasts );
       if ( str == NULL )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       l = strtol( str, &ptr, 0 );
       if ( ptr == str || l == LONG_MAX || l < 1 )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
 
       AbortDifficultCommand;
 
@@ -1841,10 +1841,10 @@ static int CONV cmd_dfpn( tree_t * restrict ptree, char **lasts )
       if ( ! str || ! strcmp( str, "." ) ) { str = "4083"; }
       l = strtol( str, &ptr, 0 );
       if ( ptr == str || l == LONG_MAX || l < 0 || l > USHRT_MAX )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       port = (int)l;
 
       str = strtok_r( NULL, str_delimiters, lasts );
@@ -1886,25 +1886,25 @@ static int CONV cmd_thread( char **lasts )
 
       str = strtok_r( NULL, str_delimiters, lasts );
       if ( str == NULL )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
       l = strtol( str, &ptr, 0 );
       if ( ptr == str || l == LONG_MAX || l < 1 || l > TLP_MAX_THREADS )
-	{
-	  str_error = str_bad_cmdline;
-	  return -2;
-	}
+        {
+          str_error = str_bad_cmdline;
+          return -2;
+        }
 
       TlpEnd();
 
       tlp_max = (int)l;
 
       if ( game_status & ( flag_thinking | flag_pondering | flag_puzzling ) )
-	{
-	  return tlp_start();
-	}
+        {
+          return tlp_start();
+        }
       return 1;
     }
 
@@ -2136,8 +2136,8 @@ static int CONV cmd_mnj( char **lasts )
     l = strtol( str, &ptr, 0 );
     if ( ptr == str || l == LONG_MAX )
       {
-	str_error = str_bad_cmdline;
-	return -2;
+        str_error = str_bad_cmdline;
+        return -2;
       }
   }
   if ( l <= 0 ) { mnj_depth_stable = INT_MAX; }
@@ -2155,7 +2155,7 @@ static int CONV cmd_mnj( char **lasts )
 
   Out( "Sending my name %s", client_str_id );
   MnjOut( "login %s %g final%s\n", client_str_id, factor,
-	  ( mnj_depth_stable == INT_MAX ) ? "" : " stable" );
+          ( mnj_depth_stable == INT_MAX ) ? "" : " stable" );
 
   return cmd_suspend();
 }

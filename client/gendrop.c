@@ -44,44 +44,44 @@ b_gen_drop( tree_t * restrict __ptree__, unsigned int * restrict pmove )
       ais_pawn[8] = ibb_pawn_cmp & ( mask_file1 >> 8 );
  
       while ( BBToU( bb_target ) )
-	{
-	  ito   = LastOne( bb_target );
-	  utemp = To2Move(ito);
-	  if ( ! ais_pawn[aifile[ito]] && ! IsMateBPawnDrop(__ptree__,ito) )
-	    {
-	      *pmove++ = utemp|Drop2Move(pawn);
-	    }
-	  for ( i = 0; i < nhand; i++ ) { *pmove++ = utemp | ahand[i]; }
-	  Xor( ito, bb_target );
-	}
+        {
+          ito   = LastOne( bb_target );
+          utemp = To2Move(ito);
+          if ( ! ais_pawn[aifile[ito]] && ! IsMateBPawnDrop(__ptree__,ito) )
+            {
+              *pmove++ = utemp|Drop2Move(pawn);
+            }
+          for ( i = 0; i < nhand; i++ ) { *pmove++ = utemp | ahand[i]; }
+          Xor( ito, bb_target );
+        }
 
       while ( ibb_target0b )
-	{
-	  ito   = last_one0( ibb_target0b );
-	  utemp = To2Move(ito);
-	  if ( ! ais_pawn[aifile[ito]] && ! IsMateBPawnDrop(__ptree__,ito) )
-	    {
-	      *pmove++ = utemp | Drop2Move(pawn);
-	    }
-	  for ( i = noknight; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
-	  ibb_target0b ^= abb_mask[ito].p[0];
-	}
+        {
+          ito   = last_one0( ibb_target0b );
+          utemp = To2Move(ito);
+          if ( ! ais_pawn[aifile[ito]] && ! IsMateBPawnDrop(__ptree__,ito) )
+            {
+              *pmove++ = utemp | Drop2Move(pawn);
+            }
+          for ( i = noknight; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
+          ibb_target0b ^= abb_mask[ito].p[0];
+        }
     }
   else {
     while ( BBToU( bb_target ) )
       {
-	ito   = LastOne( bb_target );
-	utemp = To2Move(ito);
-	for ( i = 0; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
-	Xor( ito, bb_target );
+        ito   = LastOne( bb_target );
+        utemp = To2Move(ito);
+        for ( i = 0; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
+        Xor( ito, bb_target );
       }
 
     while ( ibb_target0b )
       {
-	ito = last_one0( ibb_target0b );
-	utemp = To2Move(ito);
-	for ( i = noknight; i < nhand; i++ ) { *pmove++ = utemp|ahand[ i ]; }
-	ibb_target0b ^= abb_mask[ ito ].p[0];
+        ito = last_one0( ibb_target0b );
+        utemp = To2Move(ito);
+        for ( i = noknight; i < nhand; i++ ) { *pmove++ = utemp|ahand[ i ]; }
+        ibb_target0b ^= abb_mask[ ito ].p[0];
       }
   }
 
@@ -141,44 +141,44 @@ w_gen_drop( tree_t * restrict __ptree__, unsigned int * restrict pmove )
       ais_pawn[8] = ibb_pawn_cmp & ( mask_file1 >> 8 );
  
       while ( BBToU( bb_target ) )
-	{
-	  ito   = FirstOne( bb_target );
-	  utemp = To2Move(ito);
-	  if ( ! ais_pawn[aifile[ito]] && ! IsMateWPawnDrop(__ptree__,ito) )
-	    {
-	      *pmove++ = utemp | Drop2Move(pawn);
-	    }
-	  for ( i = 0; i < nhand; i++ ) { *pmove++ = utemp | ahand[i]; }
-	  Xor( ito, bb_target );
-	}
+        {
+          ito   = FirstOne( bb_target );
+          utemp = To2Move(ito);
+          if ( ! ais_pawn[aifile[ito]] && ! IsMateWPawnDrop(__ptree__,ito) )
+            {
+              *pmove++ = utemp | Drop2Move(pawn);
+            }
+          for ( i = 0; i < nhand; i++ ) { *pmove++ = utemp | ahand[i]; }
+          Xor( ito, bb_target );
+        }
 
       while ( ibb_target2b )
-	{
-	  ito   = first_one2( ibb_target2b );
-	  utemp = To2Move(ito);
-	  if ( ! ais_pawn[aifile[ito]] && ! IsMateWPawnDrop(__ptree__,ito) )
-	    {
-	      *pmove++ = utemp | Drop2Move(pawn);
-	    }
-	  for ( i = noknight; i < nhand; i++ ) { *pmove++ = utemp | ahand[i]; }
-	  ibb_target2b ^= abb_mask[ito].p[2];
-	}
+        {
+          ito   = first_one2( ibb_target2b );
+          utemp = To2Move(ito);
+          if ( ! ais_pawn[aifile[ito]] && ! IsMateWPawnDrop(__ptree__,ito) )
+            {
+              *pmove++ = utemp | Drop2Move(pawn);
+            }
+          for ( i = noknight; i < nhand; i++ ) { *pmove++ = utemp | ahand[i]; }
+          ibb_target2b ^= abb_mask[ito].p[2];
+        }
     }
   else {
     while ( BBToU( bb_target ) )
       {
-	ito   = FirstOne( bb_target );
-	utemp = To2Move(ito);
-	for ( i = 0; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
-	Xor( ito, bb_target );
+        ito   = FirstOne( bb_target );
+        utemp = To2Move(ito);
+        for ( i = 0; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
+        Xor( ito, bb_target );
       }
 
     while ( ibb_target2b )
       {
-	ito   = first_one2( ibb_target2b );
-	utemp = To2Move(ito);
-	for ( i = noknight; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
-	ibb_target2b ^= abb_mask[ito].p[2];
+        ito   = first_one2( ibb_target2b );
+        utemp = To2Move(ito);
+        for ( i = noknight; i < nhand; i++ ) { *pmove++ = utemp|ahand[i]; }
+        ibb_target2b ^= abb_mask[ito].p[2];
       }
   }
 

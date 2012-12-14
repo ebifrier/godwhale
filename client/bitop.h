@@ -7,8 +7,8 @@
 #define FirstOne(bb)        first_one012( bb.p[0], bb.p[1], bb.p[2] )
 #define LastOne(bb)         last_one210( bb.p[2], bb.p[1], bb.p[0] )
 #define BBCmp(b1,b2)        ( (b1).p[0] != (b2).p[0]                    \
-				|| (b1).p[1] != (b2).p[1]               \
-				|| (b1).p[2] != (b2).p[2] )
+                                || (b1).p[1] != (b2).p[1]               \
+                                || (b1).p[2] != (b2).p[2] )
 #define BBContractShift(b1,b2) ( ( (b1).p[0] & (b2).p[0] ) << 2         \
                                | ( (b1).p[1] & (b2).p[1] ) << 1         \
                                | ( (b1).p[2] & (b2).p[2] ) )
@@ -34,7 +34,7 @@
 #endif /* HAVE_SSE4 */
 
 #define BBNot(b,b1)         (b).m = _mm_andnot_si128( (b1).m,                 \
-						      _mm_set1_epi8(0xff) )
+                                                      _mm_set1_epi8(0xff) )
 #define BBIni(b)            (b).m = _mm_setzero_si128()
 #define BBAnd(b,b1,b2)      (b).m = _mm_and_si128( (b1).m, (b2).m )
 #define BBOr(b,b1,b2)       (b).m = _mm_or_si128( (b1).m, (b2).m )

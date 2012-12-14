@@ -6,9 +6,9 @@
                    if ( count++ < 16 ) { out_CSA_posi( ptree, stdout, 0 ); } }
 
 static int CONV can_w_king_escape( tree_t * restrict ptree, int to,
-				   const bitboard_t * restrict pbb );
+                                   const bitboard_t * restrict pbb );
 static int CONV can_b_king_escape( tree_t * restrict ptree, int to,
-				   const bitboard_t * restrict pbb );
+                                   const bitboard_t * restrict pbb );
 static int CONV can_w_piece_capture( const tree_t * restrict ptree, int to );
 static int CONV can_b_piece_capture( const tree_t * restrict ptree, int to );
 
@@ -32,15 +32,15 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
     BBAnd( bb, bb, bb_drop );
     while( BBTest(bb) )
       {
-	to = FirstOne( bb );
-	Xor( to, bb );
+        to = FirstOne( bb );
+        Xor( to, bb );
 
-	if ( ! is_white_attacked( ptree, to ) ) { continue; }
-	
-	BBOr( bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0] );
-	if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
-	if ( can_w_piece_capture( ptree, to ) )            { continue; }
-	return To2Move(to) | Drop2Move(rook);
+        if ( ! is_white_attacked( ptree, to ) ) { continue; }
+        
+        BBOr( bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0] );
+        if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+        if ( can_w_piece_capture( ptree, to ) )            { continue; }
+        return To2Move(to) | Drop2Move(rook);
       }
 
   } else if ( IsHandLance(HAND_B) && SQ_WKING <= I2 ) {
@@ -48,32 +48,32 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
     to = SQ_WKING+nfile;
     if ( ! BOARD[to] && is_white_attacked( ptree, to ) )
       {
-	bb_attacks = abb_file_attacks[to][0];
-	if ( ! can_w_king_escape( ptree, to, &bb_attacks )
-	     && ! can_w_piece_capture( ptree, to ) )
-	  {
-	    return To2Move(to) | Drop2Move(lance);
-	  }
+        bb_attacks = abb_file_attacks[to][0];
+        if ( ! can_w_king_escape( ptree, to, &bb_attacks )
+             && ! can_w_piece_capture( ptree, to ) )
+          {
+            return To2Move(to) | Drop2Move(lance);
+          }
       }
   }
 
   if ( IsHandBishop(HAND_B) ) {
 
     BBAnd( bb, abb_w_silver_attacks[SQ_WKING],
-	   abb_b_silver_attacks[SQ_WKING] );
+           abb_b_silver_attacks[SQ_WKING] );
     BBAnd( bb, bb, bb_drop );
     while( BBTest(bb) )
       {
-	to = FirstOne( bb );
-	Xor( to, bb );
+        to = FirstOne( bb );
+        Xor( to, bb );
 
-	if ( ! is_white_attacked( ptree, to ) ) { continue; }
-	
-	BBOr( bb_attacks, abb_bishop_attacks_rr45[to][0],
-	      abb_bishop_attacks_rl45[to][0] );
-	if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
-	if ( can_w_piece_capture( ptree, to ) )            { continue; }
-	return To2Move(to) | Drop2Move(bishop);
+        if ( ! is_white_attacked( ptree, to ) ) { continue; }
+        
+        BBOr( bb_attacks, abb_bishop_attacks_rr45[to][0],
+              abb_bishop_attacks_rl45[to][0] );
+        if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+        if ( can_w_piece_capture( ptree, to ) )            { continue; }
+        return To2Move(to) | Drop2Move(bishop);
       }
   }
 
@@ -81,24 +81,24 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
 
     if ( IsHandRook(HAND_B) )
       {
-	BBAnd( bb, abb_b_gold_attacks[SQ_WKING],
-	       abb_b_silver_attacks[SQ_WKING] );
-	BBNotAnd( bb, bb_drop, bb );
-	BBAnd( bb, bb, abb_w_gold_attacks[SQ_WKING] );
+        BBAnd( bb, abb_b_gold_attacks[SQ_WKING],
+               abb_b_silver_attacks[SQ_WKING] );
+        BBNotAnd( bb, bb_drop, bb );
+        BBAnd( bb, bb, abb_w_gold_attacks[SQ_WKING] );
       }
     else { BBAnd( bb, bb_drop, abb_w_gold_attacks[SQ_WKING] ); }
 
     while ( BBTest(bb) )
       {
-	to = FirstOne( bb );
-	Xor( to, bb );
-	
-	if ( ! is_white_attacked( ptree, to ) ) { continue; }
-	
-	bb_attacks = abb_b_gold_attacks[to];
-	if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
-	if ( can_w_piece_capture( ptree, to ) )            { continue; }
-	return To2Move(to) | Drop2Move(gold);
+        to = FirstOne( bb );
+        Xor( to, bb );
+        
+        if ( ! is_white_attacked( ptree, to ) ) { continue; }
+        
+        bb_attacks = abb_b_gold_attacks[to];
+        if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+        if ( can_w_piece_capture( ptree, to ) )            { continue; }
+        return To2Move(to) | Drop2Move(gold);
       }
   }
   
@@ -106,31 +106,31 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
     
     if ( IsHandGold(HAND_B) )
       {
-	if ( IsHandBishop(HAND_B) ) { goto b_silver_drop_end; }
-	BBNotAnd( bb,
-		  abb_w_silver_attacks[SQ_WKING],
-		  abb_w_gold_attacks[SQ_WKING]  );
-	BBAnd( bb, bb, bb_drop );
+        if ( IsHandBishop(HAND_B) ) { goto b_silver_drop_end; }
+        BBNotAnd( bb,
+                  abb_w_silver_attacks[SQ_WKING],
+                  abb_w_gold_attacks[SQ_WKING]  );
+        BBAnd( bb, bb, bb_drop );
       }
     else {
       BBAnd( bb, bb_drop, abb_w_silver_attacks[SQ_WKING] );
       if ( IsHandBishop(HAND_B) )
-	{
-	  BBAnd( bb, bb, abb_w_gold_attacks[SQ_WKING] );
-	}
+        {
+          BBAnd( bb, bb, abb_w_gold_attacks[SQ_WKING] );
+        }
     }
     
     while ( BBTest(bb) )
       {
-	to = FirstOne( bb );
-	Xor( to, bb );
-	
-	if ( ! is_white_attacked( ptree, to ) ) { continue; }
-	
-	bb_attacks = abb_b_silver_attacks[to];
-	if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
-	if ( can_w_piece_capture( ptree, to ) )            { continue; }
-	return To2Move(to) | Drop2Move(silver);
+        to = FirstOne( bb );
+        Xor( to, bb );
+        
+        if ( ! is_white_attacked( ptree, to ) ) { continue; }
+        
+        bb_attacks = abb_b_silver_attacks[to];
+        if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+        if ( can_w_piece_capture( ptree, to ) )            { continue; }
+        return To2Move(to) | Drop2Move(silver);
       }
   }
  b_silver_drop_end:
@@ -140,13 +140,13 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
     BBAnd( bb, bb_drop, abb_w_knight_attacks[SQ_WKING] );
     while ( BBTest(bb) )
       {
-	to = FirstOne( bb );
-	Xor( to, bb );
-	
-	BBIni( bb_attacks );
-	if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
-	if ( can_w_piece_capture( ptree, to ) )            { continue; }
-	return To2Move(to) | Drop2Move(knight);
+        to = FirstOne( bb );
+        Xor( to, bb );
+        
+        BBIni( bb_attacks );
+        if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+        if ( can_w_piece_capture( ptree, to ) )            { continue; }
+        return To2Move(to) | Drop2Move(knight);
       }
   }
 
@@ -177,17 +177,17 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       if ( ! is_white_attacked( ptree, to ) ) { continue; }
 
       if ( (int)adirec[SQ_WKING][to] & flag_cross )
-	{
-	  BBOr( bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0] );
-	  BBOr( bb_attacks, bb_attacks, abb_king_attacks[to] );
-	}
+        {
+          BBOr( bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0] );
+          BBOr( bb_attacks, bb_attacks, abb_king_attacks[to] );
+        }
       else { AttackDragon( bb_attacks, to ); }
 
       if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
       if ( IsDiscoverWK( from, to ) );
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
-	
+        
       XorFile( from, OCCUPIED_FILE );
       XorDiag2( from, OCCUPIED_DIAG2 );
       XorDiag1( from, OCCUPIED_DIAG1 );
@@ -195,7 +195,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       Xor( from, BB_B_RD );
       Xor( from, BB_B_HDK );
       return ( To2Move(to) | From2Move(from)
-	       | Cap2Move(-BOARD[to]) | Piece2Move(dragon) );
+               | Cap2Move(-BOARD[to]) | Piece2Move(dragon) );
     } while ( BBTest(bb_check) );
 
     XorFile( from, OCCUPIED_FILE );
@@ -227,26 +227,26 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       Xor( to, bb_check );
 
       if ( ! is_white_attacked( ptree, to ) ) { continue; }
-	
+        
       if ( (int)adirec[SQ_WKING][to] & flag_cross )
-	{
-	  BBOr( bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0] );
-	  BBOr( bb_attacks, bb_attacks, abb_king_attacks[to] );
-	}
+        {
+          BBOr( bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0] );
+          BBOr( bb_attacks, bb_attacks, abb_king_attacks[to] );
+        }
       else { AttackDragon( bb_attacks, to ); }
 
       if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
       if ( IsDiscoverWK( from, to ) );
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
-	
+        
       XorFile( from, OCCUPIED_FILE );
       XorDiag2( from, OCCUPIED_DIAG2 );
       XorDiag1( from, OCCUPIED_DIAG1 );
       BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
       BB_B_RD.p[0]    ^= abb_mask[from].p[0];
       return ( To2Move(to) | From2Move(from) | FLAG_PROMO
-	       | Cap2Move(-BOARD[to]) | Piece2Move(rook) );
+               | Cap2Move(-BOARD[to]) | Piece2Move(rook) );
     } while ( BBTest(bb_check) );
 
     XorFile( from, OCCUPIED_FILE );
@@ -285,24 +285,24 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       Xor( to, bb_check );
 
       if ( ! is_white_attacked( ptree, to ) ) { continue; }
-	
+        
       if ( to <= I7 ) {
-	if ( (int)adirec[SQ_WKING][to] & flag_cross )
-	  {
-	    BBOr(bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0]);
-	    bb_attacks.p[0] |= abb_king_attacks[to].p[0];
-	    bb_attacks.p[1] |= abb_king_attacks[to].p[1];
-	  }
-	else { AttackDragon( bb_attacks, to ); }
+        if ( (int)adirec[SQ_WKING][to] & flag_cross )
+          {
+            BBOr(bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0]);
+            bb_attacks.p[0] |= abb_king_attacks[to].p[0];
+            bb_attacks.p[1] |= abb_king_attacks[to].p[1];
+          }
+        else { AttackDragon( bb_attacks, to ); }
 
       } else {
-	BBOr( bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0] );
+        BBOr( bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0] );
       }
       if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
       if ( IsDiscoverWK( from, to ) );
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
-	
+        
       XorFile( from, OCCUPIED_FILE );
       XorDiag2( from, OCCUPIED_DIAG2 );
       XorDiag1( from, OCCUPIED_DIAG1 );
@@ -311,8 +311,8 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       BB_B_RD.p[1]    ^= abb_mask[from].p[1];
       BB_B_RD.p[2]    ^= abb_mask[from].p[2];
       return ( To2Move(to) | From2Move(from)
-	       | ( (to < A6) ? FLAG_PROMO : 0 )
-	       | Cap2Move(-BOARD[to]) | Piece2Move(rook) );
+               | ( (to < A6) ? FLAG_PROMO : 0 )
+               | Cap2Move(-BOARD[to]) | Piece2Move(rook) );
     } while ( BBTest(bb_check) );
 
     XorFile( from, OCCUPIED_FILE );
@@ -346,15 +346,15 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       Xor( to, bb_check );
 
       if ( ! is_white_attacked( ptree, to ) ) { continue; }
-	
+        
       BBOr( bb_attacks, abb_bishop_attacks_rr45[to][0],
-	    abb_bishop_attacks_rl45[to][0] );
+            abb_bishop_attacks_rl45[to][0] );
       BBOr( bb_attacks, bb_attacks, abb_king_attacks[to] );
       if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
       if ( IsDiscoverWK( from, to ) );
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
-	
+        
       XorFile( from, OCCUPIED_FILE );
       XorDiag2( from, OCCUPIED_DIAG2 );
       XorDiag1( from, OCCUPIED_DIAG1 );
@@ -362,7 +362,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       Xor( from, BB_B_BH );
       Xor( from, BB_B_HDK );
       return ( To2Move(to) | From2Move(from)
-	       | Cap2Move(-BOARD[to]) | Piece2Move(horse) );
+               | Cap2Move(-BOARD[to]) | Piece2Move(horse) );
     } while ( BBTest(bb_check) );
 
     XorFile( from, OCCUPIED_FILE );
@@ -394,22 +394,22 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       Xor( to, bb_check );
 
       if ( ! is_white_attacked( ptree, to ) ) { continue; }
-	
+        
       BBOr( bb_attacks, abb_bishop_attacks_rr45[to][0],
-	    abb_bishop_attacks_rl45[to][0] );
+            abb_bishop_attacks_rl45[to][0] );
       BBOr( bb_attacks, bb_attacks, abb_king_attacks[to] );
       if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
       if ( IsDiscoverWK( from, to ) );
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
-	
+        
       XorFile( from, OCCUPIED_FILE );
       XorDiag2( from, OCCUPIED_DIAG2 );
       XorDiag1( from, OCCUPIED_DIAG1 );
       BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
       BB_B_BH.p[0]    ^= abb_mask[from].p[0];
       return ( To2Move(to) | From2Move(from) | FLAG_PROMO
-	       | Cap2Move(-BOARD[to]) | Piece2Move(bishop) );
+               | Cap2Move(-BOARD[to]) | Piece2Move(bishop) );
     } while ( BBTest(bb_check) );
 
     XorFile( from, OCCUPIED_FILE );
@@ -448,18 +448,18 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       Xor( to, bb_check );
 
       if ( ! is_white_attacked( ptree, to ) ) { continue; }
-	
+        
       BBOr( bb_attacks, abb_bishop_attacks_rr45[to][0],
-	    abb_bishop_attacks_rl45[to][0] );
+            abb_bishop_attacks_rl45[to][0] );
       if ( to <= I7 ) {
-	bb_attacks.p[0] |= abb_king_attacks[to].p[0];
-	bb_attacks.p[1] |= abb_king_attacks[to].p[1];
+        bb_attacks.p[0] |= abb_king_attacks[to].p[0];
+        bb_attacks.p[1] |= abb_king_attacks[to].p[1];
       }
       if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
       if ( IsDiscoverWK( from, to ) );
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
-	
+        
       XorFile( from, OCCUPIED_FILE );
       XorDiag2( from, OCCUPIED_DIAG2 );
       XorDiag1( from, OCCUPIED_DIAG1 );
@@ -468,8 +468,8 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       BB_B_BH.p[1]    ^= abb_mask[from].p[1];
       BB_B_BH.p[2]    ^= abb_mask[from].p[2];
       return ( To2Move(to) | From2Move(from)
-	       | ( (to < A6) ? FLAG_PROMO : 0 )
-	       | Cap2Move(-BOARD[to]) | Piece2Move(bishop) );
+               | ( (to < A6) ? FLAG_PROMO : 0 )
+               | Cap2Move(-BOARD[to]) | Piece2Move(bishop) );
     } while ( BBTest(bb_check) );
 
     XorFile( from, OCCUPIED_FILE );
@@ -501,20 +501,20 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       Xor( to, bb_check );
 
       if ( ! is_white_attacked( ptree, to ) ) { continue; }
-	
+        
       bb_attacks = abb_b_gold_attacks[to];
       if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
       if ( IsDiscoverWK( from, to ) );
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
-	
+        
       XorFile( from, OCCUPIED_FILE );
       XorDiag2( from, OCCUPIED_DIAG2 );
       XorDiag1( from, OCCUPIED_DIAG1 );
       Xor( from, BB_BOCCUPY );
       Xor( from, BB_BTGOLD );
       return ( To2Move(to) | From2Move(from)
-	       | Cap2Move(-BOARD[to]) | Piece2Move(BOARD[from]) );
+               | Cap2Move(-BOARD[to]) | Piece2Move(BOARD[from]) );
     } while ( BBTest(bb_check) );
 
     XorFile( from, OCCUPIED_FILE );
@@ -542,7 +542,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       & ~abb_w_gold_attacks[SQ_WKING].p[1];
 
     if ( ! ( bb_check_pro.p[0] | bb_check_pro.p[1]
-	     | bb_check.p[0]| bb_check.p[1] ) ) { continue; }
+             | bb_check.p[0]| bb_check.p[1] ) ) { continue; }
 
     BB_BSILVER.p[0] ^= abb_mask[from].p[0];
     BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
@@ -569,7 +569,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
       BB_BSILVER.p[0] ^= abb_mask[from].p[0];
       return ( To2Move(to) | From2Move(from) | FLAG_PROMO
-	       | Cap2Move(-BOARD[to]) | Piece2Move(silver) );
+               | Cap2Move(-BOARD[to]) | Piece2Move(silver) );
     }
 
     while ( bb_check.p[0] | bb_check.p[1] ) {
@@ -591,7 +591,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
       BB_BSILVER.p[0] ^= abb_mask[from].p[0];
       return ( To2Move(to) | From2Move(from)
-	       | Cap2Move(-BOARD[to]) | Piece2Move(silver) );
+               | Cap2Move(-BOARD[to]) | Piece2Move(silver) );
     }
 
     XorFile( from, OCCUPIED_FILE );
@@ -641,7 +641,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_BSILVER.p[1] ^= abb_mask[from].p[1];
       return ( To2Move(to) | From2Move(from) | FLAG_PROMO
-	       | Cap2Move(-BOARD[to]) | Piece2Move(silver) );
+               | Cap2Move(-BOARD[to]) | Piece2Move(silver) );
     }
 
     while ( bb_check.p[0] | bb_check.p[1] ) {
@@ -663,7 +663,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_BSILVER.p[1] ^= abb_mask[from].p[1];
       return ( To2Move(to) | From2Move(from)
-	       | Cap2Move(-BOARD[to]) | Piece2Move(silver) );
+               | Cap2Move(-BOARD[to]) | Piece2Move(silver) );
     }
 
     XorFile( from, OCCUPIED_FILE );
@@ -699,13 +699,13 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       bb_check.p[2] ^= abb_mask[to].p[2];
 
       if ( ! is_white_attacked( ptree, to ) ) { continue; }
-	
+        
       bb_attacks = abb_b_silver_attacks[to];
       if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
       if ( IsDiscoverWK( from, to ) );
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
-	
+        
       XorFile( from, OCCUPIED_FILE );
       XorDiag2( from, OCCUPIED_DIAG2 );
       XorDiag1( from, OCCUPIED_DIAG1 );
@@ -714,7 +714,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       BB_BSILVER.p[1] ^= abb_mask[from].p[1];
       BB_BSILVER.p[2] ^= abb_mask[from].p[2];
       return ( To2Move(to) | From2Move(from)
-	       | Cap2Move(-BOARD[to]) | Piece2Move(silver) );
+               | Cap2Move(-BOARD[to]) | Piece2Move(silver) );
     } while ( bb_check.p[1] | bb_check.p[2] );
 
     XorFile( from, OCCUPIED_FILE );
@@ -744,26 +744,26 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       XorDiag1( from, OCCUPIED_DIAG1 );
 
       do {
-	to = last_one0( bb_check.p[0] );
-	bb_check.p[0] ^= abb_mask[to].p[0];
+        to = last_one0( bb_check.p[0] );
+        bb_check.p[0] ^= abb_mask[to].p[0];
       
-	if ( ! is_white_attacked( ptree, to ) ) { continue; }
+        if ( ! is_white_attacked( ptree, to ) ) { continue; }
       
-	bb_attacks = abb_b_gold_attacks[to];
-	if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
-	if ( IsDiscoverWK( from, to ) );
-	else if ( can_w_piece_capture( ptree, to ) )       { continue; }
-	if ( IsDiscoverBK( from, to ) )                    { continue; }
+        bb_attacks = abb_b_gold_attacks[to];
+        if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+        if ( IsDiscoverWK( from, to ) );
+        else if ( can_w_piece_capture( ptree, to ) )       { continue; }
+        if ( IsDiscoverBK( from, to ) )                    { continue; }
       
-	XorFile( from, OCCUPIED_FILE );
-	XorDiag2( from, OCCUPIED_DIAG2 );
-	XorDiag1( from, OCCUPIED_DIAG1 );
-	BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
-	BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
-	BB_BKNIGHT.p[0] ^= abb_mask[from].p[0];
-	BB_BKNIGHT.p[1] ^= abb_mask[from].p[1];
-	return ( To2Move(to) | From2Move(from) | FLAG_PROMO
-		 | Cap2Move(-BOARD[to]) | Piece2Move(knight) );
+        XorFile( from, OCCUPIED_FILE );
+        XorDiag2( from, OCCUPIED_DIAG2 );
+        XorDiag1( from, OCCUPIED_DIAG1 );
+        BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
+        BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
+        BB_BKNIGHT.p[0] ^= abb_mask[from].p[0];
+        BB_BKNIGHT.p[1] ^= abb_mask[from].p[1];
+        return ( To2Move(to) | From2Move(from) | FLAG_PROMO
+                 | Cap2Move(-BOARD[to]) | Piece2Move(knight) );
       } while ( bb_check.p[0] );
 
       XorFile( from, OCCUPIED_FILE );
@@ -779,42 +779,42 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       BBAnd( bb_check, bb_check, abb_w_knight_attacks[SQ_WKING] );
       
       if ( BBTest(bb_check) ) {
-	BB_BKNIGHT.p[1] ^= abb_mask[from].p[1];
-	BB_BKNIGHT.p[2] ^= abb_mask[from].p[2];
-	BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
-	BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
-	XorFile( from, OCCUPIED_FILE );
-	XorDiag2( from, OCCUPIED_DIAG2 );
-	XorDiag1( from, OCCUPIED_DIAG1 );
-	
-	do {
-	  to = FirstOne( bb_check );
-	  Xor( to, bb_check );
+        BB_BKNIGHT.p[1] ^= abb_mask[from].p[1];
+        BB_BKNIGHT.p[2] ^= abb_mask[from].p[2];
+        BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
+        BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
+        XorFile( from, OCCUPIED_FILE );
+        XorDiag2( from, OCCUPIED_DIAG2 );
+        XorDiag1( from, OCCUPIED_DIAG1 );
+        
+        do {
+          to = FirstOne( bb_check );
+          Xor( to, bb_check );
       
-	  BBIni( bb_attacks );
-	  if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
-	  if ( IsDiscoverWK( from, to ) );
-	  else if ( can_w_piece_capture( ptree, to ) )       { continue; }
-	  if ( IsDiscoverBK( from, to ) )                    { continue; }
+          BBIni( bb_attacks );
+          if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+          if ( IsDiscoverWK( from, to ) );
+          else if ( can_w_piece_capture( ptree, to ) )       { continue; }
+          if ( IsDiscoverBK( from, to ) )                    { continue; }
       
-	  XorFile( from, OCCUPIED_FILE );
-	  XorDiag2( from, OCCUPIED_DIAG2 );
-	  XorDiag1( from, OCCUPIED_DIAG1 );
-	  BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
-	  BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
-	  BB_BKNIGHT.p[1] ^= abb_mask[from].p[1];
-	  BB_BKNIGHT.p[2] ^= abb_mask[from].p[2];
-	  return ( To2Move(to) | From2Move(from)
-		   | Cap2Move(-BOARD[to]) | Piece2Move(knight) );
-	} while ( BBTest(bb_check) );
+          XorFile( from, OCCUPIED_FILE );
+          XorDiag2( from, OCCUPIED_DIAG2 );
+          XorDiag1( from, OCCUPIED_DIAG1 );
+          BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
+          BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
+          BB_BKNIGHT.p[1] ^= abb_mask[from].p[1];
+          BB_BKNIGHT.p[2] ^= abb_mask[from].p[2];
+          return ( To2Move(to) | From2Move(from)
+                   | Cap2Move(-BOARD[to]) | Piece2Move(knight) );
+        } while ( BBTest(bb_check) );
 
-	XorFile( from, OCCUPIED_FILE );
-	XorDiag2( from, OCCUPIED_DIAG2 );
-	XorDiag1( from, OCCUPIED_DIAG1 );
-	BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
-	BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
-	BB_BKNIGHT.p[1] ^= abb_mask[from].p[1];
-	BB_BKNIGHT.p[2] ^= abb_mask[from].p[2];
+        XorFile( from, OCCUPIED_FILE );
+        XorDiag2( from, OCCUPIED_DIAG2 );
+        XorDiag1( from, OCCUPIED_DIAG1 );
+        BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
+        BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
+        BB_BKNIGHT.p[1] ^= abb_mask[from].p[1];
+        BB_BKNIGHT.p[2] ^= abb_mask[from].p[2];
       }
     }
   }
@@ -832,7 +832,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
     bb_check_pro.p[0] = bb_attacks.p[0] & abb_w_gold_attacks[SQ_WKING].p[0];
 
     if ( ! ( bb_check_pro.p[0] | bb_check.p[0]
-	     | bb_check.p[1] | bb_check.p[2] ) ) { continue; }
+             | bb_check.p[1] | bb_check.p[2] ) ) { continue; }
 
     Xor( from, BB_BLANCE );
     Xor( from, BB_BOCCUPY );
@@ -845,8 +845,8 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
 
       to = SQ_WKING+nfile;
       if ( ! is_white_attacked( ptree, to ) ) {
-	bb_check.p[0] &= ~abb_mask[to].p[0];
-	goto b_lance_next;
+        bb_check.p[0] &= ~abb_mask[to].p[0];
+        goto b_lance_next;
       }
       bb_temp = abb_file_attacks[to][0];
       if ( can_w_king_escape( ptree, to, &bb_temp ) ) { goto b_lance_next; }
@@ -860,30 +860,30 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       Xor( from, BB_BOCCUPY );
       Xor( from, BB_BLANCE );
       return ( To2Move(to) | From2Move(from)
-	       | Cap2Move(-BOARD[to]) | Piece2Move(lance) );
+               | Cap2Move(-BOARD[to]) | Piece2Move(lance) );
     }
     
   b_lance_next:
     while ( bb_check_pro.p[0] )
       {
-	to = last_one0( bb_check_pro.p[0] );
-	bb_check_pro.p[0] ^= abb_mask[to].p[0];
-	
-	if ( ! is_white_attacked( ptree, to ) ) { continue; }
-	
-	bb_attacks = abb_b_gold_attacks[to];
-	if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
-	if ( IsDiscoverWK( from, to ) );
-	else if ( can_w_piece_capture( ptree, to ) )       { continue; }
-	if ( IsDiscoverBK( from, to ) )                    { continue; }
-	
-	XorFile( from, OCCUPIED_FILE );
-	XorDiag2( from, OCCUPIED_DIAG2 );
-	XorDiag1( from, OCCUPIED_DIAG1 );
-	Xor( from, BB_BOCCUPY );
-	Xor( from, BB_BLANCE );
-	return ( To2Move(to) | From2Move(from) | FLAG_PROMO
-		 | Cap2Move(-BOARD[to]) | Piece2Move(lance) );
+        to = last_one0( bb_check_pro.p[0] );
+        bb_check_pro.p[0] ^= abb_mask[to].p[0];
+        
+        if ( ! is_white_attacked( ptree, to ) ) { continue; }
+        
+        bb_attacks = abb_b_gold_attacks[to];
+        if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+        if ( IsDiscoverWK( from, to ) );
+        else if ( can_w_piece_capture( ptree, to ) )       { continue; }
+        if ( IsDiscoverBK( from, to ) )                    { continue; }
+        
+        XorFile( from, OCCUPIED_FILE );
+        XorDiag2( from, OCCUPIED_DIAG2 );
+        XorDiag1( from, OCCUPIED_DIAG1 );
+        Xor( from, BB_BOCCUPY );
+        Xor( from, BB_BLANCE );
+        return ( To2Move(to) | From2Move(from) | FLAG_PROMO
+                 | Cap2Move(-BOARD[to]) | Piece2Move(lance) );
       }
     
     XorFile( from, OCCUPIED_FILE );
@@ -923,7 +923,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
     BB_BPAWN_ATK.p[0] ^= abb_mask[to].p[0];
     BB_BPAWN_ATK.p[1] ^= abb_mask[to].p[1];
     return ( To2Move(to) | From2Move(from) | FLAG_PROMO
-	     | Cap2Move(-BOARD[to]) | Piece2Move(pawn) );
+             | Cap2Move(-BOARD[to]) | Piece2Move(pawn) );
 
   b_pawn_pro_next:
     XorFile( from, OCCUPIED_FILE );
@@ -962,7 +962,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       BB_BPAWN_ATK.p[1] ^= abb_mask[to].p[1];
       BB_BPAWN_ATK.p[2] ^= abb_mask[to].p[2];
       return ( To2Move(to) | From2Move(from)
-	       | Cap2Move(-BOARD[to]) | Piece2Move(pawn) );
+               | Cap2Move(-BOARD[to]) | Piece2Move(pawn) );
       
     b_pawn_end:
       XorFile( from, OCCUPIED_FILE );
@@ -995,19 +995,19 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
   if ( IsHandRook(HAND_W) ) {
 
     BBAnd( bb, abb_w_gold_attacks[SQ_BKING],
-	   abb_b_gold_attacks[SQ_BKING] );
+           abb_b_gold_attacks[SQ_BKING] );
     BBAnd( bb, bb, bb_drop );
     while( BBTest(bb) )
       {
-	to = LastOne( bb );
-	Xor( to, bb );
+        to = LastOne( bb );
+        Xor( to, bb );
 
-	if ( ! is_black_attacked( ptree, to ) ) { continue; }
-	
-	BBOr( bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0] );
-	if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
-	if ( can_b_piece_capture( ptree, to ) )            { continue; }
-	return To2Move(to) | Drop2Move(rook);
+        if ( ! is_black_attacked( ptree, to ) ) { continue; }
+        
+        BBOr( bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0] );
+        if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+        if ( can_b_piece_capture( ptree, to ) )            { continue; }
+        return To2Move(to) | Drop2Move(rook);
       }
 
   } else if ( IsHandLance(HAND_W) && SQ_BKING >= A8 ) {
@@ -1015,32 +1015,32 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
     to = SQ_BKING-nfile;
     if ( ( ! BOARD[to] ) && is_black_attacked( ptree, to ) )
       {
-	bb_attacks = abb_file_attacks[to][0];
-	if ( ( ! can_b_king_escape( ptree, to, &bb_attacks ) )
-	     && ( ! can_b_piece_capture( ptree, to ) ) )
-	  {
-	    return To2Move(to) | Drop2Move(lance);
-	  }
+        bb_attacks = abb_file_attacks[to][0];
+        if ( ( ! can_b_king_escape( ptree, to, &bb_attacks ) )
+             && ( ! can_b_piece_capture( ptree, to ) ) )
+          {
+            return To2Move(to) | Drop2Move(lance);
+          }
       }
   }
 
   if ( IsHandBishop(HAND_W) ) {
 
     BBAnd( bb, abb_w_silver_attacks[SQ_BKING],
-	   abb_b_silver_attacks[SQ_BKING] );
+           abb_b_silver_attacks[SQ_BKING] );
     BBAnd( bb, bb, bb_drop );
     while( BBTest(bb) )
       {
-	to = LastOne( bb );
-	Xor( to, bb );
+        to = LastOne( bb );
+        Xor( to, bb );
 
-	if ( ! is_black_attacked( ptree, to ) ) { continue; }
-	
-	BBOr( bb_attacks, abb_bishop_attacks_rr45[to][0],
-	      abb_bishop_attacks_rl45[to][0] );
-	if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
-	if ( can_b_piece_capture( ptree, to ) )            { continue; }
-	return To2Move(to) | Drop2Move(bishop);
+        if ( ! is_black_attacked( ptree, to ) ) { continue; }
+        
+        BBOr( bb_attacks, abb_bishop_attacks_rr45[to][0],
+              abb_bishop_attacks_rl45[to][0] );
+        if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+        if ( can_b_piece_capture( ptree, to ) )            { continue; }
+        return To2Move(to) | Drop2Move(bishop);
       }
   }
 
@@ -1048,24 +1048,24 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
     
     if ( IsHandRook(HAND_W) )
       {
-	BBAnd( bb, abb_w_gold_attacks[SQ_BKING],
-	       abb_w_silver_attacks[SQ_BKING] );
-	BBNotAnd( bb, bb_drop, bb );
-	BBAnd( bb, bb, abb_b_gold_attacks[SQ_BKING] );
+        BBAnd( bb, abb_w_gold_attacks[SQ_BKING],
+               abb_w_silver_attacks[SQ_BKING] );
+        BBNotAnd( bb, bb_drop, bb );
+        BBAnd( bb, bb, abb_b_gold_attacks[SQ_BKING] );
       }
     else { BBAnd( bb, bb_drop, abb_b_gold_attacks[SQ_BKING] ); }
 
     while ( BBTest(bb) )
       {
-	to = LastOne( bb );
-	Xor( to, bb );
-	
-	if ( ! is_black_attacked( ptree, to ) ) { continue; }
-	
-	bb_attacks = abb_w_gold_attacks[to];
-	if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
-	if ( can_b_piece_capture( ptree, to ) )            { continue; }
-	return To2Move(to) | Drop2Move(gold);
+        to = LastOne( bb );
+        Xor( to, bb );
+        
+        if ( ! is_black_attacked( ptree, to ) ) { continue; }
+        
+        bb_attacks = abb_w_gold_attacks[to];
+        if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+        if ( can_b_piece_capture( ptree, to ) )            { continue; }
+        return To2Move(to) | Drop2Move(gold);
       }
   }
   
@@ -1073,31 +1073,31 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
     
     if ( IsHandGold(HAND_W) )
       {
-	if ( IsHandBishop(HAND_W) ) { goto w_silver_drop_end; }
-	BBNotAnd( bb,
-		  abb_b_silver_attacks[SQ_BKING],
-		  abb_b_gold_attacks[SQ_BKING] );
-	BBAnd( bb, bb, bb_drop );
+        if ( IsHandBishop(HAND_W) ) { goto w_silver_drop_end; }
+        BBNotAnd( bb,
+                  abb_b_silver_attacks[SQ_BKING],
+                  abb_b_gold_attacks[SQ_BKING] );
+        BBAnd( bb, bb, bb_drop );
       }
     else {
       BBAnd( bb, bb_drop, abb_b_silver_attacks[SQ_BKING] );
       if ( IsHandBishop(HAND_W) )
-	{
-	  BBAnd( bb, bb, abb_b_gold_attacks[SQ_BKING] );
-	}
+        {
+          BBAnd( bb, bb, abb_b_gold_attacks[SQ_BKING] );
+        }
     }
     
     while ( BBTest(bb) )
       {
-	to = LastOne( bb );
-	Xor( to, bb );
-	
-	if ( ! is_black_attacked( ptree, to ) ) { continue; }
-	
-	bb_attacks = abb_w_silver_attacks[to];
-	if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
-	if ( can_b_piece_capture( ptree, to ) )            { continue; }
-	return To2Move(to) | Drop2Move(silver);
+        to = LastOne( bb );
+        Xor( to, bb );
+        
+        if ( ! is_black_attacked( ptree, to ) ) { continue; }
+        
+        bb_attacks = abb_w_silver_attacks[to];
+        if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+        if ( can_b_piece_capture( ptree, to ) )            { continue; }
+        return To2Move(to) | Drop2Move(silver);
       }
   }
  w_silver_drop_end:
@@ -1107,13 +1107,13 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
     BBAnd( bb, bb_drop, abb_b_knight_attacks[SQ_BKING] );
     while ( BBTest(bb) )
       {
-	to = LastOne( bb );
-	Xor( to, bb );
-	
-	BBIni( bb_attacks );
-	if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
-	if ( can_b_piece_capture( ptree, to ) )            { continue; }
-	return To2Move(to) | Drop2Move(knight);
+        to = LastOne( bb );
+        Xor( to, bb );
+        
+        BBIni( bb_attacks );
+        if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+        if ( can_b_piece_capture( ptree, to ) )            { continue; }
+        return To2Move(to) | Drop2Move(knight);
       }
   }
 
@@ -1142,19 +1142,19 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       Xor( to, bb_check );
 
       if ( ! is_black_attacked( ptree, to ) ) { continue; }
-	
+        
       if ( (int)adirec[SQ_BKING][to] & flag_cross )
-	{
-	  BBOr( bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0] );
-	  BBOr( bb_attacks, bb_attacks, abb_king_attacks[to] );
-	}
+        {
+          BBOr( bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0] );
+          BBOr( bb_attacks, bb_attacks, abb_king_attacks[to] );
+        }
       else { AttackDragon( bb_attacks, to ); }
 
       if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
       if ( IsDiscoverBK( from, to ) );
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
-	
+        
       XorFile( from, OCCUPIED_FILE );
       XorDiag2( from, OCCUPIED_DIAG2 );
       XorDiag1( from, OCCUPIED_DIAG1 );
@@ -1162,7 +1162,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       Xor( from, BB_W_RD );
       Xor( from, BB_W_HDK );
       return ( To2Move(to) | From2Move(from)
-	       | Cap2Move(BOARD[to]) | Piece2Move(dragon) );
+               | Cap2Move(BOARD[to]) | Piece2Move(dragon) );
     } while ( BBTest(bb_check) );
 
     XorFile( from, OCCUPIED_FILE );
@@ -1194,26 +1194,26 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       Xor( to, bb_check );
 
       if ( ! is_black_attacked( ptree, to ) ) { continue; }
-	
+        
       if ( (int)adirec[SQ_BKING][to] & flag_cross )
-	{
-	  BBOr( bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0] );
-	  BBOr( bb_attacks, bb_attacks, abb_king_attacks[to] );
-	}
+        {
+          BBOr( bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0] );
+          BBOr( bb_attacks, bb_attacks, abb_king_attacks[to] );
+        }
       else { AttackDragon( bb_attacks, to ); }
 
       if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
       if ( IsDiscoverBK( from, to ) );
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
-	
+        
       XorFile( from, OCCUPIED_FILE );
       XorDiag2( from, OCCUPIED_DIAG2 );
       XorDiag1( from, OCCUPIED_DIAG1 );
       BB_WOCCUPY.p[2] ^= abb_mask[from].p[2];
       BB_W_RD.p[2]    ^= abb_mask[from].p[2];
       return ( To2Move(to) | From2Move(from) | FLAG_PROMO
-	       | Cap2Move(BOARD[to]) | Piece2Move(rook) );
+               | Cap2Move(BOARD[to]) | Piece2Move(rook) );
     } while ( BBTest(bb_check) );
 
     XorFile( from, OCCUPIED_FILE );
@@ -1252,23 +1252,23 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       Xor( to, bb_check );
 
       if ( ! is_black_attacked( ptree, to ) ) { continue; }
-	
+        
       if ( to >= A3 ) {
-	if ( (int)adirec[SQ_BKING][to] & flag_cross )
-	  {
-	    BBOr(bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0]);
-	    bb_attacks.p[1] |= abb_king_attacks[to].p[1];
-	    bb_attacks.p[2] |= abb_king_attacks[to].p[2];
-	  }
-	else { AttackDragon( bb_attacks, to ); }
+        if ( (int)adirec[SQ_BKING][to] & flag_cross )
+          {
+            BBOr(bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0]);
+            bb_attacks.p[1] |= abb_king_attacks[to].p[1];
+            bb_attacks.p[2] |= abb_king_attacks[to].p[2];
+          }
+        else { AttackDragon( bb_attacks, to ); }
       } else {
-	BBOr(bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0]);
+        BBOr(bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0]);
       }
       if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
       if ( IsDiscoverBK( from, to ) );
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
-	
+        
       XorFile( from, OCCUPIED_FILE );
       XorDiag2( from, OCCUPIED_DIAG2 );
       XorDiag1( from, OCCUPIED_DIAG1 );
@@ -1277,8 +1277,8 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       BB_W_RD.p[0]    ^= abb_mask[from].p[0];
       BB_W_RD.p[1]    ^= abb_mask[from].p[1];
       return ( To2Move(to) | From2Move(from)
-	       | ( (to > I4) ? FLAG_PROMO : 0 )
-	       | Cap2Move(BOARD[to]) | Piece2Move(rook) );
+               | ( (to > I4) ? FLAG_PROMO : 0 )
+               | Cap2Move(BOARD[to]) | Piece2Move(rook) );
     } while ( BBTest(bb_check) );
 
     XorFile( from, OCCUPIED_FILE );
@@ -1312,15 +1312,15 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       Xor( to, bb_check );
 
       if ( ! is_black_attacked( ptree, to ) ) { continue; }
-	
+        
       BBOr( bb_attacks, abb_bishop_attacks_rr45[to][0],
-	    abb_bishop_attacks_rl45[to][0] );
+            abb_bishop_attacks_rl45[to][0] );
       BBOr( bb_attacks, bb_attacks, abb_king_attacks[to] );
       if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
       if ( IsDiscoverBK( from, to ) );
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
-	
+        
       XorFile( from, OCCUPIED_FILE );
       XorDiag2( from, OCCUPIED_DIAG2 );
       XorDiag1( from, OCCUPIED_DIAG1 );
@@ -1328,7 +1328,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       Xor( from, BB_W_BH );
       Xor( from, BB_W_HDK );
       return ( To2Move(to) | From2Move(from)
-	       | Cap2Move(BOARD[to]) | Piece2Move(horse) );
+               | Cap2Move(BOARD[to]) | Piece2Move(horse) );
     } while ( BBTest(bb_check) );
 
     XorFile( from, OCCUPIED_FILE );
@@ -1360,22 +1360,22 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       Xor( to, bb_check );
 
       if ( ! is_black_attacked( ptree, to ) ) { continue; }
-	
+        
       BBOr( bb_attacks, abb_bishop_attacks_rr45[to][0],
-	    abb_bishop_attacks_rl45[to][0] );
+            abb_bishop_attacks_rl45[to][0] );
       BBOr( bb_attacks, bb_attacks, abb_king_attacks[to] );
       if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
       if ( IsDiscoverBK( from, to ) );
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
-	
+        
       XorFile( from, OCCUPIED_FILE );
       XorDiag2( from, OCCUPIED_DIAG2 );
       XorDiag1( from, OCCUPIED_DIAG1 );
       BB_WOCCUPY.p[2] ^= abb_mask[from].p[2];
       BB_W_BH.p[2]    ^= abb_mask[from].p[2];
       return ( To2Move(to) | From2Move(from) | FLAG_PROMO
-	       | Cap2Move(BOARD[to]) | Piece2Move(bishop) );
+               | Cap2Move(BOARD[to]) | Piece2Move(bishop) );
     } while ( BBTest(bb_check) );
 
     XorFile( from, OCCUPIED_FILE );
@@ -1414,18 +1414,18 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       Xor( to, bb_check );
 
       if ( ! is_black_attacked( ptree, to ) ) { continue; }
-	
+        
       BBOr( bb_attacks, abb_bishop_attacks_rr45[to][0],
-	    abb_bishop_attacks_rl45[to][0] );
+            abb_bishop_attacks_rl45[to][0] );
       if ( to >= A3 ) {
-	bb_attacks.p[1] |= abb_king_attacks[to].p[1];
-	bb_attacks.p[2] |= abb_king_attacks[to].p[2];
+        bb_attacks.p[1] |= abb_king_attacks[to].p[1];
+        bb_attacks.p[2] |= abb_king_attacks[to].p[2];
       }
       if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
       if ( IsDiscoverBK( from, to ) );
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
-	
+        
       XorFile( from, OCCUPIED_FILE );
       XorDiag2( from, OCCUPIED_DIAG2 );
       XorDiag1( from, OCCUPIED_DIAG1 );
@@ -1434,8 +1434,8 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       BB_W_BH.p[0]    ^= abb_mask[from].p[0];
       BB_W_BH.p[1]    ^= abb_mask[from].p[1];
       return ( To2Move(to) | From2Move(from)
-	       | ( (to > I4) ? FLAG_PROMO : 0 )
-	       | Cap2Move(BOARD[to]) | Piece2Move(bishop) );
+               | ( (to > I4) ? FLAG_PROMO : 0 )
+               | Cap2Move(BOARD[to]) | Piece2Move(bishop) );
     } while ( BBTest(bb_check) );
 
     XorFile( from, OCCUPIED_FILE );
@@ -1467,20 +1467,20 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       Xor( to, bb_check );
 
       if ( ! is_black_attacked( ptree, to ) ) { continue; }
-	
+        
       bb_attacks = abb_w_gold_attacks[to];
       if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
       if ( IsDiscoverBK( from, to ) );
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
-	
+        
       XorFile( from, OCCUPIED_FILE );
       XorDiag2( from, OCCUPIED_DIAG2 );
       XorDiag1( from, OCCUPIED_DIAG1 );
       Xor( from, BB_WOCCUPY );
       Xor( from, BB_WTGOLD );
       return ( To2Move(to) | From2Move(from)
-	       | Cap2Move(BOARD[to]) | Piece2Move(-BOARD[from]) );
+               | Cap2Move(BOARD[to]) | Piece2Move(-BOARD[from]) );
     } while ( BBTest(bb_check) );
 
     XorFile( from, OCCUPIED_FILE );
@@ -1508,7 +1508,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       & ~abb_b_gold_attacks[SQ_BKING].p[2];
 
     if ( ! ( bb_check_pro.p[1] | bb_check_pro.p[2]
-	     | bb_check.p[1]| bb_check.p[2] ) ) { continue; }
+             | bb_check.p[1]| bb_check.p[2] ) ) { continue; }
 
     BB_WSILVER.p[2] ^= abb_mask[from].p[2];
     BB_WOCCUPY.p[2]  ^= abb_mask[from].p[2];
@@ -1535,7 +1535,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       BB_WOCCUPY.p[2]  ^= abb_mask[from].p[2];
       BB_WSILVER.p[2] ^= abb_mask[from].p[2];
       return ( To2Move(to) | From2Move(from) | FLAG_PROMO
-	       | Cap2Move(BOARD[to]) | Piece2Move(silver) );
+               | Cap2Move(BOARD[to]) | Piece2Move(silver) );
     }
 
     while ( bb_check.p[1] | bb_check.p[2] ) {
@@ -1557,7 +1557,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       BB_WOCCUPY.p[2]  ^= abb_mask[from].p[2];
       BB_WSILVER.p[2] ^= abb_mask[from].p[2];
       return ( To2Move(to) | From2Move(from)
-	       | Cap2Move(BOARD[to]) | Piece2Move(silver) );
+               | Cap2Move(BOARD[to]) | Piece2Move(silver) );
     }
 
     XorFile( from, OCCUPIED_FILE );
@@ -1607,7 +1607,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_WSILVER.p[1] ^= abb_mask[from].p[1];
       return ( To2Move(to) | From2Move(from) | FLAG_PROMO
-	       | Cap2Move(BOARD[to]) | Piece2Move(silver) );
+               | Cap2Move(BOARD[to]) | Piece2Move(silver) );
     }
 
     while ( bb_check.p[1] | bb_check.p[2] ) {
@@ -1629,7 +1629,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_WSILVER.p[1] ^= abb_mask[from].p[1];
       return ( To2Move(to) | From2Move(from)
-	       | Cap2Move(BOARD[to]) | Piece2Move(silver) );
+               | Cap2Move(BOARD[to]) | Piece2Move(silver) );
     }
 
     XorFile( from, OCCUPIED_FILE );
@@ -1666,13 +1666,13 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       bb_check.p[1] ^= abb_mask[to].p[1];
 
       if ( ! is_black_attacked( ptree, to ) ) { continue; }
-	
+        
       bb_attacks = abb_w_silver_attacks[to];
       if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
       if ( IsDiscoverBK( from, to ) );
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
-	
+        
       XorFile( from, OCCUPIED_FILE );
       XorDiag2( from, OCCUPIED_DIAG2 );
       XorDiag1( from, OCCUPIED_DIAG1 );
@@ -1681,7 +1681,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       BB_WSILVER.p[0] ^= abb_mask[from].p[0];
       BB_WSILVER.p[1] ^= abb_mask[from].p[1];
       return ( To2Move(to) | From2Move(from)
-	       | Cap2Move(BOARD[to]) | Piece2Move(silver) );
+               | Cap2Move(BOARD[to]) | Piece2Move(silver) );
     } while ( bb_check.p[0] | bb_check.p[1] );
 
     XorFile( from, OCCUPIED_FILE );
@@ -1711,26 +1711,26 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       XorDiag1( from, OCCUPIED_DIAG1 );
 
       do {
-	to = first_one2( bb_check.p[2] );
-	bb_check.p[2] ^= abb_mask[to].p[2];
+        to = first_one2( bb_check.p[2] );
+        bb_check.p[2] ^= abb_mask[to].p[2];
       
-	if ( ! is_black_attacked( ptree, to ) ) { continue; }
+        if ( ! is_black_attacked( ptree, to ) ) { continue; }
       
-	bb_attacks = abb_w_gold_attacks[to];
-	if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
-	if ( IsDiscoverBK( from, to ) );
-	else if ( can_b_piece_capture( ptree, to ) )       { continue; }
-	if ( IsDiscoverWK( from, to ) )                    { continue; }
+        bb_attacks = abb_w_gold_attacks[to];
+        if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+        if ( IsDiscoverBK( from, to ) );
+        else if ( can_b_piece_capture( ptree, to ) )       { continue; }
+        if ( IsDiscoverWK( from, to ) )                    { continue; }
       
-	XorFile( from, OCCUPIED_FILE );
-	XorDiag2( from, OCCUPIED_DIAG2 );
-	XorDiag1( from, OCCUPIED_DIAG1 );
-	BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
-	BB_WOCCUPY.p[2] ^= abb_mask[from].p[2];
-	BB_WKNIGHT.p[1] ^= abb_mask[from].p[1];
-	BB_WKNIGHT.p[2] ^= abb_mask[from].p[2];
-	return ( To2Move(to) | From2Move(from) | FLAG_PROMO
-		 | Cap2Move(BOARD[to]) | Piece2Move(knight) );
+        XorFile( from, OCCUPIED_FILE );
+        XorDiag2( from, OCCUPIED_DIAG2 );
+        XorDiag1( from, OCCUPIED_DIAG1 );
+        BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
+        BB_WOCCUPY.p[2] ^= abb_mask[from].p[2];
+        BB_WKNIGHT.p[1] ^= abb_mask[from].p[1];
+        BB_WKNIGHT.p[2] ^= abb_mask[from].p[2];
+        return ( To2Move(to) | From2Move(from) | FLAG_PROMO
+                 | Cap2Move(BOARD[to]) | Piece2Move(knight) );
       } while ( bb_check.p[2] );
 
       XorFile( from, OCCUPIED_FILE );
@@ -1746,42 +1746,42 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       BBAnd( bb_check, bb_check, abb_b_knight_attacks[SQ_BKING] );
       
       if ( BBTest(bb_check) ) {
-	BB_WKNIGHT.p[0] ^= abb_mask[from].p[0];
-	BB_WKNIGHT.p[1] ^= abb_mask[from].p[1];
-	BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
-	BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
-	XorFile( from, OCCUPIED_FILE );
-	XorDiag2( from, OCCUPIED_DIAG2 );
-	XorDiag1( from, OCCUPIED_DIAG1 );
-	
-	do {
-	  to = LastOne( bb_check );
-	  Xor( to, bb_check );
+        BB_WKNIGHT.p[0] ^= abb_mask[from].p[0];
+        BB_WKNIGHT.p[1] ^= abb_mask[from].p[1];
+        BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
+        BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
+        XorFile( from, OCCUPIED_FILE );
+        XorDiag2( from, OCCUPIED_DIAG2 );
+        XorDiag1( from, OCCUPIED_DIAG1 );
+        
+        do {
+          to = LastOne( bb_check );
+          Xor( to, bb_check );
       
-	  BBIni( bb_attacks );
-	  if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
-	  if ( IsDiscoverBK( from, to ) );
-	  else if ( can_b_piece_capture( ptree, to ) )       { continue; }
-	  if ( IsDiscoverWK( from, to ) )                    { continue; }
+          BBIni( bb_attacks );
+          if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+          if ( IsDiscoverBK( from, to ) );
+          else if ( can_b_piece_capture( ptree, to ) )       { continue; }
+          if ( IsDiscoverWK( from, to ) )                    { continue; }
       
-	  XorFile( from, OCCUPIED_FILE );
-	  XorDiag2( from, OCCUPIED_DIAG2 );
-	  XorDiag1( from, OCCUPIED_DIAG1 );
-	  BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
-	  BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
-	  BB_WKNIGHT.p[0] ^= abb_mask[from].p[0];
-	  BB_WKNIGHT.p[1] ^= abb_mask[from].p[1];
-	  return ( To2Move(to) | From2Move(from)
-		   | Cap2Move(BOARD[to]) | Piece2Move(knight) );
-	} while ( BBTest(bb_check) );
+          XorFile( from, OCCUPIED_FILE );
+          XorDiag2( from, OCCUPIED_DIAG2 );
+          XorDiag1( from, OCCUPIED_DIAG1 );
+          BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
+          BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
+          BB_WKNIGHT.p[0] ^= abb_mask[from].p[0];
+          BB_WKNIGHT.p[1] ^= abb_mask[from].p[1];
+          return ( To2Move(to) | From2Move(from)
+                   | Cap2Move(BOARD[to]) | Piece2Move(knight) );
+        } while ( BBTest(bb_check) );
 
-	XorFile( from, OCCUPIED_FILE );
-	XorDiag2( from, OCCUPIED_DIAG2 );
-	XorDiag1( from, OCCUPIED_DIAG1 );
-	BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
-	BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
-	BB_WKNIGHT.p[0] ^= abb_mask[from].p[0];
-	BB_WKNIGHT.p[1] ^= abb_mask[from].p[1];
+        XorFile( from, OCCUPIED_FILE );
+        XorDiag2( from, OCCUPIED_DIAG2 );
+        XorDiag1( from, OCCUPIED_DIAG1 );
+        BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
+        BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
+        BB_WKNIGHT.p[0] ^= abb_mask[from].p[0];
+        BB_WKNIGHT.p[1] ^= abb_mask[from].p[1];
       }
     }
   }
@@ -1799,7 +1799,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
     bb_check_pro.p[2] = bb_attacks.p[2] & abb_b_gold_attacks[SQ_BKING].p[2];
 
     if ( ! ( bb_check_pro.p[2] | bb_check.p[0]
-	     | bb_check.p[1] | bb_check.p[2] ) ) { continue; }
+             | bb_check.p[1] | bb_check.p[2] ) ) { continue; }
 
     Xor( from, BB_WLANCE );
     Xor( from, BB_WOCCUPY );
@@ -1812,8 +1812,8 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
 
       to = SQ_BKING-nfile;
       if ( ! is_black_attacked( ptree, to ) ) {
-	bb_check.p[2] &= ~abb_mask[to].p[2];
-	goto w_lance_next;
+        bb_check.p[2] &= ~abb_mask[to].p[2];
+        goto w_lance_next;
       }
       bb_temp = abb_file_attacks[to][0];
       if ( can_b_king_escape( ptree, to, &bb_temp ) ) { goto w_lance_next; }
@@ -1827,30 +1827,30 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       Xor( from, BB_WOCCUPY );
       Xor( from, BB_WLANCE );
       return ( To2Move(to) | From2Move(from)
-	       | Cap2Move(BOARD[to]) | Piece2Move(lance) );
+               | Cap2Move(BOARD[to]) | Piece2Move(lance) );
     }
     
   w_lance_next:
     while ( bb_check_pro.p[2] )
       {
-	to = first_one2( bb_check_pro.p[2] );
-	bb_check_pro.p[2] ^= abb_mask[to].p[2];
-	
-	if ( ! is_black_attacked( ptree, to ) ) { continue; }
-	
-	bb_attacks = abb_w_gold_attacks[to];
-	if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
-	if ( IsDiscoverBK( from, to ) );
-	else if ( can_b_piece_capture( ptree, to ) )       { continue; }
-	if ( IsDiscoverWK( from, to ) )                    { continue; }
-	
-	XorFile( from, OCCUPIED_FILE );
-	XorDiag2( from, OCCUPIED_DIAG2 );
-	XorDiag1( from, OCCUPIED_DIAG1 );
-	Xor( from, BB_WOCCUPY );
-	Xor( from, BB_WLANCE );
-	return ( To2Move(to) | From2Move(from) | FLAG_PROMO
-		 | Cap2Move(BOARD[to]) | Piece2Move(lance) );
+        to = first_one2( bb_check_pro.p[2] );
+        bb_check_pro.p[2] ^= abb_mask[to].p[2];
+        
+        if ( ! is_black_attacked( ptree, to ) ) { continue; }
+        
+        bb_attacks = abb_w_gold_attacks[to];
+        if ( can_b_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+        if ( IsDiscoverBK( from, to ) );
+        else if ( can_b_piece_capture( ptree, to ) )       { continue; }
+        if ( IsDiscoverWK( from, to ) )                    { continue; }
+        
+        XorFile( from, OCCUPIED_FILE );
+        XorDiag2( from, OCCUPIED_DIAG2 );
+        XorDiag1( from, OCCUPIED_DIAG1 );
+        Xor( from, BB_WOCCUPY );
+        Xor( from, BB_WLANCE );
+        return ( To2Move(to) | From2Move(from) | FLAG_PROMO
+                 | Cap2Move(BOARD[to]) | Piece2Move(lance) );
       }
     
     XorFile( from, OCCUPIED_FILE );
@@ -1890,7 +1890,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
     BB_WPAWN_ATK.p[1] ^= abb_mask[to].p[1];
     BB_WPAWN_ATK.p[2] ^= abb_mask[to].p[2];
     return ( To2Move(to) | From2Move(from) | FLAG_PROMO
-	     | Cap2Move(BOARD[to]) | Piece2Move(pawn) );
+             | Cap2Move(BOARD[to]) | Piece2Move(pawn) );
 
   w_pawn_pro_next:
     XorFile( from, OCCUPIED_FILE );
@@ -1929,7 +1929,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       BB_WPAWN_ATK.p[0] ^= abb_mask[to].p[0];
       BB_WPAWN_ATK.p[1] ^= abb_mask[to].p[1];
       return ( To2Move(to) | From2Move(from)
-	       | Cap2Move(BOARD[to]) | Piece2Move(pawn) );
+               | Cap2Move(BOARD[to]) | Piece2Move(pawn) );
       
     w_pawn_end:
       XorFile( from, OCCUPIED_FILE );
@@ -2033,7 +2033,7 @@ can_b_piece_capture( const tree_t * restrict ptree, int to )
 
 static int CONV
 can_w_king_escape( tree_t * restrict ptree, int to,
-		   const bitboard_t * restrict pbb )
+                   const bitboard_t * restrict pbb )
 {
   bitboard_t bb = *pbb;
   int iret = 0, iescape;
@@ -2058,10 +2058,10 @@ can_w_king_escape( tree_t * restrict ptree, int to,
     {
       iescape = FirstOne( bb );
       if ( ! is_white_attacked( ptree, iescape ) )
-	{
-	  iret = 1;
-	  break;
-	}
+        {
+          iret = 1;
+          break;
+        }
       Xor( iescape, bb );
     }
 
@@ -2083,7 +2083,7 @@ can_w_king_escape( tree_t * restrict ptree, int to,
 
 static int CONV
 can_b_king_escape( tree_t * restrict ptree, int to,
-		   const bitboard_t * restrict pbb )
+                   const bitboard_t * restrict pbb )
 {
   bitboard_t bb = *pbb;
   int iret = 0, iescape;
@@ -2109,10 +2109,10 @@ can_b_king_escape( tree_t * restrict ptree, int to,
     {
       iescape = LastOne( bb );
       if ( ! is_black_attacked( ptree, iescape ) )
-	{
-	  iret = 1;
-	  break;
-	}
+        {
+          iret = 1;
+          break;
+        }
       Xor( iescape, bb );
     }
 

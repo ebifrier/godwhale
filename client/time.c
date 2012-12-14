@@ -72,7 +72,7 @@ set_search_limit_time( int turn )
       u0          = ( sec_left + ( TC_NMOVE / 2U ) ) / TC_NMOVE;
 
       /*
-	t = 2s is not beneficial since 2.8s are almost the same as 1.8s.
+        t = 2s is not beneficial since 2.8s are almost the same as 1.8s.
         So that, we rather want to use up the ordinary time.
       */
       if ( u0 == 2U ) { u0 = 3U; }
@@ -99,13 +99,13 @@ set_search_limit_time( int turn )
     /* We have some seconds left to think. */
     if ( sec_elapsed + SEC_MARGIN < sec_limit )
       {
-	sec_left = sec_limit - sec_elapsed;
-	u0       = ( sec_left + ( TC_NMOVE / 2U ) ) / TC_NMOVE;
-	
-	/* t = 2s is not beneficial since 2.8s is almost the same as 1.8s. */
-	/* So that, we rather want to save the time.                       */
-	if ( u0 == 2U ) { u0 = 1U; }
-	u1 = u0 * 5U;
+        sec_left = sec_limit - sec_elapsed;
+        u0       = ( sec_left + ( TC_NMOVE / 2U ) ) / TC_NMOVE;
+        
+        /* t = 2s is not beneficial since 2.8s is almost the same as 1.8s. */
+        /* So that, we rather want to save the time.                       */
+        if ( u0 == 2U ) { u0 = 1U; }
+        u1 = u0 * 5U;
       }
     /* We are running out of time... */
     else { u0 = u1 = 1U; }
@@ -154,17 +154,17 @@ adjust_time( unsigned int elapsed_new, int turn )
   if ( turn )
     {
       if ( sec_w_total + elapsed_new < sec_elapsed )
-	{
-	  out_warning( str );
-	  sec_w_total = 0;
-	}
+        {
+          out_warning( str );
+          sec_w_total = 0;
+        }
       else { sec_w_total = sec_w_total + elapsed_new - sec_elapsed; };
     }
   else {
     if ( sec_b_total + elapsed_new < sec_elapsed )
       {
-	out_warning( str );
-	sec_b_total = 0;
+        out_warning( str );
+        sec_b_total = 0;
       }
     else { sec_b_total = sec_b_total + elapsed_new - sec_elapsed; };
   }
@@ -183,7 +183,7 @@ reset_time( unsigned int b_remain, unsigned int w_remain )
   if ( b_remain > sec_limit || w_remain > sec_limit )
     {
       snprintf( str_message, SIZE_MESSAGE,
-		"time remaining can't be larger than %u", sec_limit );
+                "time remaining can't be larger than %u", sec_limit );
       str_error = str_message;
       return -2;
     }
@@ -207,11 +207,11 @@ str_time( unsigned int time )
   if ( time_min < 60 )
     {
       snprintf( str, 32, "%02u:%02u.%02u",
-		time_min, time_sec%60, time_mil/10 );
+                time_min, time_sec%60, time_mil/10 );
     }
   else {
     snprintf( str, 32, "%02u:%02u:%02u.%02u",
-	      time_min / 60, time_min % 60, time_sec%60, time_mil/10 );
+              time_min / 60, time_min % 60, time_sec%60, time_mil/10 );
   }
   return str;
 }
@@ -245,7 +245,7 @@ get_cputime( unsigned int *ptime )
 
   hProcess = GetCurrentProcess();
   if ( GetProcessTimes( hProcess, &CreationTime, &ExitTime,
-			&KernelTime, &UserTime ) )
+                        &KernelTime, &UserTime ) )
     {
       uli_temp.LowPart  = UserTime.dwLowDateTime;
       uli_temp.HighPart = UserTime.dwHighDateTime;

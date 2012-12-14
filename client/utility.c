@@ -9,7 +9,7 @@
 
 int CONV
 ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
-	  const char *str_name1, const char *str_name2 )
+          const char *str_name1, const char *str_name2 )
 {
   bitboard_t bb;
   int piece;
@@ -93,22 +93,22 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
       XorDiag1( sq, OCCUPIED_DIAG1 );
       XorDiag2( sq, OCCUPIED_DIAG2 );
       switch ( piece )
-	{
-	case pawn:        Xor( sq, BB_BPAWN );        break;
-	case lance:       Xor( sq, BB_BLANCE );       break;
-	case knight:      Xor( sq, BB_BKNIGHT );      break;
-	case silver:      Xor( sq, BB_BSILVER );      break;
-	case rook:        Xor( sq, BB_BROOK );        break;
-	case bishop:      Xor( sq, BB_BBISHOP );      break;
-	case king:	  SQ_BKING = (char)sq;        break;
-	case dragon:      Xor( sq, BB_BDRAGON );      break;
-	case horse:       Xor( sq, BB_BHORSE );       break;
-	case gold:	  Xor( sq, BB_BGOLD );        break;
-	case pro_pawn:	  Xor( sq, BB_BPRO_PAWN );    break;
-	case pro_lance:	  Xor( sq, BB_BPRO_LANCE );   break;
-	case pro_knight:  Xor( sq, BB_BPRO_KNIGHT );  break;
-	case pro_silver:  Xor( sq, BB_BPRO_SILVER );  break;
-	}
+        {
+        case pawn:        Xor( sq, BB_BPAWN );        break;
+        case lance:       Xor( sq, BB_BLANCE );       break;
+        case knight:      Xor( sq, BB_BKNIGHT );      break;
+        case silver:      Xor( sq, BB_BSILVER );      break;
+        case rook:        Xor( sq, BB_BROOK );        break;
+        case bishop:      Xor( sq, BB_BBISHOP );      break;
+        case king:          SQ_BKING = (char)sq;        break;
+        case dragon:      Xor( sq, BB_BDRAGON );      break;
+        case horse:       Xor( sq, BB_BHORSE );       break;
+        case gold:          Xor( sq, BB_BGOLD );        break;
+        case pro_pawn:          Xor( sq, BB_BPRO_PAWN );    break;
+        case pro_lance:          Xor( sq, BB_BPRO_LANCE );   break;
+        case pro_knight:  Xor( sq, BB_BPRO_KNIGHT );  break;
+        case pro_silver:  Xor( sq, BB_BPRO_SILVER );  break;
+        }
     }
     else if ( piece < 0 ) {
       Xor( sq, BB_WOCCUPY );
@@ -116,22 +116,22 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
       XorDiag1( sq, OCCUPIED_DIAG1 );
       XorDiag2( sq, OCCUPIED_DIAG2 );
       switch ( - piece )
-	{
-	case pawn:        Xor( sq, BB_WPAWN );        break;
-	case lance:       Xor( sq, BB_WLANCE );       break;
-	case knight:      Xor( sq, BB_WKNIGHT );      break;
-	case silver:      Xor( sq, BB_WSILVER );      break;
-	case rook:        Xor( sq, BB_WROOK );        break;
-	case bishop:      Xor( sq, BB_WBISHOP );      break;
-	case king:	  SQ_WKING = (char)sq;        break;
-	case dragon:      Xor( sq, BB_WDRAGON );      break;
-	case horse:       Xor( sq, BB_WHORSE );       break;
-	case gold:        Xor( sq, BB_WGOLD );        break;
-	case pro_pawn:    Xor( sq, BB_WPRO_PAWN );    break;
-	case pro_lance:   Xor( sq, BB_WPRO_LANCE );   break;
-	case pro_knight:  Xor( sq, BB_WPRO_KNIGHT );  break;
-	case pro_silver:  Xor( sq, BB_WPRO_SILVER );  break;
-	}
+        {
+        case pawn:        Xor( sq, BB_WPAWN );        break;
+        case lance:       Xor( sq, BB_WLANCE );       break;
+        case knight:      Xor( sq, BB_WKNIGHT );      break;
+        case silver:      Xor( sq, BB_WSILVER );      break;
+        case rook:        Xor( sq, BB_WROOK );        break;
+        case bishop:      Xor( sq, BB_WBISHOP );      break;
+        case king:          SQ_WKING = (char)sq;        break;
+        case dragon:      Xor( sq, BB_WDRAGON );      break;
+        case horse:       Xor( sq, BB_WHORSE );       break;
+        case gold:        Xor( sq, BB_WGOLD );        break;
+        case pro_pawn:    Xor( sq, BB_WPRO_PAWN );    break;
+        case pro_lance:   Xor( sq, BB_WPRO_LANCE );   break;
+        case pro_knight:  Xor( sq, BB_WPRO_KNIGHT );  break;
+        case pro_silver:  Xor( sq, BB_WPRO_SILVER );  break;
+        }
     }
   }
 
@@ -172,10 +172,10 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
   memset( ptree->hist_tried,      0, sizeof(ptree->hist_tried) );
 
   game_status &= ( flag_reverse | flag_narrow_book
-		   | flag_time_extendable | flag_learning
-		   | flag_nobeep | flag_nostress | flag_nopeek
-		   | flag_noponder | flag_noprompt | flag_sendpv
-		   | flag_nostdout | flag_nonewlog );
+                   | flag_time_extendable | flag_learning
+                   | flag_nobeep | flag_nostress | flag_nopeek
+                   | flag_noponder | flag_noprompt | flag_sendpv
+                   | flag_nostdout | flag_nonewlog );
 
   sec_b_total     = 0;
   sec_w_total     = 0;
@@ -258,7 +258,7 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
   lock( &dfpn_client_lock );
   dfpn_client_start( ptree );
   snprintf( (char *)dfpn_client_signature, DFPN_CLIENT_SIZE_SIGNATURE,
-	    "%" PRIx64 "_%x_%x_%x", HASH_KEY, HAND_B, HAND_W, root_turn );
+            "%" PRIx64 "_%x_%x_%x", HASH_KEY, HAND_B, HAND_W, root_turn );
   dfpn_client_signature[DFPN_CLIENT_SIZE_SIGNATURE-1] = '\0';
   dfpn_client_rresult       = dfpn_client_na;
   dfpn_client_num_cresult   = 0;
@@ -290,33 +290,33 @@ int CONV gen_legal_moves( tree_t * restrict ptree, unsigned int *p0, int flag )
     {
       MakeMove( root_turn, p0[i], 1 );
       if ( InCheck( root_turn ) )
-	{
-	  UnMakeMove( root_turn, p0[i], 1 );
-	  p0[i] = 0;
-	  continue;
-	}
+        {
+          UnMakeMove( root_turn, p0[i], 1 );
+          p0[i] = 0;
+          continue;
+        }
       if ( InCheck(Flip(root_turn)) )
-	{
-	  ptree->nsuc_check[2] = (unsigned char)( ptree->nsuc_check[0] + 1U );
-	  if ( ptree->nsuc_check[2] >= 6U
-	       && ( detect_repetition( ptree, 2, Flip(root_turn), 3 )
-		    == perpetual_check ) )
-	    {
-	      UnMakeMove( root_turn, p0[i], 1 );
-	      p0[i] = 0;
-	      continue;
-	    }
-	}
+        {
+          ptree->nsuc_check[2] = (unsigned char)( ptree->nsuc_check[0] + 1U );
+          if ( ptree->nsuc_check[2] >= 6U
+               && ( detect_repetition( ptree, 2, Flip(root_turn), 3 )
+                    == perpetual_check ) )
+            {
+              UnMakeMove( root_turn, p0[i], 1 );
+              p0[i] = 0;
+              continue;
+            }
+        }
       UnMakeMove( root_turn, p0[i], 1 );
     }
 
   for ( i = 0; i < n; )
     {
       if ( ! p0[i] )
-	{
-	  for ( j = i+1; j < n; j++ ) { p0[j-1] = p0[j]; }
-	  n -= 1;
-	}
+        {
+          for ( j = i+1; j < n; j++ ) { p0[j-1] = p0[j]; }
+          n -= 1;
+        }
       else { i++; }
     }
 
@@ -402,71 +402,71 @@ detect_repetition( tree_t * restrict ptree, int ply, int turn, int nth )
 
       ptree->move_last[ply] = GenEvasion( turn, ptree->move_last[ply-1] );
       for ( p = ptree->move_last[ply-1]; p < ptree->move_last[ply]; p++ )
-	{
-	  MakeMove( turn, *p, ply );
+        {
+          MakeMove( turn, *p, ply );
 
-	  /* for ( i = n-1, counter = 0; i >= imin; i -= 2 ) */
-	  for ( i = n-3, counter = 0; i >= imin; i -= 2 )
-	    {
-	      if ( ptree->rep_board_list[i] == HASH_KEY
-		   && ptree->rep_hand_list[i] == HAND_B
-		   && ++counter == nth )
-		   /* && ncheck*2 - 1 >= n - i )*/
-		{
-		  UnMakeMove( turn, *p, ply );
-		  move_evasion_pchk = *p;
-		  return perpetual_check;
-		}
-	    }
-	  UnMakeMove( turn, *p, ply );
-	}
+          /* for ( i = n-1, counter = 0; i >= imin; i -= 2 ) */
+          for ( i = n-3, counter = 0; i >= imin; i -= 2 )
+            {
+              if ( ptree->rep_board_list[i] == HASH_KEY
+                   && ptree->rep_hand_list[i] == HAND_B
+                   && ++counter == nth )
+                   /* && ncheck*2 - 1 >= n - i )*/
+                {
+                  UnMakeMove( turn, *p, ply );
+                  move_evasion_pchk = *p;
+                  return perpetual_check;
+                }
+            }
+          UnMakeMove( turn, *p, ply );
+        }
     }
 
   irep = no_rep;
   for ( i = n-4, counter = 0; i >= 0; i-- )
     {
       if ( ptree->rep_board_list[i] == HASH_KEY )
-	{
-	  hand1 = HAND_B;
-	  hand2 = ptree->rep_hand_list[i];
+        {
+          hand1 = HAND_B;
+          hand2 = ptree->rep_hand_list[i];
 
-	  if ( (n-i) & 1 )
-	    {
-	      if ( irep == no_rep )
-		{
-		  if ( turn )
-		    {
-		      if ( is_hand_eq_supe( hand2, hand1 ) )
-			{
-			  irep = white_superi_rep;
-			}
-		    }
-		  else if ( is_hand_eq_supe( hand1, hand2 ) )
-		    {
-		      irep = black_superi_rep;
-		    }
-		}
-	    }
-	  else if ( hand1 == hand2 )
-	    {
-	      if ( ++counter == nth )
-		{
-		  if ( (ncheck-1)*2 >= n - i ) { return perpetual_check; }
-		  else                         { return four_fold_rep; }
-		}
-	    }
-	  else if ( irep == no_rep )
-	    {
-	      if ( is_hand_eq_supe( hand1, hand2 ) )
-		{
-		  irep = black_superi_rep;
-		}
-	      else if ( is_hand_eq_supe( hand2, hand1 ) )
-		{
-		  irep = white_superi_rep;
-		}
-	    }
-	}
+          if ( (n-i) & 1 )
+            {
+              if ( irep == no_rep )
+                {
+                  if ( turn )
+                    {
+                      if ( is_hand_eq_supe( hand2, hand1 ) )
+                        {
+                          irep = white_superi_rep;
+                        }
+                    }
+                  else if ( is_hand_eq_supe( hand1, hand2 ) )
+                    {
+                      irep = black_superi_rep;
+                    }
+                }
+            }
+          else if ( hand1 == hand2 )
+            {
+              if ( ++counter == nth )
+                {
+                  if ( (ncheck-1)*2 >= n - i ) { return perpetual_check; }
+                  else                         { return four_fold_rep; }
+                }
+            }
+          else if ( irep == no_rep )
+            {
+              if ( is_hand_eq_supe( hand1, hand2 ) )
+                {
+                  irep = black_superi_rep;
+                }
+              else if ( is_hand_eq_supe( hand2, hand1 ) )
+                {
+                  irep = white_superi_rep;
+                }
+            }
+        }
     }
 
   return irep;
@@ -514,10 +514,10 @@ com_turn_start( tree_t * restrict ptree, int flag )
     {
 #if defined(CSA_LAN)
       if ( sckt_csa != SCKT_NULL )
-	{
-	  iret = sckt_out( sckt_csa, "%%TORYO\n" );
-	  if ( iret < 0 ) { return iret; }
-	}
+        {
+          iret = sckt_out( sckt_csa, "%%TORYO\n" );
+          if ( iret < 0 ) { return iret; }
+        }
 #endif
       OutCsaShogi( "resign\n" );
     }
@@ -525,9 +525,9 @@ com_turn_start( tree_t * restrict ptree, int flag )
 #if defined(USI)
     if ( usi_mode != usi_off )
       {
-	char buf[6];
-	csa2usi( ptree, str_CSA_move(move), buf );
-	USIOut( "bestmove %s\n", buf );
+        char buf[6];
+        csa2usi( ptree, str_CSA_move(move), buf );
+        USIOut( "bestmove %s\n", buf );
       }
 #endif
 
@@ -537,29 +537,29 @@ com_turn_start( tree_t * restrict ptree, int flag )
     if ( sckt_csa != SCKT_NULL ) {
       
       if ( game_status & flag_sendpv ) {
-	int i, turn, byte;
-	char buf[256];
-	
-	byte = snprintf( buf, 256, "%c%s,\'* %d",
-			 ach_turn[root_turn], str_CSA_move( move ),
-			 last_root_value );
-	
-	turn = root_turn;
-	for( i = 2; i <= last_pv.length && i < 5; i++ )
-	  {
-	    turn = Flip(turn);
-	    byte += snprintf( buf+byte, 256-byte, " %c%s",
-			      ach_turn[turn], str_CSA_move(last_pv.a[i]) );
-	  }
-	
-	iret = sckt_out( sckt_csa, "%s\n", buf );
-	if ( iret < 0 ) { return iret; }
-	
+        int i, turn, byte;
+        char buf[256];
+        
+        byte = snprintf( buf, 256, "%c%s,\'* %d",
+                         ach_turn[root_turn], str_CSA_move( move ),
+                         last_root_value );
+        
+        turn = root_turn;
+        for( i = 2; i <= last_pv.length && i < 5; i++ )
+          {
+            turn = Flip(turn);
+            byte += snprintf( buf+byte, 256-byte, " %c%s",
+                              ach_turn[turn], str_CSA_move(last_pv.a[i]) );
+          }
+        
+        iret = sckt_out( sckt_csa, "%s\n", buf );
+        if ( iret < 0 ) { return iret; }
+        
       } else {
-	
-	iret = sckt_out( sckt_csa, "%c%s\n", ach_turn[root_turn],
-			 str_CSA_move( move ) );
-	if ( iret < 0 ) { return iret; }
+        
+        iret = sckt_out( sckt_csa, "%c%s\n", ach_turn[root_turn],
+                         str_CSA_move( move ) );
+        if ( iret < 0 ) { return iret; }
       }
     }
 #endif
@@ -579,7 +579,7 @@ com_turn_start( tree_t * restrict ptree, int flag )
   else {
     show_prompt();
     iret = make_move_root( ptree, move,
-			   ( flag_rep | flag_time | flag_history ) );
+                           ( flag_rep | flag_time | flag_history ) );
     if ( iret < 0 ) { return iret; }
     sec_total = root_turn ? sec_b_total : sec_w_total;
     str_move  = str_CSA_move( move );

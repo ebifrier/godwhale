@@ -73,20 +73,20 @@ make_move_b( tree_t * restrict ptree, unsigned int move, int ply )
   if ( from >= nsquare )
     {
       switch ( From2Drop(from) )
-	{
-	case pawn:   Xor( to-nfile, BB_BPAWN_ATK );
+        {
+        case pawn:   Xor( to-nfile, BB_BPAWN_ATK );
                      DropB( PAWN,   pawn   );  break;
-	case lance:  DropB( LANCE,  lance  );  break;
-	case knight: DropB( KNIGHT, knight );  break;
-	case silver: DropB( SILVER, silver );  break;
-	case gold:   DropB( GOLD,   gold   );
+        case lance:  DropB( LANCE,  lance  );  break;
+        case knight: DropB( KNIGHT, knight );  break;
+        case silver: DropB( SILVER, silver );  break;
+        case gold:   DropB( GOLD,   gold   );
                      Xor( to, BB_BTGOLD );     break;
-	case bishop: DropB( BISHOP, bishop );
+        case bishop: DropB( BISHOP, bishop );
                      Xor( to, BB_B_BH );       break;
-	default:     assert( From2Drop(from) == rook );
+        default:     assert( From2Drop(from) == rook );
                      DropB( ROOK,  rook );
-		     Xor( to, BB_B_RD );       break;
-	}
+                     Xor( to, BB_B_RD );       break;
+        }
       Xor( to, BB_BOCCUPY );
       XorFile( to, OCCUPIED_FILE );
       XorDiag2( to, OCCUPIED_DIAG2 );
@@ -114,11 +114,11 @@ make_move_b( tree_t * restrict ptree, unsigned int move, int ply )
       case silver: Xor( to, BB_BTGOLD );
                    NocapProB( SILVER, PRO_SILVER, silver, pro_silver ); break;
       case bishop: Xor( to, BB_B_HDK );
-		   SetClear( BB_B_BH );
+                   SetClear( BB_B_BH );
                    NocapProB( BISHOP, HORSE,      bishop, horse );      break;
       default:     assert( ipiece_move == rook );
                    Xor( to, BB_B_HDK );
-		   SetClear( BB_B_RD );
+                   SetClear( BB_B_RD );
                    NocapProB( ROOK,   DRAGON,     rook,   dragon );     break;
       }
     else switch ( ipiece_move )
@@ -158,39 +158,39 @@ make_move_b( tree_t * restrict ptree, unsigned int move, int ply )
     
     if ( ipiece_cap )
       {
-	switch( ipiece_cap )
-	  {
-	  case pawn:       CapW( PAWN, pawn, pawn );
+        switch( ipiece_cap )
+          {
+          case pawn:       CapW( PAWN, pawn, pawn );
                            Xor( to+nfile, BB_WPAWN_ATK );               break;
-	  case lance:      CapW( LANCE,  lance, lance );       break;
-	  case knight:     CapW( KNIGHT, knight, knight );      break;
-	  case silver:     CapW( SILVER, silver, silver );      break;
-	  case gold:       CapW( GOLD,   gold,   gold );
+          case lance:      CapW( LANCE,  lance, lance );       break;
+          case knight:     CapW( KNIGHT, knight, knight );      break;
+          case silver:     CapW( SILVER, silver, silver );      break;
+          case gold:       CapW( GOLD,   gold,   gold );
                            Xor( to, BB_WTGOLD );                       break;
-	  case bishop:     CapW( BISHOP, bishop, bishop );
+          case bishop:     CapW( BISHOP, bishop, bishop );
                            Xor( to, BB_W_BH );                          break;
-	  case rook:       CapW( ROOK, rook, rook);
+          case rook:       CapW( ROOK, rook, rook);
                            Xor( to, BB_W_RD );                          break;
-	  case pro_pawn:   CapW( PRO_PAWN, pawn, pro_pawn );
+          case pro_pawn:   CapW( PRO_PAWN, pawn, pro_pawn );
                            Xor( to, BB_WTGOLD );                       break;
-	  case pro_lance:  CapW( PRO_LANCE, lance, pro_lance );
+          case pro_lance:  CapW( PRO_LANCE, lance, pro_lance );
                            Xor( to, BB_WTGOLD );                       break;
-	  case pro_knight: CapW( PRO_KNIGHT, knight, pro_knight );
+          case pro_knight: CapW( PRO_KNIGHT, knight, pro_knight );
                            Xor( to, BB_WTGOLD );                       break;
-	  case pro_silver: CapW( PRO_SILVER, silver, pro_silver );
+          case pro_silver: CapW( PRO_SILVER, silver, pro_silver );
                            Xor( to, BB_WTGOLD );                       break;
-	  case horse:      CapW( HORSE, bishop, horse );
+          case horse:      CapW( HORSE, bishop, horse );
                            Xor( to, BB_W_HDK );
-			   Xor( to, BB_W_BH );                          break;
-	  default:         assert( ipiece_cap == dragon );
+                           Xor( to, BB_W_BH );                          break;
+          default:         assert( ipiece_cap == dragon );
                            CapW( DRAGON, rook, dragon );
                            Xor( to, BB_W_HDK );
-			   Xor( to, BB_W_RD );                         break;
-	  }
-	Xor( to, BB_WOCCUPY );
-	XorFile( from, OCCUPIED_FILE );
-	XorDiag2( from, OCCUPIED_DIAG2 );
-	XorDiag1( from, OCCUPIED_DIAG1 );
+                           Xor( to, BB_W_RD );                         break;
+          }
+        Xor( to, BB_WOCCUPY );
+        XorFile( from, OCCUPIED_FILE );
+        XorDiag2( from, OCCUPIED_DIAG2 );
+        XorDiag1( from, OCCUPIED_DIAG1 );
       }
     else {
       SetClearFile( from, to, OCCUPIED_FILE );
@@ -222,19 +222,19 @@ make_move_w( tree_t * restrict ptree, unsigned int move, int ply )
   if ( from >= nsquare )
     {
       switch( From2Drop(from) )
-	{
-	case pawn:   Xor( to+nfile, BB_WPAWN_ATK );
+        {
+        case pawn:   Xor( to+nfile, BB_WPAWN_ATK );
                      DropW( PAWN,   pawn );    break;
-	case lance:  DropW( LANCE,  lance );   break;
-	case knight: DropW( KNIGHT, knight );  break;
-	case silver: DropW( SILVER, silver );  break;
-	case gold:   DropW( GOLD,   gold );
+        case lance:  DropW( LANCE,  lance );   break;
+        case knight: DropW( KNIGHT, knight );  break;
+        case silver: DropW( SILVER, silver );  break;
+        case gold:   DropW( GOLD,   gold );
                      Xor( to, BB_WTGOLD );     break;
-	case bishop: DropW( BISHOP, bishop );
+        case bishop: DropW( BISHOP, bishop );
                      Xor( to, BB_W_BH );       break;
-	default:     DropW( ROOK,   rook );
+        default:     DropW( ROOK,   rook );
                      Xor( to, BB_W_RD );       break;
-	}
+        }
       Xor( to, BB_WOCCUPY );
       XorFile( to, OCCUPIED_FILE );
       XorDiag2( to, OCCUPIED_DIAG2 );
@@ -263,10 +263,10 @@ make_move_w( tree_t * restrict ptree, unsigned int move, int ply )
                    Xor( to, BB_WTGOLD );                           break;
       case bishop: NocapProW( BISHOP, HORSE, bishop, horse );
                    Xor( to, BB_W_HDK );
-		   SetClear( BB_W_BH );                              break;
+                   SetClear( BB_W_BH );                              break;
       default:     NocapProW( ROOK, DRAGON, rook, dragon);
                    Xor( to, BB_W_HDK );
-		   SetClear( BB_W_RD );                              break;
+                   SetClear( BB_W_RD );                              break;
       }
     else switch ( ipiece_move )
       {
@@ -304,38 +304,38 @@ make_move_w( tree_t * restrict ptree, unsigned int move, int ply )
 
     if ( ipiece_cap )
       {
-	switch( ipiece_cap )
-	  {
-	  case pawn:       CapB( PAWN, pawn, pawn );
+        switch( ipiece_cap )
+          {
+          case pawn:       CapB( PAWN, pawn, pawn );
                            Xor( to-nfile, BB_BPAWN_ATK );           break;
-	  case lance:      CapB( LANCE,  lance,  lance );           break;
-	  case knight:     CapB( KNIGHT, knight, knight );          break;
-	  case silver:     CapB( SILVER, silver, silver );          break;
-	  case gold:       CapB( GOLD,   gold,   gold );
+          case lance:      CapB( LANCE,  lance,  lance );           break;
+          case knight:     CapB( KNIGHT, knight, knight );          break;
+          case silver:     CapB( SILVER, silver, silver );          break;
+          case gold:       CapB( GOLD,   gold,   gold );
                            Xor( to, BB_BTGOLD );                   break;
-	  case bishop:     CapB( BISHOP, bishop, bishop );
+          case bishop:     CapB( BISHOP, bishop, bishop );
                            Xor( to, BB_B_BH );                      break;
-	  case rook:       CapB( ROOK, rook, rook );
+          case rook:       CapB( ROOK, rook, rook );
                            Xor( to, BB_B_RD );                      break;
-	  case pro_pawn:   CapB( PRO_PAWN, pawn, pro_pawn );
+          case pro_pawn:   CapB( PRO_PAWN, pawn, pro_pawn );
                            Xor( to, BB_BTGOLD );                   break;
-	  case pro_lance:  CapB( PRO_LANCE, lance, pro_lance );
+          case pro_lance:  CapB( PRO_LANCE, lance, pro_lance );
                            Xor( to, BB_BTGOLD );                   break;
-	  case pro_knight: CapB( PRO_KNIGHT, knight, pro_knight );
+          case pro_knight: CapB( PRO_KNIGHT, knight, pro_knight );
                            Xor( to, BB_BTGOLD );                   break;
-	  case pro_silver: CapB( PRO_SILVER, silver, pro_silver );
+          case pro_silver: CapB( PRO_SILVER, silver, pro_silver );
                            Xor( to, BB_BTGOLD );                   break;
-	  case horse:      CapB( HORSE, bishop, horse );
+          case horse:      CapB( HORSE, bishop, horse );
                            Xor( to, BB_B_HDK );
                            Xor( to, BB_B_BH );                      break;
-	  default:         CapB( DRAGON, rook, dragon );
+          default:         CapB( DRAGON, rook, dragon );
                            Xor( to, BB_B_HDK );
                            Xor( to, BB_B_RD );                      break;
-	  }
-	Xor( to, BB_BOCCUPY );
-	XorFile( from, OCCUPIED_FILE );
-	XorDiag1( from, OCCUPIED_DIAG1 );
-	XorDiag2( from, OCCUPIED_DIAG2 );
+          }
+        Xor( to, BB_BOCCUPY );
+        XorFile( from, OCCUPIED_FILE );
+        XorDiag1( from, OCCUPIED_DIAG1 );
+        XorDiag2( from, OCCUPIED_DIAG2 );
       }
     else {
       SetClearFile( from, to, OCCUPIED_FILE );
@@ -391,16 +391,16 @@ make_move_root( tree_t * restrict ptree, unsigned int move, int flag )
   if ( flag & flag_rep )
     {
       switch ( detect_repetition( ptree, 2, Flip(root_turn), 3 ) )
-	{
-	case perpetual_check:
-	  str_error = str_perpet_check;
-	  UnMakeMove( root_turn, move, 1 );
-	  return -2;
+        {
+        case perpetual_check:
+          str_error = str_perpet_check;
+          UnMakeMove( root_turn, move, 1 );
+          return -2;
       
-	case four_fold_rep:
-	  drawn = 1;
-	  break;
-	}
+        case four_fold_rep:
+          drawn = 1;
+          break;
+        }
     }
 
   /* return, since all of rule-checks were done */
@@ -432,10 +432,10 @@ make_move_root( tree_t * restrict ptree, unsigned int move, int flag )
   if ( n >= REP_HIST_LEN - PLY_MAX -1 )
     {
       for ( i = 0; i < n; i++ )
-	{
-	  ptree->rep_board_list[i] = ptree->rep_board_list[i+1];
-	  ptree->rep_hand_list[i]  = ptree->rep_hand_list[i+1];
-	}
+        {
+          ptree->rep_board_list[i] = ptree->rep_board_list[i+1];
+          ptree->rep_hand_list[i]  = ptree->rep_hand_list[i+1];
+        }
     }
   else { ptree->nrep++; }
 
@@ -460,15 +460,15 @@ make_move_root( tree_t * restrict ptree, unsigned int move, int flag )
   if ( last_pv.a[1] == move && last_pv.length >= 2 )
     {
       if ( last_pv.depth )
-	{
+        {
 #if PLY_INC == EXT_CHECK
-	  if ( ! check )
+          if ( ! check )
 #endif
-	    last_pv.depth--;
-	}
+            last_pv.depth--;
+        }
       last_pv.length--;
       memmove( &(last_pv.a[1]), &(last_pv.a[2]),
-	       last_pv.length * sizeof( unsigned int ) );
+               last_pv.length * sizeof( unsigned int ) );
     }
   else {
     last_pv.a[0]    = 0;
@@ -481,7 +481,7 @@ make_move_root( tree_t * restrict ptree, unsigned int move, int flag )
 #if defined(DFPN_CLIENT)
   lock( &dfpn_client_lock );
   snprintf( (char *)dfpn_client_signature, DFPN_CLIENT_SIZE_SIGNATURE,
-	    "%" PRIx64 "_%x_%x_%x", HASH_KEY, HAND_B, HAND_W, root_turn );
+            "%" PRIx64 "_%x_%x_%x", HASH_KEY, HAND_B, HAND_W, root_turn );
   dfpn_client_signature[DFPN_CLIENT_SIZE_SIGNATURE-1] = '\0';
   dfpn_client_rresult       = dfpn_client_na;
   dfpn_client_num_cresult   = 0;
@@ -538,7 +538,7 @@ int CONV unmake_move_root( tree_t * restrict ptree )
 #if defined(DFPN_CLIENT)
   lock( &dfpn_client_lock );
   snprintf( (char *)dfpn_client_signature, DFPN_CLIENT_SIZE_SIGNATURE,
-	    "%" PRIx64 "_%x_%x_%x", HASH_KEY, HAND_B, HAND_W, root_turn );
+            "%" PRIx64 "_%x_%x_%x", HASH_KEY, HAND_B, HAND_W, root_turn );
   dfpn_client_signature[DFPN_CLIENT_SIZE_SIGNATURE-1] = '\0';
   dfpn_client_rresult       = dfpn_client_na;
   dfpn_client_flag_read     = 0;

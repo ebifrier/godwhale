@@ -60,10 +60,10 @@ int CONV load_fv( void )
     n = nsquare * pos_n;
     for ( i = 0; i < n; i++ )
       {
-	iv = pc_on_sq[0][i];
-	if      ( iv < X0 ) { iv = X0; }
-	else if ( iv > X1 ) { iv = X1; }
-	a[ iv - X0 ] += 1;
+        iv = pc_on_sq[0][i];
+        if      ( iv < X0 ) { iv = X0; }
+        else if ( iv > X1 ) { iv = X1; }
+        a[ iv - X0 ] += 1;
       }
 
     pf = file_open( "dist.dat", "w" );
@@ -165,7 +165,7 @@ ini( tree_t * restrict ptree )
 #if ! defined(_WIN32) && ( defined(DFPN_CLIENT) || defined(TLP) )
   if ( pthread_attr_init( &pthread_attr )
        || pthread_attr_setdetachstate( &pthread_attr,
-				       PTHREAD_CREATE_DETACHED ) )
+                                       PTHREAD_CREATE_DETACHED ) )
     {
       str_error = "pthread_attr_init() failed.";
       return -1;
@@ -416,9 +416,9 @@ ini_is_same( void )
   for ( i = 0; i < 16; i++ )
     for ( j = 0; j < 16; j++ )
       {
-	if      ( p[i] < p[j]-1 ) { is_same[i][j] = 2U; }
-	else if ( p[i] > p[j]+1 ) { is_same[i][j] = 1U; }
-	else                      { is_same[i][j] = 0U; }
+        if      ( p[i] < p[j]-1 ) { is_same[i][j] = 2U; }
+        else if ( p[i] > p[j]+1 ) { is_same[i][j] = 1U; }
+        else                      { is_same[i][j] = 0U; }
       }
 }
 
@@ -427,34 +427,34 @@ static void
 ini_tables( void )
 {
   const unsigned char aini_rl90[] = { A1, A2, A3, A4, A5, A6, A7, A8, A9,
-				      B1, B2, B3, B4, B5, B6, B7, B8, B9,
-				      C1, C2, C3, C4, C5, C6, C7, C8, C9,
-				      D1, D2, D3, D4, D5, D6, D7, D8, D9,
-				      E1, E2, E3, E4, E5, E6, E7, E8, E9,
-				      F1, F2, F3, F4, F5, F6, F7, F8, F9,
-				      G1, G2, G3, G4, G5, G6, G7, G8, G9,
-				      H1, H2, H3, H4, H5, H6, H7, H8, H9,
-				      I1, I2, I3, I4, I5, I6, I7, I8, I9 };
+                                      B1, B2, B3, B4, B5, B6, B7, B8, B9,
+                                      C1, C2, C3, C4, C5, C6, C7, C8, C9,
+                                      D1, D2, D3, D4, D5, D6, D7, D8, D9,
+                                      E1, E2, E3, E4, E5, E6, E7, E8, E9,
+                                      F1, F2, F3, F4, F5, F6, F7, F8, F9,
+                                      G1, G2, G3, G4, G5, G6, G7, G8, G9,
+                                      H1, H2, H3, H4, H5, H6, H7, H8, H9,
+                                      I1, I2, I3, I4, I5, I6, I7, I8, I9 };
   
   const unsigned char aini_rl45[] = { A9, B1, C2, D3, E4, F5, G6, H7, I8,
-				      A8, B9, C1, D2, E3, F4, G5, H6, I7,
-				      A7, B8, C9, D1, E2, F3, G4, H5, I6,
-				      A6, B7, C8, D9, E1, F2, G3, H4, I5,
-				      A5, B6, C7, D8, E9, F1, G2, H3, I4,
-				      A4, B5, C6, D7, E8, F9, G1, H2, I3,
-				      A3, B4, C5, D6, E7, F8, G9, H1, I2,
-				      A2, B3, C4, D5, E6, F7, G8, H9, I1,
-				      A1, B2, C3, D4, E5, F6, G7, H8, I9 };
+                                      A8, B9, C1, D2, E3, F4, G5, H6, I7,
+                                      A7, B8, C9, D1, E2, F3, G4, H5, I6,
+                                      A6, B7, C8, D9, E1, F2, G3, H4, I5,
+                                      A5, B6, C7, D8, E9, F1, G2, H3, I4,
+                                      A4, B5, C6, D7, E8, F9, G1, H2, I3,
+                                      A3, B4, C5, D6, E7, F8, G9, H1, I2,
+                                      A2, B3, C4, D5, E6, F7, G8, H9, I1,
+                                      A1, B2, C3, D4, E5, F6, G7, H8, I9 };
   
   const unsigned char aini_rr45[] = { I8, I7, I6, I5, I4, I3, I2, I1, I9,
-				      H7, H6, H5, H4, H3, H2, H1, H9, H8,
-				      G6, G5, G4, G3, G2, G1, G9, G8, G7,
-				      F5, F4, F3, F2, F1, F9, F8, F7, F6,
-				      E4, E3, E2, E1, E9, E8, E7, E6, E5,
-				      D3, D2, D1, D9, D8, D7, D6, D5, D4,
-				      C2, C1, C9, C8, C7, C6, C5, C4, C3,
-				      B1, B9, B8, B7, B6, B5, B4, B3, B2,
-				      A9, A8, A7, A6, A5, A4, A3, A2, A1 };
+                                      H7, H6, H5, H4, H3, H2, H1, H9, H8,
+                                      G6, G5, G4, G3, G2, G1, G9, G8, G7,
+                                      F5, F4, F3, F2, F1, F9, F8, F7, F6,
+                                      E4, E3, E2, E1, E9, E8, E7, E6, E5,
+                                      D3, D2, D1, D9, D8, D7, D6, D5, D4,
+                                      C2, C1, C9, C8, C7, C6, C5, C4, C3,
+                                      B1, B9, B8, B7, B6, B5, B4, B3, B2,
+                                      A9, A8, A7, A6, A5, A4, A3, A2, A1 };
   bitboard_t abb_plus1dir[ nsquare ];
   bitboard_t abb_plus8dir[ nsquare ];
   bitboard_t abb_plus9dir[ nsquare ];
@@ -481,126 +481,126 @@ ini_tables( void )
   for ( irank = 0; irank < nrank; irank++ )
     for ( ifile = 0; ifile < nfile; ifile++ )
       {
-	isquare = irank*nfile + ifile;
-	BBIni( abb_plus1dir[isquare] );
-	BBIni( abb_plus8dir[isquare] );
-	BBIni( abb_plus9dir[isquare] );
-	BBIni( abb_plus10dir[isquare] );
-	BBIni( abb_minus1dir[isquare] );
-	BBIni( abb_minus8dir[isquare] );
-	BBIni( abb_minus9dir[isquare] );
-	BBIni( abb_minus10dir[isquare] );
-	for ( i = 1; i < nfile; i++ )
-	  {
-	    set_attacks( irank,   ifile+i, abb_plus1dir   + isquare );
-	    set_attacks( irank+i, ifile-i, abb_plus8dir   + isquare );
-	    set_attacks( irank+i, ifile,   abb_plus9dir   + isquare );
-	    set_attacks( irank+i, ifile+i, abb_plus10dir  + isquare );
-	    set_attacks( irank,   ifile-i, abb_minus1dir  + isquare );
-	    set_attacks( irank-i, ifile+i, abb_minus8dir  + isquare );
-	    set_attacks( irank-i, ifile,   abb_minus9dir  + isquare );
-	    set_attacks( irank-i, ifile-i, abb_minus10dir + isquare );
-	  }
+        isquare = irank*nfile + ifile;
+        BBIni( abb_plus1dir[isquare] );
+        BBIni( abb_plus8dir[isquare] );
+        BBIni( abb_plus9dir[isquare] );
+        BBIni( abb_plus10dir[isquare] );
+        BBIni( abb_minus1dir[isquare] );
+        BBIni( abb_minus8dir[isquare] );
+        BBIni( abb_minus9dir[isquare] );
+        BBIni( abb_minus10dir[isquare] );
+        for ( i = 1; i < nfile; i++ )
+          {
+            set_attacks( irank,   ifile+i, abb_plus1dir   + isquare );
+            set_attacks( irank+i, ifile-i, abb_plus8dir   + isquare );
+            set_attacks( irank+i, ifile,   abb_plus9dir   + isquare );
+            set_attacks( irank+i, ifile+i, abb_plus10dir  + isquare );
+            set_attacks( irank,   ifile-i, abb_minus1dir  + isquare );
+            set_attacks( irank-i, ifile+i, abb_minus8dir  + isquare );
+            set_attacks( irank-i, ifile,   abb_minus9dir  + isquare );
+            set_attacks( irank-i, ifile-i, abb_minus10dir + isquare );
+          }
       }
 
 
   for ( isquare = 0; isquare < nsquare; isquare++ )
     {
       BBOr( abb_plus_rays[isquare],
-	    abb_plus1dir[isquare],  abb_plus8dir[isquare] );
+            abb_plus1dir[isquare],  abb_plus8dir[isquare] );
       BBOr( abb_plus_rays[isquare],
-	    abb_plus_rays[isquare], abb_plus9dir[isquare] );
+            abb_plus_rays[isquare], abb_plus9dir[isquare] );
       BBOr( abb_plus_rays[isquare],
-	    abb_plus_rays[isquare], abb_plus10dir[isquare] );
+            abb_plus_rays[isquare], abb_plus10dir[isquare] );
       BBOr( abb_minus_rays[isquare],
-	    abb_minus1dir[isquare],  abb_minus8dir[isquare] );
+            abb_minus1dir[isquare],  abb_minus8dir[isquare] );
       BBOr( abb_minus_rays[isquare],
-	    abb_minus_rays[isquare], abb_minus9dir[isquare] );
+            abb_minus_rays[isquare], abb_minus9dir[isquare] );
       BBOr( abb_minus_rays[isquare],
-	    abb_minus_rays[isquare], abb_minus10dir[isquare] );
+            abb_minus_rays[isquare], abb_minus10dir[isquare] );
     }
 
 
   for ( ifrom = 0; ifrom < nsquare; ifrom++ )
     {
       for ( ito = 0; ito < nsquare; ito++ )
-	{
-	  adirec[ifrom][ito] = (unsigned char)direc_misc;
-	}
+        {
+          adirec[ifrom][ito] = (unsigned char)direc_misc;
+        }
 
       BBOr( bb, abb_plus1dir[ifrom], abb_minus1dir[ifrom] );
       while ( BBTest(bb) )
-	{
-	  ito = FirstOne( bb );
-	  adirec[ifrom][ito]  = (unsigned char)direc_rank;
-	  Xor( ito, bb );
-	}
+        {
+          ito = FirstOne( bb );
+          adirec[ifrom][ito]  = (unsigned char)direc_rank;
+          Xor( ito, bb );
+        }
       BBOr( bb, abb_plus8dir[ifrom], abb_minus8dir[ifrom] );
       while ( BBTest(bb) )
-	{
-	  ito = FirstOne( bb );
-	  adirec[ifrom][ito]  = (unsigned char)direc_diag1;
-	  Xor( ito, bb );
-	}
+        {
+          ito = FirstOne( bb );
+          adirec[ifrom][ito]  = (unsigned char)direc_diag1;
+          Xor( ito, bb );
+        }
       BBOr( bb, abb_plus9dir[ifrom], abb_minus9dir[ifrom] );
       while ( BBTest(bb) )
-	{
-	  ito = FirstOne( bb );
-	  adirec[ifrom][ito]  = (unsigned char)direc_file;
-	  Xor(ito,bb);
-	}
+        {
+          ito = FirstOne( bb );
+          adirec[ifrom][ito]  = (unsigned char)direc_file;
+          Xor(ito,bb);
+        }
       BBOr( bb, abb_plus10dir[ifrom], abb_minus10dir[ifrom] );
       while ( BBTest(bb) )
-	{
-	  ito = FirstOne( bb );
-	  adirec[ifrom][ito]  = (unsigned char)direc_diag2;
-	  Xor( ito, bb );
-	}
+        {
+          ito = FirstOne( bb );
+          adirec[ifrom][ito]  = (unsigned char)direc_diag2;
+          Xor( ito, bb );
+        }
     }
 
   for ( ifrom = 0; ifrom < nsquare; ifrom++ )
     for ( ito = 0; ito < nsquare; ito++ )
       {
-	BBIni( abb_obstacle[ifrom][ito] );
+        BBIni( abb_obstacle[ifrom][ito] );
 
-	if ( ifrom-ito > 0 ) switch ( adirec[ifrom][ito] )
-	  {
-	  case direc_rank:
-	    BBXor( abb_obstacle[ifrom][ito],
-		   abb_minus1dir[ito+1], abb_minus1dir[ifrom] );
-	    break;
-	  case direc_file:
-	    BBXor( abb_obstacle[ifrom][ito],
-		   abb_minus9dir[ito+9], abb_minus9dir[ifrom] );
-	    break;
-	  case direc_diag1:
-	    BBXor( abb_obstacle[ifrom][ito],
-		   abb_minus8dir[ito+8], abb_minus8dir[ifrom] );
-	    break;
-	  case direc_diag2:
-	    BBXor( abb_obstacle[ifrom][ito],
-		   abb_minus10dir[ito+10], abb_minus10dir[ifrom] );
-	    break;
-	  }
-	else switch ( adirec[ifrom][ito] )
-	  {
-	  case direc_rank:
-	    BBXor( abb_obstacle[ifrom][ito],
-		   abb_plus1dir[ito-1], abb_plus1dir[ifrom] );
-	    break;
-	  case direc_file:
-	    BBXor( abb_obstacle[ifrom][ito],
-		   abb_plus9dir[ito-9], abb_plus9dir[ifrom] );
-	    break;
-	  case direc_diag1:
-	    BBXor( abb_obstacle[ifrom][ito],
-		   abb_plus8dir[ito-8], abb_plus8dir[ifrom] );
-	    break;
-	  case direc_diag2:
-	    BBXor( abb_obstacle[ifrom][ito],
-		   abb_plus10dir[ito-10], abb_plus10dir[ifrom] );
-	    break;
-	  }
+        if ( ifrom-ito > 0 ) switch ( adirec[ifrom][ito] )
+          {
+          case direc_rank:
+            BBXor( abb_obstacle[ifrom][ito],
+                   abb_minus1dir[ito+1], abb_minus1dir[ifrom] );
+            break;
+          case direc_file:
+            BBXor( abb_obstacle[ifrom][ito],
+                   abb_minus9dir[ito+9], abb_minus9dir[ifrom] );
+            break;
+          case direc_diag1:
+            BBXor( abb_obstacle[ifrom][ito],
+                   abb_minus8dir[ito+8], abb_minus8dir[ifrom] );
+            break;
+          case direc_diag2:
+            BBXor( abb_obstacle[ifrom][ito],
+                   abb_minus10dir[ito+10], abb_minus10dir[ifrom] );
+            break;
+          }
+        else switch ( adirec[ifrom][ito] )
+          {
+          case direc_rank:
+            BBXor( abb_obstacle[ifrom][ito],
+                   abb_plus1dir[ito-1], abb_plus1dir[ifrom] );
+            break;
+          case direc_file:
+            BBXor( abb_obstacle[ifrom][ito],
+                   abb_plus9dir[ito-9], abb_plus9dir[ifrom] );
+            break;
+          case direc_diag1:
+            BBXor( abb_obstacle[ifrom][ito],
+                   abb_plus8dir[ito-8], abb_plus8dir[ifrom] );
+            break;
+          case direc_diag2:
+            BBXor( abb_obstacle[ifrom][ito],
+                   abb_plus10dir[ito-10], abb_plus10dir[ifrom] );
+            break;
+          }
       }
 }
 
@@ -743,100 +743,100 @@ ini_attack_tables( void )
       abb_w_knight_attacks[ irank*nfile + ifile ] = bb;
       
 
-      for ( pcs = 0; pcs < 128; pcs++ )	{
-	
-	BBIni(bb);
-	for ( i = -1; irank+i >= 0; i-- ) {
-	  set_attacks( irank+i, ifile, &bb );
-	  if ( (pcs<<1) & (1 << (8-irank-i)) ) { break; }
-	}
-	for ( i = 1; irank+i <= 8; i++ ) {
-	  set_attacks( irank+i, ifile, &bb );
-	  if ( (pcs<<1) & (1 << (8-irank-i)) ) { break; }
-	}
-	abb_file_attacks[irank*nfile+ifile][pcs] = bb; 
-	
-	BBIni(bb);
-	for ( i = -1; ifile+i >= 0; i-- ) {
-	  set_attacks( irank, ifile+i, &bb );
-	  if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
-	}
-	for ( i = 1; ifile+i <= 8; i++ ) {
-	  set_attacks( irank, ifile+i, &bb );
-	  if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
-	}
-	abb_rank_attacks[irank*nfile+ifile][pcs] = bb;
-	
-	BBIni(bb);
-	if ( ifile <= irank ) {
+      for ( pcs = 0; pcs < 128; pcs++ )        {
+        
+        BBIni(bb);
+        for ( i = -1; irank+i >= 0; i-- ) {
+          set_attacks( irank+i, ifile, &bb );
+          if ( (pcs<<1) & (1 << (8-irank-i)) ) { break; }
+        }
+        for ( i = 1; irank+i <= 8; i++ ) {
+          set_attacks( irank+i, ifile, &bb );
+          if ( (pcs<<1) & (1 << (8-irank-i)) ) { break; }
+        }
+        abb_file_attacks[irank*nfile+ifile][pcs] = bb; 
+        
+        BBIni(bb);
+        for ( i = -1; ifile+i >= 0; i-- ) {
+          set_attacks( irank, ifile+i, &bb );
+          if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
+        }
+        for ( i = 1; ifile+i <= 8; i++ ) {
+          set_attacks( irank, ifile+i, &bb );
+          if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
+        }
+        abb_rank_attacks[irank*nfile+ifile][pcs] = bb;
+        
+        BBIni(bb);
+        if ( ifile <= irank ) {
 
-	  for ( i = -1; ifile+i >= 0; i-- ) {
-	    set_attacks( irank+i, ifile+i, &bb );
-	    if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
-	  }
-	  for ( i = 1; irank+i <= 8; i++ ) {
-	    set_attacks( irank+i, ifile+i, &bb );
-	    if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
-	  }
+          for ( i = -1; ifile+i >= 0; i-- ) {
+            set_attacks( irank+i, ifile+i, &bb );
+            if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
+          }
+          for ( i = 1; irank+i <= 8; i++ ) {
+            set_attacks( irank+i, ifile+i, &bb );
+            if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
+          }
 
-	} else {
+        } else {
 
-	  for ( i = -1; irank+i >= 0; i-- ) {
-	      set_attacks( irank+i, ifile+i, &bb );
-	      if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
-	  }
-	  for ( i = 1; ifile+i <= 8; i++ ) {
-	    set_attacks( irank+i, ifile+i, &bb );
-	    if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
-	  }
-	}
+          for ( i = -1; irank+i >= 0; i-- ) {
+              set_attacks( irank+i, ifile+i, &bb );
+              if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
+          }
+          for ( i = 1; ifile+i <= 8; i++ ) {
+            set_attacks( irank+i, ifile+i, &bb );
+            if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
+          }
+        }
 
-	abb_bishop_attacks_rl45[irank*nfile+ifile][pcs] = bb; 
-	
-	BBIni(bb);
-	if ( ifile+irank >= 8 ) {
+        abb_bishop_attacks_rl45[irank*nfile+ifile][pcs] = bb; 
+        
+        BBIni(bb);
+        if ( ifile+irank >= 8 ) {
 
-	    for ( i = -1; irank-i <= 8; i-- ) {
-		set_attacks( irank-i, ifile+i, &bb );
-		if ( (pcs<<1) & (1 << (irank-i)) ) { break; }
-	    }
-	    for ( i = 1; ifile+i <= 8; i++ ) {
-	      set_attacks( irank-i, ifile+i, &bb );
-	      if ( (pcs<<1) & (1 << (irank-i)) ) { break; }
-	    }
+            for ( i = -1; irank-i <= 8; i-- ) {
+                set_attacks( irank-i, ifile+i, &bb );
+                if ( (pcs<<1) & (1 << (irank-i)) ) { break; }
+            }
+            for ( i = 1; ifile+i <= 8; i++ ) {
+              set_attacks( irank-i, ifile+i, &bb );
+              if ( (pcs<<1) & (1 << (irank-i)) ) { break; }
+            }
 
-	} else {
+        } else {
 
-	  for ( i = -1; ifile+i >= 0; i-- ) {
-	      set_attacks( irank-i, ifile+i, &bb );
-	      if ( (pcs<<1) & (1 << (irank-i)) ) { break; }
-	  }
-	  for ( i = 1; irank-i >= 0; i++ ) {
-	    set_attacks( irank-i, ifile+i, &bb );
-	    if ( (pcs<<1) & (1 << (irank-i)) ) { break; }
-	  }
-	}
-	abb_bishop_attacks_rr45[irank*nfile+ifile][pcs] = bb; 
+          for ( i = -1; ifile+i >= 0; i-- ) {
+              set_attacks( irank-i, ifile+i, &bb );
+              if ( (pcs<<1) & (1 << (irank-i)) ) { break; }
+          }
+          for ( i = 1; irank-i >= 0; i++ ) {
+            set_attacks( irank-i, ifile+i, &bb );
+            if ( (pcs<<1) & (1 << (irank-i)) ) { break; }
+          }
+        }
+        abb_bishop_attacks_rr45[irank*nfile+ifile][pcs] = bb; 
       }
       
       if ( irank >= ifile ) {
-	  aslide[irank*nfile+ifile].irl45 = (unsigned char)((irank-ifile)/3);
-	  aslide[irank*nfile+ifile].srl45
-	    = (unsigned char)((2-((irank-ifile)%3))*9+1);
+          aslide[irank*nfile+ifile].irl45 = (unsigned char)((irank-ifile)/3);
+          aslide[irank*nfile+ifile].srl45
+            = (unsigned char)((2-((irank-ifile)%3))*9+1);
       } else {
-	aslide[irank*nfile+ifile].irl45 = (unsigned char)((9+irank-ifile)/3);
-	aslide[irank*nfile+ifile].srl45
-	  = (unsigned char)((2-((9+irank-ifile)%3))*9+1);
+        aslide[irank*nfile+ifile].irl45 = (unsigned char)((9+irank-ifile)/3);
+        aslide[irank*nfile+ifile].srl45
+          = (unsigned char)((2-((9+irank-ifile)%3))*9+1);
       }
       
       if ( ifile+irank >= 8 ) {
-	aslide[irank*nfile+ifile].irr45 = (unsigned char)((irank+ifile-8)/3);
-	aslide[irank*nfile+ifile].srr45
-	  = (unsigned char)((2-((irank+ifile-8)%3))*9+1);
+        aslide[irank*nfile+ifile].irr45 = (unsigned char)((irank+ifile-8)/3);
+        aslide[irank*nfile+ifile].srr45
+          = (unsigned char)((2-((irank+ifile-8)%3))*9+1);
       } else {
-	aslide[irank*nfile+ifile].irr45 = (unsigned char)((irank+ifile+1)/3);
-	aslide[irank*nfile+ifile].srr45
-	  = (unsigned char)((2-((irank+ifile+1)%3))*9+1);
+        aslide[irank*nfile+ifile].irr45 = (unsigned char)((irank+ifile+1)/3);
+        aslide[irank*nfile+ifile].srr45
+          = (unsigned char)((2-((irank+ifile+1)%3))*9+1);
       }
     }
 }
@@ -879,10 +879,10 @@ ini_check_table( void )
     bb_check = abb_w_gold_attacks[iking];
     while ( BBTest(bb_check) )
       {
-	sq_chk = LastOne( bb_check );
-	BBOr( b_chk_tbl[iking].gold, b_chk_tbl[iking].gold,
-	      abb_w_gold_attacks[sq_chk] );
-	Xor( sq_chk, bb_check );
+        sq_chk = LastOne( bb_check );
+        BBOr( b_chk_tbl[iking].gold, b_chk_tbl[iking].gold,
+              abb_w_gold_attacks[sq_chk] );
+        Xor( sq_chk, bb_check );
       }
     BBOr( bb, abb_mask[iking], abb_w_gold_attacks[iking] );
     BBNotAnd( b_chk_tbl[iking].gold, b_chk_tbl[iking].gold, bb );
@@ -892,26 +892,26 @@ ini_check_table( void )
     bb_check = abb_w_silver_attacks[iking];
     while ( BBTest(bb_check) )
       {
-	sq_chk = LastOne( bb_check );
-	BBOr( b_chk_tbl[iking].silver, b_chk_tbl[iking].silver,
-	      abb_w_silver_attacks[sq_chk] );
-	Xor( sq_chk, bb_check );
+        sq_chk = LastOne( bb_check );
+        BBOr( b_chk_tbl[iking].silver, b_chk_tbl[iking].silver,
+              abb_w_silver_attacks[sq_chk] );
+        Xor( sq_chk, bb_check );
       }
     bb_check.p[0] = abb_w_gold_attacks[iking].p[0];
     while ( bb_check.p[0] )
       {
-	sq_chk = last_one0( bb_check.p[0] );
-	BBOr( b_chk_tbl[iking].silver, b_chk_tbl[iking].silver,
-	      abb_w_silver_attacks[sq_chk] );
-	bb_check.p[0] ^= abb_mask[sq_chk].p[0];
+        sq_chk = last_one0( bb_check.p[0] );
+        BBOr( b_chk_tbl[iking].silver, b_chk_tbl[iking].silver,
+              abb_w_silver_attacks[sq_chk] );
+        bb_check.p[0] ^= abb_mask[sq_chk].p[0];
       }
     bb_check.p[1] = abb_w_gold_attacks[iking].p[1];
     while ( bb_check.p[1] )
       {
-	sq_chk = last_one1( bb_check.p[1] );
-	b_chk_tbl[iking].silver.p[0]
-	  |= abb_w_silver_attacks[sq_chk].p[0];
-	bb_check.p[1] ^= abb_mask[sq_chk].p[1];
+        sq_chk = last_one1( bb_check.p[1] );
+        b_chk_tbl[iking].silver.p[0]
+          |= abb_w_silver_attacks[sq_chk].p[0];
+        bb_check.p[1] ^= abb_mask[sq_chk].p[1];
       }
     BBOr( bb, abb_mask[iking], abb_w_silver_attacks[iking] );
     BBNotAnd( b_chk_tbl[iking].silver, b_chk_tbl[iking].silver, bb );
@@ -921,31 +921,31 @@ ini_check_table( void )
     bb_check = abb_w_knight_attacks[iking];
     while ( BBTest(bb_check) )
       {
-	sq_chk = LastOne( bb_check );
-	BBOr( b_chk_tbl[iking].knight, b_chk_tbl[iking].knight,
-	      abb_w_knight_attacks[sq_chk] );
-	Xor( sq_chk, bb_check );
+        sq_chk = LastOne( bb_check );
+        BBOr( b_chk_tbl[iking].knight, b_chk_tbl[iking].knight,
+              abb_w_knight_attacks[sq_chk] );
+        Xor( sq_chk, bb_check );
       }
     bb_check.p[0] = abb_w_gold_attacks[iking].p[0];
     while ( bb_check.p[0] )
       {
-	sq_chk = last_one0( bb_check.p[0] );
-	BBOr( b_chk_tbl[iking].knight, b_chk_tbl[iking].knight,
-	      abb_w_knight_attacks[sq_chk] );
-	bb_check.p[0] ^= abb_mask[sq_chk].p[0];
+        sq_chk = last_one0( bb_check.p[0] );
+        BBOr( b_chk_tbl[iking].knight, b_chk_tbl[iking].knight,
+              abb_w_knight_attacks[sq_chk] );
+        bb_check.p[0] ^= abb_mask[sq_chk].p[0];
       }
     
     /* black lance */
     if ( iking <= I3 ) {
       BBAnd( b_chk_tbl[iking].lance, abb_plus_rays[iking+nfile],
-	     abb_file_attacks[iking][0] );
+             abb_file_attacks[iking][0] );
       if ( iking <= I7 && iking != A9 && iking != A8 && iking != A7 ) {
-	BBAnd( bb, abb_plus_rays[iking-1], abb_file_attacks[iking-1][0] );
-	BBOr( b_chk_tbl[iking].lance,	b_chk_tbl[iking].lance, bb );
+        BBAnd( bb, abb_plus_rays[iking-1], abb_file_attacks[iking-1][0] );
+        BBOr( b_chk_tbl[iking].lance,        b_chk_tbl[iking].lance, bb );
       }
       if ( iking <= I7 && iking != I9 && iking != I8 && iking != I7 ) {
-	BBAnd( bb, abb_plus_rays[iking+1], abb_file_attacks[iking+1][0] );
-	BBOr( b_chk_tbl[iking].lance, b_chk_tbl[iking].lance, bb );
+        BBAnd( bb, abb_plus_rays[iking+1], abb_file_attacks[iking+1][0] );
+        BBOr( b_chk_tbl[iking].lance, b_chk_tbl[iking].lance, bb );
       }
     } else { BBIni( b_chk_tbl[iking].lance ); }
     
@@ -954,10 +954,10 @@ ini_check_table( void )
     bb_check = abb_b_gold_attacks[iking];
     while ( BBTest(bb_check) )
       {
-	sq_chk = LastOne( bb_check );
-	BBOr( w_chk_tbl[iking].gold, w_chk_tbl[iking].gold,
-	      abb_b_gold_attacks[sq_chk] );
-	Xor( sq_chk, bb_check );
+        sq_chk = LastOne( bb_check );
+        BBOr( w_chk_tbl[iking].gold, w_chk_tbl[iking].gold,
+              abb_b_gold_attacks[sq_chk] );
+        Xor( sq_chk, bb_check );
       }
     BBOr( bb, abb_mask[iking], abb_b_gold_attacks[iking] );
     BBNotAnd( w_chk_tbl[iking].gold, w_chk_tbl[iking].gold, bb );
@@ -967,26 +967,26 @@ ini_check_table( void )
     bb_check = abb_b_silver_attacks[iking];
     while ( BBTest(bb_check) )
       {
-	sq_chk = LastOne( bb_check );
-	BBOr( w_chk_tbl[iking].silver, w_chk_tbl[iking].silver,
-	      abb_b_silver_attacks[sq_chk] );
-	Xor( sq_chk, bb_check );
+        sq_chk = LastOne( bb_check );
+        BBOr( w_chk_tbl[iking].silver, w_chk_tbl[iking].silver,
+              abb_b_silver_attacks[sq_chk] );
+        Xor( sq_chk, bb_check );
       }
     bb_check.p[2] = abb_b_gold_attacks[iking].p[2];
     while ( bb_check.p[2] )
       {
-	sq_chk = first_one2( bb_check.p[2] );
-	BBOr( w_chk_tbl[iking].silver, w_chk_tbl[iking].silver,
-	      abb_b_silver_attacks[sq_chk] );
-	bb_check.p[2] ^= abb_mask[sq_chk].p[2];
+        sq_chk = first_one2( bb_check.p[2] );
+        BBOr( w_chk_tbl[iking].silver, w_chk_tbl[iking].silver,
+              abb_b_silver_attacks[sq_chk] );
+        bb_check.p[2] ^= abb_mask[sq_chk].p[2];
       }
     bb_check.p[1] = abb_b_gold_attacks[iking].p[1];
     while ( bb_check.p[1] )
       {
-	sq_chk = first_one1( bb_check.p[1] );
-	w_chk_tbl[iking].silver.p[2]
-	  |= abb_b_silver_attacks[sq_chk].p[2];
-	bb_check.p[1] ^= abb_mask[sq_chk].p[1];
+        sq_chk = first_one1( bb_check.p[1] );
+        w_chk_tbl[iking].silver.p[2]
+          |= abb_b_silver_attacks[sq_chk].p[2];
+        bb_check.p[1] ^= abb_mask[sq_chk].p[1];
       }
     BBOr( bb, abb_mask[iking], abb_b_silver_attacks[iking] );
     BBNotAnd( w_chk_tbl[iking].silver, w_chk_tbl[iking].silver, bb );
@@ -996,31 +996,31 @@ ini_check_table( void )
     bb_check = abb_b_knight_attacks[iking];
     while ( BBTest( bb_check ) )
       {
-	sq_chk = LastOne( bb_check );
-	BBOr( w_chk_tbl[iking].knight, w_chk_tbl[iking].knight,
-	      abb_b_knight_attacks[sq_chk] );
-	Xor( sq_chk, bb_check );
+        sq_chk = LastOne( bb_check );
+        BBOr( w_chk_tbl[iking].knight, w_chk_tbl[iking].knight,
+              abb_b_knight_attacks[sq_chk] );
+        Xor( sq_chk, bb_check );
       }
     bb_check.p[2] = abb_b_gold_attacks[iking].p[2];
     while ( bb_check.p[2] )
       {
-	sq_chk = first_one2( bb_check.p[2] );
-	BBOr( w_chk_tbl[iking].knight, w_chk_tbl[iking].knight,
-	      abb_b_knight_attacks[sq_chk] );
-	bb_check.p[2] ^= abb_mask[sq_chk].p[2];
+        sq_chk = first_one2( bb_check.p[2] );
+        BBOr( w_chk_tbl[iking].knight, w_chk_tbl[iking].knight,
+              abb_b_knight_attacks[sq_chk] );
+        bb_check.p[2] ^= abb_mask[sq_chk].p[2];
       }
     
     /* white lance */
     if ( iking >= A7 ) {
       BBAnd( w_chk_tbl[iking].lance, abb_minus_rays[iking-nfile],
-	     abb_file_attacks[iking][0] );
+             abb_file_attacks[iking][0] );
       if ( iking >= A3 && iking != A3 && iking != A2 && iking != A1 ) {
-	BBAnd( bb, abb_minus_rays[iking-1], abb_file_attacks[iking-1][0] );
-	BBOr( w_chk_tbl[iking].lance, w_chk_tbl[iking].lance, bb );
+        BBAnd( bb, abb_minus_rays[iking-1], abb_file_attacks[iking-1][0] );
+        BBOr( w_chk_tbl[iking].lance, w_chk_tbl[iking].lance, bb );
       }
       if ( iking >= A3 && iking != I3 && iking != I2 && iking != I1 ) {
-	BBAnd( bb, abb_minus_rays[iking+1], abb_file_attacks[iking+1][0] );
-	BBOr( w_chk_tbl[iking].lance, w_chk_tbl[iking].lance, bb );
+        BBAnd( bb, abb_minus_rays[iking+1], abb_file_attacks[iking+1][0] );
+        BBOr( w_chk_tbl[iking].lance, w_chk_tbl[iking].lance, bb );
       }
     } else { BBIni( w_chk_tbl[iking].lance ); }
   }
