@@ -436,6 +436,7 @@ dfpn_client_out( const char *fmt, ... )
     }
 
   Out( "- send to DFPN server: %s", buf );
+  OutCsaShogi("dfpn: %s", buf);
 
   iret = send( dfpn_client_sckt, buf, nch, 0 );
   if ( iret == SOCKET_ERROR )
