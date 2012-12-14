@@ -1,7 +1,6 @@
-' ---- Kifu for Windows V6.43 CSA形式棋譜ファイル ----
-V2.2
-N+あなた
-N-あなた２
+V2.1
+N+niconama
+N-bonachan
 P1-KY-KE-GI-KI-OU-KI-GI-KE-KY
 P2 * -HI *  *  *  *  * -KA * 
 P3-FU-FU-FU-FU-FU-FU-FU-FU-FU
@@ -11,13 +10,8 @@ P6 *  *  *  *  *  *  *  *  *
 P7+FU+FU+FU+FU+FU+FU+FU+FU+FU
 P8 * +KA *  *  *  *  * +HI * 
 P9+KY+KE+GI+KI+OU+KI+GI+KE+KY
+P+
+P-
 +
-+1918KY,T0
--8384FU,T0
-+7776FU,T0
--3334FU,T0
-+2868HI,T0
--7162GI,T0
-+5948OU,T0
--5142OU,T0
-+8822KA,T0
++7776FU,T255
+-3334FU,T1
