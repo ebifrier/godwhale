@@ -1250,8 +1250,12 @@ extern unsigned int time_last_send;
 #endif
 
 #if defined(DFPN)
-#  define DFPNOut( ... ) if ( dfpn_sckt != SCKT_NULL ) \
-                           sckt_out( dfpn_sckt, __VA_ARGS__ )
+#  define DFPNOut( ... ) do \
+    { \
+        if ( dfpn_sckt != SCKT_NULL ) \
+            sckt_out( dfpn_sckt, __VA_ARGS__ ); \
+        OutCsaShogi( __VA_ARGS__ ); \
+    } while(0)
 int CONV dfpn( tree_t * restrict ptree, int turn, int ply );
 int CONV dfpn_ini_hash( void );
 extern unsigned int dfpn_hash_log2;
