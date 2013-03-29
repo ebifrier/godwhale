@@ -12,4 +12,5 @@ perl majority_server.pl --client_port=4082 \
                         --sec_spent_w=0 \
                         --noaudio
 
+
 #                        --final_as_confident

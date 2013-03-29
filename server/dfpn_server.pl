@@ -56,7 +56,7 @@ sub moves2cmd        ($);
     print "DFPN server ($str_time)\n";
 
     # defaults of command-line options
-    my ( %cmd_option ) = ( client_port => 4083 );
+    my ( %cmd_option ) = ( client_port => 4085 );
 
     GetOptions( \%cmd_option, 'client_port=i' ) or die "$!";
 
