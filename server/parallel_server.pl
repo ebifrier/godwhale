@@ -28,6 +28,7 @@ sub maxeval_score () { 30_000 }
 
 # subroutines
 sub wait_messages($$$$$$);
+sub get_client_from_key($$);
 sub godwhale_changed($;$);
 sub update_godwhale($);
 sub parse_smsg($$$);
@@ -91,7 +92,7 @@ my $g_need_update = 0;
                                                \@client, undef, undef,
                                                10.0 ) ) {
             
-            my $client_ref = $client{$ready_key};
+            my $client_ref = get_client_from_key \@client, $ready_key;
 
             # get one line from buffer
             my $line = get_line \$client_ref->{in_buf};
@@ -153,10 +154,11 @@ my $g_need_update = 0;
                 }
             }
             else {
-                my $line = get_line \$client{$ready_key}->{in_buf};
-                if ( not parse_cmsg \%status, $client{$ready_key}, $line ) {
-                    die "MESSAGE FROM CLIENT: $line\n";
-                }
+		my $this_client = get_client_from_key \@client, $ready_key;
+#                my $line = get_line \${%$this_client}->{in_buf};
+#                if ( not parse_cmsg \%status, \%this_client, $line ) {
+#                    die "MESSAGE FROM CLIENT: $line\n";
+#                }
             }
         }
 
@@ -178,7 +180,7 @@ my $g_need_update = 0;
         my $have_unexpanded    = 0;
         my ( %score )          = ();
         my ( @expanded_moves ) = ();
-        foreach my $client_ref ( %client ) {
+        foreach my $client_ref ( @client ) {
             
             my ( $move, $value, $expanded );
 
@@ -283,12 +285,12 @@ my $g_need_update = 0;
         my $dbg_not_expand = 0;
         if ( defined $score_ref
              and not $score_ref->{final}
-             and @expanded_moves + 1 < keys %client
+             and @expanded_moves + 1 < @client
              and $status{split_nodes} < $score_ref->{nodes} ) {
             
             my $move  = $score_ref->{move};
             my $first = 1;
-            foreach my $client_ref ( %client ) {
+            foreach my $client_ref ( @client ) {
 
                 if ( defined $client_ref->{played_move} ) { next; }
 
@@ -328,6 +330,18 @@ my $g_need_update = 0;
     }
 }
 
+
+sub get_client_from_key($$) {
+    my ( $client_ref, $key_sckt ) = @_;
+
+    my @clients = grep( { $_->{sckt} eq $key_sckt }
+                    @$client_ref );
+
+    print @clients;
+    return #@clients >= 0 ? $clients[0] : q{};
+}
+
+
 sub godwhale_changed($;$) {
     my ( $status_ref, $eval_value ) = @_;
 
@@ -358,7 +372,7 @@ sub update_godwhale($) {
     print FH "$g_eval_value\n";
 
     # 次に参加者を出力。
-    foreach my $c ( values %client ) {
+    foreach my $c ( @client ) {
         print FH "$c->{id}\n";
     }
     close FH;
@@ -649,7 +663,7 @@ sub out_clients ($$) {
 
     print "ALL< $line\n";
     foreach my $client ( @$client_ref ) {
-        print { %$client->{sckt} } "$line\n";
+        print { {%$client}->{sckt} } "$line\n";
     }
 }
 
