@@ -260,6 +260,8 @@ static int CONV proce_mnj( tree_t * restrict ptree )
   token = strtok_r( str_cmdline, str_delimiters, &last );
   if ( token == NULL ) { return 1; }
 
+  OutCsaShogi( "%s %s\n", str_cmdline, last );
+
   if ( ! strcmp( token, "new" ) )
     {
       iret = cmd_suspend();
@@ -437,7 +439,7 @@ cmd_mnjmove( tree_t * restrict ptree, char **lasts, int num_alter )
   if ( iret < 0 ) { return iret; }
 #  endif
 
-  OutCsaShogi( "move %s %d %d\n", str1, num_alter, mnj_posi_id );
+  //OutCsaShogi( "move %s %d %d\n", str1, num_alter, mnj_posi_id );
 
   moves_ignore[0] = MOVE_NA;
   return analyze( ptree );
@@ -781,7 +783,7 @@ cmd_usrmove( tree_t * restrict ptree, const char *str_move, char **lasts )
           {
             str = str_CSA_move( move_evasion_pchk );
 #if defined(CSASHOGI)
-            OutCsaShogi( "move%s\n", str );
+            //OutCsaShogi( "move%s\n", str );
             return cmd_suspend();
 #else
             snprintf( str_message, SIZE_MESSAGE, "perpetual check (%c%s)",
