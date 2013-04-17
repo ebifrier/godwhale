@@ -298,7 +298,10 @@ static int CONV proce_mnj( tree_t * restrict ptree )
       
       return cmd_mnjmove( ptree, &last, (int)l );
     }
-  if ( ! strcmp( token, "move" ) )  { return cmd_mnjmove( ptree, &last, 0 ); }
+  if ( ! strcmp( token, "pmove" ) )     { return cmd_mnjmove( ptree, &last, 0 ); }
+  if ( ! strcmp( token, "move" ) )      { return cmd_mnjmove( ptree, &last, 0 ); }
+  if ( ! strcmp( token, "ponderhit" ) ) { return 1; }
+  if ( ! strcmp( token, "movehit" ) )   { return 1; }
 
   str_error = str_bad_cmdline;
   return -2;
