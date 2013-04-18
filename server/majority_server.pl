@@ -224,6 +224,8 @@ sub parse_smsg ($$$$) {
             
         # received opp's move, pondering hit and my turn starts.
         my $time_think = $$ref_status{time}-$$ref_status{start_think};
+	out_clients( $ref_status, $ref_sckt_clients, $fh_log,
+                     "ponderhit $$ref_status{pid}" );
 
         $$ref_status{sec_optime} += $sec;
         out_record $fh_record, $line;
@@ -563,7 +565,7 @@ sub move_selection ($$$$) {
         my $color = ( $$ref_status{color} eq '+' ) ? '-' : '+';
 
         out_clients( $ref_status, $ref_sckt_clients, $fh_log,
-                     "move $move_ready $$ref_status{pid}" );
+                     "pmove $move_ready $$ref_status{pid}" );
             
         out_log $fh_log, "pid is set to $$ref_status{pid}.";
         out_log $fh_log, "Ponder on $color$move_ready.";
