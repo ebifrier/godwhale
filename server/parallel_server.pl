@@ -27,6 +27,7 @@ sub send_freq  ()    {   0.5 }
 sub maxeval_score () { 30_000 }
 
 # subroutines
+sub array_remove (&$);
 sub wait_messages($$$$$$);
 sub get_client_from_key($$);
 sub godwhale_changed($;$);
@@ -92,11 +93,11 @@ my $g_need_update = 0;
                                                \@client, undef, undef,
                                                10.0 ) ) {
             
-            my $client_ref = get_client_from_key \@client, $ready_key;
+            my $client_ref = $ready_key;
 
             # get one line from buffer
             my $line = get_line \$client_ref->{in_buf};
-            if ( 'unknown' eq $client_ref->{id} ) {
+            if ( $line and 'unknown' eq $client_ref->{id} ) {
                 my ( $final, $stable ) = ( 0, 0 );
                 $client_ref->{id} = ( split ' ', $line )[1];
                 out_log \%status, "LOGIN: $client_ref->{id}\n";
@@ -154,11 +155,12 @@ my $g_need_update = 0;
                 }
             }
             else {
-		my $this_client = get_client_from_key \@client, $ready_key;
-#                my $line = get_line \${%$this_client}->{in_buf};
-#                if ( not parse_cmsg \%status, \%this_client, $line ) {
-#                    die "MESSAGE FROM CLIENT: $line\n";
-#                }
+		my $this_client = $ready_key;
+                my $line = get_line \$this_client->{in_buf};
+#		print $line, "\n";
+                if ( not parse_cmsg \%status, $this_client, $line ) {
+                    die "MESSAGE FROM CLIENT: $line\n";
+                }
             }
         }
 
@@ -296,7 +298,7 @@ my $g_need_update = 0;
 
                 if ( $first ) {
                     my $pid  = $global_pid + 1;
-                    my $line = "move $move $pid";
+                    my $line = "pmove $move $pid";
                     out_log \%status, "$client_ref->{id}< $line\n";
                     print { $client_ref->{sckt} } "$line\n";
                     $client_ref->{played_move} = $move;
@@ -334,11 +336,31 @@ my $g_need_update = 0;
 sub get_client_from_key($$) {
     my ( $client_ref, $key_sckt ) = @_;
 
-    my @clients = grep( { $_->{sckt} eq $key_sckt }
-                    @$client_ref );
+    my ( $client ) = grep( { $_->{sckt} eq $key_sckt }
+                           @$client_ref );
 
-    print @clients;
-    return #@clients >= 0 ? $clients[0] : q{};
+#    print %$client;
+    return $client;
+}
+
+
+sub array_remove (&$) {
+    my ( $test_block, $arr_ref ) = @_;
+    my $sp_start  = 0;
+    my $sp_len    = 0;
+
+    for ( my $inx = 0; $inx <= $#$arr_ref; $inx++ ) {
+        local $_ = $arr_ref->[$inx];
+        next unless $test_block->( $_ );
+        if ( $sp_len > 0 && $inx > $sp_start + $sp_len ) {
+            splice( @$arr_ref, $sp_start, $sp_len );
+            $inx    = $inx - $sp_len;
+            $sp_len = 0;
+        }
+        $sp_start = $inx if ++$sp_len == 1;
+    }
+
+    splice( @$arr_ref, $sp_start, $sp_len ) if $sp_len > 0;
 }
 
 
@@ -426,33 +448,34 @@ sub parse_smsg($$$) {
             $ref->{pid}         = 0;
         }
     }
-    elsif ( $line =~ /move (\d\d\d\d[A-Z][A-Z]) (\d+)$/ ) {
+    elsif ( $line =~ /(pmove|move) (\d\d\d\d[A-Z][A-Z]) (\d+)$/ ) {
         $status_ref->{sent_final}  = 0;
-        $status_ref->{server_pid}  = $2;
+        $status_ref->{server_pid}  = $3;
         $global_pid               += 1;
-        push @movelist, $1;
+        push @movelist, $2;
 
         my $pid = $global_pid;
         foreach my $ref ( @$client_ref ) {
-            if ( defined $ref->{played_move} and $ref->{played_move} eq $1 ) {
+            if ( defined $ref->{played_move} and $ref->{played_move} eq $2 ) {
                 $pid = $ref->{pid};
                 last;
             }
         }
 
         foreach my $ref ( @$client_ref ) {
-            if ( defined $ref->{played_move} and $ref->{played_move} eq $1 )  {
+            if ( defined $ref->{played_move} and $ref->{played_move} eq $2 )  {
                 out_log $status_ref, "$ref->{id} has the same position.\n";
+		print { $ref->{sckt} } "movehit $pid\n";
                 $ref->{played_move} = undef;
                 $ref->{value}       = -$ref->{value};
                 $ref->{pid}         = $pid;
             }
             else {
                 if ( defined $ref->{played_move} ) {
-                    $line= "alter $1 $global_pid";
+                    $line= "alter $2 $global_pid";
                 }
                 else {
-                    $line= "move $1 $global_pid";
+                    $line= "$1 $2 $global_pid";
                 }
                 out_log $status_ref, "$ref->{id}< $line\n";
                 print { $ref->{sckt} } "$line\n";
@@ -490,6 +513,13 @@ sub parse_smsg($$$) {
             $ref->{value}       = 0;
             $ref->{pid}         = $global_pid;
         }
+    }
+    elsif ( $line =~ /ponderhit/ ) {
+	out_log $status_ref, "client_all< ponderhit\n";
+
+	foreach my $ref ( @$client_ref ) {
+	    print { $ref->{sckt} } "ponderhit\n";
+	}
     }
     else { return 0; }
 
@@ -583,7 +613,7 @@ sub wait_messages($$$$$$) {
         if ( not @sckts ) { return; }
 
         foreach my $in ( @sckts ) {
-            
+
             if ( defined $listening_sckt and $in eq $listening_sckt ) {
                 
                 # accept the connection for a client
@@ -593,7 +623,7 @@ sub wait_messages($$$$$$) {
                 my $str_iaddr = inet_ntoa $iaddr;
                 
                 $selector->add( $accepted_sckt );
-                my %client = {
+                my %client = (
                     id          => 'unknown',
                     iaddr       => $str_iaddr,
                     port        => $port,
@@ -605,8 +635,8 @@ sub wait_messages($$$$$$) {
                     best_move   => undef,
                     nodes       => 0,
                     value       => 0,
-                    pid         => 0 };
-                push @$client_ref, %client;
+                    pid         => 0 );
+                push @$client_ref, \%client;
                 
                 print $accepted_sckt "idle\n";
                 next;
@@ -623,20 +653,22 @@ sub wait_messages($$$$$$) {
                 next;
             }
 
+	    my $client = get_client_from_key $client_ref, $in;
+
             # message arrived from a client
             my $in_buf;
             $in->recv( $in_buf, 65536 );
             if ( not $in_buf ) {
                 my $size = @$client_ref - 1;
-                out_log $status_ref, "$client_ref->{$in}->{id} is down. ($size)\n";
+                out_log $status_ref, "$client->{id} is down. ($size)\n";
 
                 $selector->remove( $in );
-                delete $client_ref->{$in};
+		array_remove { $_->{sckt} eq $in } $client_ref;
                 next;
             }
 
-            $client_ref->{$in}->{in_buf} .= $in_buf;
-            $client_ref->{$in}->{in_buf}  =~ s/\015?\012/\n/g;
+            $client->{in_buf} .= $in_buf;
+            $client->{in_buf}  =~ s/\015?\012/\n/g;
         }
     }
     
@@ -648,8 +680,8 @@ sub get_line ($) {
     my ( $line_ref ) = @_;
 
     my $pos = index $$line_ref, "\n";
-    if ( $pos == -1 ) { die 'Internal error' }
-            
+    if ( $pos == -1 ) { die "Internal error." }
+    
     my $line   = substr $$line_ref, 0, 1+$pos;
     $$line_ref = substr $$line_ref, 1+$pos;
     chomp $line;
