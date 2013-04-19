@@ -6,6 +6,10 @@
         x:Name="shogi">
     <Window.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Ragnarok.Presentation.Shogi;component/View/MainMenu.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            
             <BitmapImage x:Key="pieceImage"
                          UriSource="pack://application:,,,/Ragnarok.Presentation.Shogi;component/Resources/Image/koma/koma_1moji.png" />
             
@@ -20,11 +24,21 @@
     </Window.Resources>
     
     <Grid>
-        <r:VisualBackground x:Name="visualBackground" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
         
-        <r:ShogiControl x:Name="ShogiControl"
+        <ToolBarTray>
+            <StaticResource ResourceKey="toolBar" />
+        </ToolBarTray>
+        
+        <r:VisualBackground Grid.Row="1"
+                            x:Name="visualBackground" />
+        
+        <r:ShogiControl Grid.Row="1"
+                        x:Name="ShogiControl"
                         x:FieldModifier="public"
-                        EditMode="NoEdit"
                         EffectManager="{Binding EffectManager, ElementName=shogi}"
                         Board="{Binding Board}"
                         PieceImage="{StaticResource pieceImage}"

@@ -251,6 +251,11 @@ namespace Bonako.ViewModel
                 return;
             }
 
+            if (log.StartsWith("info ponder "))
+            {
+                return;
+            }
+
             Ragnarok.Presentation.WPFUtil.UIProcess(() =>
             {
                 using (LazyLock())

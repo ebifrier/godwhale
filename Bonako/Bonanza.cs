@@ -313,6 +313,7 @@ namespace Bonako
             var asm = Assembly.GetEntryAssembly();
             var dirname = asm.Location;
             var exename = "bonaster.exe";
+            //var exename = "bonanza.exe";
 
             // 一つ上の階層までなら許すことにします。
             for (var i = 0; i < 1; ++i)
@@ -461,11 +462,11 @@ namespace Bonako
                         "ボナンザが起動していません。");
                 }
 
-                if (IsMnjInited != true)
+                /*if (IsMnjInited != true)
                 {
                     throw new InvalidOperationException(
                         "mnjが初期化されていません。");
-                }
+                }*/
 
                 if (IsConnected)
                 {
@@ -482,6 +483,8 @@ namespace Bonako
 
                 WriteCommand(string.Format("tlp num {0}", threadNum));
                 WriteCommand(string.Format("hash {0}", hashSize));
+                WriteCommand("limit time 99999 99999");
+                return;
 
                 var command = string.Format(
                     "dfpn_client {0} {1}",

@@ -96,7 +96,7 @@ namespace Bonako
         /// 並列化サーバーへ接続します。
         /// </summary>
         public static readonly RelayCommand Connect =
-            new RelayCommand(ExecuteConnect, CanExecuteConnect);
+            new RelayCommand(ExecuteConnect/*, CanExecuteConnect*/);
 
         /// <summary>
         /// 名前には英数字とアンダーバーしか使えません。

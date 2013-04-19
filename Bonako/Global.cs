@@ -223,7 +223,8 @@ namespace Bonako
             bonanza.Initialize();
             if (!isDfpn)
             {
-                bonanza.BeginPrepareMnj();
+                ShogiModel.Sync(bonanza);
+                //bonanza.BeginPrepareMnj();
             }
 
             // UIをすべて更新します。

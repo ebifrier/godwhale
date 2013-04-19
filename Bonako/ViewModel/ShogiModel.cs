@@ -52,7 +52,21 @@ namespace Bonako.ViewModel
         public Board Board
         {
             get { return GetValue<Board>("Board"); }
-            set { SetValue("Board", value); }
+            set
+            {
+                var oldBoard = Board;
+                if (oldBoard != null)
+                {
+                    oldBoard.BoardChanged -= OnBoardChanged;
+                }
+
+                if (value != null)
+                {
+                    value.BoardChanged += OnBoardChanged;
+                }
+
+                SetValue("Board", value);
+            }
         }
 
         /*/// <summary>
@@ -251,17 +265,17 @@ namespace Bonako.ViewModel
         /// </summary>
         public void AddVariation(VariationInfo variation)
         {
-            if (variation == null)
+            if (variation == null || variation.MoveList.Count < 5)
             {
                 return;
             }
 
             WPFUtil.UIProcess(() =>
             {
-                if (VariationList.Count > 5)
+                /*if (VariationList.Count > 5)
                 {
                     VariationList.RemoveAt(0);
-                }
+                }*/
 
                 VariationList.Add(variation);
 
@@ -276,6 +290,61 @@ namespace Bonako.ViewModel
         {
             WPFUtil.UIProcess(() =>
                 VariationList.Clear());
+        }
+
+        /// <summary>
+        /// ボナンザの思考局面を現局面に合わせます。
+        /// </summary>
+        public void Sync(Bonanza bonanza)
+        {
+            var board = new Board();
+
+            bonanza.Connect("", 0, 0, "test",
+                Global.MainViewModel.ThreadNum,
+                Global.MainViewModel.HashMemSize);
+
+            foreach (var move in CurrentBoard.MoveList)
+            {
+                var csaMove = board.ConvertBoardMove(move);
+                if (csaMove == null)
+                {
+                    return;
+                }
+                csaMove.Side = BWType.None;
+
+                board.DoMove(move);
+                bonanza.WriteCommand("move " + csaMove.ToCsaString());
+            }
+
+            bonanza.WriteCommand("move");
+        }
+
+        private void OnBoardChanged(object sender, BoardChangedEventArgs e)
+        {
+            var shogi = Global.ShogiControl;
+            if (shogi == null || shogi.AutoPlayState == AutoPlayState.Playing)
+            {
+                return;
+            }
+
+            if (e.IsUndo)
+            {
+                CurrentBoard.Undo();
+            }
+            else
+            {
+                CurrentBoard.DoMove(e.Move);
+            }
+
+            ClearVariationList();
+
+            var bonanza = Global.Bonanza;
+            if (bonanza != null)
+            {
+                bonanza.WriteCommand("s");
+                bonanza.WriteCommand("new");
+                Sync(bonanza);
+            }
         }
 
         /// <summary>

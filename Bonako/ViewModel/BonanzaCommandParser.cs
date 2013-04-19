@@ -61,6 +61,49 @@ namespace Bonako.ViewModel
             }
         }
 
+        public static CsaMove ConvertBoardMove(this Board board, BoardMove bmove)
+        {
+            if (bmove == null || !bmove.Validate())
+            {
+                return null;
+            }
+
+            var newPiece = board[bmove.NewPosition];
+            if (bmove.ActionType == ActionType.Drop)
+            {
+                if (newPiece != null)
+                {
+                    return null;
+                }
+
+                return new CsaMove
+                {
+                    Side = board.MovePriority,
+                    NewPosition = bmove.NewPosition,
+                    Piece = new Piece(bmove.DropPieceType, false),
+                };
+            }
+            else
+            {
+                var oldPiece = board[bmove.OldPosition];
+                if (oldPiece == null)
+                {
+                    return null;
+                }
+
+                return new CsaMove
+                {
+                    Side = board.MovePriority,
+                    NewPosition = bmove.NewPosition,
+                    OldPosition = bmove.OldPosition,
+                    Piece = new Piece(
+                        oldPiece.PieceType,
+                        oldPiece.IsPromoted ||
+                        bmove.ActionType == ActionType.Promote),
+                };
+            }
+        }
+
         #region new
         private static bool ParseNew(string command)
         {
@@ -118,6 +161,10 @@ namespace Bonako.ViewModel
         #endregion
 
         #region move, alter, retract
+        private static readonly Regex BonaMoveRegex = new Regex(
+            @"^move([\d\w]+)\s*(\d+)",
+            RegexOptions.IgnoreCase);
+
         private static readonly Regex MoveRegex = new Regex(
             @"^(p?move)\s+([\d\w]+)\s*(\d+)",
             RegexOptions.IgnoreCase);
@@ -139,7 +186,7 @@ namespace Bonako.ViewModel
                 return true;
             }
 
-            var m = MoveRegex.Match(command);
+            /*var m = MoveRegex.Match(command);
             if (m.Success)
             {
                 var ponder = (m.Groups[1].Value == "pmove");
@@ -162,7 +209,7 @@ namespace Bonako.ViewModel
 
                 DoCsaMove(m.Groups[2].Value, nback, false);
                 return true;
-            }
+            }*/
 
             return false;
         }
@@ -239,7 +286,7 @@ namespace Bonako.ViewModel
 
             Global.MainViewModel.CpuUsage = double.Parse(m.Groups[2].Value);
             Global.MainViewModel.Nps = double.Parse(m.Groups[3].Value);
-            Global.ShogiModel.ClearVariationList();
+            //Global.ShogiModel.ClearVariationList();
             return true;
         }
         #endregion
