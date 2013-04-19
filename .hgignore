@@ -9,3 +9,4 @@ syntax: glob
 client/visualc10/Release/
 client/visualc10/ipch/
 client/visualc10/Debug/
+client/log/

@@ -1,0 +1,27 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:r="http://schemas.garnet-alice.net/ragnarok/xaml/presentation">
+    <r:CellMeshConverter x:Key="cellMeshConv" />
+
+    <r:EffectObject x:Key="Effect"
+                    Duration="Forever"
+                    MaterialType="Diffuse"
+                    Color="Red"
+                    Opacity="0.3"
+                    Coord="{r:Binding BanCoord}"
+                    BaseScale="{r:Binding BaseScale}"
+                    Mesh="{r:Binding CellPositions,
+                                     Converter={StaticResource cellMeshConv}}">
+        <!--<r:EffectObject.Scenario>
+            <r:Scenario>
+                <DoubleAnimationUsingKeyFrames
+                    r:Scenario.TargetProperty="Opacity"
+                    RepeatBehavior="Forever">
+                    <LinearDoubleKeyFrame KeyTime="0:0:0.0" Value="0.2" />
+                    <LinearDoubleKeyFrame KeyTime="0:0:1.0" Value="0.3" />
+                    <LinearDoubleKeyFrame KeyTime="0:0:2.0" Value="0.2" />
+                </DoubleAnimationUsingKeyFrames>
+            </r:Scenario>
+        </r:EffectObject.Scenario>-->
+    </r:EffectObject>
+</ResourceDictionary>

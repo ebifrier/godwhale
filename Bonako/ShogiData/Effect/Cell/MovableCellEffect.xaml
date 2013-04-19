@@ -1,0 +1,47 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:r="http://schemas.garnet-alice.net/ragnarok/xaml/presentation">
+    <r:CellMeshConverter x:Key="cellMeshConv" />
+
+    <r:EffectObject x:Key="Effect"
+                    Duration="Forever"
+                    Coord="{r:Binding BanCoord}">
+        <r:EffectObject MaterialType="Diffuse"
+                        Color="Purple"
+                        Duration="Forever"
+                        BaseScale="{r:Binding BaseScale}"
+                        Mesh="{r:Binding CellPosition,
+                                         Converter={StaticResource cellMeshConv}}">
+            <r:EffectObject.Scenario>
+                <r:Scenario>
+                    <DoubleAnimationUsingKeyFrames
+                            r:Scenario.TargetProperty="Opacity"
+                            RepeatBehavior="Forever">
+                        <LinearDoubleKeyFrame KeyTime="0:0:0.0" Value="0.0" />
+                        <LinearDoubleKeyFrame KeyTime="0:0:1.0" Value="0.3" />
+                        <LinearDoubleKeyFrame KeyTime="0:0:2.0" Value="0.0" />
+                    </DoubleAnimationUsingKeyFrames>
+                </r:Scenario>
+            </r:EffectObject.Scenario>
+        </r:EffectObject>
+        
+        <r:EffectObject MaterialType="Diffuse"
+                        Color="Purple"
+                        Duration="Forever"
+                        BaseScale="{r:Binding BaseScale}"
+                        Mesh="{r:Binding CellPositions,
+                                         Converter={StaticResource cellMeshConv}}">
+            <r:EffectObject.Scenario>
+                <r:Scenario>
+                    <DoubleAnimationUsingKeyFrames
+                            r:Scenario.TargetProperty="Opacity"
+                            RepeatBehavior="Forever">
+                        <LinearDoubleKeyFrame KeyTime="0:0:0.0" Value="0.0" />
+                        <LinearDoubleKeyFrame KeyTime="0:0:1.0" Value="0.3" />
+                        <LinearDoubleKeyFrame KeyTime="0:0:2.0" Value="0.0" />
+                    </DoubleAnimationUsingKeyFrames>
+                </r:Scenario>
+            </r:EffectObject.Scenario>
+        </r:EffectObject>
+    </r:EffectObject>
+</ResourceDictionary>

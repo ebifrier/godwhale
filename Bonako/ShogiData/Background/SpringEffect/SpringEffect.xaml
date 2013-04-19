@@ -1,0 +1,42 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:f="http://schemas.flint-sharp/xaml"
+                    xmlns:r="http://schemas.garnet-alice.net/ragnarok/xaml/presentation">
+    <f:LineZone x:Key="positionZone"
+                Point1="-40, -40"
+                Point2="680, -40" />
+    <f:DiscSectorZone x:Key="speedZone"
+                      InnerRadius="60" OuterRadius="120"
+                      MinAngle="100" MaxAngle="130" />
+    
+    <r:EffectObject x:Key="Effect">
+        <r:EffectObject ImageUri="Back.jpg"
+                        Opacity="1.0"
+                        MaterialType="Diffuse"
+                        Duration="Forever"
+                        Coord="320,240,0"
+                        BaseScale="640,480,1"
+                        Color="White" />
+        
+        <r:EffectObject.Emitters>
+            <f:Emitter>
+                <f:Emitter.Counter>
+                    <f:Steady RateMin="2" RateMax="4" />
+                </f:Emitter.Counter>
+                <f:Emitter.Initializers>
+                    <f:SharedImage ImageUri="Sakura.png" MaterialType="Emissive" />
+                    <f:Position Zone="{StaticResource positionZone}" />
+                    <f:Velocity Zone="{StaticResource speedZone}" />
+                    <f:RotateVelocity MinAngularVelocity="3" MaxAngularVelocity="6" />
+                    <f:AlphaInit MinAlpha="0.4" MaxAlpha="0.8" />
+                    <f:ScaleInit MinScale="20" MaxScale="40" />
+                </f:Emitter.Initializers>
+                <f:Emitter.Behaviours>
+                    <f:Move />
+                    <f:Rotate />
+                    <f:DeathOffScreen Padding="40" />
+                </f:Emitter.Behaviours>
+            </f:Emitter>
+        </r:EffectObject.Emitters>
+    </r:EffectObject>
+</ResourceDictionary>

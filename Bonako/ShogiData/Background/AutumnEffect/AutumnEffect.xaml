@@ -1,0 +1,64 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:f="http://schemas.flint-sharp/xaml"
+                    xmlns:r="http://schemas.garnet-alice.net/ragnarok/xaml/presentation">
+    <f:LineZone x:Key="positionZone"
+                Point1="-40, -40"
+                Point2="680, -40" />
+    <f:DiscSectorZone x:Key="speedZone"
+                      InnerRadius="100" OuterRadius="150"
+                      MinAngle="130" MaxAngle="160" />
+
+    <f:LineZone x:Key="positionCloudZone"
+                Point1="840, -100"
+                Point2="840, 580" />
+    <f:DiscSectorZone x:Key="speedCloudZone"
+                      InnerRadius="200" OuterRadius="300"
+                      MinAngle="180" MaxAngle="180" />
+
+    <r:EffectObject x:Key="Effect">
+        <r:EffectObject ImageUri="Back.jpg"
+                        MaterialType="Diffuse"
+                        Opacity="0.8"
+                        Duration="Forever"
+                        Coord="320,240,0"
+                        BaseScale="640,480,1" />
+        
+        <r:EffectObject.Emitters>
+            <f:Emitter>
+                <f:Emitter.Counter>
+                    <f:Steady RateMin="1" RateMax="2" />
+                </f:Emitter.Counter>
+                <f:Emitter.Initializers>
+                    <f:SharedImage ImageUri="Momiji.png" MaterialType="Emissive" />
+                    <f:Position Zone="{StaticResource positionZone}" />
+                    <f:Velocity Zone="{StaticResource speedZone}" />
+                    <f:RotateVelocity MinAngularVelocity="3" MaxAngularVelocity="6" />
+                    <f:ScaleInit MinScale="20" MaxScale="40" />
+                </f:Emitter.Initializers>
+                <f:Emitter.Behaviours>
+                    <f:Move />
+                    <f:Rotate />
+                    <f:DeathOffScreen Padding="40" />
+                </f:Emitter.Behaviours>
+            </f:Emitter>
+
+            <f:Emitter>
+                <f:Emitter.Counter>
+                    <f:Steady RateMin="1.0" RateMax="2.0" />
+                </f:Emitter.Counter>
+                <f:Emitter.Initializers>
+                    <f:SharedImage ImageUri="../Image/Cloud.png" MaterialType="Diffuse" />
+                    <f:Position Zone="{StaticResource positionCloudZone}" />
+                    <f:Velocity Zone="{StaticResource speedCloudZone}" />
+                    <f:AlphaInit MinAlpha="0.3" MaxAlpha="0.4" />
+                    <f:ScaleInit MinScale="100" MaxScale="200" />
+                </f:Emitter.Initializers>
+                <f:Emitter.Behaviours>
+                    <f:Move />
+                    <f:DeathOffScreen Padding="200" />
+                </f:Emitter.Behaviours>
+            </f:Emitter>
+        </r:EffectObject.Emitters>
+    </r:EffectObject>
+</ResourceDictionary>

@@ -1,0 +1,33 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:f="http://schemas.flint-sharp/xaml"
+                    xmlns:r="http://schemas.garnet-alice.net/ragnarok/xaml/presentation">
+    <f:DiscZone x:Key="speedZone" InnerRadius="300.0" OuterRadius="350.0" />
+
+    <r:EffectObject x:Key="Effect"
+                    Duration="0:0:0.3"
+                    Coord="{r:Binding Coord}"
+                    StartSoundPath="komaoto.wav"
+                    StartSoundVolume="0.7">
+        <r:EffectObject.Emitters>
+            <f:Emitter>
+                <f:Emitter.Counter>
+                    <f:TimePeriod NumParticles="40" Duration="0.2" />
+                </f:Emitter.Counter>
+                <f:Emitter.Initializers>
+                    <f:ParticleImage />
+                    <f:ColorInit Color="${Color}" />
+                    <f:Velocity Zone="{StaticResource speedZone}" />
+                    <f:ScaleInit MinScale="15.0" MaxScale="18.0" />
+                    <f:Lifetime MinLifetime="0.2" MaxLifetime="0.3" />
+                </f:Emitter.Initializers>
+                <f:Emitter.Behaviours>
+                    <f:Move />
+                    <f:Age />
+                    <f:Fade />
+                    <f:LinearDrag Drag="3" />
+                </f:Emitter.Behaviours>
+            </f:Emitter>
+        </r:EffectObject.Emitters>
+    </r:EffectObject>
+</ResourceDictionary>

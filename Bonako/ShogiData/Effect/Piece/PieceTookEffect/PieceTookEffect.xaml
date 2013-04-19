@@ -1,0 +1,42 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:f="http://schemas.flint-sharp/xaml"
+                    xmlns:r="http://schemas.garnet-alice.net/ragnarok/xaml/presentation">
+    <f:DiscSectorZone x:Key="speedZone" OuterRadius="1.0"
+                      MinAngle="{r:Calc '${StartAngle} - 40'}"
+                      MaxAngle="{r:Calc '${StartAngle} + 40'}" />
+    <f:PointZone x:Key="targetZone" Point="${TargetXY}" />
+    <f:DiscZone x:Key="deathZone" Center="${TargetXY}" OuterRadius="20.0" />
+
+    <r:EffectObject x:Key="Effect"
+                    Duration="0:0:0.3"
+                    Coord="{r:Binding Coord}">
+        <r:EffectObject WaitTime="0:0:0.5"
+                        StartSoundVolume="0.5"
+                        StartSoundPath="PieceTook.wav" />
+        
+        <r:EffectObject.Emitters>
+            <f:Emitter>
+                <f:Emitter.Counter>
+                    <f:TimePeriod NumParticles="40" Duration="0.5"
+                                  Category="Quadratic" EaseType="Out" />
+                </f:Emitter.Counter>
+                <f:Emitter.Initializers>
+                    <f:ParticleImage />
+                    <f:ColorInit Color="${Color}" />
+                    <f:Velocity Zone="{StaticResource speedZone}" />
+                    <f:ScaleInit Scale="18.0" />
+                    <f:Lifetime Value="2.0" />
+                    <f:TargetPosition Zone="{StaticResource targetZone}" />
+                </f:Emitter.Initializers>
+                <f:Emitter.Behaviours>
+                    <f:CollisionZone Zone="{StaticResource deathZone}" />
+                    <f:Move />
+                    <f:Age />
+                    <f:MissileTowardsTarget MinSpeed="240.0" MaxSpeed="640.0"
+                                            TorelantAngle="60" Power="8.0" />
+                </f:Emitter.Behaviours>
+            </f:Emitter>
+        </r:EffectObject.Emitters>
+    </r:EffectObject>
+</ResourceDictionary>
