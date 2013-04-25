@@ -19,19 +19,8 @@
                     <DataTrigger Binding="{Binding IsOutput}" Value="{x:Null}">
                         <Setter Property="Foreground" Value="Red" />
                     </DataTrigger>
-                    
-                    <DataTrigger Binding="{Binding IsDfpn}" Value="True">
-                        <Setter Property="Background" Value="LightGray" />
-                    </DataTrigger>
                 </Style.Triggers>
             </Style>
-            
-            <!--<DataTemplate x:Key="logLineTemplate">
-                <Grid Background="LightGray"
-                      HorizontalAlignment="Stretch">
-                    <TextBlock Style="{StaticResource logLineStyle}" />
-                </Grid>
-            </DataTemplate>-->
         </ResourceDictionary>
     </UserControl.Resources>
 

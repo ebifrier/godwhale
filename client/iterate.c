@@ -371,9 +371,14 @@ iterate( tree_t * restrict ptree )
             ptree->node_searched );
   }
 #endif
-  MnjOut( "pid=%d move=%s v=%de n=%" PRIu64 "\n",
-          mnj_posi_id, str_CSA_move(ptree->pv[0].a[1]), root_value,
-          ptree->node_searched );
+  {
+    char mnj_pv[256];
+
+    make_mnj_pv( ptree, root_value, root_turn, mnj_pv );
+    MnjOut( "pid=%d move=%s v=%de n=%" PRIu64 " pv=%s\n",
+            mnj_posi_id, str_CSA_move(ptree->pv[0].a[1]), root_value,
+            ptree->node_searched, mnj_pv );
+  }
 
 #if defined(USI)
   if ( usi_mode != usi_off )
@@ -479,6 +484,7 @@ iterate( tree_t * restrict ptree )
         {
           const char *str_move;
           const char *str;
+          char mnj_pv[256];
           double dvalue;
           
           root_move_list[0].status &= ~flag_searched;
@@ -499,10 +505,12 @@ iterate( tree_t * restrict ptree )
               unlock( &dfpn_client_lock );
             }
 #endif
-          MnjOut( "pid=%d move=%s v=%dl n=%" PRIu64 "%s\n",
+          make_mnj_pv( ptree, root_value, root_turn, mnj_pv );
+          MnjOut( "pid=%d move=%s v=%dl n=%" PRIu64 "%s pv=%s\n",
                   mnj_posi_id, str_CSA_move(ptree->pv[1].a[1]),
                   root_beta, ptree->node_searched,
-                  ( mnj_depth_stable <= iteration_depth ) ? " stable" : "" );
+                  ( mnj_depth_stable <= iteration_depth ) ? " stable" : "",
+                  mnj_pv );
 
 #if defined(USI)
           if ( usi_mode != usi_off )

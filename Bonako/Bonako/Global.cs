@@ -9,6 +9,7 @@ using Ragnarok.Presentation;
 using Ragnarok.Presentation.Update;
 using Ragnarok.Presentation.Shogi.Effects;
 using Ragnarok.Presentation.Shogi.View;
+using Ragnarok.Shogi.Bonanza;
 
 namespace Bonako
 {
@@ -17,25 +18,6 @@ namespace Bonako
     /// </summary>
     public static class Global
     {
-        #region PInvoke
-        [DllImport("kernel32.dll")]
-        extern static void GlobalMemoryStatusEx(ref MEMORYSTATUSEX lpBuffer);
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct MEMORYSTATUSEX
-        {
-            public uint dwLength;
-            public uint dwMemoryLoad;
-            public ulong ullTotalPhys;
-            public ulong ullAvailPhys;
-            public ulong ullTotalPageFile;
-            public ulong ullAvailPageFile;
-            public ulong ullTotalVirtual;
-            public ulong ullAvailVirtual;
-            public ulong ullAvailExtendedVirtual;
-        }
-        #endregion
-
         /// <summary>
         /// メインビューモデルを取得します。
         /// </summary>
@@ -64,15 +46,6 @@ namespace Bonako
         }
 
         /// <summary>
-        /// DFPN用のボナンザの操作用オブジェクトを取得します。
-        /// </summary>
-        public static Bonanza DfpnBonanza
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
         /// 設定オブジェクトを取得します。
         /// </summary>
         internal static Settings Settings
@@ -84,7 +57,7 @@ namespace Bonako
         /// <summary>
         /// アプリ更新用オブジェクトを取得します。
         /// </summary>
-        internal static PresentationUpdater Updater
+        public static PresentationUpdater Updater
         {
             get;
             private set;
@@ -132,26 +105,6 @@ namespace Bonako
         }
 
         /// <summary>
-        /// CPUのスレッド数を取得します。
-        /// </summary>
-        public static int GetCpuThreadNum()
-        {
-            return Environment.ProcessorCount;
-        }
-
-        /// <summary>
-        /// 使用可能物理メモリの総量を取得します。
-        /// </summary>
-        public static long GetAvailPhys()
-        {
-            var ms = new MEMORYSTATUSEX();
-
-            ms.dwLength = (uint)Marshal.SizeOf(ms);
-            GlobalMemoryStatusEx(ref ms);
-            return (long)ms.ullAvailPhys;
-        }
-
-        /// <summary>
         /// 静的コンストラクタ。
         /// </summary>
         static Global()
@@ -170,9 +123,8 @@ namespace Bonako
             Updater = new PresentationUpdater(
                 "http://garnet-alice.net/programs/bonako/update/versioninfo.xml");
 
-            // 通常のボナンザと詰将棋用のボナンザを起動します。
-            ResetBonanza(null, false);
-            ResetBonanza(null, true);
+            // ボナンザを起動します。
+            ResetBonanza(null);
 
             Updater.Start();
             EffectInfo.InitializeEffect(typeof(ViewModel.EffectTable));
@@ -181,50 +133,32 @@ namespace Bonako
         /// <summary>
         /// ボナンザの設定を行います。
         /// </summary>
-        static void ResetBonanza(AbortReason? reason, bool isDfpn)
+        static void ResetBonanza(AbortReason? reason)
         {
             if (reason == AbortReason.Aborted)
             {
-                if (isDfpn)
-                {
-                    DfpnBonanza = null;
-                }
-                else
-                {
-                    Bonanza = null;
-                }
-
+                Bonanza = null;
                 return;
             }
 
             // 初回起動時とエラー時はボナンザを起動します。
             var bonanza = new Bonanza();
-            bonanza.Aborted += (_, e) => ResetBonanza(e.Reason, isDfpn);
+            bonanza.PropertyChanged += (_, __) => WPFUtil.InvalidateCommand();
+            bonanza.Aborted += (_, e) => ResetBonanza(e.Reason);
 
             // エラー時は自動的に再接続に行きます。
             if (reason == AbortReason.Error)
             {
                 bonanza.MnjInited += (_, __) => Commands.ExecuteConnect();
             }
-
-            if (isDfpn)
-            {
-                DfpnBonanza = bonanza;
-                MainViewModel.SetDfpnBonanza(bonanza);
-            }
-            else
-            {
-                Bonanza = bonanza;
-                MainViewModel.SetBonanza(bonanza);
-                ShogiModel.SetBonanza(bonanza);
-            }
+            
+            Bonanza = bonanza;
+            MainViewModel.SetBonanza(bonanza);
+            ShogiModel.SetBonanza(bonanza);
             
             // オブジェクト設定後に初期化します。
-            bonanza.Initialize();
-            if (!isDfpn)
-            {
-                bonanza.BeginPrepareMnj();
-            }
+            bonanza.Initialize("bonaster.exe");
+            bonanza.BeginPrepareMnj();
 
             // UIをすべて更新します。
             WPFUtil.InvalidateCommand();
@@ -235,12 +169,6 @@ namespace Bonako
         /// </summary>
         public static void Quit()
         {
-            if (DfpnBonanza != null)
-            {
-                DfpnBonanza.Abort(AbortReason.Aborted, 0);
-                DfpnBonanza = null;
-            }
-
             if (Bonanza != null)
             {
                 Bonanza.Abort(AbortReason.Aborted, 0);

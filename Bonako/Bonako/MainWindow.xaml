@@ -15,20 +15,17 @@
         <Menu Grid.Row="0">
             <MenuItem Header="ヘルプ(_H)">
                 <MenuItem Header="新バージョンの確認(_C)"
-                          Command="{x:Static l:Commands.CheckToUpdate}" />
+                          Command="{x:Static r:RagnarokCommands.CheckToUpdate}"
+                          CommandParameter="{x:Static l:Global.Updater}" />
                 <Separator />
                 <MenuItem Header="バージョン情報(_V)"
-                          Command="{x:Static l:Commands.ShowVersionInfo}" />
+                          Command="{x:Static r:RagnarokCommands.ShowVersion}" />
             </MenuItem>
         </Menu>
         
         <TabControl Grid.Row="1">
             <TabItem Header="メイン">
                 <v:MainControl />
-            </TabItem>
-
-            <TabItem Header="詰将棋">
-                <v:DfpnControl />
             </TabItem>
 
             <TabItem Header="入出力ログ">

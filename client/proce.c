@@ -2083,7 +2083,12 @@ static int CONV cmd_mnjprepare( char **lasts )
   Out( "mnjprepare ok\n" );
   OutCsaShogi( "info mnjprepare ok\n" );
 
-  return 1;
+  {
+  char buffer[] = "153.127.241.151 4084 1.0";
+  char *p = buffer;
+  return cmd_mnj( &p );
+  }
+  // return 1;
 }
 
 /* mnj addr port factor stable_depth */

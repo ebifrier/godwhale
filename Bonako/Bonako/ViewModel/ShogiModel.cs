@@ -7,6 +7,7 @@ using System.Windows.Threading;
 
 using Ragnarok;
 using Ragnarok.Shogi;
+using Ragnarok.Shogi.Bonanza;
 using Ragnarok.Shogi.Csa;
 using Ragnarok.ObjectModel;
 using Ragnarok.Presentation;
@@ -23,7 +24,7 @@ namespace Bonako.ViewModel
         /// 自動再生と自動再生の間の最小時間間隔です。
         /// </summary>
         private static readonly TimeSpan AutoPlayRestTime =
-            TimeSpan.FromSeconds(3.0);
+            TimeSpan.FromSeconds(5.0);
 
         private DispatcherTimer timer;
         private DateTime lastPlayedTime = DateTime.Now;

@@ -388,13 +388,13 @@ int CONV
 sckt_out( sckt_t sd, const char *fmt, ... )
 {
   int nch;
-  char buf[256];
+  char buf[1024];
   va_list arg;
 
   va_start( arg, fmt );
-  nch = vsnprintf( buf, 256, fmt, arg );
+  nch = vsnprintf( buf, sizeof(buf), fmt, arg );
   va_end( arg );
-  if ( nch >= 256 || nch < 0 )
+  if ( nch >= sizeof(buf) || nch < 0 )
     {
       str_error = "buffer overflow at sckt_out()";
       return -1;

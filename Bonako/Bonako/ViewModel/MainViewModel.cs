@@ -7,6 +7,8 @@ using System.Text;
 
 using Ragnarok;
 using Ragnarok.ObjectModel;
+using Ragnarok.Utility;
+using Ragnarok.Shogi.Bonanza;
 
 namespace Bonako.ViewModel
 {
@@ -19,15 +21,6 @@ namespace Bonako.ViewModel
         /// ログ用のテキストを取得します。
         /// </summary>
         public string RawText
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// DFPN用ボナンザのログかどうかを取得します。
-        /// </summary>
-        public bool IsDfpn
         {
             get;
             private set;
@@ -66,7 +59,7 @@ namespace Bonako.ViewModel
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public LogLine(string text, bool isDfpn, bool? isOutput)
+        public LogLine(string text, bool? isOutput)
         {
             if (string.IsNullOrEmpty(text))
             {
@@ -74,7 +67,6 @@ namespace Bonako.ViewModel
             }
 
             RawText = text.Trim();
-            IsDfpn = isDfpn;
             IsOutput = isOutput;
         }
     }
@@ -86,10 +78,7 @@ namespace Bonako.ViewModel
     {
         private readonly NotifyCollection<LogLine> logList =
             new NotifyCollection<LogLine>();
-        private readonly NotifyCollection<LogLine> dfpnLogList =
-            new NotifyCollection<LogLine>();
         private Bonanza bonanza;
-        private Bonanza dfpnBonanza;
 
         /// <summary>
         /// クライアント名を取得または設定します。
@@ -99,15 +88,6 @@ namespace Bonako.ViewModel
         {
             get { return Global.Settings.AS_Name; }
             set { Global.Settings.AS_Name = value; }
-        }
-
-        /// <summary>
-        /// 並列化サーバーのポートを取得または設定します。
-        /// </summary>
-        public string ServerPort
-        {
-            get { return GetValue<string>("ServerPort"); }
-            set { SetValue("ServerPort", value); }
         }
 
         /// <summary>
@@ -175,14 +155,6 @@ namespace Bonako.ViewModel
         }
 
         /// <summary>
-        /// DFPNのログ内容を取得または設定します。
-        /// </summary>
-        public NotifyCollection<LogLine> DfpnLogList
-        {
-            get { return this.dfpnLogList; }
-        }
-
-        /// <summary>
         /// 変化リストを取得または設定します。
         /// </summary>
         public NotifyCollection<VariationInfo> VariationList
@@ -225,26 +197,9 @@ namespace Bonako.ViewModel
         }
 
         /// <summary>
-        /// DFPNサーバーに接続しているかどうかを取得します。
-        /// </summary>
-        [DependOnProperty(typeof(Bonanza), "IsConnected")]
-        public bool IsConnectedToDfpn
-        {
-            get
-            {
-                if (this.dfpnBonanza == null)
-                {
-                    return false;
-                }
-
-                return this.dfpnBonanza.IsConnected;
-            }
-        }
-
-        /// <summary>
         /// ボナンザログに出力します。
         /// </summary>
-        public void AppendBonanzaLog(string log, bool isDfpn, bool? isOutput)
+        public void AppendBonanzaLog(string log, bool? isOutput)
         {
             if (string.IsNullOrEmpty(log))
             {
@@ -255,37 +210,11 @@ namespace Bonako.ViewModel
             {
                 using (LazyLock())
                 {
-                    var logLine = new LogLine(log, isDfpn, isOutput);
+                    var logLine = new LogLine(log, isOutput);
 
-                    if (isDfpn)
-                    {
-                        this.dfpnLogList.Add(logLine);
-                    }
-                    else
-                    {
-                        this.logList.Add(logLine);
-                    }
+                    this.logList.Add(logLine);
                 }
             });
-        }
-
-        /// <summary>
-        /// ボナンザの使用メモリが物理メモリを越えないような範囲で
-        /// 使用量の増減をさせます。
-        /// </summary>
-        private IEnumerable<Tuple<int, int>> GetMemorySizeList()
-        {
-            var hashSize = 19;
-            var mem = Bonanza.HashSizeMinimum;
-            var memMax = (long)Global.GetAvailPhys() / 1024 / 1024 * 2 / 4;
-
-            do
-            {
-                yield return Tuple.Create(hashSize, mem + Bonanza.MemUsedBase);
-
-                mem *= 2;
-                hashSize += 1;
-            } while (mem + Bonanza.MemUsedBase <= memMax);
         }
 
         /// <summary>
@@ -297,17 +226,15 @@ namespace Bonako.ViewModel
             {
                 Name = "meijin_" + MathEx.RandInt(0, 1000);
             }
-            ServerPort = "4084";
 
-            ThreadNumMaximum = Global.GetCpuThreadNum();
+            ThreadNumMaximum = DeviceInventory.CPUCount;
             if (ThreadNum == 0)
             {
                 ThreadNum = Math.Max(1, ThreadNumMaximum - 2);
             }
 
-            var rawMemSizeList = GetMemorySizeList().ToList();
+            var rawMemSizeList = Bonanza.MemorySizeList(0.5).ToList();
             MemSizeList = rawMemSizeList.Take(7).ToList();
-
             if (HashMemSize == 0)
             {
                 var index = MathEx.Between(0, 6, rawMemSizeList.Count - 2);
@@ -329,35 +256,13 @@ namespace Bonako.ViewModel
             }
 
             bonanza.CommandSent += (sender, e) =>
-                AppendBonanzaLog(e.Command, false, true);
+                AppendBonanzaLog(e.Command, true);
             bonanza.CommandReceived += (sender, e) =>
-                AppendBonanzaLog(e.Command, false, false);
+                AppendBonanzaLog(e.Command, false);
             bonanza.ErrorReceived += (sender, e) =>
-                AppendBonanzaLog(e.Command, false, null);
+                AppendBonanzaLog(e.Command, null);
 
             this.bonanza = bonanza;
-            this.AddDependModel(bonanza);
-        }
-
-        /// <summary>
-        /// DFPN用のボナンザを設定します。
-        /// </summary>
-        public void SetDfpnBonanza(Bonanza bonanza)
-        {
-            if (this.dfpnBonanza != null)
-            {
-                this.RemoveDependModel(this.dfpnBonanza);
-                this.dfpnBonanza = null;
-            }
-
-            bonanza.CommandSent += (sender, e) =>
-                AppendBonanzaLog(e.Command, true, true);
-            bonanza.CommandReceived += (sender, e) =>
-                AppendBonanzaLog(e.Command, true, false);
-            bonanza.ErrorReceived += (sender, e) =>
-                AppendBonanzaLog(e.Command, true, null);
-
-            this.dfpnBonanza = bonanza;
             this.AddDependModel(bonanza);
         }
     }

@@ -12,19 +12,31 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Bonako.View
+using Ragnarok;
+using Ragnarok.Presentation;
+
+namespace Bonako.DFPN
 {
     /// <summary>
-    /// DfpnControl.xaml の相互作用ロジック
+    /// MainWindow.xaml の相互作用ロジック
     /// </summary>
-    public partial class DfpnControl : UserControl
+    public partial class MainWindow : Window
     {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public DfpnControl()
+        public MainWindow()
         {
             InitializeComponent();
+
+            Closed += MainWindow_Closed;
+
+            DataContext = Global.MainViewModel;
+        }
+
+        void MainWindow_Closed(object sender, EventArgs e)
+        {
+            Global.Quit();
         }
     }
 }
