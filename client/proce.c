@@ -302,6 +302,7 @@ static int CONV proce_mnj( tree_t * restrict ptree )
   if ( ! strcmp( token, "move" ) )      { return cmd_mnjmove( ptree, &last, 0 ); }
   if ( ! strcmp( token, "ponderhit" ) ) { return 1; }
   if ( ! strcmp( token, "movehit" ) )   { return 1; }
+  if ( ! strcmp( token, "info" ) )      { return 1; }
 
   str_error = str_bad_cmdline;
   return -2;
@@ -2083,12 +2084,12 @@ static int CONV cmd_mnjprepare( char **lasts )
   Out( "mnjprepare ok\n" );
   OutCsaShogi( "info mnjprepare ok\n" );
 
-  {
+  /*{
   char buffer[] = "153.127.241.151 4084 1.0";
   char *p = buffer;
   return cmd_mnj( &p );
-  }
-  // return 1;
+  }*/
+  return 1;
 }
 
 /* mnj addr port factor stable_depth */

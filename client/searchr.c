@@ -499,14 +499,11 @@ make_mnj_pv( tree_t * restrict ptree, int value, int turn, char *mnj_pv )
       mnj_idx += snprintf( &mnj_pv[mnj_idx], 256 - mnj_idx,
         "%c%s", ach_turn[tt], str );
 
-      Out("come %s\n", str);
-      MakeMove( tt, ptree->pv[0].a[ply], ply );
       tt    = Flip(tt);
       value = -value;
-      Out("make %d\n", ply);
     }
   
-  /*if ( ptree->pv[0].type == hash_hit )
+  if ( ptree->pv[0].type == hash_hit )
     {
       unsigned int dummy;
       int i, value_type;
@@ -531,10 +528,10 @@ make_mnj_pv( tree_t * restrict ptree, int value, int turn, char *mnj_pv )
           mnj_idx += snprintf( &mnj_pv[mnj_idx], 256 - mnj_idx,
             "%c%s", ach_turn[tt], str );
           
-          MakeMove( tt, ptree->pv[0].a[ply], ply );
+          //MakeMove( tt, ptree->pv[0].a[ply], ply );
           if ( InCheck(tt) )
             {
-              UnMakeMove( tt, ptree->amove_hash[ply], ply );
+              //UnMakeMove( tt, ptree->amove_hash[ply], ply );
               break;
             }
           ptree->pv[0].length++;
@@ -542,14 +539,7 @@ make_mnj_pv( tree_t * restrict ptree, int value, int turn, char *mnj_pv )
           value = -value;
         }
     }
- rep_esc:*/
-
-  for ( ply--; ply >= 1; ply-- )
-    {
-      Out("unmake %d\n", ply);
-      tt = Flip(tt);
-      UnMakeMove( tt, ptree->pv[0].a[ply], ply );
-    }
+ rep_esc:;
 }
 
 

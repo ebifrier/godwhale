@@ -259,10 +259,10 @@ namespace Bonako.ViewModel
 
             WPFUtil.UIProcess(() =>
             {
-                if (VariationList.Count > 5)
+                /*if (VariationList.Count > 5)
                 {
                     VariationList.RemoveAt(0);
-                }
+                }*/
 
                 VariationList.Add(variation);
 
