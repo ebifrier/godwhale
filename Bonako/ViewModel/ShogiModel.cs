@@ -23,7 +23,7 @@ namespace Bonako.ViewModel
         /// 自動再生と自動再生の間の最小時間間隔です。
         /// </summary>
         private static readonly TimeSpan AutoPlayRestTime =
-            TimeSpan.FromSeconds(3.0);
+            TimeSpan.FromSeconds(8.0);
 
         private DispatcherTimer timer;
         private DateTime lastPlayedTime = DateTime.Now;
@@ -243,6 +243,7 @@ namespace Bonako.ViewModel
             Board = CurrentBoard.Clone();
             var autoPlay = new AutoPlay(Board, bmoveList)
             {
+                Interval = TimeSpan.FromSeconds(1.5),
                 IsChangeBackground = true,
             };
             autoPlay.Stopped += AutoPlay_Stopped;
@@ -334,6 +335,13 @@ namespace Bonako.ViewModel
             else
             {
                 CurrentBoard.DoMove(e.Move);
+            }
+
+            // 背景イメージの設定
+            var manager = Global.EffectManager;
+            if (manager != null)
+            {
+                manager.ChangeMoveCount(CurrentBoard.MoveCount);
             }
 
             ClearVariationList();
