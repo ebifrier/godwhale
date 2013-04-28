@@ -20,9 +20,22 @@
     </Window.Resources>
     
     <Grid>
-        <r:VisualBackground x:Name="visualBackground" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="0.8*" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
         
-        <r:ShogiControl x:Name="ShogiControl"
+        <r:VisualBackground Grid.RowSpan="3" Grid.ColumnSpan="3"
+                            x:Name="visualBackground" />
+
+        <r:ShogiControl Grid.RowSpan="3" Grid.ColumnSpan="3"
+                        x:Name="ShogiControl"
                         x:FieldModifier="public"
                         EditMode="NoEdit"
                         EffectManager="{Binding EffectManager, ElementName=shogi}"
@@ -30,5 +43,13 @@
                         PieceImage="{StaticResource pieceImage}"
                         BanBrush="{StaticResource banBrush}"
                         PieceBoxBrush="{StaticResource komadaiBrush}" />
+
+        <Viewbox Grid.Row="0" Grid.Column="2"
+                 Stretch="Fill"
+                 VerticalAlignment="Top">
+            <r:EvaluationControl ImageSetList="{r:ImageSetList ShogiData/Evaluation}"
+                                 PointType="ModeCustom"
+                                 ModeCustomPoint="100" />
+        </Viewbox>
     </Grid>
 </Window>

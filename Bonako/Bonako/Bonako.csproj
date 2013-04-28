@@ -73,6 +73,69 @@
       <DependentUpon>ShogiWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\StarWidthConverter.cs" />
+    <Content Include="ShogiData\Evaluation\IbukiSuika\aseru.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\IbukiSuika\default.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\IbukiSuika\egao.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\IbukiSuika\ikari.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\IbukiSuika\kanasi.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\IbukiSuika\kirai.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\IbukiSuika\naku.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\IbukiSuika\odoroku.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\IbukiSuika\seme.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\IbukiSuika\suki.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\IbukiSuika\tereru.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\IbukiSuika\uke.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\Ruka\default.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\Ruka\ehehe.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\Ruka\naku.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\Ruka\nikkori.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\Ruka\tako.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\Ruka\uu.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\Ruka\yabai.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\Ruka\yatta.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\Ruka\zetubou.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -170,6 +233,15 @@
     </Compile>
     <None Include="app.config" />
     <AppDesigner Include="Properties\" />
+    <Content Include="ShogiData\Evaluation\IbukiSuika\info.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ShogiData\Evaluation\Ruka\info.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Ragnarok\Ragnarok.Extra\Ragnarok.Extra.csproj">

@@ -252,21 +252,53 @@ namespace Bonako.ViewModel
         /// </summary>
         public void AddVariation(VariationInfo variation)
         {
-            if (variation == null)
+            if (variation == null || variation.MoveList == null)
             {
                 return;
             }
 
+            /*if (variation.MoveList.Count() < 9)
+            {
+                return;
+            }*/
+
             WPFUtil.UIProcess(() =>
             {
-                /*if (VariationList.Count > 5)
+                // 先後の符号をちゃんとつけます。
+                var color = CurrentBoard.MovePriority;
+                foreach (var move in variation.MoveList)
                 {
-                    VariationList.RemoveAt(0);
-                }*/
+                    move.Side = color;
+                    color = color.Toggle();
+                }
 
-                VariationList.Add(variation);
+                // 同じ変化があれば登録しません。
+                var result = VariationList.FirstOrDefault(
+                    _ => variation.MoveList.SequenceEqual(_.MoveList));
+                if (result != null)
+                {
+                    result.Value = Math.Max(result.Value, variation.Value);
+                    return;
+                }
 
-                //PlayNextVariation();
+                // 変化は評価値順に並べます。
+                // ObservableCollectionはソートがやりにくいので、
+                // 挿入ソートを使います。
+                var inserted = false;
+                for (var i = 0; i < VariationList.Count(); ++i)
+                {
+                    if (variation.Value > VariationList[i].Value)
+                    {
+                        VariationList.Insert(i, variation);
+                        inserted = true;
+                        break;
+                    }
+                }
+
+                if (!inserted)
+                {
+                    VariationList.Add(variation);
+                }
             });
         }
 

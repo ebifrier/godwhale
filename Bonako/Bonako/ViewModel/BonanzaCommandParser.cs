@@ -118,8 +118,12 @@ namespace Bonako.ViewModel
         #endregion
 
         #region move, alter, retract
+        private static readonly Regex MovehitRegex = new Regex(
+            @"^movehit\s+([\+\-\d\w]+)\s+(\d+)",
+            RegexOptions.IgnoreCase);
+
         private static readonly Regex MoveRegex = new Regex(
-            @"^(p?move)\s+([\d\w]+)\s*(\d+)",
+            @"^(move)\s+([\d\w]+)\s*(\d+)",
             RegexOptions.IgnoreCase);
 
         private static readonly Regex AlterRegex = new Regex(
@@ -132,26 +136,24 @@ namespace Bonako.ViewModel
 
         private static bool ParseMove(string command)
         {
-            if (command.StartsWith("movehit") ||
-                command.StartsWith("ponderhit"))
+            var m = MovehitRegex.Match(command);
+            if (m.Success)
             {
-                //Global.ShogiModel.PonderHit();
+                DoCsaMove(m.Groups[1].Value, 0);
                 return true;
             }
 
-            var m = MoveRegex.Match(command);
+            m = MoveRegex.Match(command);
             if (m.Success)
             {
-                var ponder = (m.Groups[1].Value == "pmove");
-
-                DoCsaMove(m.Groups[2].Value, 0, ponder);
+                DoCsaMove(m.Groups[2].Value, 0);
                 return true;
             }
 
             m = AlterRegex.Match(command);
             if (m.Success)
             {
-                DoCsaMove(m.Groups[1].Value, 1, false);
+                DoCsaMove(m.Groups[1].Value, 1);
                 return true;
             }
 
@@ -160,7 +162,7 @@ namespace Bonako.ViewModel
             {
                 var nback = int.Parse(m.Groups[1].Value);
 
-                DoCsaMove(m.Groups[2].Value, nback, false);
+                DoCsaMove(m.Groups[2].Value, nback);
                 return true;
             }
 
@@ -171,7 +173,7 @@ namespace Bonako.ViewModel
         /// 局面を<paramref name="nback"/>手元に戻し、さらに
         /// <paramref name="moveText"/>で示される手を指します。
         /// </summary>
-        private static bool DoCsaMove(string moveText, int nback, bool ponder)
+        private static bool DoCsaMove(string moveText, int nback)
         {
             var board = Global.ShogiModel.CurrentBoard;
 
@@ -200,7 +202,7 @@ namespace Bonako.ViewModel
 
         #region variation
         private static readonly Regex VariationRegex = new Regex(
-            @"^info((\+|\-)([\d.]+))",
+            @"^info\s+((\+|\-)?([\d.]+))",
             RegexOptions.IgnoreCase);
 
         private static bool ParseVariation(string command)

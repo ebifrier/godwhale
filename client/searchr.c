@@ -497,7 +497,7 @@ make_mnj_pv( tree_t * restrict ptree, int value, int turn, char *mnj_pv )
     {
       str = str_CSA_move( ptree->pv[0].a[ply] );
       mnj_idx += snprintf( &mnj_pv[mnj_idx], 256 - mnj_idx,
-        "%c%s", ach_turn[tt], str );
+        " %c%s", ach_turn[tt], str );
 
       tt    = Flip(tt);
       value = -value;
@@ -526,7 +526,7 @@ make_mnj_pv( tree_t * restrict ptree, int value, int turn, char *mnj_pv )
           
           str = str_CSA_move(ptree->pv[0].a[ply]);
           mnj_idx += snprintf( &mnj_pv[mnj_idx], 256 - mnj_idx,
-            "%c%s", ach_turn[tt], str );
+            " %c%s", ach_turn[tt], str );
           
           //MakeMove( tt, ptree->pv[0].a[ply], ply );
           if ( InCheck(tt) )

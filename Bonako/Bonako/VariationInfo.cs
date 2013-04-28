@@ -60,13 +60,12 @@ namespace Bonako
                 return null;
             }
 
-            var moves = moveStr.Split(' ');
-            var moveList = moves
+            var moveList = moveStr
+                .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
                 .Where(_ => !string.IsNullOrEmpty(_))
                 .Select(_ => CsaMove.Parse(_))
                 .Where(_ => _ != null)
                 .ToList();
-
             if (!moveList.Any())
             {
                 return null;
