@@ -72,6 +72,9 @@
     </Compile>
     <None Include="app.config" />
     <AppDesigner Include="Properties\" />
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainWindow.xaml">
