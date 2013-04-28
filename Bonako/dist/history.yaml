@@ -2,6 +2,13 @@
 # リリース情報
 #
 
+- version: 2.1.0
+  date: 2013/04/28
+  content:
+  - Bonako: 評価値用の画像を追加しました。
+  - Bonako: PVの自動再生機能を追加しました。
+  - Bonako: サーバーからPVを受信する機能を追加しました。
+
 - version: 2.0.2
   date: 2013/04/14
   content:

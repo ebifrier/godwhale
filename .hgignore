@@ -10,7 +10,10 @@ client/visualc10/Release/
 client/visualc10/ipch/
 client/visualc10/Debug/
 client/log/
-ServerProxy/ServerProxy/bin/
-ServerProxy/ServerProxy/obj/
-Bonako/bin/
-Bonako/obj/
+Bonako/Bonako.DFPN/bin/
+Bonako/Bonako.DFPN/obj/
+Bonako/Bonako/obj/
+ServerProxy/bin/
+client/visualc10/log/
+ServerProxy/obj/
+Bonako/Bonako/bin/

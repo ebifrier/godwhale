@@ -1001,6 +1001,8 @@ void ini_rand( unsigned int s );
 void out_CSA( tree_t * restrict ptree, record_t *pr, unsigned int move );
 void CONV out_pv( tree_t * restrict ptree, int value, int turn,
                   unsigned int time );
+void CONV make_mnj_pv( tree_t * restrict ptree, int value, int turn,
+                       char *mnj_pv );
 void CONV hash_store( const tree_t * restrict ptree, int ply, int depth,
                       int turn, int value_type, int value, unsigned int move,
                       unsigned int state_node );

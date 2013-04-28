@@ -1,0 +1,18 @@
+﻿{
+  "title": "巡音ルカ",
+  "author": "希祥",
+  "pixiv": 1533222,
+
+  "imageList":
+  [
+    {"image":"naku.png",    "min":-100000, "max": -2000},
+    {"image":"zetubou.png", "min":  -2000, "max": -1000},
+    {"image":"uu.png",      "min":  -1000, "max":  -500},
+    {"image":"yabai.png",   "min":   -500, "max":  -300},
+    {"image":"default.png", "min":   -300, "max":   300},
+    {"image":"ehehe.png",   "min":    300, "max":   500},
+    {"image":"nikkori.png", "min":    500, "max":  1000},
+    {"image":"yatta.png",   "min":   1000, "max":  2000},
+    {"image":"tako.png",    "min":   2000, "max":100000}
+  ]
+}

@@ -208,6 +208,8 @@ searchr( tree_t * restrict ptree, int alpha, int beta, int turn, int depth )
 
         if ( alpha < value )
           {
+            char mnj_pv[256];
+
 #if defined(DFPN_CLIENT)
             if ( dfpn_client_sckt != SCKT_NULL
                  && 4 < iteration_depth
@@ -220,10 +222,12 @@ searchr( tree_t * restrict ptree, int alpha, int beta, int turn, int depth )
                 unlock( &dfpn_client_lock );
               }
 #endif
-            MnjOut( "pid=%d move=%s v=%dl n=% " PRIu64 "%s\n",
+            make_mnj_pv( ptree, value, turn, mnj_pv );
+            MnjOut( "pid=%d move=%s v=%dl n=% " PRIu64 "%s pv=%s\n",
                     mnj_posi_id, str_CSA_move(MOVE_CURR), alpha+1,
                     ptree->node_searched,
-                    ( mnj_depth_stable <= iteration_depth ) ? " stable" : "" );
+                    ( mnj_depth_stable <= iteration_depth ) ? " stable" : "",
+                    mnj_pv );
 
 #if defined(USI)
             if ( usi_mode != usi_off )
@@ -475,13 +479,75 @@ out_pv( tree_t * restrict ptree, int value, int turn, unsigned int time )
       USIOut( "info depth %d score cp %d nodes %" PRIu64 " pv%s\n",
               iteration_depth, value, ptree->node_searched, str_pv );
     }
-} 
+}
+
+
+void CONV
+make_mnj_pv( tree_t * restrict ptree, int value, int turn, char *mnj_pv )
+{
+  int mnj_idx;
+  const char *str;
+  int ply, tt;
+
+  tt        = turn;
+  mnj_idx   = 0;
+  mnj_pv[0] = '\0';
+
+  for ( ply = 1; ply <= ptree->pv[0].length; ply++ )
+    {
+      str = str_CSA_move( ptree->pv[0].a[ply] );
+      mnj_idx += snprintf( &mnj_pv[mnj_idx], 256 - mnj_idx,
+        " %c%s", ach_turn[tt], str );
+
+      tt    = Flip(tt);
+      value = -value;
+    }
+  
+  if ( ptree->pv[0].type == hash_hit )
+    {
+      unsigned int dummy;
+      int i, value_type;
+
+      for ( ; ply < PLY_MAX; ply++ )
+        {
+          dummy = 0;
+          ptree->amove_hash[ply] = 0;
+          value_type = hash_probe( ptree, ply, 0, tt, -score_bound,
+                                   score_bound, &dummy );
+          if ( ! ( value_type == value_exact
+                   && value   == HASH_VALUE
+                   && is_move_valid( ptree, ptree->amove_hash[ply], tt ) ) )
+            {
+              break;
+            }
+          ptree->pv[0].a[ply] = ptree->amove_hash[ply];
+          for ( i = 1; i < ply; i++ )
+            if ( ptree->pv[0].a[i] == ptree->pv[0].a[ply] ) { goto rep_esc; }
+          
+          str = str_CSA_move(ptree->pv[0].a[ply]);
+          mnj_idx += snprintf( &mnj_pv[mnj_idx], 256 - mnj_idx,
+            " %c%s", ach_turn[tt], str );
+          
+          //MakeMove( tt, ptree->pv[0].a[ply], ply );
+          if ( InCheck(tt) )
+            {
+              //UnMakeMove( tt, ptree->amove_hash[ply], ply );
+              break;
+            }
+          ptree->pv[0].length++;
+          tt    = Flip(tt);
+          value = -value;
+        }
+    }
+ rep_esc:;
+}
 
 
 static int CONV
 save_result( tree_t * restrict ptree, int value, int beta, int turn )
 {
   root_move_t root_move_temp;
+  char mnj_pv[256];
   int index;
 
   if ( get_elapsed( &time_last_result ) < 0 ) { return -1; }
@@ -516,10 +582,12 @@ save_result( tree_t * restrict ptree, int value, int beta, int turn )
           unlock( &dfpn_client_lock );
         }
 #endif
-      MnjOut( "pid=%d move=%s v=%de n=%" PRIu64 "%s\n",
+      make_mnj_pv( ptree, value, turn, mnj_pv );
+      MnjOut( "pid=%d move=%s v=%de n=%" PRIu64 "%s pv=%s\n",
               mnj_posi_id, str_CSA_move(ptree->pv[1].a[1]), value,
               ptree->node_searched,
-              ( mnj_depth_stable <= iteration_depth ) ? " stable" : "" );
+              ( mnj_depth_stable <= iteration_depth ) ? " stable" : "",
+              mnj_pv );
 
       out_pv( ptree, value, turn, time_last_result - time_start );
     }
