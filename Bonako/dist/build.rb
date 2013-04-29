@@ -74,7 +74,7 @@ def make_dist(appdata)
   setup_dist(appdata)
   
   # zipに圧縮します。
-  #appdata.outdir_path = File.join(appdata.outdir_path, "Bonako")
+  appdata.outdir_path = File.join(appdata.outdir_path, "Bonako_#{appdata.version_}")
   appdata.make_zip()
   
   # versioninfo.xmlなどを更新します。
