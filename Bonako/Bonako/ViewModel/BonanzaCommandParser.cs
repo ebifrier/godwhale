@@ -24,7 +24,7 @@ namespace Bonako.ViewModel
                 return false;
             }
 
-            Global.ShogiModel.InitBoard(new Board(), true);
+            Global.ShogiModel.InitBoard(new Board(), true, true);
             Global.ShogiModel.ClearParsedCommand();
             return true;
         }
@@ -66,7 +66,7 @@ namespace Bonako.ViewModel
                 board.DoMove(bmove);
             }
 
-            Global.ShogiModel.InitBoard(board, true);
+            Global.ShogiModel.InitBoard(board, true, true);
             Global.ShogiModel.ClearParsedCommand();
             return true;
         }

@@ -10,6 +10,7 @@ using Ragnarok.Shogi;
 using Ragnarok.Shogi.Bonanza;
 using Ragnarok.Shogi.Csa;
 using Ragnarok.ObjectModel;
+using Ragnarok.Utility;
 using Ragnarok.Presentation;
 using Ragnarok.Presentation.Shogi;
 
@@ -29,6 +30,9 @@ namespace Bonako.ViewModel
         private DispatcherTimer timer;
         private DateTime prevUpdateTime = DateTime.Now;
         private DateTime lastPlayedTime = DateTime.Now;
+        private List<AutoPlay> doMoveAutoPlayList = new List<AutoPlay>();
+        private AutoPlay currentDoMoveAutoPlay = null;
+        private ReentrancyLock playLock = new ReentrancyLock();
         private List<string> parsedCommandList = new List<string>();
 
         /// <summary>
@@ -154,7 +158,7 @@ namespace Bonako.ViewModel
         /// <remarks>
         /// 現局面にはインスタンスをそのまま設定します。
         /// </remarks>
-        public void InitBoard(Board board, bool clearVariation)
+        public void InitBoard(Board board, bool setBoard, bool clearVariation)
         {
             if (board == null)
             {
@@ -162,8 +166,13 @@ namespace Bonako.ViewModel
             }
 
             CurrentBoard = board;
-            Board = board.Clone();
             CurrentTurn = board.Turn;
+
+            if (setBoard)
+            {
+                Board = board.Clone();
+            }
+
             if (clearVariation)
             {
                 ClearVariationList();
@@ -193,6 +202,9 @@ namespace Bonako.ViewModel
         /// </summary>
         public void DoMove(CsaMove csaMove, int seconds)
         {
+            var prevCurrentBoard = CurrentBoard.Clone();
+
+            // 符号は設定されていないことがあります。
             csaMove.Side = CurrentBoard.Turn;
 
             var bmove = CurrentBoard.ConvertCsaMove(csaMove);
@@ -232,7 +244,10 @@ namespace Bonako.ViewModel
 
             // 手番側の残り時間を減らしたのち、手番を入れ替えます。
             DecBaseLeaveTime(CurrentTurn, seconds);
-            InitBoard(CurrentBoard, false);
+
+            InitBoard(CurrentBoard, false, false);
+            WPFUtil.UIProcess(() =>
+                AddDoMoveAutoPlay(prevCurrentBoard, bmove));
         }
 
         /// <summary>
@@ -264,7 +279,6 @@ namespace Bonako.ViewModel
 
         private IEnumerable<BoardMove> GetVariationMoveList(VariationInfo variation)
         {
-            // 変化は先読み後の局面で考えます。
             var board = CurrentBoard.Clone();
             var bmoveList = new List<BoardMove>();
 
@@ -291,10 +305,34 @@ namespace Bonako.ViewModel
         /// <summary>
         /// 次の変化を自動再生します。
         /// </summary>
-        public void PlayNextVariation()
+        private void PlayNextVariation()
         {
-            WPFUtil.UIProcess(() =>
+            var variationNextTime = this.lastPlayedTime + AutoPlayRestTime;
+
+            using (var result = this.playLock.Lock())
             {
+                if (result == null || this.currentDoMoveAutoPlay != null)
+                {
+                    return;
+                }
+
+                // 局面を進める手は優先的に指します。
+                if (this.doMoveAutoPlayList.Any())
+                {
+                    var autoPlay = this.doMoveAutoPlayList[0];
+                    this.doMoveAutoPlayList.RemoveAt(0);
+
+                    PlayDoMoveAutoPlay(autoPlay);
+                    return;
+                }
+
+                // 変化は一定時間立った時のみ表示します。
+                if (DateTime.Now < variationNextTime)
+                {
+                    return;
+                }
+
+                // もし局面が進んでいなければ変化を表示します。
                 while (true)
                 {
                     // まだ未表示の変化を探します。
@@ -316,7 +354,63 @@ namespace Bonako.ViewModel
                     PlayVariation(variation, bmoveList);
                     break;
                 }
-            });
+            }
+        }
+
+        /// <summary>
+        /// 実際に指された手を盤上で再現します。
+        /// </summary>
+        private void AddDoMoveAutoPlay(Board board, BoardMove bmove)
+        {
+            var shogi = Global.ShogiControl;
+            if (shogi == null)
+            {
+                return;
+            }
+
+            // 引数にboardを渡すことで、boardそのものを変えながら
+            // 自動再生を行います。
+            var autoPlay = new AutoPlay(board, new[] { bmove })
+            {
+                IsChangeBackground = false,
+            };
+            autoPlay.Stopped += PlayDoMove_Stopped;
+
+            this.doMoveAutoPlayList.Add(autoPlay);
+        }
+
+        void PlayDoMove_Stopped(object sender, EventArgs e)
+        {
+            this.lastPlayedTime = DateTime.Now;
+            this.currentDoMoveAutoPlay = null;
+        }
+
+        /// <summary>
+        /// 実際に指された手を盤上で再現します。
+        /// </summary>
+        private void PlayDoMoveAutoPlay(AutoPlay autoPlay)
+        {
+            var shogi = Global.ShogiControl;
+            if (shogi == null)
+            {
+                return;
+            }
+
+            if (shogi.AutoPlayState == AutoPlayState.Playing)
+            {
+                shogi.StopAutoPlay();
+
+                // もし変化再生中だったら少し時間を空けて指します。
+                autoPlay.BeginningInterval = TimeSpan.FromSeconds(1);
+            }
+
+            // 局面を進める手を再生します。
+            this.currentDoMoveAutoPlay = autoPlay;
+
+            // モデル側のBoardを先に変更しないと、
+            // WPFのバンディングが切れてしまいます。
+            Board = autoPlay.Board;
+            shogi.StartAutoPlay(autoPlay);
         }
 
         /// <summary>
@@ -452,15 +546,11 @@ namespace Bonako.ViewModel
             var elapsedTime = now - this.prevUpdateTime;
             this.prevUpdateTime = now;
 
-            // 時間の更新は必ず行います。
+            // 時間の更新
             UpdateLeaveTime(elapsedTime);
 
-            // 変化の表示は一定時間経っていたら行います。
-            var nextTime = this.lastPlayedTime + AutoPlayRestTime;
-            if (now > nextTime)
-            {
-                PlayNextVariation();
-            }
+            // 変化の表示
+            PlayNextVariation();
         }
 
         /// <summary>

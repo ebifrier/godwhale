@@ -1,3 +1,8 @@
+2013-05-02  - Ver 1.0.1
+
+	* Bonako/Bonako/ViewModel/ShogiModel.cs: 実際に指された手の表示をより分
+	かりやすくしました。
+
 2013-05-01  - Ver 1.0.0
 
 	* 遅ればせながらCHANGELOGの記述を開始。
