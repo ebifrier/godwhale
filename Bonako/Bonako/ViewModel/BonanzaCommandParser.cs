@@ -72,7 +72,7 @@ namespace Bonako.ViewModel
         }
         #endregion
 
-        #region gameinfo
+        #region game info
         private static readonly Regex GameInfoRegex = new Regex(
             @"^info gameinfo ([\+\-]) ([\w]+) ([\w]+) ([\d]+) ([\d]+)",
             RegexOptions.IgnoreCase);
@@ -95,6 +95,46 @@ namespace Bonako.ViewModel
             var time = TimeSpan.FromSeconds(seconds);
             model.BlackBaseLeaveTime = time;
             model.WhiteBaseLeaveTime = time;
+            return true;
+        }
+        #endregion
+
+        #region current info
+        private static readonly Regex CurrentInfoRegex = new Regex(
+            @"^info current (\d+) (\d+) ([\+\-]?[\d.]+)",
+            RegexOptions.IgnoreCase);
+
+        private static bool ParseCurrentInfo(string command)
+        {
+            var m = CurrentInfoRegex.Match(command);
+            if (!m.Success)
+            {
+                return false;
+            }
+
+            var machineCount = int.Parse(m.Groups[1].Value);
+            var nodes = int.Parse(m.Groups[2].Value);
+
+            var model = Global.ShogiModel;
+            model.CurrentEvaluationValue = double.Parse(m.Groups[3].Value);
+
+            var window = Global.ShogiWindow;
+            if (window != null)
+            {
+                Ragnarok.Presentation.WPFUtil.UIProcess(() =>
+                {
+                    var thinkTime =
+                        model.CurrentTurn == BWType.Black ?
+                        model.BlackBaseLeaveTime - model.BlackLeaveTime :
+                        model.WhiteBaseLeaveTime - model.WhiteLeaveTime;
+                    var thinkSeconds = Math.Max(1.0, thinkTime.TotalSeconds);
+
+                    window.Title = string.Format(
+                        "ＰＣ台数:{0}　合計NPS:{1:0.00}[万]",
+                        machineCount, nodes / thinkSeconds / 10000.0);
+                });
+            }
+
             return true;
         }
         #endregion
@@ -245,6 +285,7 @@ namespace Bonako.ViewModel
 
             if (ParseMove(command)) return;
             if (ParseVariation(command)) return;
+            if (ParseCurrentInfo(command)) return;
             if (ParseStats(command)) return;
             if (ParseNew(command)) return;
             if (ParseInit(command)) return;

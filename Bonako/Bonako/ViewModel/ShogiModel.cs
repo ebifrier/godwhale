@@ -224,9 +224,14 @@ namespace Bonako.ViewModel
                 return;
             }
 
-            // 実際に指した手と一致する変化は残します。
+            // 手番側の残り時間を減らしたのち、手番を入れ替えます。
+            DecBaseLeaveTime(CurrentTurn, seconds);
+
+            InitBoard(CurrentBoard, false, false);
+
             WPFUtil.UIProcess(() =>
             {
+                // 実際に指した手と一致する変化は残します。
                 var list = VariationList
                     .Where(_ => _.MoveList.Count() >= 2)
                     .Where(_ => csaMove.Equals(_.MoveList[0]))
@@ -240,14 +245,10 @@ namespace Bonako.ViewModel
 
                 VariationList.Clear();
                 list.ForEach(_ => VariationList.Add(_));
+
+                // 指し手の再生を行います。
+                AddDoMoveAutoPlay(prevCurrentBoard, bmove);
             });
-
-            // 手番側の残り時間を減らしたのち、手番を入れ替えます。
-            DecBaseLeaveTime(CurrentTurn, seconds);
-
-            InitBoard(CurrentBoard, false, false);
-            WPFUtil.UIProcess(() =>
-                AddDoMoveAutoPlay(prevCurrentBoard, bmove));
         }
 
         /// <summary>
@@ -430,10 +431,11 @@ namespace Bonako.ViewModel
 
             // 引数にBoardを渡すことで、Boardそのものを変えながら
             // 自動再生を行うようにします。
-            Board = CurrentBoard.Clone();
-            var autoPlay = new AutoPlay(Board, bmoveList)
+            var board = CurrentBoard.Clone();
+            var autoPlay = new AutoPlay(board, bmoveList)
             {
                 IsChangeBackground = true,
+                EndingInterval = TimeSpan.FromSeconds(0.1),
             };
             autoPlay.Stopped += AutoPlay_Stopped;
 
@@ -443,6 +445,7 @@ namespace Bonako.ViewModel
             // 再生済みフラグを立ててしまいます。
             variation.IsShowed = true;
 
+            Board = board;
             shogi.StartAutoPlay(autoPlay);
         }
 
@@ -452,6 +455,34 @@ namespace Bonako.ViewModel
             EvaluationValue = CurrentEvaluationValue;
 
             this.lastPlayedTime = DateTime.Now;
+        }
+
+        /// <summary>
+        /// 受信した変化に符号をつけ足します。
+        /// </summary>
+        /// <remarks>
+        /// 変化の先頭の指し手には符号がついていないことがあります。
+        /// 現局面からの変化だと決めつけて処理すると、
+        /// たまに間違ってしまうので、ここでは符号付きの変化から
+        /// 残りの符号を調べます。
+        /// </remarks>
+        private void SetMoveColor(VariationInfo variation)
+        {
+            var i = variation.MoveList.FindIndex(
+                _ => _.Side != BWType.None);
+            if (i <= 0)
+            {
+                // 符号が最初の指し手からついている場合や、
+                // 符号付きの指し手が見つからない場合は帰ります。
+                return;
+            }
+
+            var color = variation.MoveList[i].Side;
+            while (--i >= 0)
+            {
+                color = color.Toggle();
+                variation.MoveList[i].Side = color;
+            }
         }
 
         /// <summary>
@@ -472,12 +503,7 @@ namespace Bonako.ViewModel
             WPFUtil.UIProcess(() =>
             {
                 // 先後の符号は省略されていることがあります。
-                /*var color = CurrentBoard.Turn;
-                foreach (var move in variation.MoveList)
-                {
-                    move.Side = color;
-                    color = color.Toggle();
-                }*/
+                SetMoveColor(variation);
 
                 // 同じ変化があれば登録しません。
                 var result = VariationList.FirstOrDefault(

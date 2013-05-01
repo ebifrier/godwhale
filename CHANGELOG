@@ -2,6 +2,10 @@
 
 	* Bonako/Bonako/ViewModel/ShogiModel.cs: 実際に指された手の表示をより分
 	かりやすくしました。
+	* Bonako/Bonako/ViewModel/BonanzaCommandParser.cs: マシン台数などを受信
+	するようにしました。
+	* Bonako/Bonako/ViewModel/ShogiModel.cs: 各変化の符号をつけるようにしま
+	した。
 
 2013-05-01  - Ver 1.0.0
 
