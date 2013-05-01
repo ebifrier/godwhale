@@ -25,16 +25,22 @@ namespace Bonako.View
         public LogControl()
         {
             InitializeComponent();
+
+            CommandBindings.Add(
+                new CommandBinding(
+                    ApplicationCommands.Copy,
+                    ExecuteCopyItem));
         }
 
-        void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        static void ExecuteCopyItem(object sender, ExecutedRoutedEventArgs e)
         {
-            var textBox = (TextBox)sender;
-
-            if (textBox != null)
+            var source = e.OriginalSource as ContentControl;
+            if (source == null)
             {
-                textBox.ScrollToEnd();
+                return;
             }
+
+            Clipboard.SetText(source.Content as string);
         }
     }
 }

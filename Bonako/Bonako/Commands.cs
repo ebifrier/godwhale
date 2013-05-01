@@ -13,6 +13,30 @@ namespace Bonako
 {
     public static class Commands
     {
+        #region Show ShogiWindow
+        /// <summary>
+        /// 将棋ウィンドウを表示します。
+        /// </summary>
+        public static readonly RelayCommand ShowShogiWindow =
+            new RelayCommand(ExecuteShowShogiWindow);
+
+        /// <summary>
+        /// 将棋ウィンドウを表示します。
+        /// </summary>
+        public static void ExecuteShowShogiWindow()
+        {
+            var window = Global.ShogiWindow;
+            if (window != null)
+            {
+                window.Activate();
+                return;
+            }
+
+            window = new View.ShogiWindow();
+            window.Show();
+        }
+        #endregion
+
         #region WriteBonanza
         /// <summary>
         /// ボナンザにコマンドを出力します。
@@ -69,6 +93,13 @@ namespace Bonako
             {
                 DialogUtil.ShowError(
                     "名前には英数字とアンダーバーしか使えません (-o-;)");
+                return;
+            }
+
+            if (model.Name == "unknown")
+            {
+                DialogUtil.ShowError(
+                    "名前を'unknown'にすることはできません (-o-;)");
                 return;
             }
 

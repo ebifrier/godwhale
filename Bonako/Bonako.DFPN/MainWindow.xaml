@@ -22,6 +22,11 @@
                 </Style.Triggers>
             </Style>
 
+            <ContextMenu x:Key="listBoxItemContextMenu">
+                <MenuItem Header="Copy"
+                          Command="ApplicationCommands.Copy" />
+            </ContextMenu>
+
             <Style TargetType="ListBoxItem" x:Key="itemStyle">
                 <Setter Property="FontSize" Value="13" />
                 <Setter Property="Content" Value="{Binding Text}" />
@@ -116,6 +121,8 @@
             <ListBox Grid.Row="1" Grid.ColumnSpan="2"
                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                     r:ListBoxUtil.AutoScrollToEnd="True"
+                     ContextMenu="{StaticResource listBoxItemContextMenu}"
                      ItemsSource="{Binding LogList}"
                      ItemContainerStyle="{StaticResource itemStyle}" />
         </GroupBox>

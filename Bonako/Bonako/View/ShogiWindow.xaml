@@ -6,6 +6,8 @@
         x:Name="shogi">
     <Window.Resources>
         <ResourceDictionary>
+            <r:ValueToDecimalConverter x:Key="toDecimalConverter" />
+            
             <BitmapImage x:Key="pieceImage"
                          UriSource="pack://application:,,,/Ragnarok.Presentation.Shogi;component/Resources/Image/koma/koma_1moji.png" />
             
@@ -21,7 +23,9 @@
     
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="1*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="0.03*" />
+            <RowDefinition Height="0.9*" />
             <RowDefinition Height="0.8*" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
@@ -30,26 +34,44 @@
             <ColumnDefinition Width="3*" />
             <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
+
+        <Menu Grid.ColumnSpan="3">
+            <MenuItem Header="設定(_S)">
+                <MenuItem Header="盤面反転(_R)"
+                          IsCheckable="True"
+                          Command="{x:Static r:ShogiCommands.SetReverseBoard}"
+                          CommandParameter="{Binding IsChecked,
+                                                     RelativeSource={RelativeSource Self}}"/>
+            </MenuItem>
+        </Menu>
         
-        <r:VisualBackground Grid.RowSpan="3" Grid.ColumnSpan="3"
+        <r:VisualBackground Grid.Row="1" Grid.RowSpan="5" Grid.ColumnSpan="3"
                             x:Name="visualBackground" />
 
-        <r:ShogiControl Grid.RowSpan="3" Grid.ColumnSpan="3"
+        <!-- 評価値 -->
+        <Viewbox Grid.Row="2" Grid.Column="2"
+                 Stretch="Fill"
+                 VerticalAlignment="Top">
+            <r:EvaluationControl ImageSetList="{r:ImageSetList ShogiData/Evaluation}"
+                                 PointType="ModeCustom"
+                                 ModeCustomPoint="{Binding EvaluationValue,
+                                                           Converter={StaticResource toDecimalConverter}}" />
+        </Viewbox>
+
+        <!-- 将棋盤 -->
+        <r:ShogiControl Grid.Row="1" Grid.RowSpan="5" Grid.ColumnSpan="3"
                         x:Name="ShogiControl"
                         x:FieldModifier="public"
                         EditMode="NoEdit"
                         EffectManager="{Binding EffectManager, ElementName=shogi}"
                         Board="{Binding Board}"
+                        ViewSide="{Binding MyTurn}"
+                        BlackPlayerName="{Binding BlackPlayerName}"
+                        WhitePlayerName="{Binding WhitePlayerName}"
+                        BlackLeaveTime="{Binding BlackLeaveTime}"
+                        WhiteLeaveTime="{Binding WhiteLeaveTime}"
                         PieceImage="{StaticResource pieceImage}"
                         BanBrush="{StaticResource banBrush}"
                         PieceBoxBrush="{StaticResource komadaiBrush}" />
-
-        <Viewbox Grid.Row="0" Grid.Column="2"
-                 Stretch="Fill"
-                 VerticalAlignment="Top">
-            <r:EvaluationControl ImageSetList="{r:ImageSetList ShogiData/Evaluation}"
-                                 PointType="ModeCustom"
-                                 ModeCustomPoint="100" />
-        </Viewbox>
     </Grid>
 </Window>

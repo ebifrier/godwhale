@@ -16,51 +16,6 @@ namespace Bonako.ViewModel
     /// </summary>
     internal static class BonanzaCommandParser
     {
-        public static BoardMove ConvertCsaMove(this Board board, CsaMove csaMove)
-        {
-            if (csaMove == null)
-            {
-                return null;
-            }
-
-            var newPiece = board[csaMove.NewPosition];
-            if (csaMove.IsDrop)
-            {
-                if (newPiece != null)
-                {
-                    return null;
-                }
-
-                return new BoardMove
-                {
-                    BWType = board.MovePriority,
-                    NewPosition = csaMove.NewPosition,
-                    ActionType = ActionType.Drop,
-                    DropPieceType = csaMove.Piece.PieceType,
-                };
-            }
-            else
-            {
-                var oldPiece = board[csaMove.OldPosition];
-                if (oldPiece == null)
-                {
-                    return null;
-                }
-
-                return new BoardMove
-                {
-                    BWType = board.MovePriority,
-                    NewPosition = csaMove.NewPosition,
-                    OldPosition = csaMove.OldPosition,
-                    TookPiece = newPiece,
-                    ActionType = (
-                        !oldPiece.IsPromoted && csaMove.Piece.IsPromoted ?
-                        ActionType.Promote :
-                        ActionType.None),
-                };
-            }
-        }
-
         #region new
         private static bool ParseNew(string command)
         {
@@ -69,8 +24,8 @@ namespace Bonako.ViewModel
                 return false;
             }
 
-            Global.ShogiModel.InitBoard(new Board());
-            Global.ShogiModel.ClearVariationList();
+            Global.ShogiModel.InitBoard(new Board(), true);
+            Global.ShogiModel.ClearParsedCommand();
             return true;
         }
         #endregion
@@ -102,7 +57,7 @@ namespace Bonako.ViewModel
                     break;
                 }
 
-                var bmove = ConvertCsaMove(board, csaMove);
+                var bmove = board.ConvertCsaMove(csaMove);
                 if (bmove == null || !bmove.Validate())
                 {
                     break;
@@ -111,58 +66,99 @@ namespace Bonako.ViewModel
                 board.DoMove(bmove);
             }
 
-            Global.ShogiModel.InitBoard(board);
-            Global.ShogiModel.ClearVariationList();
+            Global.ShogiModel.InitBoard(board, true);
+            Global.ShogiModel.ClearParsedCommand();
+            return true;
+        }
+        #endregion
+
+        #region gameinfo
+        private static readonly Regex GameInfoRegex = new Regex(
+            @"^info gameinfo ([\+\-]) ([\w]+) ([\w]+) ([\d]+) ([\d]+)",
+            RegexOptions.IgnoreCase);
+
+        private static bool ParseGameInfo(string command)
+        {
+            var m = GameInfoRegex.Match(command);
+            if (!m.Success)
+            {
+                return false;
+            }
+
+            var model = Global.ShogiModel;
+            model.MyTurn = (m.Groups[1].Value == "+" ? BWType.Black : BWType.White);
+            model.BlackPlayerName = m.Groups[2].Value;
+            model.WhitePlayerName = m.Groups[3].Value;
+
+            // 残り時間を設定します（切れ負けのみ対応）
+            var seconds = int.Parse(m.Groups[4].Value);
+            var time = TimeSpan.FromSeconds(seconds);
+            model.BlackBaseLeaveTime = time;
+            model.WhiteBaseLeaveTime = time;
             return true;
         }
         #endregion
 
         #region move, alter, retract
         private static readonly Regex MovehitRegex = new Regex(
-            @"^movehit\s+([\+\-\d\w]+)\s+(\d+)",
+            @"^(ponderhit|movehit)\s+([\+\-\d\w]+)\s+(\d+)\s+(\d+)",
             RegexOptions.IgnoreCase);
 
         private static readonly Regex MoveRegex = new Regex(
-            @"^(move)\s+([\d\w]+)\s*(\d+)",
+            @"^move\s+([\d\w]+)\s+(\d+)\s+(\d+)",
             RegexOptions.IgnoreCase);
 
         private static readonly Regex AlterRegex = new Regex(
-            @"^alter\s+([\d\w]+)\s*(\d+)",
+            @"^alter\s+([\d\w]+)\s+(\d+)\s+(\d+)",
             RegexOptions.IgnoreCase);
 
         private static readonly Regex RetractRegex = new Regex(
-            @"^retract\s+(\d+)\s*([\d\w]+)\s*(\d+)",
+            @"^retract\s+(\d+)\s+([\d\w]+)\s+(\d+)\s+(\d+)",
             RegexOptions.IgnoreCase);
 
+        private static readonly Regex MyMoveSecondsRegex = new Regex(
+            @"^info mymove (\d+)",
+            RegexOptions.IgnoreCase);
+
+        /// <summary>
+        /// 先読みに関する指し手は無視するため、局面を戻すことはありません。
+        /// </summary>
         private static bool ParseMove(string command)
         {
             var m = MovehitRegex.Match(command);
             if (m.Success)
             {
-                DoCsaMove(m.Groups[1].Value, 0);
+                DoCsaMove(m.Groups[2].Value, m.Groups[4].Value);
                 return true;
             }
 
             m = MoveRegex.Match(command);
             if (m.Success)
             {
-                DoCsaMove(m.Groups[2].Value, 0);
+                DoCsaMove(m.Groups[1].Value, m.Groups[3].Value);
                 return true;
             }
 
             m = AlterRegex.Match(command);
             if (m.Success)
             {
-                DoCsaMove(m.Groups[1].Value, 1);
+                DoCsaMove(m.Groups[1].Value, m.Groups[3].Value);
                 return true;
             }
 
             m = RetractRegex.Match(command);
             if (m.Success)
             {
-                var nback = int.Parse(m.Groups[1].Value);
+                DoCsaMove(m.Groups[2].Value, m.Groups[4].Value);
+                return true;
+            }
 
-                DoCsaMove(m.Groups[2].Value, nback);
+            m = MyMoveSecondsRegex.Match(command);
+            if (m.Success)
+            {
+                // 自分残り時間を減らします。
+                var seconds = int.Parse(m.Groups[1].Value);
+                Global.ShogiModel.DecMyLeaveTime(seconds);
                 return true;
             }
 
@@ -170,33 +166,19 @@ namespace Bonako.ViewModel
         }
 
         /// <summary>
-        /// 局面を<paramref name="nback"/>手元に戻し、さらに
         /// <paramref name="moveText"/>で示される手を指します。
         /// </summary>
-        private static bool DoCsaMove(string moveText, int nback)
+        private static void DoCsaMove(string moveText, string secondsText)
         {
-            var board = Global.ShogiModel.CurrentBoard;
-
             var csaMove = CsaMove.Parse(moveText);
             if (csaMove == null)
             {
-                return false;
+                Log.Error("{0}: 指し手ではありません。", moveText);
+                return;
             }
 
-            while (nback-- > 0 && board.CanUndo)
-            {
-                board.Undo();
-            }
-
-            var bmove = ConvertCsaMove(board, csaMove);
-            if (bmove == null || !bmove.Validate())
-            {
-                return false;
-            }
-
-            board.DoMove(bmove);
-            Global.ShogiModel.InitBoard(board);
-            return true;
+            var seconds = int.Parse(secondsText);
+            Global.ShogiModel.DoMove(csaMove, seconds);
         }
         #endregion
 
@@ -214,7 +196,7 @@ namespace Bonako.ViewModel
             }
 
             var variation = VariationInfo.Create(
-                double.Parse(m.Groups[1].Value),
+                double.Parse(m.Groups[1].Value) * 100,
                 command.Substring(m.Length));
             if (variation == null)
             {
@@ -241,7 +223,6 @@ namespace Bonako.ViewModel
 
             Global.MainViewModel.CpuUsage = double.Parse(m.Groups[2].Value);
             Global.MainViewModel.Nps = double.Parse(m.Groups[3].Value);
-            Global.ShogiModel.ClearVariationList();
             return true;
         }
         #endregion
@@ -267,6 +248,9 @@ namespace Bonako.ViewModel
             if (ParseStats(command)) return;
             if (ParseNew(command)) return;
             if (ParseInit(command)) return;
+            if (ParseGameInfo(command)) return;
+
+            //Log.Error("不明なコマンド: {0}", command);
         }
     }
 }

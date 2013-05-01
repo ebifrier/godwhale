@@ -114,7 +114,7 @@
                         <GridViewColumn
                             HeaderContainerStyle="{StaticResource headerStyle}"
                             Header="評価値"
-                            DisplayMemberBinding="{Binding Value, StringFormat={}0.00}" />
+                            DisplayMemberBinding="{Binding Value}" />
                         <GridViewColumn
                             HeaderContainerStyle="{StaticResource headerStyle}"
                             Header="読み筋"

@@ -606,7 +606,7 @@ namespace Bonako.ViewModel
             }
 
             // 投了時は玉の位置にエフェクトをかけます。
-            var position = FindGyoku(board, board.MovePriority);
+            var position = FindGyoku(board, board.Turn);
             if (position == null)
             {
                 return;

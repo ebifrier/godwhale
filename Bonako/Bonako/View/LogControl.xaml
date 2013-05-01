@@ -3,12 +3,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:rp="http://schemas.garnet-alice.net/ragnarok/xaml/presentation"
+             xmlns:r="http://schemas.garnet-alice.net/ragnarok/xaml/presentation"
              xmlns:l="clr-namespace:Bonako"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
         <ResourceDictionary>
+            <ContextMenu x:Key="listBoxItemContextMenu">
+                <MenuItem Header="Copy"
+                          Command="ApplicationCommands.Copy" />
+            </ContextMenu>
+            
             <Style TargetType="ListBoxItem" x:Key="itemStyle">
                 <Setter Property="FontSize" Value="13" />
                 <Setter Property="Content" Value="{Binding Text}" />
@@ -46,6 +51,8 @@
                 <ListBox Grid.Row="1" Grid.ColumnSpan="2"
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                         r:ListBoxUtil.AutoScrollToEnd="True"
+                         ContextMenu="{StaticResource listBoxItemContextMenu}"
                          ItemsSource="{Binding LogList}"
                          ItemContainerStyle="{StaticResource itemStyle}" />
             </Grid>

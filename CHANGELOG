@@ -1,0 +1,13 @@
+2013-05-01  - Ver 1.0.0
+
+	* 遅ればせながらCHANGELOGの記述を開始。
+	* Bonako/Bonako/MainWindow.xaml: 将棋ウィンドウ表示のためのメニューを追
+	加しました。
+	* Bonako/Bonako/View/LogControl.xaml: ログの自動スクロールとコピー機能
+	を追加しました。
+	* Bonako/Bonako/View/ShogiWindow.xaml: 盤面反転機能や評価値表示機能、ま
+	た対局者名の表示や残り時間の表示を行うようにしました。
+	* Bonako/Bonako/ViewModel/BonanzaCommandParser.cs: gameinfoコマンドを解
+	析するようにしました。このコマンドは自分の手番や対局者の情報などを送り
+	ます。
+

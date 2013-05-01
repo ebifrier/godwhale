@@ -13,6 +13,10 @@
         </Grid.RowDefinitions>
     
         <Menu Grid.Row="0">
+            <MenuItem Header="表示(_V)">
+                <MenuItem Header="将棋盤を表示(_B)"
+                          Command="{x:Static l:Commands.ShowShogiWindow}" />
+            </MenuItem>
             <MenuItem Header="ヘルプ(_H)">
                 <MenuItem Header="新バージョンの確認(_C)"
                           Command="{x:Static r:RagnarokCommands.CheckToUpdate}"

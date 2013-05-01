@@ -27,7 +27,9 @@ namespace Bonako.ViewModel
             TimeSpan.FromSeconds(5.0);
 
         private DispatcherTimer timer;
+        private DateTime prevUpdateTime = DateTime.Now;
         private DateTime lastPlayedTime = DateTime.Now;
+        private List<string> parsedCommandList = new List<string>();
 
         /// <summary>
         /// 現局面を取得します。
@@ -38,15 +40,6 @@ namespace Bonako.ViewModel
             private set { SetValue("CurrentBoard", value); }
         }
 
-        /*/// <summary>
-        /// 指し手思考の起点となる局面を取得します。
-        /// </summary>
-        public Board PonderBoard
-        {
-            get { return GetValue<Board>("PonderBoard"); }
-            private set { SetValue("PonderBoard", value); }
-        }*/
-
         /// <summary>
         /// 表示局面を取得または設定します。
         /// </summary>
@@ -56,22 +49,103 @@ namespace Bonako.ViewModel
             set { SetValue("Board", value); }
         }
 
-        /*/// <summary>
-        /// 先読み中の指し手一覧を取得します。
+        /// <summary>
+        /// 自分の手番を取得または設定します。
         /// </summary>
-        public NotifyCollection<BoardMove> PonderMoveList
+        public BWType MyTurn
         {
-            get;
-            private set;
-        }*/
+            get { return GetValue<BWType>("MyTurn"); }
+            set { SetValue("MyTurn", value); }
+        }
+
+        /// <summary>
+        /// 今の手番を取得または設定します。
+        /// </summary>
+        public BWType CurrentTurn
+        {
+            get { return GetValue<BWType>("CurrentTurn"); }
+            set { SetValue("CurrentTurn", value); }
+        }
+
+        /// <summary>
+        /// 現在の評価値を取得または設定します。
+        /// </summary>
+        public double CurrentEvaluationValue
+        {
+            get { return GetValue<double>("CurrentEvaluationValue"); }
+            set { SetValue("CurrentEvaluationValue", value); }
+        }
+
+        /// <summary>
+        /// 評価値を取得または設定します。
+        /// </summary>
+        public double EvaluationValue
+        {
+            get { return GetValue<double>("EvaluationValue"); }
+            set { SetValue("EvaluationValue", value); }
+        }
+
+        /// <summary>
+        /// 先手の対局者名を取得または設定します。
+        /// </summary>
+        public string BlackPlayerName
+        {
+            get { return GetValue<string>("BlackPlayerName"); }
+            set { SetValue("BlackPlayerName", value); }
+        }
+
+        /// <summary>
+        /// 後手の対局者名を取得または設定します。
+        /// </summary>
+        public string WhitePlayerName
+        {
+            get { return GetValue<string>("WhitePlayerName"); }
+            set { SetValue("WhitePlayerName", value); }
+        }
+
+        /// <summary>
+        /// 先手の一手前までの残り時間を取得または設定します。
+        /// </summary>
+        public TimeSpan BlackBaseLeaveTime
+        {
+            get { return GetValue<TimeSpan>("BlackBaseLeaveTime"); }
+            set { SetValue("BlackBaseLeaveTime", value); }
+        }
+
+        /// <summary>
+        /// 後手の一手前までの残り時間を取得または設定します。
+        /// </summary>
+        public TimeSpan WhiteBaseLeaveTime
+        {
+            get { return GetValue<TimeSpan>("WhiteBaseLeaveTime"); }
+            set { SetValue("WhiteBaseLeaveTime", value); }
+        }
+
+        /// <summary>
+        /// 先手の残り時間を取得または設定します。
+        /// </summary>
+        public TimeSpan BlackLeaveTime
+        {
+            get { return GetValue<TimeSpan>("BlackLeaveTime"); }
+            private set { SetValue("BlackLeaveTime", value); }
+        }
+
+        /// <summary>
+        /// 後手の残り時間を取得または設定します。
+        /// </summary>
+        public TimeSpan WhiteLeaveTime
+        {
+            get { return GetValue<TimeSpan>("WhiteLeaveTime"); }
+            private set { SetValue("WhiteLeaveTime", value); }
+        }
 
         /// <summary>
         /// 読み筋リストを取得します。
         /// </summary>
         public NotifyCollection<VariationInfo> VariationList
         {
-            get;
-            private set;
+            get { return GetValue<NotifyCollection<VariationInfo>>("VariationList"); }
+            private set { SetValue("VariationList", value); }
         }
 
         /// <summary>
@@ -80,7 +154,7 @@ namespace Bonako.ViewModel
         /// <remarks>
         /// 現局面にはインスタンスをそのまま設定します。
         /// </remarks>
-        public void InitBoard(Board board)
+        public void InitBoard(Board board, bool clearVariation)
         {
             if (board == null)
             {
@@ -88,10 +162,12 @@ namespace Bonako.ViewModel
             }
 
             CurrentBoard = board;
-            //PonderBoard = board.Clone();
             Board = board.Clone();
-            //PonderMoveList.Clear();
-            ClearVariationList();
+            CurrentTurn = board.Turn;
+            if (clearVariation)
+            {
+                ClearVariationList();
+            }
 
             // すぐに自動再生が開始するのを防ぎます。
             this.lastPlayedTime = DateTime.Now;
@@ -104,100 +180,90 @@ namespace Bonako.ViewModel
             }
         }
 
-        /*/// <summary>
-        /// 先読みを一手行います。
+        /// <summary>
+        /// 解析済みのコマンドリストをクリアします。
         /// </summary>
-        public bool DoPonderMove(CsaMove csaMove)
+        public void ClearParsedCommand()
         {
-            if (csaMove == null)
-            {
-                return false;
-            }
-
-            var bmove = PonderBoard.ConvertCsaMove(csaMove);
-            if (bmove == null || !bmove.Validate())
-            {
-                return false;
-            }
-
-            PonderBoard.DoMove(bmove);
-            PonderMoveList.Add(bmove);
-            return true;
+            this.parsedCommandList.Clear();
         }
 
         /// <summary>
-        /// 先読み中の手を一手、確定した指し手として処理します。
+        /// 現局面の指し手を進めます。
         /// </summary>
-        public void PonderHit()
+        public void DoMove(CsaMove csaMove, int seconds)
         {
-            if (!PonderMoveList.Any())
+            csaMove.Side = CurrentBoard.Turn;
+
+            var bmove = CurrentBoard.ConvertCsaMove(csaMove);
+            if (bmove == null || !bmove.Validate())
             {
+                Log.Error("{0}手目 {1}を変換できませんでした。",
+                    CurrentBoard.MoveCount,
+                    csaMove.ToPersonalString());
                 return;
             }
 
-            CurrentBoard.DoMove(PonderMoveList[0]);
-            PonderMoveList.RemoveAt(0);
-        }
-        
-        /// <summary>
-        /// 局面を<paramref name="nback"/>手元に戻し、さらに
-        /// <paramref name="csaMove"/>で示される手を指します。
-        /// </summary>
-        public bool DoCsaMove(CsaMove csaMove, int nback)
-        {
-            if (csaMove == null)
+            if (!CurrentBoard.DoMove(bmove))
             {
-                return false;
+                Log.Error("{0}手目 {1}を指せませんでした。",
+                    CurrentBoard.MoveCount,
+                    csaMove.ToPersonalString());
+                return;
             }
 
-            while (nback-- > 0 && PonderBoard.CanUndo)
-            {
-                PonderBoard.Undo();
-            }
-
-            var bmove = PonderBoard.ConvertCsaMove(csaMove);
-            if (bmove == null || !bmove.Validate())
-            {
-                return false;
-            }
-
-            PonderBoard.DoMove(bmove);
-            InitBoard(PonderBoard.Clone());
-            return true;
-        }*/
-
-        /// <summary>
-        /// 次の変化を自動再生します。
-        /// </summary>
-        public void PlayNextVariation()
-        {
+            // 実際に指した手と一致する変化は残します。
             WPFUtil.UIProcess(() =>
             {
-                // まだ未表示の変化を探します。
-                var variation = VariationList
-                    .FirstOrDefault(_ => !_.IsShowed);
+                var list = VariationList
+                    .Where(_ => _.MoveList.Count() >= 2)
+                    .Where(_ => csaMove.Equals(_.MoveList[0]))
+                    .Select(_ =>
+                        new VariationInfo
+                        {
+                            IsShowed = false,
+                            MoveList = _.MoveList.Skip(1).ToList(),
+                            Value = _.Value,
+                        });
 
-                if (variation != null)
-                {
-                    PlayVariation(variation);
-                }
+                VariationList.Clear();
+                list.ForEach(_ => VariationList.Add(_));
             });
+
+            // 手番側の残り時間を減らしたのち、手番を入れ替えます。
+            DecBaseLeaveTime(CurrentTurn, seconds);
+            InitBoard(CurrentBoard, false);
         }
 
         /// <summary>
-        /// 可能なら変化の自動再生を開始します。
+        /// 指定の手番側の残り時間を減らします。
         /// </summary>
-        /// <remarks>
-        /// GUIスレッドで呼んでください。
-        /// </remarks>
-        private void PlayVariation(VariationInfo variation)
+        public void DecBaseLeaveTime(BWType turn, int seconds)
         {
-            var shogi = Global.ShogiControl;
-            if (shogi == null || shogi.AutoPlayState == AutoPlayState.Playing)
+            if (turn == BWType.Black)
             {
-                return;
+                BlackBaseLeaveTime = MathEx.Max(
+                    BlackBaseLeaveTime - TimeSpan.FromSeconds(seconds),
+                    TimeSpan.Zero);
             }
+            else
+            {
+                WhiteBaseLeaveTime = MathEx.Max(
+                    WhiteBaseLeaveTime - TimeSpan.FromSeconds(seconds),
+                    TimeSpan.Zero);
+            }
+        }
 
+        /// <summary>
+        /// 自分の残り時間を減らします。
+        /// </summary>
+        public void DecMyLeaveTime(int seconds)
+        {
+            DecBaseLeaveTime(MyTurn, seconds);
+        }
+
+        private IEnumerable<BoardMove> GetVariationMoveList(VariationInfo variation)
+        {
             // 変化は先読み後の局面で考えます。
             var board = CurrentBoard.Clone();
             var bmoveList = new List<BoardMove>();
@@ -218,10 +284,53 @@ namespace Bonako.ViewModel
                 bmoveList.Add(bmove);
             }
 
-            // ５手以下の場合は、再生しません。
-            if (bmoveList.Count < 5)
+            // ７手以下の場合は、再生しません。
+            return (bmoveList.Count < 7 ? null : bmoveList);
+        }
+
+        /// <summary>
+        /// 次の変化を自動再生します。
+        /// </summary>
+        public void PlayNextVariation()
+        {
+            WPFUtil.UIProcess(() =>
             {
-                variation.IsShowed = true;
+                while (true)
+                {
+                    // まだ未表示の変化を探します。
+                    var variation = VariationList
+                        .FirstOrDefault(_ => !_.IsShowed);
+                    if (variation == null)
+                    {
+                        break;
+                    }
+
+                    // 手数が少ないなどの場合は、変化を再生しません。
+                    var bmoveList = GetVariationMoveList(variation);
+                    if (bmoveList == null)
+                    {
+                        variation.IsShowed = true;
+                        continue;
+                    }
+
+                    PlayVariation(variation, bmoveList);
+                    break;
+                }
+            });
+        }
+
+        /// <summary>
+        /// 可能なら変化の自動再生を開始します。
+        /// </summary>
+        /// <remarks>
+        /// GUIスレッドで呼んでください。
+        /// </remarks>
+        private void PlayVariation(VariationInfo variation,
+                                   IEnumerable<BoardMove> bmoveList)
+        {
+            var shogi = Global.ShogiControl;
+            if (shogi == null || shogi.AutoPlayState == AutoPlayState.Playing)
+            {
                 return;
             }
 
@@ -234,6 +343,9 @@ namespace Bonako.ViewModel
             };
             autoPlay.Stopped += AutoPlay_Stopped;
 
+            // 評価値を表示している変化に合わせます。
+            EvaluationValue = variation.Value;
+
             // 再生済みフラグを立ててしまいます。
             variation.IsShowed = true;
 
@@ -243,6 +355,7 @@ namespace Bonako.ViewModel
         void AutoPlay_Stopped(object sender, EventArgs e)
         {
             Board = CurrentBoard.Clone();
+            EvaluationValue = CurrentEvaluationValue;
 
             this.lastPlayedTime = DateTime.Now;
         }
@@ -264,13 +377,13 @@ namespace Bonako.ViewModel
 
             WPFUtil.UIProcess(() =>
             {
-                // 先後の符号をちゃんとつけます。
-                var color = CurrentBoard.MovePriority;
+                // 先後の符号は省略されていることがあります。
+                /*var color = CurrentBoard.Turn;
                 foreach (var move in variation.MoveList)
                 {
                     move.Side = color;
                     color = color.Toggle();
-                }
+                }*/
 
                 // 同じ変化があれば登録しません。
                 var result = VariationList.FirstOrDefault(
@@ -312,17 +425,42 @@ namespace Bonako.ViewModel
         }
 
         /// <summary>
+        /// 残り時間を更新します。
+        /// </summary>
+        private void UpdateLeaveTime(TimeSpan elapsedTime)
+        {
+            if (CurrentTurn == BWType.Black)
+            {
+                BlackLeaveTime = MathEx.Max(
+                    BlackLeaveTime - elapsedTime,
+                    TimeSpan.Zero);
+            }
+            else
+            {
+                WhiteLeaveTime = MathEx.Max(
+                    WhiteLeaveTime - elapsedTime,
+                    TimeSpan.Zero);
+            }
+        }
+
+        /// <summary>
         /// 定期的に呼ばれ、自動再生の開始を行います。
         /// </summary>
         private void OnTimer()
         {
-            var nextTime = this.lastPlayedTime + AutoPlayRestTime;
-            if (DateTime.Now < nextTime)
-            {
-                return;
-            }
+            var now = DateTime.Now;
+            var elapsedTime = now - this.prevUpdateTime;
+            this.prevUpdateTime = now;
 
-            PlayNextVariation();
+            // 時間の更新は必ず行います。
+            UpdateLeaveTime(elapsedTime);
+
+            // 変化の表示は一定時間経っていたら行います。
+            var nextTime = this.lastPlayedTime + AutoPlayRestTime;
+            if (now > nextTime)
+            {
+                PlayNextVariation();
+            }
         }
 
         /// <summary>
@@ -331,13 +469,21 @@ namespace Bonako.ViewModel
         public ShogiModel()
         {
             CurrentBoard = new Board();
-            //PonderBoard = new Board();
             Board = new Board();
-            //PonderMoveList = new NotifyCollection<BoardMove>();
             VariationList = new NotifyCollection<VariationInfo>();
 
+            AddPropertyChangedHandler("BlackBaseLeaveTime",
+                (_, __) => BlackLeaveTime = BlackBaseLeaveTime);
+            AddPropertyChangedHandler("WhiteBaseLeaveTime",
+                (_, __) => WhiteLeaveTime = WhiteBaseLeaveTime);
+
+            MyTurn = BWType.Black;
+            CurrentTurn = BWType.Black;
+            BlackBaseLeaveTime = TimeSpan.Zero;
+            WhiteBaseLeaveTime = TimeSpan.Zero;
+
             this.timer = new DispatcherTimer(
-                TimeSpan.FromSeconds(0.5),
+                TimeSpan.FromSeconds(0.1),
                 DispatcherPriority.Normal,
                 (_, __) => OnTimer(),
                 WPFUtil.UIDispatcher);
@@ -348,13 +494,28 @@ namespace Bonako.ViewModel
         {
             try
             {
+                // Bonanzaのコマンドは同じものが２回くることがあるため、
+                // 重複を避けています。
+                if (this.parsedCommandList.IndexOf(e.Command) >= 0)
+                {
+                    return;
+                }
+                if (this.parsedCommandList.Count() >= 3)
+                {
+                    this.parsedCommandList.RemoveAt(0);
+                }
+                this.parsedCommandList.Add(e.Command);
+
+                Log.Debug("< {0}", e.Command);
                 BonanzaCommandParser.Parse(e.Command);
             }
             catch (Exception ex)
             {
                 Util.ThrowIfFatal(ex);
 
-                return;
+                Log.ErrorException(ex,
+                    "{0}: コマンドの解析に失敗しました。",
+                    e.Command);
             }
         }
 

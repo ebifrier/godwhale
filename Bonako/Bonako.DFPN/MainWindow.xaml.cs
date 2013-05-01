@@ -28,10 +28,24 @@ namespace Bonako.DFPN
         public MainWindow()
         {
             InitializeComponent();
+            CommandBindings.Add(
+                new CommandBinding(
+                    ApplicationCommands.Copy,
+                    ExecuteCopyItem));
 
             Closed += MainWindow_Closed;
-
             DataContext = Global.MainViewModel;
+        }
+
+        static void ExecuteCopyItem(object sender, ExecutedRoutedEventArgs e)
+        {
+            var source = e.OriginalSource as ContentControl;
+            if (source == null)
+            {
+                return;
+            }
+
+            Clipboard.SetText(source.Content as string);
         }
 
         void MainWindow_Closed(object sender, EventArgs e)

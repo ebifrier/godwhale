@@ -131,7 +131,7 @@ copy $(TargetPath) $(ProjectDir)..\..\Bonako\Bonako.DFPN</Command>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;MINIMUM;TLP;HAVE_SSE2;CSASHOGI;MNJ_LAN;DFPN;DFPN_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;MNJ_LAN;DFPN;DFPN_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>

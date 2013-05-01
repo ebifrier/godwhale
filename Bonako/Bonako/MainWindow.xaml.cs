@@ -30,11 +30,7 @@ namespace Bonako
             InitializeComponent();
 
             Closed += MainWindow_Closed;
-
             DataContext = Global.MainViewModel;
-
-            var w = new View.ShogiWindow();
-            w.Show();
         }
 
         void MainWindow_Closed(object sender, EventArgs e)
