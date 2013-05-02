@@ -156,9 +156,9 @@ namespace ServerProxy
             try
             {
                 var line = Encoding.UTF8.GetString(bytes);
-                line.TrimEnd('\n', '\r');
+                line = line.TrimEnd('\n', '\r');
 
-                Console.WriteLine("{0}> {1}", data.Index, line);
+                Console.WriteLine("{0}> {1}", data.Name, line);
             }
             catch
             {

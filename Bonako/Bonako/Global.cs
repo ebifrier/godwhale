@@ -135,7 +135,8 @@ namespace Bonako
         /// </summary>
         static void ResetBonanza(AbortReason? reason)
         {
-            if (reason == AbortReason.Aborted)
+            if (reason == AbortReason.Aborted ||
+                reason == AbortReason.FatalError)
             {
                 Bonanza = null;
                 return;

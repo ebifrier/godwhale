@@ -5,22 +5,22 @@
   <channel>
     <title>VoteSystem</title>
     <link>
-      http://garnet-alice.net/programs/bonako/update/versioninfo.xml
+      http://garnet-alice.net/programs/bonako-dfpn/update/versioninfo.xml
     </link>
     <description/>
     <language>ja</language>
-    <pubDate>Sun Apr 28 12:58:08 +0900 2013</pubDate>
+    <pubDate>Thu May 02 15:22:34 +0900 2013</pubDate>
     <item>
-      <title>Version 2.1.0</title>
+      <title>Version 1.1.0</title>
       <sparkle:updatePackLink>
         http://garnet-alice.net/programs/update/UpdatePack.exe
       </sparkle:updatePackLink>
       <sparkle:releaseNotesLink>
-        http://garnet-alice.net/programs/bonako/update/release_note.html?v=61936
+        http://garnet-alice.net/programs/bonako-dfpn/update/release_note.html?v=66440
       </sparkle:releaseNotesLink>
-      <enclosure url="http://garnet-alice.net/programs/bonako/download/Bonako_2_1_0.zip"
-                 sparkle:version="2.1.0"
-                 sparkle:md5Signature="64242ca0bd18f94f5ce2a2c649479c5e" />
+      <enclosure url="http://garnet-alice.net/programs/bonako-dfpn/download/Bonako.DFPN_1_1_0.zip"
+                 sparkle:version="1.1.0"
+                 sparkle:md5Signature="9c77b1bc86da6ef8698364bfec1e23b4" />
     </item>
   </channel>
 </rss>

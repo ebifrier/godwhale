@@ -45,7 +45,7 @@ namespace ServerProxy
             var proxy = new ServerProxy();
 
             proxy.Start(
-                "CSA", () => Connect("garnet-alice.net", 4081),
+                "CSA", () => Connect("wdoor.c.u-tokyo.ac.jp", 4081),
                 "god", () => Connect("garnet-alice.net", 4090));
             /*proxy.Start(
                 () => Connect("localhost", 10000),
