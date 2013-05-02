@@ -9,18 +9,18 @@
     </link>
     <description/>
     <language>ja</language>
-    <pubDate>Thu May 02 15:22:09 +0900 2013</pubDate>
+    <pubDate>Fri May 03 03:09:49 +0900 2013</pubDate>
     <item>
-      <title>Version 2.2.0</title>
+      <title>Version 2.2.1</title>
       <sparkle:updatePackLink>
         http://garnet-alice.net/programs/update/UpdatePack.exe
       </sparkle:updatePackLink>
       <sparkle:releaseNotesLink>
-        http://garnet-alice.net/programs/bonako/update/release_note.html?v=17191
+        http://garnet-alice.net/programs/bonako/update/release_note.html?v=37645
       </sparkle:releaseNotesLink>
-      <enclosure url="http://garnet-alice.net/programs/bonako/download/Bonako_2_2_0.zip"
-                 sparkle:version="2.2.0"
-                 sparkle:md5Signature="f71f987d8e75776050174cc393e164d3" />
+      <enclosure url="http://garnet-alice.net/programs/bonako/download/Bonako_2_2_1.zip"
+                 sparkle:version="2.2.1"
+                 sparkle:md5Signature="b3d8a30282af77e5cbcb1eb626b520a9" />
     </item>
   </channel>
 </rss>

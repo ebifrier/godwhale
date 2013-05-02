@@ -111,7 +111,9 @@ namespace Bonako
                     4084, 4085,
                     model.Name,
                     model.ThreadNum,
-                    model.HashMemSize);
+                    model.HashMemSize,
+                    16,
+                    !Global.IsPublished);
             }
             catch (Exception ex)
             {

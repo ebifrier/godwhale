@@ -2085,7 +2085,7 @@ static int CONV cmd_mnjprepare( char **lasts )
   OutCsaShogi( "info mnjprepare ok\n" );
 
   /*{
-  char buffer[] = "153.127.241.151 4084 1.0";
+  char buffer[] = "153.127.241.151 4084 name 1 16 1";
   char *p = buffer;
   return cmd_mnj( &p );
   }*/
@@ -2100,8 +2100,7 @@ static int CONV cmd_mnj( char **lasts )
   const char *str;
   char *ptr;
   long l;
-  int client_port;
-  double factor;
+  int client_port, nthreads, recv_pv;
 
   if ( ! mnj_table_reseted )
     {
@@ -2115,7 +2114,6 @@ static int CONV cmd_mnj( char **lasts )
   strncpy( client_str_addr, str, 255 );
   client_str_addr[255] = '\0';
 
-
   str = strtok_r( NULL, str_delimiters, lasts );
   if ( ! str || ! strcmp( str, "." ) ) { str = "4082"; }
   l = strtol( str, &ptr, 0 );
@@ -2126,16 +2124,15 @@ static int CONV cmd_mnj( char **lasts )
     }
   client_port = (int)l;
 
-
   str = strtok_r( NULL, str_delimiters, lasts );
   if ( ! str || ! strcmp( str, "." ) ) { str = "bonanza1"; }
   strncpy( client_str_id, str, 255 );
   client_str_id[255] = '\0';
 
   str = strtok_r( NULL, str_delimiters, lasts );
-  if ( ! str || ! strcmp( str, "." ) ) { str = "1.0"; }
-  factor = strtod( str, &ptr );
-  if ( ptr == str || factor < 0.0 )
+  if ( ! str || ! strcmp( str, "." ) ) { str = "1"; }
+  nthreads = strtol( str, &ptr, 10 );
+  if ( ptr == str || nthreads < 0 )
     {
       str_error = str_bad_cmdline;
       return -2;
@@ -2154,6 +2151,10 @@ static int CONV cmd_mnj( char **lasts )
   if ( l <= 0 ) { mnj_depth_stable = INT_MAX; }
   else          { mnj_depth_stable = (int)l; }
 
+  str = strtok_r( NULL, str_delimiters, lasts );
+  if ( str && ! strcmp( str, "1" ) ) { recv_pv = 1; }
+  else                               { recv_pv = 0; }
+
   AbortDifficultCommand;
 
   resign_threshold  = 65535;
@@ -2165,7 +2166,7 @@ static int CONV cmd_mnj( char **lasts )
   str_buffer_cmdline[0] = '\0';
 
   Out( "Sending my name %s", client_str_id );
-  MnjOut( "login %s %g final%s\n", client_str_id, factor,
+  MnjOut( "login %s %d %d final%s\n", client_str_id, nthreads, recv_pv,
           ( mnj_depth_stable == INT_MAX ) ? "" : " stable" );
 
   return cmd_suspend();

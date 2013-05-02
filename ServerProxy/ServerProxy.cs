@@ -13,7 +13,7 @@ namespace ServerProxy
     /// <summary>
     /// 入出力用のスレッドデータを保持します。
     /// </summary>
-    internal sealed class ThreadData
+    public sealed class ThreadData
     {
         /// <summary>
         /// 入力スレッドのインデックスを取得します。
@@ -44,7 +44,7 @@ namespace ServerProxy
         /// <summary>
         /// 入力用のストリームを作成するデリゲートを取得します。
         /// </summary>
-        public Func<Stream> StreamCreator
+        public Func<ThreadData, Stream> StreamCreator
         {
             get;
             private set;
@@ -53,7 +53,8 @@ namespace ServerProxy
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public ThreadData(int index, string name, Func<Stream> creator)
+        public ThreadData(int index, string name,
+                          Func<ThreadData, Stream> creator)
         {
             Index = index;
             Name = name;
@@ -80,8 +81,8 @@ namespace ServerProxy
         /// <summary>
         /// サーバー間の中継処理を開始します。
         /// </summary>
-        public void Start(string dstName, Func<Stream> dstCreator,
-                          string srcName, Func<Stream> srcCreator)
+        public void Start(string dstName, Func<ThreadData, Stream> dstCreator,
+                          string srcName, Func<ThreadData, Stream> srcCreator)
         {
             var datas = new ThreadData[]
             {
@@ -127,10 +128,20 @@ namespace ServerProxy
                 var bytes = ReadBytes(stream, reader);
                 if (bytes == null)
                 {
+                    Log.Info("{0}: disconnected", data.Name);
+
                     // 戻り値がnullの場合はストリームを閉じます。
                     stream.Close();
-
                     this.streams[data.Index] = null;
+
+                    // 片方が閉じたならもう片方も閉じているはずなので。
+                    stream = this.streams[data.CoIndex];
+                    if (stream != null)
+                    {
+                        stream.Dispose();
+                        this.streams[data.CoIndex] = null;
+                    }
+
                     reader = null;
                     continue;
                 }
@@ -173,7 +184,7 @@ namespace ServerProxy
         {
             try
             {
-                return data.StreamCreator();
+                return data.StreamCreator(data);
             }
             catch (Exception ex)
             {

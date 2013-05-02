@@ -19,6 +19,32 @@ namespace Bonako
     public static class Global
     {
         /// <summary>
+        /// 配布用ファイルかどうかを取得します。
+        /// </summary>
+        public static bool IsPublished
+        {
+            get
+            {
+#if PUBLISHED
+                return true;
+#else
+                return false;
+#endif
+            }
+        }
+
+        /// <summary>
+        /// 配布用ファイルであれば表示しません。
+        /// </summary>
+        public static Visibility VisibleIfNotPublished
+        {
+            get
+            {
+                return (IsPublished ? Visibility.Collapsed : Visibility.Visible);
+            }
+        }
+
+        /// <summary>
         /// メインビューモデルを取得します。
         /// </summary>
         public static ViewModel.MainViewModel MainViewModel
@@ -61,6 +87,15 @@ namespace Bonako
         {
             get;
             private set;
+        }
+
+        /// <summary>
+        /// メインウィンドウを取得します。
+        /// </summary>
+        internal static MainWindow MainWindow
+        {
+            get;
+            set;
         }
 
         /// <summary>

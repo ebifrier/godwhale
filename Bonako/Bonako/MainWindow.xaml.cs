@@ -31,10 +31,13 @@ namespace Bonako
 
             Closed += MainWindow_Closed;
             DataContext = Global.MainViewModel;
+
+            Global.MainWindow = this;
         }
 
         void MainWindow_Closed(object sender, EventArgs e)
         {
+            Global.MainWindow = null;
             Global.Quit();
         }
     }

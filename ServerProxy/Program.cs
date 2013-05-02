@@ -15,7 +15,7 @@ namespace ServerProxy
         /// <summary>
         /// ソケットストリームを作成します。
         /// </summary>
-        private static Stream Connect(string address, int port)
+        private static Stream Connect(ThreadData data, string address, int port)
         {
             try
             {
@@ -25,6 +25,9 @@ namespace ServerProxy
                     ProtocolType.Tcp);
 
                 socket.Connect(address, port);
+
+                Log.Info("{0}: connected", data.Name);
+
                 return new NetworkStream(socket);
             }
             catch (Exception ex)
@@ -45,8 +48,9 @@ namespace ServerProxy
             var proxy = new ServerProxy();
 
             proxy.Start(
-                "CSA", () => Connect("wdoor.c.u-tokyo.ac.jp", 4081),
-                "god", () => Connect("garnet-alice.net", 4090));
+                //"CSA", _ => Connect(_, "wdoor.c.u-tokyo.ac.jp", 4081),
+                "CSA", _ => Connect(_, "garnet-alice.net", 4081),
+                "god", _ => Connect(_, "garnet-alice.net", 4090));
             /*proxy.Start(
                 () => Connect("localhost", 10000),
                 () => new ConsoleStream());*/

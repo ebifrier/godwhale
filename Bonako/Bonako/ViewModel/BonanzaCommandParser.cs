@@ -118,7 +118,7 @@ namespace Bonako.ViewModel
             var model = Global.ShogiModel;
             model.CurrentEvaluationValue = double.Parse(m.Groups[3].Value);
 
-            var window = Global.ShogiWindow;
+            var window = Global.MainWindow;
             if (window != null)
             {
                 Ragnarok.Presentation.WPFUtil.UIProcess(() =>
@@ -130,7 +130,7 @@ namespace Bonako.ViewModel
                     var thinkSeconds = Math.Max(1.0, thinkTime.TotalSeconds);
 
                     window.Title = string.Format(
-                        "ＰＣ台数:{0}　合計NPS:{1:0.00}[万]",
+                        "ボナ子ちゃん　ＰＣ台数:{0}　合計NPS:{1:0.00}[万]",
                         machineCount, nodes / thinkSeconds / 10000.0);
                 });
             }
@@ -224,7 +224,11 @@ namespace Bonako.ViewModel
 
         #region variation
         private static readonly Regex VariationRegex = new Regex(
+#if PUBLISHED
+            @"^info\s*((\+|\-)?([\d.]+))",
+#else
             @"^info\s+((\+|\-)?([\d.]+))",
+#endif
             RegexOptions.IgnoreCase);
 
         private static bool ParseVariation(string command)

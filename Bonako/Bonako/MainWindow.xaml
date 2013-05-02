@@ -6,6 +6,11 @@
         xmlns:v="clr-namespace:Bonako.View"
         Title="ボナ子ちゃん"
         Height="400" Width="300">
+    <Window.Resources>
+        <ResourceDictionary>
+        </ResourceDictionary>
+    </Window.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -13,7 +18,8 @@
         </Grid.RowDefinitions>
     
         <Menu Grid.Row="0">
-            <MenuItem Header="表示(_V)">
+            <MenuItem Header="表示(_V)"
+                      Visibility="{x:Static l:Global.VisibleIfNotPublished}">
                 <MenuItem Header="将棋盤を表示(_B)"
                           Command="{x:Static l:Commands.ShowShogiWindow}" />
             </MenuItem>

@@ -45,7 +45,7 @@ def make_dist(appdata)
   # アセンブリバージョンが入ったディレクトリに
   # 作成ファイルを出力します。
   project_path = File.join(appdata.dist_path, "../Bonako.csproj")
-  appdata.build(project_path, "CLR_V4")
+  appdata.build(project_path, "CLR_V4;PUBLISHED")
   setup_dist(appdata)
   
   # zipに圧縮します。
