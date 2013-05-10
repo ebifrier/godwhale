@@ -30,14 +30,17 @@ sub maxeval_score () { 30_000 }
 sub array_remove (&$);
 sub wait_messages($$$$$$);
 sub get_client_from_key($$);
-sub godwhale_changed($;$);
+sub change_evaluation_value($;$);
 sub update_godwhale($);
+sub update_current_info($$);
 sub parse_smsg($$$);
 sub parse_cmsg($$$);
+sub parse_clogin($$$);
+sub sort_clients($$);
 sub get_line ($);
 sub next_log ($);
 sub out_log ($$);
-sub out_clients ($$);
+sub out_clients ($$$);
 
 
 my $global_pid = 0;
@@ -59,10 +62,12 @@ my $g_need_update = 0;
                        server_send_time => time(),
                        server_send_mmsg => q{},
                        split_nodes      => 100_000,
-                       final            => 0,
+                       final            => 1,
                        sent_final       => 0,
                        stable           => 1,
                        server_pid       => 0,
+		       myturn           => undef,
+		       ponder_move      => undef,
                        fh_log           => undef );
 
     # parse command-line options
@@ -84,57 +89,26 @@ my $g_need_update = 0;
 
     print "wait for $status{client_num} clients:\n";
 
-    godwhale_changed \%status, 0;
+    change_evaluation_value \%status, 0;
 
     my ( $server_sckt, $count );
     while ( 1 ) {
-
-        foreach my $ready_key ( wait_messages( \%status, $listening_sckt,
-                                               \@client, undef, undef,
-                                               10.0 ) ) {
+        # connect to server
+	$server_sckt
+	    = new IO::Socket::INET( PeerAddr => $status{server_host},
+				    PeerPort => $status{server_port},
+				    Proto    => 'tcp' );
+	if ( $server_sckt ) {
+	    print $server_sckt "$status{server_id} 1.0 final stable\n";
+	    last;
+	}
             
-            my $client_ref = $ready_key;
+	if ( $count ) { print "."; }
+	else          { print "connect() to server faild, try again "; }
+	$count += 1;
 
-            # get one line from buffer
-            my $line = get_line \$client_ref->{in_buf};
-            if ( $line and 'unknown' eq $client_ref->{id} ) {
-                my ( $final, $stable ) = ( 0, 0 );
-                $client_ref->{id} = ( split ' ', $line )[1];
-                out_log \%status, "LOGIN: $client_ref->{id}\n";
-                godwhale_changed \%status, 0;
-
-                if ( $line =~ /stable/ ) { $stable = 1; }
-                if ( $line =~ /final/ )  { $final  = 1; }
-                $status{stable} &= $stable;
-                $status{final}  |= $final;
-            }
-        }
-        
-        # connect to server when all clients finished login
-        if ( $status{client_num}
-             == grep( { defined $_->{id} and not $_->{id} eq 'unknown' }
-                      @client ) ) {
-
-            $server_sckt
-                = new IO::Socket::INET( PeerAddr => $status{server_host},
-                                        PeerPort => $status{server_port},
-                                        Proto    => 'tcp' );
-            if ( $server_sckt ) {
-                my $final  = q{};
-                my $stable = q{};
-                if ( $status{final} )  { $final  = 'final'; }
-                if ( $status{stable} ) { $stable = 'stable'; }
-                print $server_sckt "$status{server_id} 1.0 $final $stable\n";
-                last;
-            }
-            
-            if ( $count ) { print "."; }
-            else          { print "connect() to server faild, try again "; }
-            $count += 1;
-        }
+	sleep(1);
     }
-
-#    undef $listening_sckt;
 
     # main loop
     my $server_buf       = q{};
@@ -157,14 +131,21 @@ my $g_need_update = 0;
             else {
 		my $this_client = $ready_key;
                 my $line = get_line \$this_client->{in_buf};
-#		print $line, "\n";
+
                 if ( not parse_cmsg \%status, $this_client, $line ) {
                     die "MESSAGE FROM CLIENT: $line\n";
                 }
             }
         }
 
+        # 必要ならクライアントをソートします。
+        if ( $status{need_client_sort} ) {
+	    sort_clients \%status, \@client;
+            delete $status{need_client_sort};
+	}
+
         update_godwhale \%status;
+        update_current_info \%status, \@client;
 
         # no more messages to server after 'final'
         if ( $status{sent_final} ) {
@@ -187,9 +168,9 @@ my $g_need_update = 0;
             my ( $move, $value, $expanded );
 
             if ( defined $client_ref->{played_move} ) {
-                $move          =  $client_ref->{played_move};
-                $value         = -$client_ref->{value};
-                $expanded      = 1;
+                $move     =  $client_ref->{played_move};
+                $value    = -$client_ref->{value};
+                $expanded = 1;
                 push @expanded_moves, $move;
             }
             elsif ( defined $client_ref->{best_move} ) {
@@ -213,6 +194,7 @@ my $g_need_update = 0;
             $score{$client_pid} = { move       => $move,
                                     value      => $value,
                                     client_ref => $client_ref,
+				    pv         => $client_ref->{pv},
                                     nodes      => $client_ref->{nodes},
                                     final      => $client_ref->{final},
                                     stable     => $client_ref->{stable},
@@ -223,6 +205,7 @@ my $g_need_update = 0;
         # send a message to the server if necessary
         if ( keys %score ) {
             my ( $best_ref, $best_value, $final, $stable_str, $final_str );
+	    my ( $pv_str );
             my $node_sum  = 0;
             my $moves_num = 0;
             my $stable    = 1;
@@ -256,7 +239,7 @@ my $g_need_update = 0;
 
             my $mmsg =( "pid=$status{server_pid} move=$best_ref->{move} "
                         . "v=${best_value}e$stable_str$final_str" );
-            
+
             if ( defined $status{server_send_mmsg}
                  and $status{server_send_mmsg} eq $mmsg ) {
                 
@@ -276,8 +259,21 @@ my $g_need_update = 0;
                 $status{server_send_mmsg} = $mmsg;
                 if ( $final_str ) { $status{sent_final} = 1; }
 
+                # PVの送信
+                if ( $best_ref->{pv} ) {
+                    my $value001 = ${best_value} * 0.01;
+                    my $tmp = "info $value001 $best_ref->{pv}";
+
+                    out_log \%status, "PV< $tmp\n";
+                    foreach my $client_ref ( @client ) {
+                        if ( $client_ref->{send_pv} ) {
+                            print { $client_ref->{sckt} } "$tmp\n";
+                        }
+                    }
+                }
+
                 # 評価値の更新を通知
-                godwhale_changed \%status, $best_value
+                change_evaluation_value \%status, $best_value
             }
         }
 
@@ -333,6 +329,23 @@ my $g_need_update = 0;
 }
 
 
+sub sort_clients($$) {
+    my ( $status_ref, $clients_ref ) = @_;
+
+#    foreach my $client ( @$clients_ref ) {
+#        print "$client->{id} $client->{nthreads}\n";
+#    }
+
+    @$clients_ref = sort
+        { $b->{nthreads} <=> $a->{nthreads} }
+        @$clients_ref;
+
+#    foreach my $client ( @$clients_ref ) {
+#        print "$client->{id} $client->{nthreads}\n";
+#    }
+}
+
+
 sub get_client_from_key($$) {
     my ( $client_ref, $key_sckt ) = @_;
 
@@ -364,7 +377,7 @@ sub array_remove (&$) {
 }
 
 
-sub godwhale_changed($;$) {
+sub change_evaluation_value($;$) {
     my ( $status_ref, $eval_value ) = @_;
 
     # 最初に評価値を出力。
@@ -381,8 +394,8 @@ sub update_godwhale($) {
     my $time = time();
     my $update_freq = 3.0; # 秒
 
-    if (!$g_need_update or
-        $time < $g_update_lasttime + $update_freq) {
+    if ( not $g_need_update or
+         $time < $g_update_lasttime + $update_freq ) {
         return;
     }
 
@@ -414,6 +427,44 @@ sub update_godwhale($) {
 }
 
 
+sub update_current_info($$) {
+    my ( $status_ref, $clients_ref ) = @_;
+    my $time = time();
+    my $update_freq = 5.0; # 秒
+
+    if ( $time < $g_update_lasttime + $update_freq ) {
+        return;
+    }
+
+    my %bucket = ();
+    foreach my $client_ref ( @$clients_ref ) {
+	my $pid = $client_ref->{pid};
+
+	if ( exists $bucket{$pid} ) {
+            if ( $bucket{$pid}->{final} ) { next; }
+
+            if ( not $client_ref->{final}
+                 and $client_ref->{nodes} <= $bucket{$pid}->{nodes} ) {
+                next;
+            }
+        }
+
+	$bucket{$pid} = $client_ref;
+    }
+
+    my $node_sum = 0;
+    foreach my $client_ref ( values %bucket ) {
+        $node_sum += $client_ref->{nodes};
+    }
+
+    my $count = @$clients_ref;
+    my $line = "info current $count $node_sum $g_eval_value";
+    out_clients $status_ref, $clients_ref, $line;
+
+    $g_update_lasttime = time();
+}
+
+
 sub parse_smsg($$$) {
     my ( $status_ref, $client_ref, $line ) = @_;
 
@@ -426,6 +477,8 @@ sub parse_smsg($$$) {
             out_log $status_ref, "$ref->{id}< idle\n";
             print { $ref->{sckt} } "idle\n";
         }
+
+        delete $status_ref->{gameinfo};
     }
     elsif ( $line eq 'new' ) {
         next_log $status_ref;
@@ -441,6 +494,7 @@ sub parse_smsg($$$) {
             print { $ref->{sckt} } "init 0\n";
             $ref->{played_move} = undef;
             $ref->{best_move}   = undef;
+            $ref->{pv}          = undef;
             $ref->{final}       = 0;
             $ref->{stable}      = 0;
             $ref->{nodes}       = 0;
@@ -448,11 +502,31 @@ sub parse_smsg($$$) {
             $ref->{pid}         = 0;
         }
     }
-    elsif ( $line =~ /(pmove|move) (\d\d\d\d[A-Z][A-Z]) (\d+)$/ ) {
+    elsif ( $line =~ /^info / ) {
+	out_log $status_ref, "$line\n";
+
+	foreach my $ref ( @$client_ref ) {
+	    print { $ref->{sckt} } "$line\n";
+        }
+
+	if ( $line =~ /^info gameinfo / ) {
+	    $status_ref->{gameinfo} = $line;
+	}
+    }
+    elsif ( $line =~ /^(pmove|move) (\d\d\d\d[A-Z][A-Z]) (\d+)\s*(\d+)?$/ ) {
+	my $sec = $4 ? $4 : "0";
         $status_ref->{sent_final}  = 0;
         $status_ref->{server_pid}  = $3;
         $global_pid               += 1;
-        push @movelist, $2;
+
+	if ( $1 eq "move" ) {
+	    $status_ref->{ponder_move} = undef;
+	    push @movelist, $2;
+	}
+	else {
+	    # PVを組み立てるためにponder_moveが必要
+	    $status_ref->{ponder_move} = $2;
+	}
 
         my $pid = $global_pid;
         foreach my $ref ( @$client_ref ) {
@@ -463,24 +537,26 @@ sub parse_smsg($$$) {
         }
 
         foreach my $ref ( @$client_ref ) {
-            if ( defined $ref->{played_move} and $ref->{played_move} eq $2 )  {
+            if ( defined $ref->{played_move} and $ref->{played_move} eq $2 ) {
                 out_log $status_ref, "$ref->{id} has the same position.\n";
-		print { $ref->{sckt} } "movehit $pid\n";
+		print { $ref->{sckt} } "movehit $ref->{played_move} $pid $sec\n";
                 $ref->{played_move} = undef;
+		$ref->{pv}          = undef;
                 $ref->{value}       = -$ref->{value};
                 $ref->{pid}         = $pid;
             }
             else {
                 if ( defined $ref->{played_move} ) {
-                    $line= "alter $2 $global_pid";
+                    $line= "alter $2 $global_pid $sec";
                 }
                 else {
-                    $line= "$1 $2 $global_pid";
+                    $line= "$1 $2 $global_pid $sec";
                 }
                 out_log $status_ref, "$ref->{id}< $line\n";
                 print { $ref->{sckt} } "$line\n";
                 $ref->{played_move} = undef;
                 $ref->{best_move}   = undef;
+                $ref->{pv}          = undef;
                 $ref->{final}       = 0;
                 $ref->{stable}      = 0;
                 $ref->{nodes}       = 0;
@@ -489,24 +565,25 @@ sub parse_smsg($$$) {
             }
         }
     }
-    elsif ( $line =~ /alter (\d\d\d\d[A-Z][A-Z]) (\d+)$/ ) {
+    elsif ( $line =~ /alter (\d\d\d\d[A-Z][A-Z]) (\d+) (\d+)$/ ) {
         $status_ref->{sent_final}  = 0;
         $status_ref->{server_pid}  = $2;
+	$status_ref->{ponder_move} = undef;
         $global_pid               += 1;
-        pop @movelist;
         push @movelist, $1;
 
         foreach my $ref ( @$client_ref ) {
 
             if ( defined $ref->{played_move} ) {
-                $line = "retract 2 $1 $global_pid";
+                $line = "retract 2 $1 $global_pid $3";
             }
-            else { $line = "alter $1 $global_pid"; }
+            else { $line = "alter $1 $global_pid $3"; }
 
             out_log $status_ref, "$ref->{id}< $line\n";
             print { $ref->{sckt} } "$line\n";
             $ref->{played_move} = undef;
             $ref->{best_move}   = undef;
+	    $ref->{pv}          = undef;
             $ref->{final}       = 0;
             $ref->{stable}      = 0;
             $ref->{nodes}       = 0;
@@ -514,11 +591,15 @@ sub parse_smsg($$$) {
             $ref->{pid}         = $global_pid;
         }
     }
-    elsif ( $line =~ /ponderhit/ ) {
-	out_log $status_ref, "client_all< ponderhit\n";
+    elsif ( $line =~ /ponderhit (\d\d\d\d[A-Z][A-Z]) (\d+) (\d+)$/ ) {
+	push @movelist, $1;
+
+	out_log $status_ref, "ALL< $line\n";
 
 	foreach my $ref ( @$client_ref ) {
-	    print { $ref->{sckt} } "ponderhit\n";
+	    print { $ref->{sckt} } "$line\n";
+
+	    $ref->{pv} = undef;
 	}
     }
     else { return 0; }
@@ -530,8 +611,10 @@ sub parse_smsg($$$) {
 sub parse_cmsg($$$) {
     my ( $status_ref, $client_ref, $line ) = @_;
     my ( $client_pid, $client_move, $client_nodes, $client_value );
+    my ( $client_pv );
     
     out_log $status_ref, "$client_ref->{id}> $line\n";
+#    print "$line\n";
 
     if ( $line =~ /^$/ ) {
         print { $client_ref->{sckt} } "\n";
@@ -541,7 +624,7 @@ sub parse_cmsg($$$) {
     if( $line =~ /pid=(\d+)/ ) { $client_pid = $1; }
 
     if ( $line =~ /^login/ ) {
-        $client_ref->{id}  = ( split ' ', $line )[1];
+	parse_clogin $status_ref, $client_ref, $line;
         $client_ref->{pid} = $global_pid;
 
         my $movestr = join ' ', @movelist;
@@ -551,7 +634,17 @@ sub parse_cmsg($$$) {
         out_log $status_ref, "LOGIN: $line\n";
         out_log $status_ref, "init $global_pid $movestr\n";
 
-        godwhale_changed \$status_ref;
+	if ( $status_ref->{gameinfo} ) {
+            print { $client_ref->{sckt} } "$status_ref->{gameinfo}\n";
+            out_log $status_ref, "$status_ref->{gameinfo}\n";
+	}
+
+	if ( $status_ref->{ponder_move} ) {
+	    my $tmp = "pmove $status_ref->{ponder_move} $global_pid\n";
+
+	    print { $client_ref->{sckt} } "$tmp\n";
+	    out_log $status_ref, "$tmp\n";
+	}
     }
     elsif ( not defined $client_pid ) { return 0; }
 
@@ -562,11 +655,11 @@ sub parse_cmsg($$$) {
     if    ( $line =~ /move=(\d\d\d\d[A-Z][A-Z])/ ) { $client_move = $1 }
     elsif ( $line =~ /move=%TORYO/ )               { $client_move = '%TORYO'; }
 
-    if ( $line =~ /n=(\d+)/ )                   { $client_nodes  = $1 }
-    if ( $line =~ /v=([+-]?\d+)/ )              { $client_value  = $1 }
-    if ( $line =~ /final/ )                     { $client_final  = 1 }
-    if ( $line =~ /stable/ )                    { $client_stable = 1 }
-    
+    if ( $line =~ /n=(\d+)/ )                          { $client_nodes  = $1 }
+    if ( $line =~ /v=([+-]?\d+)/ )                     { $client_value  = $1 }
+    if ( $line =~ /pv=(( [+-]?\d\d\d\d[A-Z][A-Z])+)/ ) { $client_pv     = $1 }
+    if ( $line =~ /final/ )                            { $client_final  = 1  }
+    if ( $line =~ /stable/ )                           { $client_stable = 1  }
 
     if ( defined $client_move
          and defined $client_nodes
@@ -576,12 +669,36 @@ sub parse_cmsg($$$) {
         $client_ref->{value}     = $client_value;
         $client_ref->{final}     = $client_final;
         $client_ref->{stable}    = $client_stable;
+	$client_ref->{pv}        =
+	    ( $status_ref->{ponder_move} ? $status_ref->{ponder_move} : "" ) .
+	    ( $client_ref->{played_move} ? " $client_ref->{played_move}" : "" ) .
+	    ( $client_pv ? $client_pv : "" );
+	return 2;
     }
     elsif ( $client_final ) { $client_ref->{final} = $client_final; }
     elsif ( $client_nodes ) { $client_ref->{nodes} = $client_nodes; }
     else { return 0; }
 
     return 1;
+}
+
+sub parse_clogin($$$) {
+    my ( $status_ref, $client_ref, $line ) = @_;
+
+    if ( not 'unknown' eq $client_ref->{id} ) {
+        return;
+    }
+
+    if ( $line =~ /^login (\w+) (\d+) (\d+)?/ ) {
+        $client_ref->{id}       = $1;
+        $client_ref->{nthreads} = $2 + 0; # 数値化
+	$client_ref->{send_pv}  = $3 ? $3 + 0 : 0;
+        $status_ref->{need_client_sort} = 1;
+	
+        out_log $status_ref,
+                "LOGIN: $client_ref->{id} $client_ref->{nthreads}\n";
+        $g_need_update = 1;
+    }
 }
     
 # 各クライアント/サーバーのどれかがメッセージを受信するのを待ちます。
@@ -625,6 +742,8 @@ sub wait_messages($$$$$$) {
                 $selector->add( $accepted_sckt );
                 my %client = (
                     id          => 'unknown',
+		    nthreads    => 0,
+		    send_pv     => 0,
                     iaddr       => $str_iaddr,
                     port        => $port,
                     in_buf      => q{},
@@ -633,6 +752,7 @@ sub wait_messages($$$$$$) {
                     final       => 0,
                     played_move => undef,
                     best_move   => undef,
+		    pv          => undef,
                     nodes       => 0,
                     value       => 0,
                     pid         => 0 );
@@ -690,12 +810,12 @@ sub get_line ($) {
 }
 
 
-sub out_clients ($$) {
-    my ( $client_ref, $line ) = @_;
+sub out_clients ($$$) {
+    my ( $status_ref, $clients_ref, $line ) = @_;
 
-    print "ALL< $line\n";
-    foreach my $client ( @$client_ref ) {
-        print { {%$client}->{sckt} } "$line\n";
+    out_log $status_ref, "ALL< $line\n";
+    foreach my $client ( @$clients_ref ) {
+        print { $client->{sckt} } "$line\n";
     }
 }
 

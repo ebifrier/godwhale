@@ -18,7 +18,7 @@ sub play_a_game      ($$$$$$);
 sub parse_smsg       ($$$$);
 sub parse_cmsg       ($$$$);
 sub parse_clogin     ($$);
-sub print_opinions   ($$$);
+sub print_opinion    ($$$);
 sub set_times        ($$);
 sub clean_up_moves   ($$);
 sub move_selection   ($$$$);
@@ -30,6 +30,7 @@ sub open_sckts       ($$$$$$);
 sub out_csa          ($$$$);
 sub select_sckts     ($$$$);
 sub out_record       ($$) { print { $_[0] } "$_[1]\n" or die "$!"; }
+#sub out_log          ($$) { print "$_[1]\n"; print { $_[0] } "$_[1]\n" or die "$!"; }
 sub out_log          ($$) { print { $_[0] } "$_[1]\n" or die "$!"; }
 sub out_client       ($$) { print { $_[0] } "$_[1]\n" or die "$!"; }
 sub out_clients      ($$$$);
@@ -46,6 +47,8 @@ sub min_timeout     () { 0.05 }
 sub max_timeout     () { 1.0 }
 sub keep_alive      () { -1 }
 
+my $old_update_count = -1;
+
 {
     # defaults of command-line options
     my ( %status ) = ( client_port        => 4082,
@@ -60,6 +63,7 @@ sub keep_alive      () { -1 }
                        time_stable_min    => 2.0,
                        sec_spent_b        => 0,
                        sec_spent_w        => 0,
+		       update_count       => 0,
                        final_as_confident => q{},
                        audio              => q{},
                        buf_csa            => q{},
@@ -219,11 +223,14 @@ sub parse_smsg ($$$$) {
     if ( $$ref_status{phase} == phase_thinking ) { die "$!"; }
     elsif ( $color eq $$ref_status{color} ) {
 
+	out_clients( $ref_status, $ref_sckt_clients, $fh_log,
+                     "info mymove $sec" );
+
         # received time information from server, continue puzzling.
         $$ref_status{sec_mytime} += $sec;
         $$ref_status{timeout}     = min_timeout;
         out_record $fh_record, $line;
-        out_log $fh_log, "Time: ${sec}s / $$ref_status{sec_mytime}s.\n";
+        out_log $fh_log, "Time: ${sec}s / $$ref_status{sec_mytime}s.";
         out_log $fh_log, "Opponent's turn starts.";
         set_times $ref_status, $fh_log;
 
@@ -233,9 +240,10 @@ sub parse_smsg ($$$$) {
         # received opp's move, pondering hit and my turn starts.
         my $time_think = $$ref_status{time}-$$ref_status{start_think};
 	out_clients( $ref_status, $ref_sckt_clients, $fh_log,
-                     "ponderhit $move $$ref_status{pid}" );
+                     "ponderhit $move $$ref_status{pid} $sec" );
 
-        $$ref_status{sec_optime} += $sec;
+        $$ref_status{sec_optime}  += $sec;
+        $$ref_status{update_count} = 0;
         out_record $fh_record, $line;
         out_log $fh_log, "Opponent made a move $line.";
         out_log $fh_log, "Time: ${sec}s / $$ref_status{sec_optime}s.";
@@ -253,7 +261,7 @@ sub parse_smsg ($$$$) {
         # received opp's move, pondering failed, my turn starts.
         $$ref_status{pid} += 1;
         out_clients( $ref_status, $ref_sckt_clients, $fh_log,
-                     "alter $move $$ref_status{pid}" );
+                     "alter $move $$ref_status{pid} $sec" );
 
         $$ref_status{sec_optime} += $sec;
         out_record $fh_record, $line;
@@ -276,7 +284,7 @@ sub parse_smsg ($$$$) {
         # received opp's move while puzzling, my turn starts.
         $$ref_status{pid} += 1;
         out_clients( $ref_status, $ref_sckt_clients, $fh_log,
-                     "move $move $$ref_status{pid}" );
+                     "move $move $$ref_status{pid} $sec" );
 
         $$ref_status{sec_optime} += $sec;
         out_record $fh_record, $line;
@@ -396,34 +404,12 @@ sub parse_cmsg ($$$$) {
 
     } else { warn "Invalid message from $$ref{id}: $line\n"; }
 
-    my ( @boxes );
-    my $nvalid = 0;
-
-    # Organize all opinions into the ballot boxes.
-    # Each box contains the same move-opinions.
-    foreach my $sckt ( @$ref_sckt_clients ) {
-        my $i;
-        my $ref = $$ref_status{$sckt};
-
-        if ( not defined $$ref{move} ) { next; }
-
-        $nvalid += 1;
-        for ( $i = 0; $i < @boxes; $i++ ) {
-            my $op = ${$boxes[$i]}[1];
-            if ( $$op{move} eq $$ref{move} ) { last; }
-        }
-        
-        ${$boxes[$i]}[0] += ( defined $$ref{resume} ) ? 0.0 : $$ref{factor};
-        push @{$boxes[$i]}, $ref;
+    if ( not defined $$ref_status{best} or
+	 not $$ref_status{best} eq $$ref{move} ) {
+	$$ref_status{best} = $$ref{move};
+	$$ref_status{update_count} += 1;
     }
-    
-    # Sort opinions by factor
-    @boxes = sort { $$b[0] <=> $$a[0] } @boxes;
-
-    $$ref_status{boxes}  = \@boxes;
-    $$ref_status{nvalid} = $nvalid;
 }
-
 
 sub move_selection ($$$$) {
     my ( $ref_status, $ref_sckt_clients, $sckt_csa, $fh_log ) = @_;
@@ -432,7 +418,7 @@ sub move_selection ($$$$) {
     if ( $$ref_status{time_printed} + 60 < $$ref_status{time} ) {
 
         $$ref_status{time_printed} = $$ref_status{time};
-        print_opinions $$ref_status{boxes}, $$ref_status{nvalid}, $fh_log;
+        print_opinion $ref_status, $ref_sckt_clients, $fh_log;
         out_log $fh_log, "";
     }
 
@@ -464,15 +450,10 @@ sub move_selection ($$$$) {
 
     # Find the best move from the ballot box.
     if ( not $move_ready
-         and defined $$ref_status{boxes}
-         and defined ${${$$ref_status{boxes}}[0]}[0] ) {
+         and defined $$ref_status{best} ) {
 
-        my $ref_boxes   = $$ref_status{boxes};
-        my $ops         = $$ref_boxes[0];
-        my $op          = $$ops[1];
-        my $nop         = @$ops - 1; # "-1" to ignore the 1st element
-        my $nvalid      = $$ref_status{nvalid};
         my $condition   = 0;
+	my $count       = $$ref_status{update_count};
         my $sec_elapsed;
 
         # check time
@@ -488,13 +469,18 @@ sub move_selection ($$$$) {
             $sec_elapsed = ( $time_turn + int( $time_think - $time_turn ) );
         }
 
-        if ( $nvalid > 2 and $nop > $nvalid * 0.90
+	if ( not $count eq $old_update_count ) {
+	    out_log $fh_log, "UpdateCount $count";
+	    $old_update_count = $count;
+	}
+
+        if ( $count <= 50
              and $sec_elapsed > $$ref_status{sec_easy} ) {
 
             out_log $fh_log, "Easy Move";
             $condition = 1;
 
-        } elsif ( $nop > $nvalid * 0.70
+        } elsif ( $count < 300
                   and $sec_elapsed > $$ref_status{sec_fine} ) {
             
             out_log $fh_log, "Normal Move";
@@ -508,58 +494,42 @@ sub move_selection ($$$$) {
 
 
         # check stable
-        if ( not $condition
-             and ( $$ref_status{time_stable_min}
-                   < $time_think + $$ref_status{time_response} ) ) {
+        # if ( not $condition
+        #      and ( $$ref_status{time_stable_min}
+        #            < $time_think + $$ref_status{time_response} ) ) {
 
-            my $nhave_stable = 0;
-            my $nstable      = 0;
-
-            foreach my $sckt ( @$ref_sckt_clients ) {
+        #     foreach my $sckt ( @$ref_sckt_clients ) {
             
-                my $ref = $$ref_status{$sckt};
+        #         my $ref = $$ref_status{$sckt};
 
-                unless ( defined $$ref{have_stable} ) { next; }
-                
-                $nhave_stable += $$ref{factor};
-                if ( defined $$ref{stable} ) { $nstable += $$ref{factor}; }
-            }
+        #         unless ( defined $$ref{have_stable} ) { next; }
 
-            if ( $nhave_stable < $nstable * 2 ) { $condition = 1; }
-        }
+	# 	$condition = 1;
+	# 	last;
+        #     }
+        #}
 
 
         # see if there is any final decisions or not.
         if ( not $condition and 1.0 < $sec_elapsed ) {
             
-            my %nfinal;
-            my $not_final   = 0;
-            
             foreach my $sckt ( @$ref_sckt_clients ) {
                 
                 my $ref = $$ref_status{$sckt};
-                
                 unless ( defined $$ref{have_final} ) { next; }
-                
-                if ( $$ref{final} ) { $nfinal{$$ref{move}} += $$ref{factor}; }
-                else                { $not_final           += $$ref{factor}; } 
-            }
+		unless ( defined $$ref{final} ) { next; }
 
-            my ( $first, $second ) = sort { $b <=> $a } values %nfinal;
-            if ( defined $first ) {
-                $second = 0.0 unless defined $second;
-                $second += $not_final;
-                
-                if ( $first >= $second + $not_final ) { $condition = 1; }
+                $condition = 1;
+	        last;
             }
         }
         
         if ( $condition ) {
             
-            out_log $fh_log, "The best move is ${$op}{move}.";
-            print_opinions $$ref_status{boxes}, $$ref_status{nvalid}, $fh_log;
+            out_log $fh_log, "The best move is $$ref_status{best}.";
+            print_opinion $ref_status, $ref_sckt_clients, $fh_log;
             
-            $move_ready = ${$op}{move};
+            $move_ready = $$ref_status{best};
         }
     }
     
@@ -701,9 +671,9 @@ sub set_times ($$) {
 
     if ( $$ref_status{phase} == phase_puzzling ) {
 
-        $$ref_status{sec_max}  /= 5.0;
-        $$ref_status{sec_fine} /= 5.0;
-        $$ref_status{sec_easy} /= 5.0;
+        $$ref_status{sec_max}  /= 3.0;
+        $$ref_status{sec_fine} /= 3.0;
+        $$ref_status{sec_easy} /= 3.0;
     }
 
     out_log $fh_log, sprintf( "Time limits: max=%.2f fine=%.2f easy=%.2fs",
@@ -715,11 +685,13 @@ sub set_times ($$) {
 sub clean_up_moves ($$) {
     my ( $ref_status, $ref_sckt_clients ) = @_;
 
-    delete $$ref_status{boxes};
+    delete $$ref_status{best};
     foreach my $sckt ( @$ref_sckt_clients ) {
         my $ref = $$ref_status{$sckt};
         delete @$ref{ qw(move stable final confident resume value) };
     }
+
+    $$ref_status{update_count} = 0;
 }
 
 
@@ -737,30 +709,27 @@ sub make_dir () {
 }
 
 
-sub print_opinions ($$$) {
-    my ( $ref_boxes, $nvalid, $fh_log ) = @_;
+sub print_opinion ($$$) {
+    my ( $ref_status, $ref_sckt_clients, $fh_log ) = @_;
 
-    if ( defined $nvalid ) {
-        out_log $fh_log, "$nvalid valid ballots are found.";
+    if ( not defined $$ref_status{best} ) {
+        out_log $fh_log, "no valid ballots are found.\n";
+	return;
     }
 
-    foreach my $ops ( @$ref_boxes ) {
-        my ( $sum, @ops_ ) = @$ops;
+    foreach my $sckt ( @$ref_sckt_clients ) {
+	my $ref = $$ref_status{$sckt};
 
-        out_log $fh_log, "sum = $sum";
-        foreach my $op ( @ops_ ) {
-            my $spent = $$op{spent} + 0.001;
-            my $nps = $$op{nodes} / $spent / 1000.0;
-            my $str = sprintf( "  %.2f %s nps=%7.1fK %6.1fs %s",
-                               $$op{factor}, $$op{move}, $nps, $$op{spent},
-                               $$op{id} );
+	my $spent = $$ref{spent} + 0.001;
+	my $nps = $$ref{nodes} / $spent / 1000.0;
+	my $str = sprintf( "  %s nps=%7.1fK %6.1fs",
+			   $$ref{move}, $nps, $$ref{spent} );
 
-            if ( defined $$op{value} )  { $str .= " $$op{value}"; }
-            if ( $$op{stable} )         { $str .= " stable"; }
-            if ( $$op{final} )          { $str .= " final"; }
-            if ( $$op{resume} )         { $str .= " resume"; }
-            out_log $fh_log, $str;
-        }
+	if ( defined $$ref{value} )  { $str .= " $$ref{value}"; }
+	if ( $$ref{stable} )         { $str .= " stable"; }
+	if ( $$ref{final} )          { $str .= " final"; }
+	if ( $$ref{resume} )         { $str .= " resume"; }
+	out_log $fh_log, $str;
     }
 }
 
@@ -824,17 +793,16 @@ sub open_sckts ($$$$$$) {
         my $nlogin = grep { ${$$ref_status{$_}}{login} } @$ref_sckt_clients;
         
         if ( not $sckt_csa
-             and $nlogin >= $$ref_status{client_num}
-             and time >= $time_connect_tried + 30.0 ) {
+             and time >= $time_connect_tried + 10.0 ) {
 
             # connect() and LOGIN to server
             print "Try connect() to CSA Server.\n";
             $time_connect_tried = time;
-            $sckt_csa
-                = new IO::Socket::INET( PeerAddr => $$ref_status{csa_host},
-                                        PeerPort => $$ref_status{csa_port},
-                                        Proto    => 'tcp' );
-#	    $sckt_csa = $csa_listen->accept();
+            # $sckt_csa
+            #     = new IO::Socket::INET( PeerAddr => $$ref_status{csa_host},
+            #                             PeerPort => $$ref_status{csa_port},
+            #                             Proto    => 'tcp' );
+	    $sckt_csa = $csa_listen->accept();
             
             if ( $sckt_csa ) {
 
@@ -906,8 +874,6 @@ sub open_sckts ($$$$$$) {
 
         if ( $line =~ /^Your_Turn\:([+-])\s*$/ ) {
 	    $$ref_status{color} = $1;
-	    out_clients( $ref_status, $ref_sckt_clients, $fh_log,
-                         "myturn $1 $$ref_status{pid}" );
 	}
         elsif ( $line =~ /^([+-])(\d\d\d\d\w\w),T(\d+)/ ) {
             push @{$$ref_status{buf_record}}, "$1$2,T$3";
@@ -919,6 +885,11 @@ sub open_sckts ($$$$$$) {
         elsif ( $line =~ /^Name\+\:(\w+)/ ) { $$ref_status{name1} = $1; }
         elsif ( $line =~ /^Name\-\:(\w+)/ ) { $$ref_status{name2} = $1; }
     }
+
+    out_clients( $ref_status, $ref_sckt_clients, $fh_log,
+		 "info gameinfo $$ref_status{color} $$ref_status{name1}" .
+		 " $$ref_status{name2} $$ref_status{sec_limit}" .
+		 " $$ref_status{sec_limit_up}" );
 
     if ( not $$ref_status{color} eq $color_last ) {
         
@@ -953,7 +924,7 @@ sub out_clients ($$$$) {
     my ( $ref_status, $ref_fh, $fh_log, $line ) = @_;
 
     foreach my $fh ( @$ref_fh ) { print $fh "$line\n"; }
-    out_log $fh_log, "all< $line";
+    out_log $fh_log, "all< $line\n";
     push @{$$ref_status{buf_resume}}, $line;
 }
 
