@@ -135,12 +135,12 @@ namespace ServerProxy
                     this.streams[data.Index] = null;
 
                     // 片方が閉じたならもう片方も閉じているはずなので。
-                    stream = this.streams[data.CoIndex];
+                    /*stream = this.streams[data.CoIndex];
                     if (stream != null)
                     {
                         stream.Dispose();
                         this.streams[data.CoIndex] = null;
-                    }
+                    }*/
 
                     reader = null;
                     continue;
