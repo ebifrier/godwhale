@@ -2,6 +2,11 @@
 # リリース情報
 #
 
+- version: 2.2.2
+  date: 2013/06/01
+  content:
+  - 局面表示機能を復活しました。
+
 - version: 2.2.1
   date: 2013/05/03
   content:
