@@ -113,7 +113,7 @@ namespace Bonako.DFPN
         /// <summary>
         /// メモリの使用量をリストにします。
         /// </summary>
-        public List<Tuple<int, int>> MemSizeList
+        public List<BonanzaHashMem> MemSizeList
         {
             get;
             private set;
@@ -193,7 +193,7 @@ namespace Bonako.DFPN
             if (HashMemSize == 0)
             {
                 var index = MathEx.Between(0, 6, rawMemSizeList.Count - 2);
-                HashMemSize = rawMemSizeList[index].Item1;
+                HashMemSize = rawMemSizeList[index].HashValue;
             }
 
             this.AddDependModel(Global.Settings);
