@@ -72,7 +72,7 @@ my @move_list  = load_csafile();
 	if ( $have_message ) {
 	    my $line = get_line \$server_buf;
 	    if ( not parse_smsg \%status, $line ) {
-		die "MESSAGE FROM SERVER: $line";
+#		die "MESSAGE FROM SERVER: $line";
 	    }
 	}
     }

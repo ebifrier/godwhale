@@ -906,8 +906,8 @@ sub open_sckts ($$$$$$) {
 
         if ( $line =~ /^Your_Turn\:([+-])\s*$/ ) {
 	    $$ref_status{color} = $1;
-	    out_clients( $ref_status, $ref_sckt_clients, $fh_log,
-                         "myturn $1 $$ref_status{pid}" );
+#	    out_clients( $ref_status, $ref_sckt_clients, $fh_log,
+#                         "myturn $1 $$ref_status{pid}" );
 	}
         elsif ( $line =~ /^([+-])(\d\d\d\d\w\w),T(\d+)/ ) {
             push @{$$ref_status{buf_record}}, "$1$2,T$3";

@@ -565,19 +565,22 @@ sub parse_smsg($$$) {
             }
         }
     }
-    elsif ( $line =~ /alter (\d\d\d\d[A-Z][A-Z]) (\d+) (\d+)$/ ) {
+    elsif ( $line =~ /alter (\d\d\d\d[A-Z][A-Z]) (\d+)\s*(\d+)?$/ ) {
+	my $sec = $3 ? $3 : "0";
         $status_ref->{sent_final}  = 0;
         $status_ref->{server_pid}  = $2;
 	$status_ref->{ponder_move} = undef;
         $global_pid               += 1;
         push @movelist, $1;
 
+	$line = "alter $1 $2 $sec";
+
         foreach my $ref ( @$client_ref ) {
 
             if ( defined $ref->{played_move} ) {
-                $line = "retract 2 $1 $global_pid $3";
+                $line = "retract 2 $1 $global_pid $sec";
             }
-            else { $line = "alter $1 $global_pid $3"; }
+            else { $line = "alter $1 $global_pid $sec"; }
 
             out_log $status_ref, "$ref->{id}< $line\n";
             print { $ref->{sckt} } "$line\n";
@@ -591,8 +594,11 @@ sub parse_smsg($$$) {
             $ref->{pid}         = $global_pid;
         }
     }
-    elsif ( $line =~ /ponderhit (\d\d\d\d[A-Z][A-Z]) (\d+) (\d+)$/ ) {
+    elsif ( $line =~ /ponderhit (\d\d\d\d[A-Z][A-Z]) (\d+)\s*(\d+)?$/ ) {
+	my $sec = $3 ? $3 : "0";
 	push @movelist, $1;
+
+	$line = "ponderhit $1 $2 $sec";
 
 	out_log $status_ref, "ALL< $line\n";
 

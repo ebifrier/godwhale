@@ -798,11 +798,11 @@ sub open_sckts ($$$$$$) {
             # connect() and LOGIN to server
             print "Try connect() to CSA Server.\n";
             $time_connect_tried = time;
-            # $sckt_csa
-            #     = new IO::Socket::INET( PeerAddr => $$ref_status{csa_host},
-            #                             PeerPort => $$ref_status{csa_port},
-            #                             Proto    => 'tcp' );
-	    $sckt_csa = $csa_listen->accept();
+            $sckt_csa
+                = new IO::Socket::INET( PeerAddr => $$ref_status{csa_host},
+                                        PeerPort => $$ref_status{csa_port},
+                                        Proto    => 'tcp' );
+	    #$sckt_csa = $csa_listen->accept();
             
             if ( $sckt_csa ) {
 
