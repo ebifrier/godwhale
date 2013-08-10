@@ -472,6 +472,8 @@ out_pv( tree_t * restrict ptree, int value, int turn, unsigned int time )
       UnMakeMove( tt, ptree->pv[0].a[ply], ply );
     }
 
+  OutCsaShogi( " n=%" PRIu64, ptree->node_searched );
+
   if ( is_out )
     {
       OutCsaShogi( "\n" );

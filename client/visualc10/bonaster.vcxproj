@@ -135,6 +135,7 @@ copy $(TargetPath) $(ProjectDir)..\..\Bonako\Bonako.DFPN</Command>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

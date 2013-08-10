@@ -130,8 +130,9 @@ namespace Bonako.ViewModel
                     var thinkSeconds = Math.Max(1.0, thinkTime.TotalSeconds);
 
                     window.Title = string.Format(
-                        "ボナ子ちゃん　ＰＣ台数:{0}　合計NPS:{1:0.00}[万]",
-                        machineCount, nodes / thinkSeconds / 10000.0);
+                        //"ボナ子ちゃん　ＰＣ台数:{0}　合計NPS:{1:0.00}[万]",
+                        "ボナ子ちゃん　ＰＣ台数:{0}",
+                        machineCount/*, nodes / thinkSeconds / 10000.0*/);
                 });
             }
 
@@ -227,7 +228,7 @@ namespace Bonako.ViewModel
 #if PUBLISHED
             @"^info\s*((\+|\-)?([\d.]+))",
 #else
-            @"^info\s+((\+|\-)?([\d.]+))",
+            @"^info\s*((\+|\-)?([\d.]+))([\+\-\d\w* ]+)( n=(\d+))?$",
 #endif
             RegexOptions.IgnoreCase);
 
@@ -239,9 +240,13 @@ namespace Bonako.ViewModel
                 return false;
             }
 
+            var nodeCount = m.Groups[6].Success ?
+                long.Parse(m.Groups[6].Value) : 0;
+
             var variation = VariationInfo.Create(
                 double.Parse(m.Groups[1].Value) * 100,
-                command.Substring(m.Length));
+                m.Groups[4].Value,
+                nodeCount);
             if (variation == null)
             {
                 return false;
@@ -266,7 +271,7 @@ namespace Bonako.ViewModel
             }
 
             Global.MainViewModel.CpuUsage = double.Parse(m.Groups[2].Value);
-            Global.MainViewModel.Nps = double.Parse(m.Groups[3].Value);
+            Global.MainViewModel.Nps = double.Parse(m.Groups[3].Value) * 1000;
             return true;
         }
         #endregion

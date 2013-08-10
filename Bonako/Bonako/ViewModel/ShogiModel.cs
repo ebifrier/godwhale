@@ -514,13 +514,16 @@ namespace Bonako.ViewModel
                     return;
                 }
 
-                // 変化は評価値順に並べます。
+                // 変化はノード数順＋評価値順に並べます。
                 // ObservableCollectionはソートがやりにくいので、
                 // 挿入ソートを使います。
+                var comparer = new Func<VariationInfo, VariationInfo, bool>((x, y) =>
+                    (x.NodeCount > y.NodeCount) ||
+                    (x.NodeCount == y.NodeCount && x.Value > y.Value));
                 var inserted = false;
                 for (var i = 0; i < VariationList.Count(); ++i)
                 {
-                    if (variation.Value > VariationList[i].Value)
+                    if (comparer(variation, VariationList[i]))
                     {
                         VariationList.Insert(i, variation);
                         inserted = true;

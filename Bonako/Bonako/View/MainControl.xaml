@@ -113,8 +113,12 @@
                     <GridView>
                         <GridViewColumn
                             HeaderContainerStyle="{StaticResource headerStyle}"
+                            Header="ノード数[万]"
+                            DisplayMemberBinding="{Binding ViewNodeCount}" />
+                        <GridViewColumn
+                            HeaderContainerStyle="{StaticResource headerStyle}"
                             Header="評価値"
-                            DisplayMemberBinding="{Binding Value}" />
+                            DisplayMemberBinding="{Binding Value}" />                        
                         <GridViewColumn
                             HeaderContainerStyle="{StaticResource headerStyle}"
                             Header="読み筋"
@@ -127,8 +131,8 @@
         
         <StatusBar Grid.Row="2">
             <StatusBarItem HorizontalAlignment="Right"
-                           Content="{Binding Nps}"
-                           ContentStringFormat="NPS[k]:{0}" />
+                           Content="{Binding ViewNps}"
+                           ContentStringFormat="NPS[万]:{0}" />
         </StatusBar>
     </Grid>
 </UserControl>

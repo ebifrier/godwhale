@@ -34,6 +34,23 @@ namespace Bonako
         }
 
         /// <summary>
+        /// PVノード数を取得または設定します。
+        /// </summary>
+        public long NodeCount
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// PVノード数[単位=万]を取得または設定します。
+        /// </summary>
+        public long ViewNodeCount
+        {
+            get { return (NodeCount / 10000); }
+        }
+
+        /// <summary>
         /// 変化を文字列にして取得します。
         /// </summary>
         public string MoveText
@@ -53,7 +70,7 @@ namespace Bonako
         /// <summary>
         /// info-6.01 -5142OU +5968OU -7162GI +8822UM -3122GI +7988GI
         /// </summary>
-        public static VariationInfo Create(double value, string moveStr)
+        public static VariationInfo Create(double value, string moveStr, long nodeCount)
         {
             if (string.IsNullOrEmpty(moveStr))
             {
@@ -75,6 +92,7 @@ namespace Bonako
             {
                 Value = value,
                 MoveList = moveList,
+                NodeCount = nodeCount,
             };
         }
     }

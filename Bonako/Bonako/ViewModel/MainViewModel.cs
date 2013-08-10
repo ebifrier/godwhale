@@ -138,12 +138,21 @@ namespace Bonako.ViewModel
         }
 
         /// <summary>
-        /// NPS値[k]を取得します。
+        /// NPS値を取得します。
         /// </summary>
         public double Nps
         {
             get { return GetValue<double>("Nps"); }
             set { SetValue("Nps", value); }
+        }
+
+        /// <summary>
+        /// NPS値[万]を取得します。
+        /// </summary>
+        [DependOnProperty("Nps")]
+        public double ViewNps
+        {
+            get { return (Nps / 10000); }
         }
 
         /// <summary>

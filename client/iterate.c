@@ -537,13 +537,13 @@ iterate( tree_t * restrict ptree )
           
           if ( game_status & flag_pondering )
             {
-              OutCsaShogi( "info%+.2f %c%s %c%s [%s!]\n",
+              OutCsaShogi( "info %+.2f %c%s %c%s [%s!]\n",
                            dvalue / 100.0, ach_turn[Flip(root_turn)],
                            str_CSA_move(ponder_move),
                            ach_turn[root_turn], str_move, str );
             }
           else {
-            OutCsaShogi( "info%+.2f %c%s [%s!]\n", dvalue / 100.0,
+            OutCsaShogi( "info %+.2f %c%s [%s!]\n", dvalue / 100.0,
                          ach_turn[root_turn], str_move, str );
           }
         }
@@ -576,13 +576,13 @@ iterate( tree_t * restrict ptree )
           Out( " 1.%c%s [%s?]\n", ach_turn[root_turn], str_move, str );
           if ( game_status & flag_pondering )
             {
-              OutCsaShogi( "info%+.2f %c%s %c%s [%s?]\n",
+              OutCsaShogi( "info %+.2f %c%s %c%s [%s?]\n",
                            dvalue / 100.0, ach_turn[Flip(root_turn)],
                            str_CSA_move(ponder_move),
                            ach_turn[root_turn], str_move, str );
             }
           else {
-            OutCsaShogi( "info%+.2f %c%s [%s?]\n", dvalue / 100.0,
+            OutCsaShogi( "info %+.2f %c%s [%s?]\n", dvalue / 100.0,
                          ach_turn[root_turn], str_move, str );
           }
         }

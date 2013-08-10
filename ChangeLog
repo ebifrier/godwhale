@@ -1,3 +1,13 @@
+2013-08-11  - Ver 1.0.3
+
+	* Bonako/Bonako/VariationInfo.cs: ノード数を保存するようにしました。
+	* Bonako/Bonako/ViewModel/BonanzaCommandParser.cs: ウィンドウに合計NPS
+	を表示するのをやめました。計算方法が間違っていたためです。
+	* Bonako/Bonako/ViewModel/ShogiModel.cs: 表示する変化をノード数順に並べ
+	るようにしました。
+	* client/searchr.c: ローカルボナンザから取得する変化にノード数情報を付
+	加するようにしました。
+
 2013-05-10  - Ver 1.0.2
 
 	* Server: コンピュータ選手権用にサーバーファイルを更新しました。まず、
