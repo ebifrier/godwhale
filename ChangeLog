@@ -7,6 +7,7 @@
 	るようにしました。
 	* client/searchr.c: ローカルボナンザから取得する変化にノード数情報を付
 	加するようにしました。
+	* Bonako/Bonako/dist/history.yaml: 更新履歴を更新するようにしました。
 
 2013-05-10  - Ver 1.0.2
 
