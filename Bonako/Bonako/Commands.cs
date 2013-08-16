@@ -113,7 +113,7 @@ namespace Bonako
                     model.ThreadNum,
                     model.HashMemSize,
                     16,
-                    !Global.IsPublished);
+                    false); //!Global.IsPublished);
             }
             catch (Exception ex)
             {
