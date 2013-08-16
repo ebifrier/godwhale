@@ -2,6 +2,11 @@
 # リリース情報
 #
 
+- version: 2.2.8
+  date: 2013/08/17
+  content:
+  - 評価値の符号を合わせました。
+
 - version: 2.2.4
   date: 2013/08/11
   content:

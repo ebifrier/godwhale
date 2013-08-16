@@ -1,3 +1,8 @@
+2013-08-17  - Ver 1.0.4
+
+	* Bonako/Bonako/Commands.cs: 評価値の符号が変わるためサーバーからのPVの
+	受信を取りやめました。
+
 2013-08-11  - Ver 1.0.3
 
 	* Bonako/Bonako/VariationInfo.cs: ノード数を保存するようにしました。
