@@ -11,70 +11,77 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\attack.c" />
-    <ClCompile Include="..\bitop.c" />
-    <ClCompile Include="..\book.c" />
-    <ClCompile Include="..\csa.c" />
-    <ClCompile Include="..\data.c" />
-    <ClCompile Include="..\debug.c" />
-    <ClCompile Include="..\dfpn.c" />
-    <ClCompile Include="..\dfpnhash.c" />
-    <ClCompile Include="..\evaldiff.c" />
-    <ClCompile Include="..\evaluate.c" />
-    <ClCompile Include="..\gencap.c" />
-    <ClCompile Include="..\genchk.c" />
-    <ClCompile Include="..\gendrop.c" />
-    <ClCompile Include="..\genevasn.c" />
-    <ClCompile Include="..\gennocap.c" />
-    <ClCompile Include="..\hash.c" />
-    <ClCompile Include="..\ini.c" />
-    <ClCompile Include="..\io.c" />
-    <ClCompile Include="..\iterate.c" />
-    <ClCompile Include="..\learn1.c" />
-    <ClCompile Include="..\learn2.c" />
-    <ClCompile Include="..\main.c" />
-    <ClCompile Include="..\makemove.c" />
-    <ClCompile Include="..\mate1ply.c" />
-    <ClCompile Include="..\mate3.c" />
-    <ClCompile Include="..\movgenex.c" />
-    <ClCompile Include="..\next.c" />
-    <ClCompile Include="..\phash.c" />
-    <ClCompile Include="..\ponder.c" />
-    <ClCompile Include="..\problem.c" />
-    <ClCompile Include="..\proce.c" />
-    <ClCompile Include="..\quiesrch.c" />
-    <ClCompile Include="..\rand.c" />
-    <ClCompile Include="..\root.c" />
-    <ClCompile Include="..\sckt.c" />
-    <ClCompile Include="..\search.c" />
-    <ClCompile Include="..\searchr.c" />
-    <ClCompile Include="..\swap.c" />
-    <ClCompile Include="..\thread.c" />
-    <ClCompile Include="..\time.c" />
-    <ClCompile Include="..\unmake.c" />
-    <ClCompile Include="..\utility.c" />
-    <ClCompile Include="..\valid.c" />
+    <ClCompile Include="..\..\bonanza6\attack.c" />
+    <ClCompile Include="..\..\bonanza6\bbini.c" />
+    <ClCompile Include="..\..\bonanza6\bitop.c" />
+    <ClCompile Include="..\..\bonanza6\book.c" />
+    <ClCompile Include="..\..\bonanza6\csa.c" />
+    <ClCompile Include="..\..\bonanza6\data.c" />
+    <ClCompile Include="..\..\bonanza6\debug.c" />
+    <ClCompile Include="..\..\bonanza6\dfpn.c" />
+    <ClCompile Include="..\..\bonanza6\dfpnhash.c" />
+    <ClCompile Include="..\..\bonanza6\evaldiff.c" />
+    <ClCompile Include="..\..\bonanza6\evaluate.c" />
+    <ClCompile Include="..\..\bonanza6\gencap.c" />
+    <ClCompile Include="..\..\bonanza6\genchk.c" />
+    <ClCompile Include="..\..\bonanza6\gendrop.c" />
+    <ClCompile Include="..\..\bonanza6\genevasn.c" />
+    <ClCompile Include="..\..\bonanza6\gennocap.c" />
+    <ClCompile Include="..\..\bonanza6\hash.c" />
+    <ClCompile Include="..\..\bonanza6\ini.c" />
+    <ClCompile Include="..\..\bonanza6\io.c" />
+    <ClCompile Include="..\..\bonanza6\iterate.c" />
+    <ClCompile Include="..\..\bonanza6\learn1.c" />
+    <ClCompile Include="..\..\bonanza6\learn2.c" />
+    <ClCompile Include="..\..\bonanza6\main.c" />
+    <ClCompile Include="..\..\bonanza6\makemove.c" />
+    <ClCompile Include="..\..\bonanza6\mate1ply.c" />
+    <ClCompile Include="..\..\bonanza6\mate3.c" />
+    <ClCompile Include="..\..\bonanza6\movgenex.c" />
+    <ClCompile Include="..\..\bonanza6\next.c" />
+    <ClCompile Include="..\..\bonanza6\phash.c" />
+    <ClCompile Include="..\..\bonanza6\ponder.c" />
+    <ClCompile Include="..\..\bonanza6\problem.c" />
+    <ClCompile Include="..\..\bonanza6\proce.c" />
+    <ClCompile Include="..\..\bonanza6\quiesrch.c" />
+    <ClCompile Include="..\..\bonanza6\rand.c" />
+    <ClCompile Include="..\..\bonanza6\root.c" />
+    <ClCompile Include="..\..\bonanza6\sckt.c" />
+    <ClCompile Include="..\..\bonanza6\search.c" />
+    <ClCompile Include="..\..\bonanza6\searchr.c" />
+    <ClCompile Include="..\..\bonanza6\swap.c" />
+    <ClCompile Include="..\..\bonanza6\thread.c" />
+    <ClCompile Include="..\..\bonanza6\time.c" />
+    <ClCompile Include="..\..\bonanza6\unmake.c" />
+    <ClCompile Include="..\..\bonanza6\utility.c" />
+    <ClCompile Include="..\..\bonanza6\valid.c" />
+    <ClCompile Include="..\..\invokempi.c" />
+    <ClCompile Include="..\..\master3.cpp" />
+    <ClCompile Include="..\..\putils.cpp" />
+    <ClCompile Include="..\..\slave3.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\bitop.h" />
-    <ClInclude Include="..\dfpn.h" />
-    <ClInclude Include="..\param.h" />
-    <ClInclude Include="..\shogi.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\bonanza.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="..\bonanza.res" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\bonanza.ico" />
+    <ClInclude Include="..\..\bonanza6\bitop.h" />
+    <ClInclude Include="..\..\bonanza6\dfpn.h" />
+    <ClInclude Include="..\..\bonanza6\handjoseki.h" />
+    <ClInclude Include="..\..\bonanza6\mate3.h" />
+    <ClInclude Include="..\..\bonanza6\param.h" />
+    <ClInclude Include="..\..\bonanza6\shogi.h" />
+    <ClInclude Include="..\..\comm3.h" />
+    <ClInclude Include="..\..\entsort.h" />
+    <ClInclude Include="..\..\initact.h" />
+    <ClInclude Include="..\..\pcommon3.h" />
+    <ClInclude Include="..\..\perfsl.h" />
+    <ClInclude Include="..\..\plane.h" />
+    <ClInclude Include="..\..\sbody3.h" />
+    <ClInclude Include="..\..\splane.h" />
+    <ClInclude Include="..\..\time.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7078F53B-EC21-49D5-9197-9AAA5BAB4107}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>bonanza</RootNamespace>
-    <ProjectName>bonaster</ProjectName>
+    <ProjectName>master</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -100,16 +107,20 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Program Files\Microsoft HPC Pack 2012\Inc;bonanza6;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\Microsoft HPC Pack 2012\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Program Files\Microsoft HPC Pack 2012\Inc;bonanza6;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\Microsoft HPC Pack 2012\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;MNJ_LAN;NO_LOGGING;INANIWA_SHIFT;DFPN;DFPN_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;MINIMUM;TLP;HAVE_SSE2;CSA_LAN;INANIWA_SHIFT;DFPN;DFPN_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -131,7 +142,7 @@ copy $(TargetPath) $(ProjectDir)..\..\Bonako\Bonako.DFPN</Command>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;MNJ_LAN;NO_LOGGING;INANIWA_SHIFT;DFPN;DFPN_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;MINIMUM;TLP;HAVE_SSE2;CSA_LAN;INANIWA_SHIFT;DFPN;DFPN_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>

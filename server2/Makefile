@@ -18,14 +18,14 @@ BN_SRCS = $(BN)/data.c $(BN)/main.c $(BN)/io.c $(BN)/proce.c $(BN)/utility.c \
       $(BN)/shogi.h $(BN)/param.h $(BN)/bitop.h $(BN)/dfpn.h $(BN)/Makefile \
       $(BN)/cmpsrc.csh $(BN)/handjoseki.h $(BN)/bbini.c $(BN)/mate3.h \
 
-SOURCES = comm3.h             makefile master3.cpp pcommon3.h \
+SOURCES = comm3.h makefile master3.cpp pcommon3.h \
       plane.h slave3.cpp sbody3.h perfsl.h putils.cpp invokempi.c splane.h \
       time.h cmpsrc.csh regrunit.sh \
       pgo.sh initact.h entsort.h
 
 
-#OPT =-DNDEBUG -DMINIMUM -DHAVE_SSE2 -msse2   -DDFPN -DTLP -DDFPN_CLIENT -DINANIWA_SHIFT           -DCSA_LAN $(AFFINOPT) $(CLUSTOPT)
-BNSOPT =       -DMINIMUM -DHAVE_SSE2 -msse2   -DDFPN -DTLP -DDFPN_CLIENT -DINANIWA_SHIFT           -DCSA_LAN $(AVXOPT)
+#OPT =-DNDEBUG -DMINIMUM -DHAVE_SSE2 -msse2 -DDFPN -DTLP -DDFPN_CLIENT -DINANIWA_SHIFT -DCSA_LAN $(AFFINOPT) $(CLUSTOPT)
+BNSOPT = -DMINIMUM -DHAVE_SSE2 -msse2 -DDFPN -DTLP -DDFPN_CLIENT -DINANIWA_SHIFT -DCSA_LAN $(AVXOPT)
 
 
 BN = bonanza6
@@ -81,13 +81,12 @@ G_OBJS = $(BN)/data.o $(BN)/main.o $(BN)/io.o $(BN)/proce.o $(BN)/utility.o \
 BIN = gmx
 
 $(BIN):	all
-	$(G_CXX)  $(G_OBJS) invokempi.o putils.o slave3.o master3.o -o $@ $(G_MPILDOPT) $(DBGLDOPT)
+	$(G_CXX) $(G_OBJS) invokempi.o putils.o slave3.o master3.o -o $@ $(G_MPILDOPT) $(DBGLDOPT)
 
 pgotgt:
-	$(G_CXX)  $(G_OBJS) invokempi.o putils.o slave3.o master3.o -o gmx $(G_MPILDOPT) $(DBGLDOPT)
+	$(G_CXX) $(G_OBJS) invokempi.o putils.o slave3.o master3.o -o gmx $(G_MPILDOPT) $(DBGLDOPT)
 
 
-#gobjs:  $(G_OBJS)
 gobjs:
 	make -C $(BN) CLUSTOPT=-DCLUSTER_PARALLEL gcc-bonk
 
