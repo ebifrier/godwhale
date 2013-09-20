@@ -124,5 +124,5 @@ decmv:	decmv.c
 
 clean:
 	rm -fr *.o *.exe *.stackdump logslave* logmaster* libbonkras.a*
-	make -C bns6 clean
+	make -C bonanza6 clean
 

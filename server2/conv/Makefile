@@ -1,21 +1,20 @@
 ######## No need to change below (probably) ########
 
-CC = g++
-BN = ../bonanza6
+CC       = g++
+CPPFLAGS = -I$(BN)
 
+BN   = ../bonanza6
 SRCS = convfv.cc
 OBJS = convfv.o
 BIN  = convfv
 
 ########
 
-.o: $(BN)/shogi.h
-	$(CC) -c $< -o $@
+$(BIN): $(OBJS)
+	$(CC) -o $@ $<
 
-all: $(BIN)
-
-$(BIN):
-	$(CC) $(OBJS) -o $@
+convfv.o: convfv.cc $(BN)/shogi.h
+	$(CC) $(CPPFLAGS) -o $@ -c convfv.cc
 
 clean:
-	rm -fr $(BIN) *.o *.exe
+	rm -fr $(BIN) *.o

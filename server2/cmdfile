@@ -1,0 +1,14 @@
+#!/bin/sh
+TMP=/tmp/bkrcmd
+
+echo 'beep off'  > $TMP
+echo 'resign 32599' >> $TMP
+echo 'connect wdoor.c.u-tokyo.ac.jp 4081 TestWhale2 floodgate-900-0,mytrip 1' >> $TMP
+
+while :
+do
+    mpiexec -host localhost -n 1 gmx -tf -y0 -h0 -a -m0 : \
+            -host localhost -n 1 gmx         -h3 -a -s1 -3 \
+            < $TMP
+    sleep 10
+done

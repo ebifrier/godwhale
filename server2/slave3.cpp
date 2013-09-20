@@ -11,7 +11,7 @@
 #include <limits.h>
 
 extern "C" {
-#include "bns6/shogi.h"
+#include "bonanza6/shogi.h"
 extern tree_t* g_ptree;
 extern void adjust_fmg();
 extern void detect_inaniwa(tree_t*);
