@@ -64,8 +64,8 @@ static int m3safeBase(int at, int oc) {
   //                   => safe
 
  if (!atk(8) && !occ(8) && !atk(7) && !occ(7) && !atk(6) && !atk(5) &&
-     (           !occ(5) || !atk(3) && !occ(3) ||
-      !atk(2) && !occ(2) || !atk(0) && !occ(0)   ))
+     (            !occ(5)  || (!atk(3) && !occ(3)) ||
+      (!atk(2) && !occ(2)) || (!atk(0) && !occ(0)) ))
    return 1;
 
   //    r          * : no atk            AND
@@ -75,8 +75,8 @@ static int m3safeBase(int at, int oc) {
   //                   => safe
 
  if (!atk(8) && !occ(8) && !atk(6) && !occ(6) && !atk(7) &&
-     (!atk(5) && !occ(5) || !atk(3) && !occ(3) ||
-      !atk(2) && !occ(2) || !atk(0) && !occ(0) ||
+     ((!atk(5) && !occ(5)) || (!atk(3) && !occ(3)) ||
+      (!atk(2) && !occ(2)) || (!atk(0) && !occ(0)) ||
       occ(7)))
    return 1;
 
@@ -88,8 +88,8 @@ static int m3safeBase(int at, int oc) {
 
  if (!atk(8) && !occ(8) && !atk(3) && !occ(3) && 
      !atk(7) && !atk(6) && !atk(5) && !atk(0) &&
-     (!occ(7) || !occ(6) ||
-      !atk(1) && !occ(1) || !occ(0) ||
+     ( !occ(7) || !occ(6) ||
+      (!atk(1) && !occ(1)) || !occ(0) ||
       occ(5)))
    return 1;
 
@@ -102,8 +102,8 @@ static int m3safeBase(int at, int oc) {
 
  if (!atk(8) && !occ(8) && !atk(0) && !occ(0) && 
      !atk(6) && !atk(2) &&
-     (!atk(7) && !occ(7) || !atk(5) && !occ(5) ||
-      !atk(3) && !occ(3) || !atk(1) && !occ(1) ||
+     ((!atk(7) && !occ(7)) || (!atk(5) && !occ(5)) ||
+      (!atk(3) && !occ(3)) || (!atk(1) && !occ(1)) ||
       !occ(6) || !occ(2)))
    return 1;
 
@@ -138,8 +138,8 @@ static int m3safeBase(int at, int oc) {
  if (!atk(8) && !occ(8) &&
      !atk(7) && !atk(6) && !atk(5) && !atk(2) && !atk(0) &&
      (!occ(7) || !occ(6) || !occ(5) ||
-      !atk(3) && !occ(3) || !occ(2) ||
-      !atk(1) && !occ(1)))
+      (!atk(3) && !occ(3)) || !occ(2) ||
+      (!atk(1) && !occ(1))))
    return 1;
 #endif
 
@@ -308,7 +308,7 @@ static int m3ptn(int sq, bitboard_t bbAtk, bitboard_t bbOcc) {
 
 static bitboard_t findAllNeibAttacks(const tree_t* restrict ptree, int kloc, int turn) {
   bitboard_t allAtks, bb, bbAtk;
-  int from, to;
+  int from;
     // calculate all attacks on 25-neib
 
   if (!turn) { /* black */

@@ -6,9 +6,6 @@
 #include <string.h>
 #include <assert.h>
 
- // for getpid() in main()
-//#include <unistd.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -78,14 +75,15 @@ void sendQuit(int pr);
 #ifndef SHOGI_H
  // copied from shogi.h
 #define nsquare 81
-typedef struct {
-  unsigned int hand_black, hand_white;
-  char turn_to_move;
-  signed char asquare[nsquare];
+typedef struct
+{
+    unsigned int hand_black, hand_white;
+    char turn_to_move;
+    signed char asquare[nsquare];
 } min_posi_t;
 #endif
 
- // for bnz
+ // for bonanza6
 void iniGameHook(const min_posi_t*);
 void makeMoveRootHook(int move);
 void unmakeMoveRootHook();
@@ -93,7 +91,7 @@ int  master(unsigned int*);
 
  // s/b declared in callmpi.c
 void sendPacket(int dst, int* buf, int count); //FIXME old callmpi uses unsigned
-int recvPacket(int rank, int* v);     // ditto
+int recvPacket(int rank, int* v); // ditto
 int probePacketSlave();
 #define MASTERRANK 0
 int iammaster();  // true if Mproc==0
@@ -102,22 +100,26 @@ int probeProcessor();
 
 #define NO_PENDING_REQUEST (-1)
 
-enum { ULE_NA = 0, ULE_UPPER = 2, ULE_LOWER = 1, ULE_EXACT = 3 };
-
+enum
+{
+    ULE_NA = 0,
+    ULE_UPPER = 2,
+    ULE_LOWER = 1,
+    ULE_EXACT = 3,
+};
 
 #ifdef __cplusplus
-}   //  extern "C"
+}  //  extern "C"
 
  //******** C++ only part ********
 
+// copied from comm2.cc
 class mvC {
- // copied from comm2.cc
- public:
-  int v;
-  mvC(int x = 0) : v(x) {}
-  bool operator ==(mvC x) { return (v==x.v); }
-  bool operator !=(mvC x) { return (v!=x.v); }
+public:
+    int v;
+    mvC(int x = 0) : v(x) {}
+    bool operator ==(mvC x) { return (v==x.v); }
+    bool operator !=(mvC x) { return (v!=x.v); }
 };
 
 #endif
-

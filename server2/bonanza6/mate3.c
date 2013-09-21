@@ -121,8 +121,11 @@ is_mate_in3ply( tree_t * restrict ptree, int turn, int ply )
 {
   int value, flag_skip;
   int kloc, to;
-  int hit = 0;
   bitboard_t allAtks;
+
+#if defined(USE_M3CUT) && defined(DBG_M3CUT)
+  int hit = 0;
+#endif
 
   if ( mhash_probe( ptree, turn, ply ) )
     {

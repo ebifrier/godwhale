@@ -13,11 +13,17 @@
 
 //******** FIXME duplicated? ********
 
- // copied from shogi.h
+// copied from shogi.h
 #define score_bound 32600
 #define score_max_eval 32500
 
-typedef enum { VALTYPE_ALPHA, VALTYPE_BETA, VALTYPE_GAMMA } valtypeE; 
+// 評価形式
+typedef enum
+{
+    VALTYPE_ALPHA,
+    VALTYPE_BETA,
+    VALTYPE_GAMMA,
+} valtypeE; 
 
 cmdPacketC cmd2send;
 extern int inhFirst;
@@ -27,130 +33,185 @@ extern int inhFirst;
 
 //******** timeRecordC ********
 
-struct timeRecordUnitC {
- int itd, exd;
- mvC mv;
- int64_t starttime, accum;
+struct timeRecordUnitC
+{
+    int itd, exd;
+    mvC mv;
+    int64_t starttime;
+    int64_t accum; ///< 経過時間
 
- timeRecordUnitC() {}
- void clr() { memset(this, 0, sizeof(timeRecordUnitC)); }
+    timeRecordUnitC()
+    {
+    }
 
- void start(int i, int e, mvC m) {
-  itd = i; exd = e; mv = m;
-  starttime = worldTimeLl();
- }
+    void clr() {
+        memset(this, 0, sizeof(timeRecordUnitC));
+    }
 
- void regist(int i, int e, mvC m) {
-  if (!(itd == i && exd == e && mv == m && starttime != 0LL)) {
-    starttime = 0LL;
-    return;   // retry was interrupted for some reason
-  }
-  accum += worldTimeLl() - starttime;
-  starttime = 0LL;
- }
+    void start(int i, int e, mvC m)
+    {
+        itd = i;
+        exd = e;
+        mv = m;
+        starttime = worldTimeLl();
+    }
+
+    void regist(int i, int e, mvC m)
+    {
+        if (itd == i && exd == e && mv == m && starttime != 0LL) {
+            // 累積経過時間に経過時間を追加
+            accum += worldTimeLl() - starttime;
+        }
+        
+        starttime = 0LL;
+    }
 };
 
- // FIXME tune
+// FIXME tune
 #define ADD_RETRY_BONUS(x) ((x) * 2 / 4)
 
-struct timeRecordC {
- timeRecordUnitC timerecu[MAXPROC];
- void start(int pr, int i, int e, mvC m) { timerecu[pr].start(i,e,m); }
- void regist(int pr, int i, int e, mvC m) { timerecu[pr].regist(i,e,m); }
- void clr() { memset(this, 0, sizeof(timeRecordC)); }
+/**
+ * プロセスごとの時間管理を行います。
+ */
+struct timeRecordC
+{
+    timeRecordUnitC timerecu[MAXPROC];
 
- int bonustime() {
-   // find proc w/ max retry time
-  int64_t z = timerecu[1].accum;
-  int x;
-  forr(i,2,Nproc-1)
-    if (z < timerecu[i].accum)
-      z = timerecu[i].accum;   // z: max retry time among procs
+    void clr()
+    {
+        memset(this, 0, sizeof(timeRecordC));
+    }
 
-  z /= 1000000;    // convert nanosec to millisec
-  x = (int)z;      // convert int64 to int
-  x = ADD_RETRY_BONUS(x);   // bonus time for retry time
-  return x;
- }
+    void start(int pr, int i, int e, mvC m)
+    {
+        timerecu[pr].start(i, e, m);
+    }
 
- bool retryingAny() {
-   forr(i,1,Nproc-1)
-     if (timerecu[i].starttime != 0LL && timerecu[i].exd == 0)
-       return true;
-   return false;
- }
+    void regist(int pr, int i, int e, mvC m)
+    {
+        timerecu[pr].regist(i, e, m);
+    }
+    
+    int bonustime()
+    {
+        // find proc w/ max retry time
+        int64_t z = timerecu[1].accum;
+        int x;
+
+        forr (i, 2, Nproc-1) {
+            if (z < timerecu[i].accum) {
+                z = timerecu[i].accum;   // z: max retry time among procs
+            }
+        }
+        
+        z /= 1000000;    // convert nanosec to millisec
+        x = (int)z;      // convert int64 to int
+        x = ADD_RETRY_BONUS(x);   // bonus time for retry time
+        return x;
+    }
+    
+    bool retryingAny() {
+        forr (i, 1, Nproc-1) {
+            if (timerecu[i].starttime != 0LL && timerecu[i].exd == 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 };
 
 timeRecordC timerec;
 
 //******** mvEntryC ********
 
-class mvEntryC {
- public:
-  mvC mv;
-  mvC bestmv;
-  int depth, numnode;
-  short upper, lower;
-  char inherited, retrying;
+/**
+ * @brief 各ノードの評価値や深さなどを保持します。
+ */
+class mvEntryC
+{
+public:
+    mvC mv;
+    mvC bestmv;
+    int depth, numnode;
+    short upper, lower;
+    char inherited, retrying;
+    
+    mvEntryC()
+    {
+    }
 
-  mvEntryC() {}
-  void clear() { memset(this, 0, sizeof(mvEntryC)); }
-  void reset4srch() {
-    numnode = retrying = 0;
-  }   // leave mv, bestmv, inherited intact
-  int sortkey() { return mv.v; }
-  int& sortval() { return numnode; }
-  bool done(int dep, int A, int B) {
-     //MSDOut("//// ent done - ent: d %d u %d l %d  arg: d %d A %d B %d\n",
-     //       depth, upper, lower, dep, A, B);
-     return (depth >= dep && (upper==lower || upper <= -B || -A <= lower));
-                          // 12/1/2011 %21 was         A     B
-  }
-  bool exact(int dep) {
-     return (depth >= dep && upper==lower);  // FIXME? need exact flag?
-  }
-  void update(int dep, int val, int ule, int numnod, mvC bestmove);
+    void clear()
+    {
+        memset(this, 0, sizeof(mvEntryC));
+    }
+    
+    void reset4srch()
+    {
+        numnode = retrying = 0;
+    }   // leave mv, bestmv, inherited intact
 
-  void pushNewmv(mvC m) {
-    clear();
-    mv = m;
-  }
+    int sortkey()
+    {
+        return mv.v;
+    }
+    
+    int& sortval()
+    {
+        return numnode;
+    }
+
+    bool done(int dep, int A, int B)
+    {
+        //MSDOut("//// ent done - ent: d %d u %d l %d  arg: d %d A %d B %d\n",
+        //       depth, upper, lower, dep, A, B);
+        return (depth >= dep && (upper == lower || upper <= -B || -A <= lower));
+                              // 12/1/2011 %21 was         A     B
+    }
+
+    bool exact(int dep)
+    {
+        // FIXME? need exact flag?
+        return (depth >= dep && upper == lower);
+    }
+
+    void pushNewmv(mvC m) {
+        clear();
+        mv = m;
+    }
+
+    void update(int dep, int val, int ule, int numnod, mvC bestmove);
 };
 
-void mvEntryC::update(int dep, int val, int ule, int numnod, mvC bestmove) {
-
+void mvEntryC::update(int dep, int val, int ule, int numnod, mvC bestmove)
+{
     if (ule == ULE_EXACT) {
-      upper = lower = val;
+        upper = lower = val;
     }
     else if (ule == ULE_UPPER) {
-      if (depth < dep) {
-        upper = val;
-        lower = - score_bound;
-      } else {
-        upper = val;
-        //lower = min(lower, upper-1); FIXME? no change; allow up<lo
-      }
+        if (depth < dep) {
+            upper = val;
+            lower = - score_bound;
+        }
+        else {
+            upper = val;
+            //lower = min(lower, upper-1); FIXME? no change; allow up<lo
+        }
     }
     else {
-      assert(ule == ULE_LOWER);
-      if (depth < dep) {
-        lower = val;
-        upper = score_bound;
-      } else {
-        lower = val;
-        //upper = max(upper, lower+1); FIXME? no change; allow up<lo
-      }
+        assert(ule == ULE_LOWER);
+        if (depth < dep) {
+            lower = val;
+            upper = score_bound;
+        }
+        else {
+            lower = val;
+            //upper = max(upper, lower+1); FIXME? no change; allow up<lo
+        }
     }
 
-    if (dep == depth)
-      numnode += numnod;
-    else
-      numnode = numnod;
-
-    if (ule == ULE_EXACT || ule == ULE_LOWER) 
-      bestmv = bestmove;
-    else
-      bestmv = NULLMV;
+    numnode = (dep == depth ? numnode : 0) + numnod;
+    bestmv = (ule == ULE_EXACT || ule == ULE_LOWER ? bestmove : NULLMV);
 
     depth  = dep;
     inherited = retrying = 0;
@@ -160,57 +221,82 @@ void mvEntryC::update(int dep, int val, int ule, int numnod, mvC bestmove) {
 
 //******** procmvsC ********
 
-class procmvsC {
- public:
-  int donecnt;
-  //int lastrpy;  // FIXME  not needed?
-  int mvcnt;
-  mvEntryC mvs[GMX_MAX_LEGAL_MVS];
+/**
+ * @brief プロセスごとの指し手を管理します？
+ */
+class procmvsC
+{
+public:
+    int donecnt;
+    int mvcnt;
+    mvEntryC mvs[GMX_MAX_LEGAL_MVS];
+    
+    void sort();
 
-  void sort();
-  void invalidate() { mvcnt = -1; }
-
-  int nleftmvs() {
-    return (mvcnt - donecnt);
-  }
-
-  int nnocompmvs(int dep, int A, int B) {
-    int compcnt = 0;
-    forr(i, 0, mvcnt-1)
-      if (mvs[i].done(dep, A, B))
-        compcnt++;
-    return (mvcnt - compcnt);
-  }
-
-  int findsuf(mvC mv) {
-    forr(i, 0, mvcnt-1)
-      if (mvs[i].mv == mv)
-        return i;
-    return -1;
-  }
-
-  void setDonecnt(int dep, int A, int B) {
-    donecnt = 0;
-    forr(i, 0, mvcnt-1)
-      if (mvs[i].done(dep, A, B))
-        donecnt++;
-MSDOut(";;;; set donecnt to %d\n", donecnt);
-  }
-
-  void setRetrying(mvC mv) {
-    int suf = findsuf(mv);
-    if (suf != -1) // 1/1/2012 %62 was missing; may come after mv shrunk off
-      mvs[suf].retrying = 1;
-  }
- 
-  void dumpmvs() {
-    MSDOut("procmvs dump:\n");
-    forr(i, 0, mvcnt-1) {
-      MSDOut("%07x ", readable(mvs[i].mv));
-      if (i % 10 == 9) MSDOut("\n");
+    void invalidate()
+    {
+        mvcnt = -1;
     }
-  }
 
+    /// 事前に設定された計算が完了していないノードの数を取得します。
+    int nleftmvs()
+    {
+        return (mvcnt - donecnt);
+    }
+
+    /// 現在、計算が完了していないノードの数を取得します。
+    int nnocompmvs(int dep, int A, int B)
+    {
+        int compcnt = 0;
+        forr (i, 0, mvcnt-1) {
+            if (mvs[i].done(dep, A, B)) {
+                compcnt++;
+            }
+        }
+
+        return (mvcnt - compcnt);
+    }
+    
+    int findsuf(mvC mv)
+    {
+        forr (i, 0, mvcnt-1) {
+            if (mvs[i].mv == mv) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    /// 計算が完了したノードの数を設定します。
+    void setDonecnt(int dep, int A, int B)
+    {
+        donecnt = 0;
+        forr (i, 0, mvcnt-1) {
+            if (mvs[i].done(dep, A, B)) {
+                donecnt++;
+            }
+        }
+        
+        MSDOut(";;;; set donecnt to %d\n", donecnt);
+    }
+
+    void setRetrying(mvC mv)
+    {
+        int suf = findsuf(mv);
+        if (suf != -1) { // 1/1/2012 %62 was missing; may come after mv shrunk off
+            mvs[suf].retrying = 1;
+        }
+    }
+ 
+    void dumpmvs()
+    {
+        MSDOut("procmvs dump:\n");
+        forr (i, 0, mvcnt-1) {
+            MSDOut("%07x ", readable(mvs[i].mv));
+            if (i % 10 == 9) MSDOut("\n");
+        }
+    }
 };
 
 #if SORT_BY_NUMNODE
@@ -219,149 +305,178 @@ MSDOut(";;;; set donecnt to %d\n", donecnt);
 
 //******** rowC ********
 
-class rowC {
- public:
-  int alpha, beta, gamma;
-  int bestval, bestseqLeng, bestule;
-  mvC bestseq[GMX_MAX_BESTSEQ];
-  mvEntryC firstmv;
-  int firstproc;
-  procmvsC procmvs[MAXPROC];
+class rowC
+{
+public:
+    int alpha, beta, gamma;
+    int bestval, bestseqLeng, bestule;
+    mvC bestseq[GMX_MAX_BESTSEQ];
+    mvEntryC firstmv;
+    int firstproc;
+    procmvsC procmvs[MAXPROC];
+    
+    rowC() {}
 
-  rowC() {}
-
-  void summary() {
-    MSTOut("==== rsum st%d rw%d A %d B %d G %d bv %d bul %d bL %d fmv %07x bsq",
-      itd(), exd(), alpha, beta, gamma, bestval, bestule, bestseqLeng,
-      readable(firstmv.mv));
-    forr(i, 0, min(1, bestseqLeng-1))
-      MSTOut(" %07x", readable(bestseq[i]));
-    MSTOut("%s\nproc done/mvcnt", bestseqLeng>2 ? ".." : "");
-
-    forr(pr, 1, Nproc-1)
-      MSTOut("%d/%d ", procmvs[pr].donecnt, procmvs[pr].mvcnt);
-    MSTOut("\n");
-  }
-
-   // NOTE moves for all procmvs[*] are set at the same time, so [1] is enuf
-  bool mvgened() { return (procmvs[1].mvcnt > -1); }
-
-  void clear() {
-    memset(this, 0, sizeof(rowC));
-    invalidate();
-  }
-
-  void invalidate() {
-    forr(i, 1, Nproc-1)
-      procmvs[i].invalidate();
-  }
-
-  bool betacut() { return (beta <= bestval); }
-
-   // donecnt is just reference for xfer/nxt1st only.
-   // COMMIT will use compmvs    FIXME is this a right thing to do?
-
-  void setDonecntAll() {
-    int srd = itdexd2srd(itd(), exd());
-    forr(i, 1, Nproc-1)
-      procmvs[i].setDonecnt(srd, effalpha(alpha, gamma), beta);
-  }
-
-  int nleftmvs(int pr) {
-    int srd = itdexd2srd(itd(), exd());
-    procmvs[pr].setDonecnt(srd, effalpha(alpha, gamma), beta);
-    return procmvs[pr].nleftmvs();
-  }
-
-  bool nonfirstCompleted() {
-    if (betacut())
-      return true;
-
-    int srd = itdexd2srd(itd(), exd());
-    forr(i, 1, Nproc-1)
-      if (procmvs[i].nnocompmvs(srd, alpha, beta))
-        return false;
-
-     // dont care if firstmv is finished - commits are always done from tail
-     //  - NO!  firstmv matters
-  //if (bestval == -score_bound)
-    //if (!firstmv.done(srd, alpha, beta))
-    //if (alpha == -score_bound)
-  //  return false;
-
-    return true;
-  }
-
-  bool rowdone() {
-    int dep = itdexd2srd(itd(), exd());
-    int B   = -bestval;
-    MSTOut("\\\\ rd: i %d bval %d 1mvdep %d dep %d 1mvup/lo %d/%d bseqlen %d\n",
-           itd(), bestval, firstmv.depth, dep, firstmv.upper,
-           firstmv.lower, bestseqLeng);
-    if (bestval < -score_max_eval || firstmv.depth < dep || firstmv.lower < B
-        || bestseqLeng < 2 || bestule != ULE_EXACT)
-      return false;
-    bool exactFound = (firstmv.upper == firstmv.lower) &&
-                      (firstmv.upper == B);
-
-    forr(pr, 1, Nproc-1)
-     forr(k, 0, procmvs[pr].mvcnt-1) {
-       mvEntryC& mvent = procmvs[pr].mvs[k];
-       if (mvent.depth < dep || mvent.lower < B)
-         return false;
-       if ((mvent.upper == mvent.lower) &&
-           (mvent.upper == B))
-         exactFound = true;
+    void summary() {
+        MSTOut("==== rsum st%d rw%d A %d B %d G %d bv %d bul %d bL %d fmv %07x bsq",
+               itd(), exd(), alpha, beta, gamma, bestval, bestule, bestseqLeng,
+               readable(firstmv.mv));
+        forr (i, 0, min(1, bestseqLeng-1)) {
+            MSTOut(" %07x", readable(bestseq[i]));
+        }
+        MSTOut("%s\nproc done/mvcnt", bestseqLeng>2 ? ".." : "");
+        
+        forr (pr, 1, Nproc-1) {
+            MSTOut("%d/%d ", procmvs[pr].donecnt, procmvs[pr].mvcnt);
+        }
+        MSTOut("\n");
     }
 
-    MSTOut("\\\\ rdone: returning %d\n", (exactFound ? 1 : 0));
-    return exactFound;
-  }
+    // NOTE moves for all procmvs[*] are set at the same time, so [1] is enuf
+    bool mvgened()
+    {
+        return (procmvs[1].mvcnt > -1);
+    }
 
-  void findmv(mvC mv, int* pr, int* suf) {
-      int s, p;
-      *pr = *suf = -1;
-      forr(p, 1, Nproc-1)
-        if ((s = procmvs[p].findsuf(mv)) > -1)
-            { *suf = s; *pr = p; break; }
-  }
+    void clear()
+    {
+        memset(this, 0, sizeof(rowC));
+        invalidate();
+    }
 
-  int replaceFirst(mvC mv) {
-      int pr, suf;
-      findmv(mv, &pr, &suf);
-      if (suf == -1) {  // FIXME?  should this be assertion?
-        return 1;  // BESTMV not found, maybe mated and thus removed
-      }
+    void invalidate()
+    {
+        forr (i, 1, Nproc-1) {
+            procmvs[i].invalidate();
+        }
+    }
 
-      mvEntryC oldfirst = firstmv;
-      firstmv = procmvs[pr].mvs[suf];
-      for (int j = suf - 1; j >= 0; j--)
-        procmvs[pr].mvs[j+1] = procmvs[pr].mvs[j];
-      procmvs[pr].mvs[0] = oldfirst;
+    bool betacut()
+    {
+        return (beta <= bestval);
+    }
+
+    // donecnt is just reference for xfer/nxt1st only.
+    // COMMIT will use compmvs    FIXME is this a right thing to do?
+
+    void setDonecntAll() {
+        int srd = itdexd2srd(itd(), exd());
+        forr (i, 1, Nproc-1) {
+            procmvs[i].setDonecnt(srd, effalpha(alpha, gamma), beta);
+        }
+    }
+
+    int nleftmvs(int pr)
+    {
+        int srd = itdexd2srd(itd(), exd());
+        procmvs[pr].setDonecnt(srd, effalpha(alpha, gamma), beta);
+        return procmvs[pr].nleftmvs();
+    }
+
+    bool nonfirstCompleted()
+    {
+        if (betacut()) return true;
+        
+        int srd = itdexd2srd(itd(), exd());
+        forr (i, 1, Nproc-1) {
+            if (procmvs[i].nnocompmvs(srd, alpha, beta)) {
+                return false;
+            }
+        }
+        
+        // dont care if firstmv is finished - commits are always done from tail
+        //  - NO!  firstmv matters
+        //if (bestval == -score_bound)
+        //if (!firstmv.done(srd, alpha, beta))
+        //if (alpha == -score_bound)
+        //  return false;
+        
+        return true;
+    }
+
+    bool rowdone()
+    {
+        int dep = itdexd2srd(itd(), exd());
+        int B   = -bestval;
+
+        MSTOut("\\\\ rd: i %d bval %d 1mvdep %d dep %d 1mvup/lo %d/%d bseqlen %d\n",
+               itd(), bestval, firstmv.depth, dep, firstmv.upper,
+               firstmv.lower, bestseqLeng);
+
+        if (bestval < -score_max_eval || firstmv.depth < dep || firstmv.lower < B
+            || bestseqLeng < 2 || bestule != ULE_EXACT) {
+            return false;
+        }
+
+        bool exactFound =
+            (firstmv.upper == firstmv.lower) &&
+            (firstmv.upper == B);
+        
+        forr (pr, 1, Nproc-1) {
+            forr (k, 0, procmvs[pr].mvcnt-1) {
+                mvEntryC& mvent = procmvs[pr].mvs[k];
+                if (mvent.depth < dep || mvent.lower < B) return false;
+
+                if (mvent.upper == mvent.lower && mvent.upper == B) {
+                    exactFound = true;
+                }
+            }
+        }
+        
+        MSTOut("\\\\ rdone: returning %d\n", (exactFound ? 1 : 0));
+        return exactFound;
+    }
+    
+    void findmv(mvC mv, int* pr, int* suf)
+    {
+        int s, p;
+        *pr = *suf = -1;
+
+        forr (p, 1, Nproc-1) {
+            if ((s = procmvs[p].findsuf(mv)) > -1) {
+                *suf = s; *pr = p; break;
+            }
+        }
+    }
+
+    int replaceFirst(mvC mv)
+    {
+        int pr, suf;
+        findmv(mv, &pr, &suf);
+        if (suf == -1) {  // FIXME?  should this be assertion?
+            return 1;  // BESTMV not found, maybe mated and thus removed
+        }
+        
+        mvEntryC oldfirst = firstmv;
+        firstmv = procmvs[pr].mvs[suf];
+        for (int j = suf - 1; j >= 0; j--) {
+            procmvs[pr].mvs[j+1] = procmvs[pr].mvs[j];
+        }
+        procmvs[pr].mvs[0] = oldfirst;
 #define HEAVYNODE 9999999
-      procmvs[pr].mvs[0].numnode = HEAVYNODE;
-      return 0;
-  }
+        procmvs[pr].mvs[0].numnode = HEAVYNODE;
+        return 0;
+    }
 
-  bool mvdone(int dep, mvC mv, int A, int B);
-  bool mvdoneExact(int dep, mvC mv);
+    bool mvdone(int dep, mvC mv, int A, int B);
+    bool mvdoneExact(int dep, mvC mv);
+    
+    int setupReorder(int newdep, int pvleng, mvC* pv);
+    void refCreate(int exd, int pvleng, mvC *pv, mvC mv2rt);
+    void setlist(int mvcnt, mvC *mvs);
+    
+    void updateValue(int val, valtypeE typ);
+    void updateBest(int val, mvC mv, int seqleng, mvC* seq);
 
-  int setupReorder(int newdep, int pvleng, mvC* pv);
-  void refCreate(int exd, int pvleng, mvC *pv, mvC mv2rt);
-  void setlist(int mvcnt, mvC *mvs);
-
-  void updateValue(int val, valtypeE typ);
-  void updateBest(int val, mvC mv, int seqleng, mvC* seq);
-
-  int itd() ;
-  int exd() ;
+    int itd();
+    int exd();
 };
 
  //****
  // returns 0 if success; 1 if BESTMV not found
 
-int rowC::setupReorder(int newdep, int pvleng, mvC* pv) {
-
+int rowC::setupReorder(int newdep, int pvleng, mvC* pv)
+{
   /* if FIRSTMV is not the current best, sort/reorder the list.  BESTMV to top
 
    1st   proc1      proc2
@@ -375,304 +490,343 @@ int rowC::setupReorder(int newdep, int pvleng, mvC* pv) {
    +-+ +-------+ +-+-----+---+
   */
 
-   int bestsuf = -1, bestpr = -1;
-   int d = exd();
-   mvC bestmv = pv[d];
-     // NOTE don't copy row if bestseqLeng==0
+    int bestsuf = -1, bestpr = -1;
+    int d = exd();
+    mvC bestmv = pv[d];
+    // NOTE don't copy row if bestseqLeng==0
     assert (bestseqLeng > 0 && bestseq[0] != NULLMV && bestmv != NULLMV) ;
     MSTOut("]]]]setupRe:i %d e %d dep %d bseq0 %07x firstmv %07x bestmv %07x\n",
-        itd(),exd(), newdep, readable(bestseq[0]),
-        readable(firstmv.mv), readable(bestmv) );
+           itd(),exd(), newdep, readable(bestseq[0]),
+           readable(firstmv.mv), readable(bestmv) );
 
 #if SORT_BY_NUMNODE
-    forr(pr, 1, Nproc-1)
-      procmvs[pr].sort();
+    forr (pr, 1, Nproc-1) {
+        procmvs[pr].sort();
+    }
 #endif
 
-   bool firstmvExact = bestval > -score_bound && bestule == ULE_EXACT &&
-            !waitRoot     &&   // doRoot case cannot change pv
-            bestseqLeng>0 &&
-            firstmv.mv == bestseq[0] && 
-            firstmv.depth >= newdep && 
-            firstmv.upper == firstmv.lower;
-   bool bestseqExact = bestval > -score_max_eval && bestule == ULE_EXACT &&
-            !waitRoot     &&
-          bestseqLeng>0 &&
-          bestseq[0] != firstmv.mv &&
-          mvdoneExact(newdep, bestseq[0]);
+    bool firstmvExact =
+        bestval > -score_bound && bestule == ULE_EXACT &&
+        !waitRoot &&   // doRoot case cannot change pv
+        bestseqLeng>0 &&
+        firstmv.mv == bestseq[0] && 
+        firstmv.depth >= newdep && 
+        firstmv.upper == firstmv.lower;
+    bool bestseqExact =
+        bestval > -score_max_eval && bestule == ULE_EXACT &&
+        !waitRoot &&
+        bestseqLeng>0 &&
+        bestseq[0] != firstmv.mv &&
+        mvdoneExact(newdep, bestseq[0]);
 
     // FIXME! this cond is wrong
-   bool movebest = (bestseq[0] != firstmv.mv && bestseq[0] != bestmv);
-   mvC preferredMv = NULLMV;
+    bool movebest = (bestseq[0] != firstmv.mv && bestseq[0] != bestmv);
+    mvC preferredMv = NULLMV;
 
-   if (firstmvExact || bestseqExact) {
-     MSTOut("==== suRe: repl1st fex %d bex %d fmv %07x bsq0 %07x bv %d bL %d\n",
-            firstmvExact?1:0, bestseqExact?1:0, readable(firstmv.mv),
-            readable(bestseq[0]), bestval, bestseqLeng);
-     if (bestseqExact)
-       replaceFirst(bestseq[0]);
-     alpha = bestval;
-     preferredMv = bestmv;
-   }
-   else
-   { // block B
-
-     // put BESTMV into FIRSTMV.MV (if not already so)
-
-    if (firstmv.mv != bestmv) {
-       // find the BESTMV first
-      replaceFirst(bestmv);
-      firstproc = bestpr;
+    if (firstmvExact || bestseqExact) {
+        MSTOut("==== suRe: repl1st fex %d bex %d fmv %07x bsq0 %07x bv %d bL %d\n",
+               firstmvExact?1:0, bestseqExact?1:0, readable(firstmv.mv),
+               readable(bestseq[0]), bestval, bestseqLeng);
+        if (bestseqExact) {
+            replaceFirst(bestseq[0]);
+        }
+        alpha = bestval;
+        preferredMv = bestmv;
     }
+    else
+    { // block B
 
-       // see if result for BESTSEQ[0] s/b kept
-       // FIXME?  scan all mvs for exact results? well, bestseq not
-       //         available except for bestseq[]...
+        // put BESTMV into FIRSTMV.MV (if not already so)
 
-      bestseqLeng = 0;
-      bestule     = ULE_NA;
-      alpha = bestval     = - score_bound;
+        if (firstmv.mv != bestmv) {
+            // find the BESTMV first
+            replaceFirst(bestmv);
+            firstproc = bestpr;
+        }
 
-    preferredMv = bestseq[0];
-
-   } // block B
+        // see if result for BESTSEQ[0] s/b kept
+        // FIXME?  scan all mvs for exact results? well, bestseq not
+        //         available except for bestseq[]...
+        
+        bestseqLeng = 0;
+        bestule     = ULE_NA;
+        alpha = bestval = -score_bound;
+        
+        preferredMv = bestseq[0];
+    } // block B
 
     beta  =   score_bound;
     gamma = - score_bound;  // FIXME?  not needed?  set in setlist?
 
-     // put BESTSEQ[0] to the first of its proc
+    // put BESTSEQ[0] to the first of its proc
 
     if (movebest) {
-      MSTOut("==== suRe: movebest %07x\n", readable(preferredMv));
+        MSTOut("==== suRe: movebest %07x\n", readable(preferredMv));
 
-       // find PREFERRED_MV
-      int suf, bestsuf2, bestpr2;
-      forr(pr, 1, Nproc-1)
-        if ((suf = procmvs[pr].findsuf(preferredMv)) > -1)
-            { bestsuf2 = suf; bestpr2 = pr; break; }
-
-       // FIXME?  below 4 lines s/b in "if (bestsuf != -1) { ... }" ?
-       //         ... can such a case ever occur?
-      mvEntryC oldbest = procmvs[bestpr2].mvs[bestsuf2];
-      for (int j = bestsuf2 - 1; j >= 0; j--)
-        procmvs[bestpr2].mvs[j+1] = procmvs[bestpr2].mvs[j];
-      procmvs[bestpr2].mvs[0] = oldbest;
+        // find PREFERRED_MV
+        int suf, bestsuf2, bestpr2;
+        forr (pr, 1, Nproc-1) {
+            if ((suf = procmvs[pr].findsuf(preferredMv)) > -1) {
+                bestsuf2 = suf; bestpr2 = pr; break;
+            }
+        }
+        
+        // FIXME?  below 4 lines s/b in "if (bestsuf != -1) { ... }" ?
+        //         ... can such a case ever occur?
+        mvEntryC oldbest = procmvs[bestpr2].mvs[bestsuf2];
+        for (int j = bestsuf2 - 1; j >= 0; j--) {
+            procmvs[bestpr2].mvs[j+1] = procmvs[bestpr2].mvs[j];
+        }
+        procmvs[bestpr2].mvs[0] = oldbest;
     }
-
-    forr(pr, 1, Nproc-1) {
+    
+    forr (pr, 1, Nproc-1) {
 #if SORT_BY_NUMNODE
-      //procmvs[pr].sort(); - moved to earlier
+        //procmvs[pr].sort(); - moved to earlier
 #endif
-      forr(i, 0, procmvs[pr].mvcnt-1)
-        procmvs[pr].mvs[i].numnode = 0;
+        forr (i, 0, procmvs[pr].mvcnt-1)
+            procmvs[pr].mvs[i].numnode = 0;
+    }
+    
+    forr (pr, 1, Nproc-1) {
+        // FIXME TBC CUT_MATE
+        procmvs[pr].donecnt = 0;
+        //procmvs[pr].lastrpy = 0;
+
+        forr (i, 0, procmvs[pr].mvcnt-1) {
+            procmvs[pr].mvs[i].retrying = 0;
+            // FIXMEEEE!!!!  revisit the cond for inherited
+            procmvs[pr].mvs[i].inherited = (pr==bestpr && i==bestsuf) ? 1 : 0;
+            // FIXME?  how about NUMNODE?  leave intact?
+        }
     }
 
-    forr(pr, 1, Nproc-1) {
-      // FIXME TBC CUT_MATE
-      procmvs[pr].donecnt = 0;
-      //procmvs[pr].lastrpy = 0;
-
-      forr(i, 0, procmvs[pr].mvcnt-1) {
-        procmvs[pr].mvs[i].retrying = 0;
-          // FIXMEEEE!!!!  revisit the cond for inherited
-        procmvs[pr].mvs[i].inherited = (pr==bestpr && i==bestsuf) ? 1 : 0;
-         // FIXME?  how about NUMNODE?  leave intact?
-      }
-    }
-
- MSTOut("]]]] setupRe end:i%d e%d len %d bstseq0 %07x 1stmv %07x\n",
-     itd(),exd(), bestseqLeng, readable(bestseq[0]), readable(firstmv.mv) );
- return ((firstmvExact || bestseqExact) ? 1 : 0);
+    MSTOut("]]]] setupRe end:i%d e%d len %d bstseq0 %07x 1stmv %07x\n",
+           itd(),exd(), bestseqLeng, readable(bestseq[0]),
+           readable(firstmv.mv) );
+    return ((firstmvExact || bestseqExact) ? 1 : 0);
 }
 
- //****
+void rowC::refCreate(int exd, int pvleng, mvC *pv, mvC mv2rt)
+{
+    assert(exd < pvleng);
+    clear();
 
-void rowC::refCreate(int exd, int pvleng, mvC *pv, mvC mv2rt) {
-  assert(exd < pvleng);
-  clear();
-
-  bestval = - score_bound;
-  alpha   = - score_bound;
-  beta    =   score_bound;
-
-  firstmv.mv = pv[exd];
+    bestval = - score_bound;
+    alpha   = - score_bound;
+    beta    =   score_bound;
+    
+    firstmv.mv = pv[exd];
 }
 
  //****
  // assumes firstmv is not in the arg list
 
-void rowC::setlist(int mvnum, mvC *mvs) {
-  if (mvgened()) return;   // dont set list if already set
+void rowC::setlist(int mvnum, mvC *mvs)
+{
+    if (mvgened()) return;   // dont set list if already set
 
-  forr(pr, 1, Nproc-1)
-     procmvs[pr].donecnt =
-     procmvs[pr].mvcnt = 0;
-  int top = 0;
+    forr (pr, 1, Nproc-1) {
+        procmvs[pr].donecnt =
+        procmvs[pr].mvcnt = 0;
+    }
+    int top = 0;
 
-  while(1) {  int pr;
-      // assign like this: 1,2, ... ,N-1, N-1, ... ,2,1, 1,2,...
+    while (1) {
+        int pr;
+        // assign like this: 1,2, ... ,N-1, N-1, ... ,2,1, 1,2,...
+        
+        if (top == mvnum) break;
+        for (pr=1; pr<Nproc; pr++) {
+            int loc = procmvs[pr].mvcnt++;
+            procmvs[pr].mvs[loc].pushNewmv(mvs[top++]);
+            if (top == mvnum) break;
+        }
 
-     if (top == mvnum) break;
-     for(pr=1; pr<Nproc; pr++) {
-       int loc = procmvs[pr].mvcnt++;
-       procmvs[pr].mvs[loc].pushNewmv(mvs[top++]);
-       if (top == mvnum) break;
-     }
-     if (top == mvnum) break;
-
-     for(pr=Nproc-1; pr>=1; pr--) {
-       int loc = procmvs[pr].mvcnt++;
-       procmvs[pr].mvs[loc].pushNewmv(mvs[top++]);
-       if (top == mvnum) break;
-     }
-  }
-
+        if (top == mvnum) break;
+        for (pr=Nproc-1; pr>=1; pr--) {
+            int loc = procmvs[pr].mvcnt++;
+            procmvs[pr].mvs[loc].pushNewmv(mvs[top++]);
+            if (top == mvnum) break;
+        }
+    }
 }
 
  //****
   // NOTE: returns T if firstmv==mv.  Beware - do not use this except for
   //       planeC::finalAnswer()
 
-bool rowC::mvdone(int dep, mvC mv, int A, int B) {
- int mvsuf;
- assert (bestseqLeng > 0);
- if (bestseq[0] == NULLMV)   // firstmv is not done
-     return false;
- if (bestseq[0] == mv)
-     return true;
- if (firstmv.mv == mv)
-   return firstmv.done(dep,A,B);
- forr(pr, 1, Nproc-1) {
-   if ((mvsuf = procmvs[pr].findsuf(mv)) != -1)
-     return procmvs[pr].mvs[mvsuf].done(dep, A, B);
- }
- NTBR;   // FIXME may not be found if cut-mate
- return false;  // FIXME compilier dummy
+bool rowC::mvdone(int dep, mvC mv, int A, int B)
+{
+    int mvsuf;
+    assert (bestseqLeng > 0);
+
+    if (bestseq[0] == NULLMV) {   // firstmv is not done
+        return false;
+    }
+    if (bestseq[0] == mv) {
+        return true;
+    }
+    if (firstmv.mv == mv) {
+        return firstmv.done(dep,A,B);
+    }
+    forr (pr, 1, Nproc-1) {
+        if ((mvsuf = procmvs[pr].findsuf(mv)) != -1) {
+            return procmvs[pr].mvs[mvsuf].done(dep, A, B);
+        }
+    }
+
+    NTBR;   // FIXME may not be found if cut-mate
+    return false;  // FIXME compilier dummy
 }
 
  //****
   // NOTE: returns T if firstmv==mv.  Beware - do not use this except for
   //       planeC::finalAnswer()
 
-bool rowC::mvdoneExact(int dep, mvC mv) {
- int mvsuf;
- forr(pr, 1, Nproc-1) {
-   if ((mvsuf = procmvs[pr].findsuf(mv)) != -1)
-     return procmvs[pr].mvs[mvsuf].exact(dep);
- }
- NTBR;   // FIXME may not be found if cut-mate
- return false;  // FIXME compiler dummy
+bool rowC::mvdoneExact(int dep, mvC mv)
+{
+    int mvsuf;
+
+    forr (pr, 1, Nproc-1) {
+        if ((mvsuf = procmvs[pr].findsuf(mv)) != -1) {
+            return procmvs[pr].mvs[mvsuf].exact(dep);
+        }
+    }
+    NTBR;   // FIXME may not be found if cut-mate
+    return false;  // FIXME compiler dummy
 }
 
  //****
 
-void rowC::updateValue(int val, valtypeE typ){
- int oldAlpha = alpha;
- if (typ == VALTYPE_ALPHA)
-   alpha = val;
- else if (typ == VALTYPE_BETA)
-   beta = val;
- else {
-   assert(typ == VALTYPE_GAMMA);
-   //oldG = gamma;
-   gamma = val;
- }
+void rowC::updateValue(int val, valtypeE type)
+{
+    int oldAlpha = alpha;
 
- // always set Donecnt - by A up or B down, Donecnt may change
-   setDonecntAll();
+    if (type == VALTYPE_ALPHA) {
+        alpha = val;
+    }
+    else if (type == VALTYPE_BETA) {
+        beta = val;
+    }
+    else {
+        assert(type == VALTYPE_GAMMA);
+        //oldG = gamma;
+        gamma = val;
+    }
+
+    // always set Donecnt - by A up or B down, Donecnt may change
+    setDonecntAll();
 }
 
  //****
 
-void rowC::updateBest(int val, mvC mv, int seqleng, mvC* seq) {
+void rowC::updateBest(int val, mvC mv, int seqleng, mvC* seq)
+{
     // 12/3/2011 %29 arg MV was missing, bestseq[] off by one
-   int len = (beta<=val ? 0 : min(seqleng, GMX_MAX_PV - 2));
-   forr(d, 0, len-1)
-     bestseq[d+1] = seq[d];
-   bestseq[0] = mv;
-   bestseqLeng = len + 1;
-   bestval     = val;
-   bestule     = beta<=val ? ULE_LOWER : ULE_EXACT;
-   MSTOut(".... set bestseq: itd %d exd %d len %d val %d ule %d seq -\n",
-          itd(), exd(), bestseqLeng, bestval, bestule);
-   forr(d,0,len)
-     MSTOut("%07x ", readable(bestseq[d]));
-   MSTOut("\n");
+    int len = (beta<=val ? 0 : min(seqleng, GMX_MAX_PV - 2));
+    forr (d, 0, len-1) {
+        bestseq[d+1] = seq[d];
+    }
+    bestseq[0]  = mv;
+    bestseqLeng = len + 1;
+    bestval     = val;
+    bestule     = beta<=val ? ULE_LOWER : ULE_EXACT;
+    MSTOut(".... set bestseq: itd %d exd %d len %d val %d ule %d seq -\n",
+           itd(), exd(), bestseqLeng, bestval, bestule);
+    forr (d, 0, len) {
+        MSTOut("%07x ", readable(bestseq[d]));
+    }
+    MSTOut("\n");
 }
 
 //******** streamC ********
 
-class streamC {
- public:
-  char tailExd;
-  rowC row[MAX_EXPDEP];
-  int seqprevLeng;
-  mvC seqFromPrev[MAX_SEQPREV];
+class streamC
+{
+public:
+    char tailExd;
+    rowC row[MAX_EXPDEP];
+    int seqprevLeng;
+    mvC seqFromPrev[MAX_SEQPREV];
 
-  streamC() {}
-  int itd();  // defined after decl of plane
+    streamC() {}
+    int itd();  // defined after decl of plane
 
-  void summary() {
-    MSTOut("== ssum st%d  tl %d seqpr ", itd(), tailExd);
-    forr(i, 0, seqprevLeng-1)
-      MSTOut(" %07x", readable(seqFromPrev[i]));
-    MSTOut("\n");
-    forr(i, 0, tailExd)
-      row[i].summary();
-  }
+    void summary()
+    {
+        MSTOut("== ssum st%d  tl %d seqpr ", itd(), tailExd);
+        forr (i, 0, seqprevLeng-1) {
+            MSTOut(" %07x", readable(seqFromPrev[i]));
+        }
+        MSTOut("\n");
+        forr (i, 0, tailExd) {
+            row[i].summary();
+        }
+    }
+    
+    void clear() {
+        memset(this, 0, sizeof(streamC));
+        invalidate();
+    }
 
-  void clear() {
-    memset(this, 0, sizeof(streamC));
-    invalidate();
-  }
+    void invalidate() {
+        forr (d, 0, MAX_EXPDEP-1) {
+            row[d].invalidate();
+        }
+        tailExd = -1;
+    }
 
-  void invalidate() {
-    forr(d, 0, MAX_EXPDEP-1)
-      row[d].invalidate();
-    tailExd = -1;
-  }
+    void propagateUp(int exd, int val);
+    void propagateDown(int exd, int val, valtypeE valtyp);
+    int  mvlistAvailable(int exd, int pvleng, mvC *pv, mvC mv2rt, int srd);
 
-  void propagateUp(int exd, int val);
-  void propagateDown(int exd, int val, valtypeE valtyp);
-  int  mvlistAvailable(int exd, int pvleng, mvC *pv, mvC mv2rt, int srd);
-
-   // rpySetpv/Setlist/Retrying skip streamC
-  void rpyFirst(int exd, int val);
-  void rpyRoot(int val, mvC mv, mvC mv2);
-  void rpyFcomp(int exd, int val, int pvleng, mvC* pv);
-  void rpyPvs(int rank, int exd, int val, mvC mv, int ule, int numnode,
-              int seqleng, mvC* bestseq);
+    // rpySetpv/Setlist/Retrying skip streamC
+    void rpyFirst(int exd, int val);
+    void rpyRoot(int val, mvC mv, mvC mv2);
+    void rpyFcomp(int exd, int val, int pvleng, mvC* pv);
+    void rpyPvs(int rank, int exd, int val, mvC mv, int ule, int numnode,
+                int seqleng, mvC* bestseq);
 };
 
  //****
  // returns 2 if result available.  1 if only moves available
 
-int  streamC::mvlistAvailable(int exd, int pvleng, mvC *pv, mvC mv2rt,int srd) {
+int streamC::mvlistAvailable(int exd, int pvleng, mvC *pv, mvC mv2rt,int srd)
+{
     rowC& r = row[exd];
     if (!r.mvgened() || seqFromPrev[0] != mv2rt) return 0;
     //if (pvleng < exd) return false;    3/11/2012 %xx pvleng->seqprevLeng
     if (seqprevLeng - 1 < exd) return 0;
     if (r.bestseqLeng == 0) return 0;
-                      // FIXME?  A--- || r-[-].bestval < -score_max_eval ?
-    forr(d, 0, exd-1)
-      if (pv[d] != seqFromPrev[d+1])
-        return 0;
+    // FIXME?  A--- || r-[-].bestval < -score_max_eval ?
+    forr (d, 0, exd-1) {
+        if (pv[d] != seqFromPrev[d+1]) {
+            return 0;
+        }
+    }
 
-   bool firstmvExact = r.bestval > -score_bound && r.bestule == ULE_EXACT &&
-            r.bestseqLeng>0 &&
-            r.firstmv.mv == r.bestseq[0] && 
-            r.firstmv.exact(srd);
-   bool bestseqExact = r.bestval > -score_bound && r.bestule == ULE_EXACT &&
-          r.bestseqLeng>0 &&
-          r.bestseq[0] != r.firstmv.mv &&
-          r.mvdoneExact(srd, r.bestseq[0]);
-   if (firstmvExact || bestseqExact)
-     return 2;
+    bool firstmvExact =
+        r.bestval > -score_bound &&
+        r.bestule == ULE_EXACT &&
+        r.bestseqLeng>0 &&
+        r.firstmv.mv == r.bestseq[0] && 
+        r.firstmv.exact(srd);
+    bool bestseqExact =
+        r.bestval > -score_bound &&
+        r.bestule == ULE_EXACT &&
+        r.bestseqLeng>0 &&
+        r.bestseq[0] != r.firstmv.mv &&
+        r.mvdoneExact(srd, r.bestseq[0]);
+    if (firstmvExact || bestseqExact) {
+        return 2;
+    }
 
     MSDOut("```` mvlsAvail: exd %d pvlen %d mv2r %07x bstsqlen %d pv:\n",
            exd, pvleng, readable(mv2rt), row[exd].bestseqLeng);
-    forr(d, 0, exd-1)
-      MSDOut("%07x/%07x ", readable(pv[d]), readable(seqFromPrev[d+1]));
+    forr (d, 0, exd-1) {
+        MSDOut("%07x/%07x ", readable(pv[d]), readable(seqFromPrev[d+1]));
+    }
     MSDOut("\n");
 
     return 1;
@@ -680,134 +834,140 @@ int  streamC::mvlistAvailable(int exd, int pvleng, mvC *pv, mvC mv2rt,int srd) {
 
   //****
 
-void streamC::rpyFirst(int exd, int valAtExd) {    // set up row[exd:0]
+void streamC::rpyFirst(int exd, int valAtExd)
+{
+    // set up row[exd:0]
+    // 12/26/2011 %51  w/o clr, old row beyond seqLeng was wrongly reused
+    forr (d, exd+1, seqprevLeng-1) {  // FIXME?  Leng"-1" ?
+        row[d].clear();
+    }
+    seqprevLeng = exd + 1;
 
- // 12/26/2011 %51  w/o clr, old row beyond seqLeng was wrongly reused
- forr(d, exd+1, seqprevLeng-1)   // FIXME?  Leng"-1" ?
-   row[d].clear();
- seqprevLeng = exd + 1;
+    tailExd = exd;
+    bool mvonly = (row[exd].alpha > -score_bound);
+    int val = mvonly ? row[exd].alpha : valAtExd;
 
- tailExd = exd;
- bool mvonly = (row[exd].alpha > -score_bound);
- int val = mvonly ? row[exd].alpha : valAtExd;
+    for (int d=exd; d>=0; d--) {   // FIXME?  exd-1?
+        rowC& r = row[d];
+        r.gamma = (d==exd && row[exd].alpha > -score_bound) ? -score_bound : val;
 
- for(int d=exd; d>=0; d--) {   // FIXME?  exd-1?
-   rowC& r = row[d];
-   r.gamma = (d==exd && row[exd].alpha > -score_bound) ? -score_bound : val;
+        // issue LIST
+        forr (pr, 1, Nproc-1) {
+            mvtupleC tuples[600];
+            procmvsC& prm = r.procmvs[pr];
 
-      // issue LIST
-   forr(pr, 1, Nproc-1) {
-      mvtupleC tuples[600];
-      procmvsC& prm = r.procmvs[pr];
-      forr(j, 0, prm.mvcnt-1) {
-        tuples[j].mv = prm.mvs[j].mv;
-        tuples[j].bestmv = prm.mvs[j].inherited ? prm.mvs[j].bestmv
-                                                     : NULLMV;
-        tuples[j].depth = prm.mvs[j].depth;
-        tuples[j].upper = prm.mvs[j].upper;
-        tuples[j].lower = prm.mvs[j].lower;
-      }
+            forr (j, 0, prm.mvcnt-1) {
+                tuples[j].mv = prm.mvs[j].mv;
+                tuples[j].bestmv = prm.mvs[j].inherited ?
+                    prm.mvs[j].bestmv : NULLMV;
+                tuples[j].depth = prm.mvs[j].depth;
+                tuples[j].upper = prm.mvs[j].upper;
+                tuples[j].lower = prm.mvs[j].lower;
+            }
+            
+            cmd2send.setCmdList(itd(), d, r.procmvs[pr].mvcnt, val, r.beta,
+                                r.firstmv.mv , d,
+                                seqFromPrev+1, tuples);
+            cmd2send.send(pr);
+        }
 
-      cmd2send.setCmdList(itd(), d, r.procmvs[pr].mvcnt, val, r.beta,
-          r.firstmv.mv , d,
-          seqFromPrev+1, tuples);
-      cmd2send.send(pr);
+        val = - val;  // flip for negamax
+    }
 
-   }  // for pr
-
-   val = - val;  // flip for negamax
-
- }  // for d
-
- if (mvonly) {
-   assert(row[exd].bestseq[0] == row[exd].firstmv.mv);
-   cmd2send.setCmdNotify(itd(), exd, row[exd].alpha, row[exd].bestseq[0]);
-   forr(pr, 1, Nproc-1)
-     cmd2send.send(pr);
-   inhFirst = 0;
- }
-
+    if (mvonly) {
+        assert(row[exd].bestseq[0] == row[exd].firstmv.mv);
+        cmd2send.setCmdNotify(itd(), exd, row[exd].alpha, row[exd].bestseq[0]);
+        forr (pr, 1, Nproc-1) {
+            cmd2send.send(pr);
+        }
+        inhFirst = 0;
+    }
 }
 
   //****
 
-void streamC::rpyRoot(int val, mvC mv, mvC mv2) {
- clear();  // %XX 12/27/2011
- row[0].bestval = val;
- row[0].bestule = ULE_EXACT;
- row[0].bestseq[0] = mv;
- row[0].bestseq[1] = mv2;
- row[0].bestseqLeng = (mv==NULLMV ? 0 : mv2==NULLMV ? 1 : 2);
+void streamC::rpyRoot(int val, mvC mv, mvC mv2)
+{
+    clear();  // %XX 12/27/2011
+    row[0].bestval = val;
+    row[0].bestule = ULE_EXACT;
+    row[0].bestseq[0] = mv;
+    row[0].bestseq[1] = mv2;
+    row[0].bestseqLeng = (mv==NULLMV ? 0 : (mv2==NULLMV ? 1 : 2));
 }
 
   //****
 
-void streamC::rpyFcomp(int exd, int val, int pvleng, mvC* pv) {//set row[exd].A
- rowC& r = row[exd];
- MSTOut("**** rpyFcomp d %d l %d ln %d pv %07x %07x frstmv %07x bestmv %07x\n",
-         exd, val, pvleng, readable(pv[0]), readable(pv[1]),
-         readable(r.firstmv.mv),  readable(r.firstmv.bestmv));
+void streamC::rpyFcomp(int exd, int val, int pvleng, mvC* pv)
+{ //set row[exd].A
+    rowC& r = row[exd];
+    MSTOut("**** rpyFcomp d %d l %d ln %d pv %07x %07x frstmv %07x bestmv %07x\n",
+           exd, val, pvleng, readable(pv[0]), readable(pv[1]),
+           readable(r.firstmv.mv),  readable(r.firstmv.bestmv));
 
- if (exd > tailExd) {
-    // Note bcut by upper row may occur
-   MSTOut("**** row already canceled, quitting fcomp\n");
-   return;    // fcomp result no longer needed due to another mv's result
- }
- assert(pv[0] == r.firstmv.mv);
+    if (exd > tailExd) {
+        // Note bcut by upper row may occur
+        MSTOut("**** row already canceled, quitting fcomp\n");
+        return;    // fcomp result no longer needed due to another mv's result
+    }
+    assert(pv[0] == r.firstmv.mv);
 
- r.firstmv.upper =
- r.firstmv.lower = - val;
- r.firstmv.depth = itdexd2srd(itd(), exd);
- //if (pvleng>1)
- //  r.firstmv.bestmv = pv[1];  // 12/8/2011 %40 was using pv[0]
- r.firstmv.bestmv = pvleng>1 ? pv[1] : NULLMV;
+    r.firstmv.upper =
+    r.firstmv.lower = - val;
+    r.firstmv.depth = itdexd2srd(itd(), exd);
+    //if (pvleng>1)
+    //  r.firstmv.bestmv = pv[1];  // 12/8/2011 %40 was using pv[0]
+    r.firstmv.bestmv = pvleng>1 ? pv[1] : NULLMV;
 
- r.firstmv.numnode = 0; // ?? FIXME? what's the right thing to do?
- r.firstmv.inherited =
- r.firstmv.retrying = 0;
+    r.firstmv.numnode = 0; // ?? FIXME? what's the right thing to do?
+    r.firstmv.inherited =
+    r.firstmv.retrying = 0;
 
- int oldA = r.alpha;
- int oldG = r.gamma;
- r.gamma = - score_bound; // 12/3/2011 %30 setting gamma was missing
+    int oldA = r.alpha;
+    int oldG = r.gamma;
+    r.gamma = - score_bound; // 12/3/2011 %30 setting gamma was missing
 
- if (val > r.alpha) {
-   r.updateValue(val, VALTYPE_ALPHA);
-   //r.updateBest(val, r.firstmv.bestmv, pvleng-1, pv+1);
-   r.updateBest(val, r.firstmv.mv, pvleng-1, pv+1);
- }
+    if (val > r.alpha) {
+        r.updateValue(val, VALTYPE_ALPHA);
+        //r.updateBest(val, r.firstmv.bestmv, pvleng-1, pv+1);
+        r.updateBest(val, r.firstmv.mv, pvleng-1, pv+1);
+    }
 
-   // this looks correct, but this lowers CPU efficiency to 40% or so...
- //if ((val > oldA || oldG > oldA) && val != oldG) {
- if (1) {
-   r.setDonecntAll();   // NOTE use r.{alpha, gamma} here
-       // FIXME setDonecnt is called inside updateValue(), duplicating
-    // FIXME?  how about firstproc?
-   propagateUp(exd-1, -val);
+    // this looks correct, but this lowers CPU efficiency to 40% or so...
+    //if ((val > oldA || oldG > oldA) && val != oldG) {
+    if (1) {
+        r.setDonecntAll();   // NOTE use r.{alpha, gamma} here
+        // FIXME setDonecnt is called inside updateValue(), duplicating
+        // FIXME?  how about firstproc?
+        propagateUp(exd-1, -val);
 
-   cmd2send.setCmdNotify(itd(), exd, val, pv[0]);   // FIXME? pv[0]?
-   forr(pr, 1, Nproc-1)
-     cmd2send.send(pr);
- }
+        cmd2send.setCmdNotify(itd(), exd, val, pv[0]);   // FIXME? pv[0]?
+        forr (pr, 1, Nproc-1) {
+            cmd2send.send(pr);
+        }
+    }
 
- summary();
+    summary();
 
- if (DBG_DO_VERIFY) { //send A/B/G of this stream to each slv, let them compare
-   tripleC tr[12];
-   forr(i,0,11) {
-     tr[i].alpha = row[i].alpha;
-     tr[i].beta  = row[i].beta ;
-     tr[i].gamma = row[i].gamma;
-   }
-   cmd2send.setCmdVerify(itd(), tailExd, tr);
-   forr(pr, 1, Nproc-1)
-     cmd2send.send(pr);
- }
+    if (DBG_DO_VERIFY) { //send A/B/G of this stream to each slv, let them compare
+        tripleC tr[12];
+        forr (i, 0, 11) {
+            tr[i].alpha = row[i].alpha;
+            tr[i].beta  = row[i].beta ;
+            tr[i].gamma = row[i].gamma;
+        }
+        cmd2send.setCmdVerify(itd(), tailExd, tr);
+        forr (pr, 1, Nproc-1) {
+            cmd2send.send(pr);
+        }
+    }
 }
 
   //****
 
 void streamC::rpyPvs(int rank, int exd, int valChild,mvC mv,int ule,int numnode,
-            int seqleng, mvC* bestseq) {
+            int seqleng, mvC* bestseq)
+{
  rowC& r = row[exd];
  int mvsuf = r.procmvs[rank].findsuf(mv);
  if (mvsuf == -1 || tailExd < exd)

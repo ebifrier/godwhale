@@ -62,23 +62,27 @@ static int timespec2int(int sec, int nsec) {
  return ((sec - origin_sec) * 100000 + (nsec - origin_nsec) / 10000);
 }
 
-int worldTime() {
- struct timespec ts;
- //clock_gettime(CLOCK_REALTIME, &ts);
- ei_clock_gettime(&ts);
- return (timespec2int(ts.tv_sec, ts.tv_nsec) - time_offset);
-  // NOTE before offset is set, this is equal to master's time
+int worldTime()
+{
+    struct timespec ts;
+    //clock_gettime(CLOCK_REALTIME, &ts);
+    ei_clock_gettime(&ts);
+
+    return (timespec2int(ts.tv_sec, ts.tv_nsec) - time_offset);
+    // NOTE before offset is set, this is equal to master's time
 }
 
-int64_t worldTimeLl() {
- struct timespec ts;
- int64_t x;
- //clock_gettime(CLOCK_REALTIME, &ts);
- ei_clock_gettime(&ts);
- x = ts.tv_sec;
- x *= 1000000000;
- x += ts.tv_nsec;
- return x;
+int64_t worldTimeLl()
+{
+    struct timespec ts;
+    int64_t x;
+
+    //clock_gettime(CLOCK_REALTIME, &ts);
+    ei_clock_gettime(&ts);
+    x = ts.tv_sec;
+    x *= 1000000000;
+    x += ts.tv_nsec;
+    return x;
 }
 
  // called by mpi_init(), just once.  after that, worldTime() will

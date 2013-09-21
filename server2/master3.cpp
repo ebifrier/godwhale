@@ -16,7 +16,7 @@ int exitPending, exitAcked;
 #define NOSIDE (-1)
 int compTurn = NOSIDE;
 extern int root_turn, depth_limit;
-#define Flip(turn)          ((turn)^1)
+#define Flip(turn)        ((turn)^1)
 
 #define PR1 1
 
@@ -25,7 +25,7 @@ extern int root_turn, depth_limit;
 #define MASTER_INTERVAL 1000
 
 int cmdchkTick, detected, expired, touched, inhFirst, waitRoot;
-extern "C" int detect_signals_master();
+extern "C" int detect_signals_master(void);
 extern int last_root_value;
 int microsleepMaster(int);
 
@@ -37,17 +37,18 @@ planeC plane;
 
 //******** I/F with Bonanza ********
 
-void iniGameHook(const min_posi_t* posi) {
- MSDOut("---- iniGameHook called\n");
- plane.clear();
- pfGame.clear();
+void iniGameHook(const min_posi_t* posi)
+{
+    MSDOut("---- iniGameHook called\n");
+    plane.clear();
+    pfGame.clear();
 
- cmd2send.setCmdSetroot(posi);
- forr(pr, 1, Nproc-1)
-   cmd2send.send(pr);
+    cmd2send.setCmdSetroot(posi);
+    forr (pr, 1, Nproc-1) {
+        cmd2send.send(pr);
+    }
 
- root_turn = posi->turn_to_move;
-
+    root_turn = posi->turn_to_move;
 } // iniGameHook()
 
 

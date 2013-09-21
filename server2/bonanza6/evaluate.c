@@ -70,7 +70,7 @@ static const int kkpbase[16] = {
 static int CONV
 castlingMaterialPoint( const tree_t * restrict ptree, int ouby, int ouwy )
 {
- int filteredPoint, materialValue, blackPoint, x, z, h;
+ int filteredPoint, blackPoint, x, z, h;
  int sq;
  blackPoint = 0;
  for(sq=0; sq<=80; sq++) {

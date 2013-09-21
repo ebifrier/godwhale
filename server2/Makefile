@@ -27,9 +27,7 @@ SOURCES = comm3.h makefile master3.cpp pcommon3.h \
 #OPT =-DNDEBUG -DMINIMUM -DHAVE_SSE2 -msse2 -DDFPN -DTLP -DDFPN_CLIENT -DINANIWA_SHIFT -DCSA_LAN $(AFFINOPT) $(CLUSTOPT)
 BNSOPT = -DMINIMUM -DHAVE_SSE2 -msse2 -DDFPN -DTLP -DDFPN_CLIENT -DINANIWA_SHIFT -DCSA_LAN $(AVXOPT)
 
-
 BN = bonanza6
-
 
 
 ########
@@ -57,11 +55,11 @@ BN = .
 endif
 endif
 
-G_CC = mpicc
+G_CC  = mpicc
 G_CXX = mpicxx
-G_MPICCOPT = $(IPOOPT) $(PGOOPT) -g
+G_MPICCOPT  = $(IPOOPT) $(PGOOPT) -g
 G_MPICXXOPT = $(IPOOPT) $(PGOOPT) -g -DTLP
-G_MPILDOPT = -lrt $(IPOOPT) $(PGOOPT) -g
+G_MPILDOPT  = -lrt $(IPOOPT) $(PGOOPT) -g
 
 ########
 
@@ -76,7 +74,6 @@ G_OBJS = $(BN)/data.o $(BN)/main.o $(BN)/io.o $(BN)/proce.o $(BN)/utility.o \
       $(BN)/learn2.o $(BN)/evaldiff.o $(BN)/problem.o $(BN)/ponder.o \
       $(BN)/thread.o $(BN)/sckt.o $(BN)/debug.o $(BN)/mate3.o \
       $(BN)/genchk.o $(BN)/phash.o $(BN)/dfpn.o $(BN)/dfpnhash.o $(BN)/bbini.o
-
 
 BIN = gmx
 
@@ -94,15 +91,15 @@ iobjs:
 	make -C $(BN) CLUSTOPT=-DCLUSTER_PARALLEL icc-bonk
 
 ifdef USE_ICC
-all:  iobjs invokempi.o putils.o slave3.o master3.o
+all: iobjs invokempi.o putils.o slave3.o master3.o
 else
-all:  gobjs invokempi.o putils.o slave3.o master3.o
+all: gobjs invokempi.o putils.o slave3.o master3.o
 endif
 
-bonkobjs:  invokempi.o putils.o slave3.o master3.o
+bonkobjs: invokempi.o putils.o slave3.o master3.o
 
-invokempi.o:	pcommon3.h invokempi.c
-	$(G_CC) $(G_MPICCOPT)  -c invokempi.c -o invokempi.o
+invokempi.o: pcommon3.h invokempi.c
+	$(G_CC) $(G_MPICCOPT) -c invokempi.c -o invokempi.o
 
 slave3.o: pcommon3.h comm3.h perfsl.h sbody3.h splane.h slave3.cpp
 	$(G_CXX) $(G_MPICXXOPT) $(BNSOPT) -c slave3.cpp -o slave3.o
@@ -114,14 +111,11 @@ master3.o: pcommon3.h comm3.h master3.cpp plane.h time.h initact.h
 	$(G_CXX) $(G_MPICXXOPT) -c master3.cpp -o master3.o
 
 save:
-	tar cf - $(SOURCES) $(BN_SRCS) | gzip  > sav/w`date '+%m%d%y'`.tgz
-
-decmv:	decmv.c
-	gcc -o decmv decmv.c
-
+	tar cf - $(SOURCES) $(BN_SRCS) | gzip > sav/w`date '+%m%d%y'`.tgz
 
 
 clean:
 	rm -fr *.o *.exe *.stackdump logslave* logmaster* libbonkras.a*
+	make -C conv clean
 	make -C bonanza6 clean
 
