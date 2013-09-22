@@ -19,9 +19,9 @@
 #endif
 
 static int CONV eval_supe( unsigned int hand_current, unsigned int hand_hash,
-			   int turn_current, int turn_hash,
-			   int * restrict pvalue_hash,
-			   int * restrict ptype_hash );
+                           int turn_current, int turn_hash,
+                           int * restrict pvalue_hash,
+                           int * restrict ptype_hash );
 
 int CONV
 ini_trans_table( void )
@@ -34,7 +34,7 @@ ini_trans_table( void )
   ptrans_table_orig = memory_alloc( size );
   if ( ptrans_table_orig == NULL ) { return -1; }
   ptrans_table = (trans_table_t *)( ((ptrdiff_t)ptrans_table_orig+63)
-				    & ~(ptrdiff_t)63U );
+                                    & ~(ptrdiff_t)63U );
   hash_mask    = ntrans_table - 1;
   Out( "Trans. Table Entries = %dK (%dMB)\n",
        ( ntrans_table * HASH_ENTRY_WIDTH ) / 1024U, size / (1024U * 1024U ) );
@@ -101,8 +101,8 @@ word2  key      57      7
 
 void CONV
 hash_store( const tree_t * restrict ptree, int ply, int depth, int turn,
-	    int value_type, int value, unsigned int move,
-	    unsigned int state_node )
+            int value_type, int value, unsigned int move,
+            unsigned int state_node )
 {
   uint64_t word1, word2, hash_word1, hash_word2, keyt_hash, keyt;
   unsigned int index, slot;
@@ -121,17 +121,17 @@ hash_store( const tree_t * restrict ptree, int ply, int depth, int turn,
       else             { value -= ply-1; }
 #if ! defined(MINIMUM)
       if ( abs(value) > score_mate1ply )
-	{
-	  out_warning( "A stored hash value is out of bounce!" );
-	}
+        {
+          out_warning( "A stored hash value is out of bounce!" );
+        }
 #endif
     }
   word2 = ( ( HASH_KEY & ~(uint64_t)0x7fU )
-	    | (uint64_t)( (turn<<6) | ( state_node & node_mate_threat )
-			  | (value_type<<3) | trans_table_age ) );
+            | (uint64_t)( (turn<<6) | ( state_node & node_mate_threat )
+                          | (value_type<<3) | trans_table_age ) );
   word1 = ( ( (uint64_t)( depth<<16 | (value+32768) ) << 40 )
-	    | ( (uint64_t)( move & 0x7ffffU ) << 21 )
-	    | HAND_B );
+            | ( (uint64_t)( move & 0x7ffffU ) << 21 )
+            | HAND_B );
 
   index = (unsigned int)HASH_KEY & hash_mask;
   hash_word1 = ptrans_table[index].prefer.word1;
@@ -182,14 +182,14 @@ hash_store_pv( const tree_t * restrict ptree, unsigned int move, int turn )
        && ( word2 & ~(uint64_t)0x3fU ) == key_turn_pv )
     {
       if ( ( (unsigned int)(word1>>21) & 0x7ffffU ) != ( move & 0x7ffffU ) )
-	{
-	  word1 &= ~((uint64_t)0x7ffffU << 21);
-	  word1 |= (uint64_t)( move & 0x7ffffU ) << 21;
-	  word2 &= ~((uint64_t)0x3U << 3);
-	  SignKey( word2, word1 );
-	  ptrans_table[index].prefer.word1 = word1;
-	  ptrans_table[index].prefer.word2 = word2;
-	}
+        {
+          word1 &= ~((uint64_t)0x7ffffU << 21);
+          word1 |= (uint64_t)( move & 0x7ffffU ) << 21;
+          word2 &= ~((uint64_t)0x3U << 3);
+          SignKey( word2, word1 );
+          ptrans_table[index].prefer.word1 = word1;
+          ptrans_table[index].prefer.word2 = word2;
+        }
     }
   else {
     unsigned int slot;
@@ -200,18 +200,18 @@ hash_store_pv( const tree_t * restrict ptree, unsigned int move, int turn )
     word2 = ptrans_table[index].always[slot].word2;
     SignKey( word2, word1 );
     if ( ( (unsigned int)word1 & 0x1fffffU ) == HAND_B
-	 && ( word2 & ~(uint64_t)0x3fU ) == key_turn_pv )
+         && ( word2 & ~(uint64_t)0x3fU ) == key_turn_pv )
       {
-	if ( ( (unsigned int)(word1>>21) & 0x7ffffU )
-	     != ( move & 0x7ffffU ) )
-	  {
-	    word1 &= ~((uint64_t)0x7ffffU << 21);
-	    word1 |= (uint64_t)( move & 0x7ffffU ) << 21;
-	    word2 &= ~((uint64_t)0x3U << 3);
-	    SignKey( word2, word1 );
-	    ptrans_table[index].always[slot].word1 = word1;
-	    ptrans_table[index].always[slot].word2 = word2;
-	  }
+        if ( ( (unsigned int)(word1>>21) & 0x7ffffU )
+             != ( move & 0x7ffffU ) )
+          {
+            word1 &= ~((uint64_t)0x7ffffU << 21);
+            word1 |= (uint64_t)( move & 0x7ffffU ) << 21;
+            word2 &= ~((uint64_t)0x3U << 3);
+            SignKey( word2, word1 );
+            ptrans_table[index].always[slot].word1 = word1;
+            ptrans_table[index].always[slot].word2 = word2;
+          }
       }
     else {
       word1  = (uint64_t)32768U << 40;
@@ -228,7 +228,7 @@ hash_store_pv( const tree_t * restrict ptree, unsigned int move, int turn )
 
 unsigned int CONV
 hash_probe( tree_t * restrict ptree, int ply, int depth_current,
-	    int turn_current, int alpha, int beta, unsigned int *pstate_node )
+            int turn_current, int alpha, int beta, unsigned int *pstate_node )
 {
   uint64_t word1, word2, key_current, key_hash;
   unsigned int hand_hash, move_hash, move_supe, slot, utemp;
@@ -267,22 +267,22 @@ hash_probe( tree_t * restrict ptree, int ply, int depth_current,
     
     if ( abs(value_hash) > score_max_eval )
       {
-	if ( value_hash > 0 ) { value_hash -= ply-1; }
-	else                  { value_hash += ply-1; }
+        if ( value_hash > 0 ) { value_hash -= ply-1; }
+        else                  { value_hash += ply-1; }
 
 #if ! defined(MINIMUM)
-	if ( abs(value_hash) > score_mate1ply )
-	  {
-	    out_warning( "Hash value is out of bounce!!" );
-	  }
+        if ( abs(value_hash) > score_mate1ply )
+          {
+            out_warning( "Hash value is out of bounce!!" );
+          }
 #endif
       }
 
     if ( RecursionThreshold <= depth_current
-	 && depth_hash < RecursionDepth(depth_current) ) { move_hash = 0; }
+         && depth_hash < RecursionDepth(depth_current) ) { move_hash = 0; }
     else if ( move_hash )
       {
-	move_hash |= turn_current ? Cap2Move( BOARD[I2To(move_hash)])
+        move_hash |= turn_current ? Cap2Move( BOARD[I2To(move_hash)])
                                   : Cap2Move(-BOARD[I2To(move_hash)]);
       }
 
@@ -296,126 +296,126 @@ hash_probe( tree_t * restrict ptree, int ply, int depth_current,
       if ( value_hash <= score_max_eval ) { *pstate_node &= ~node_do_mate; }
 
       if ( ( type_hash & flag_value_up_exact )
-	   && value_hash < beta
-	   && null_depth <= depth_hash )
-	{
-	  *pstate_node &= ~node_do_null;
-	}
+           && value_hash < beta
+           && null_depth <= depth_hash )
+        {
+          *pstate_node &= ~node_do_null;
+        }
 
       if ( ( type_hash & flag_value_up_exact )
-	   && value_hash <= alpha
-	   && RecursionDepth(depth_current) <= depth_hash )
-	{
-	  *pstate_node &= ~node_do_recursion;
-	}
+           && value_hash <= alpha
+           && RecursionDepth(depth_current) <= depth_hash )
+        {
+          *pstate_node &= ~node_do_recursion;
+        }
 
       if ( type_hash == value_lower
-	   && beta <= value_hash
-	   && ( depth_hash >= depth_current || value_hash > score_max_eval ) )
-	{
-	  HASH_VALUE = value_hash;
-	  ptree->ntrans_lower++;
-	  return value_lower;
-	}
+           && beta <= value_hash
+           && ( depth_hash >= depth_current || value_hash > score_max_eval ) )
+        {
+          HASH_VALUE = value_hash;
+          ptree->ntrans_lower++;
+          return value_lower;
+        }
 
       if ( type_hash == value_upper
-	   && value_hash <= alpha
-	   && ( depth_hash >= depth_current || value_hash < -score_max_eval ) )
-	{
-	  HASH_VALUE = value_hash;
-	  ptree->ntrans_upper++;
-	  return value_upper;
-	}
+           && value_hash <= alpha
+           && ( depth_hash >= depth_current || value_hash < -score_max_eval ) )
+        {
+          HASH_VALUE = value_hash;
+          ptree->ntrans_upper++;
+          return value_upper;
+        }
 
       if ( type_hash == value_exact
-	   && ( depth_hash >= depth_current
-		|| abs(value_hash) > score_max_eval ) )
-	{
-	  HASH_VALUE = value_hash;
-	  ptree->ntrans_upper++;
-	  return value_exact;
-	}
+           && ( depth_hash >= depth_current
+                || abs(value_hash) > score_max_eval ) )
+        {
+          HASH_VALUE = value_hash;
+          ptree->ntrans_upper++;
+          return value_exact;
+        }
 
       if ( ( type_hash & flag_value_low_exact )
-	   && ! ptree->nsuc_check[ply]
-	   && ! ptree->nsuc_check[ply-1]
-	   && ( ( depth_current < 2*PLY_INC
-		  && beta+EFUTIL_MG1 <= value_hash )
-		|| ( depth_current < 3*PLY_INC
-		     && beta+EFUTIL_MG2 <= value_hash ) ) )
-	{
-	  HASH_VALUE = beta;
-	  ptree->ntrans_lower++;
-	  return value_lower;
-	}
+           && ! ptree->nsuc_check[ply]
+           && ! ptree->nsuc_check[ply-1]
+           && ( ( depth_current < 2*PLY_INC
+                  && beta+EFUTIL_MG1 <= value_hash )
+                || ( depth_current < 3*PLY_INC
+                     && beta+EFUTIL_MG2 <= value_hash ) ) )
+        {
+          HASH_VALUE = beta;
+          ptree->ntrans_lower++;
+          return value_lower;
+        }
 
     } else {
 
       is_superior = eval_supe( HAND_B, hand_hash, turn_current, turn_hash,
-			       &value_hash, &type_hash );
+                               &value_hash, &type_hash );
 
       if ( is_superior == 1 ) {
 
-	if ( turn_hash == turn_current ) { move_supe = move_hash; }
+        if ( turn_hash == turn_current ) { move_supe = move_hash; }
 
-	if ( type_hash & flag_value_low_exact )
-	  {
-	    if ( ! ptree->nsuc_check[ply]
-		 && ! ptree->nsuc_check[ply-1]
-		 && ( ( depth_current < 2*PLY_INC
-			&& beta+EFUTIL_MG1 <= value_hash )
-		      || ( depth_current < 3*PLY_INC
-			   && beta+EFUTIL_MG2 <= value_hash ) ) )
-	      {
-		HASH_VALUE = beta;
-		ptree->ntrans_lower++;
-		return value_lower;
-	      }
-	    
-	    if ( beta <= value_hash
-		 && ( depth_current <= depth_hash
-		      || score_max_eval < value_hash
-		      || ( turn_current != turn_hash
-			   && depth_hash >= null_depth
-			   && ( *pstate_node & node_do_null ) ) ) )
-	      {
-		HASH_VALUE = value_hash;
-		ptree->ntrans_superior_hit++;
-		return value_lower;
-	      }
-	  }
+        if ( type_hash & flag_value_low_exact )
+          {
+            if ( ! ptree->nsuc_check[ply]
+                 && ! ptree->nsuc_check[ply-1]
+                 && ( ( depth_current < 2*PLY_INC
+                        && beta+EFUTIL_MG1 <= value_hash )
+                      || ( depth_current < 3*PLY_INC
+                           && beta+EFUTIL_MG2 <= value_hash ) ) )
+              {
+                HASH_VALUE = beta;
+                ptree->ntrans_lower++;
+                return value_lower;
+              }
+            
+            if ( beta <= value_hash
+                 && ( depth_current <= depth_hash
+                      || score_max_eval < value_hash
+                      || ( turn_current != turn_hash
+                           && depth_hash >= null_depth
+                           && ( *pstate_node & node_do_null ) ) ) )
+              {
+                HASH_VALUE = value_hash;
+                ptree->ntrans_superior_hit++;
+                return value_lower;
+              }
+          }
 
-      }	else if ( is_superior == -1 ) {
+      }        else if ( is_superior == -1 ) {
 
-	*pstate_node |= state_node_hash;
-	
-	if ( value_hash <= score_max_eval )
-	  {
-	    *pstate_node &= ~node_do_mate;
-	  }
-	
-	if ( ( type_hash & flag_value_up_exact )
-	     && value_hash <= alpha
-	     && RecursionDepth(depth_current) <= depth_hash )
-	  {
-	    *pstate_node &= ~node_do_recursion;
-	  }
-	
-	if ( type_hash & flag_value_up_exact )
-	  {
-	    if ( value_hash < beta && null_depth <= depth_hash )
-	      {
-		*pstate_node &= ~node_do_null;
-	      }
-	    if ( value_hash <= alpha
-		 && ( depth_current <= depth_hash
-		      || value_hash < -score_max_eval ) )
-	      {
-		HASH_VALUE = value_hash;
-		ptree->ntrans_inferior_hit++;
-		return value_upper;
-	      }
-	  }
+        *pstate_node |= state_node_hash;
+        
+        if ( value_hash <= score_max_eval )
+          {
+            *pstate_node &= ~node_do_mate;
+          }
+        
+        if ( ( type_hash & flag_value_up_exact )
+             && value_hash <= alpha
+             && RecursionDepth(depth_current) <= depth_hash )
+          {
+            *pstate_node &= ~node_do_recursion;
+          }
+        
+        if ( type_hash & flag_value_up_exact )
+          {
+            if ( value_hash < beta && null_depth <= depth_hash )
+              {
+                *pstate_node &= ~node_do_null;
+              }
+            if ( value_hash <= alpha
+                 && ( depth_current <= depth_hash
+                      || value_hash < -score_max_eval ) )
+              {
+                HASH_VALUE = value_hash;
+                ptree->ntrans_inferior_hit++;
+                return value_upper;
+              }
+          }
       }
     }
   }
@@ -444,208 +444,208 @@ hash_probe( tree_t * restrict ptree, int ply, int depth_current,
     
     if ( abs(value_hash) > score_max_eval )
       {
-	if ( value_hash > 0 ) { value_hash -= ply-1; }
-	else                  { value_hash += ply-1; }
+        if ( value_hash > 0 ) { value_hash -= ply-1; }
+        else                  { value_hash += ply-1; }
 
 #if ! defined(MINIMUM)
-	if ( abs(value_hash) > score_mate1ply )
-	  {
-	    out_warning( "Hash value is out of bounce!!" );
-	  }
+        if ( abs(value_hash) > score_mate1ply )
+          {
+            out_warning( "Hash value is out of bounce!!" );
+          }
 #endif
       }
     
     if ( RecursionThreshold <= depth_current
-	 && depth_hash < RecursionDepth(depth_current) ) { move_hash = 0; }
+         && depth_hash < RecursionDepth(depth_current) ) { move_hash = 0; }
     else if ( move_hash )
       {
-	move_hash |= turn_current ? Cap2Move( BOARD[I2To(move_hash)])
+        move_hash |= turn_current ? Cap2Move( BOARD[I2To(move_hash)])
                                   : Cap2Move(-BOARD[I2To(move_hash)]);
       }
 
     if ( turn_hash == turn_current && hand_hash == HAND_B ) {
       
       if ( ! ptree->amove_hash[ply] )
-	{
-	  assert( ! move_hash
-		  || is_move_valid( ptree, move_hash, turn_current ) );
-	  ptree->amove_hash[ply] = move_hash;
-	}
+        {
+          assert( ! move_hash
+                  || is_move_valid( ptree, move_hash, turn_current ) );
+          ptree->amove_hash[ply] = move_hash;
+        }
 
       *pstate_node |= state_node_hash;
 
       if ( value_hash <= score_max_eval ) { *pstate_node &= ~node_do_mate; }
       
       if ( ( type_hash & flag_value_up_exact )
-	   && value_hash <= alpha
-	   && RecursionDepth(depth_current) <= depth_hash )
-	{
-	  *pstate_node &= ~node_do_recursion;
-	}
+           && value_hash <= alpha
+           && RecursionDepth(depth_current) <= depth_hash )
+        {
+          *pstate_node &= ~node_do_recursion;
+        }
 
       if ( ( type_hash & flag_value_up_exact )
-	   && value_hash < beta
-	   && null_depth <= depth_hash )
-	{
-	  *pstate_node &= ~node_do_null;
-	}
+           && value_hash < beta
+           && null_depth <= depth_hash )
+        {
+          *pstate_node &= ~node_do_null;
+        }
 
       if ( type_hash == value_lower
-	   && value_hash >= beta
-	   && ( depth_hash >= depth_current || value_hash > score_max_eval ) )
-	{
-	  HASH_VALUE = value_hash;
-	  ptree->ntrans_lower++;
-	  return value_lower;
-	}
+           && value_hash >= beta
+           && ( depth_hash >= depth_current || value_hash > score_max_eval ) )
+        {
+          HASH_VALUE = value_hash;
+          ptree->ntrans_lower++;
+          return value_lower;
+        }
 
       if ( type_hash == value_upper
-	   && value_hash <= alpha
-	   && ( depth_hash >= depth_current || value_hash < -score_max_eval ) )
-	{
-	  HASH_VALUE = value_hash;
-	  ptree->ntrans_upper++;
-	  return value_upper;
-	}
+           && value_hash <= alpha
+           && ( depth_hash >= depth_current || value_hash < -score_max_eval ) )
+        {
+          HASH_VALUE = value_hash;
+          ptree->ntrans_upper++;
+          return value_upper;
+        }
 
       if ( type_hash == value_exact
-	   && ( depth_hash >= depth_current
-		|| abs(value_hash) > score_max_eval ) )
-	{
-	  HASH_VALUE = value_hash;
-	  ptree->ntrans_upper++;
-	  return value_exact;
-	}
+           && ( depth_hash >= depth_current
+                || abs(value_hash) > score_max_eval ) )
+        {
+          HASH_VALUE = value_hash;
+          ptree->ntrans_upper++;
+          return value_exact;
+        }
 
 
       if ( ( type_hash & flag_value_low_exact )
-	   && ! ptree->nsuc_check[ply]
-	   && ! ptree->nsuc_check[ply-1]
-	   && ( ( depth_current < 2*PLY_INC
-		  && beta+EFUTIL_MG1 <= value_hash )
-		|| ( depth_current < 3*PLY_INC
-		     && beta+EFUTIL_MG2 <= value_hash ) ) )
-	{
-	  HASH_VALUE = beta;
-	  ptree->ntrans_lower++;
-	  return value_lower;
-	}
+           && ! ptree->nsuc_check[ply]
+           && ! ptree->nsuc_check[ply-1]
+           && ( ( depth_current < 2*PLY_INC
+                  && beta+EFUTIL_MG1 <= value_hash )
+                || ( depth_current < 3*PLY_INC
+                     && beta+EFUTIL_MG2 <= value_hash ) ) )
+        {
+          HASH_VALUE = beta;
+          ptree->ntrans_lower++;
+          return value_lower;
+        }
 
     } else {
 
-	is_superior = eval_supe( HAND_B, hand_hash, turn_current, turn_hash,
-				 &value_hash, &type_hash );
+        is_superior = eval_supe( HAND_B, hand_hash, turn_current, turn_hash,
+                                 &value_hash, &type_hash );
 
-	if ( is_superior == 1 ) {
+        if ( is_superior == 1 ) {
 
-	  if ( ( turn_hash == turn_current ) && ! move_supe )
-	    {
-	      move_supe = move_hash;
-	    }
-	  
-	  if ( type_hash & flag_value_low_exact )
-	    {
-	      if ( ! ptree->nsuc_check[ply]
-		   && ! ptree->nsuc_check[ply-1]
-		   && ( ( depth_current < 2*PLY_INC
-			  && beta+EFUTIL_MG1 <= value_hash )
-			|| ( depth_current < 3*PLY_INC
-			     && beta+EFUTIL_MG2 <= value_hash ) ) )
-		{
-		  HASH_VALUE = beta;
-		  ptree->ntrans_lower++;
-		  return value_lower;
-		}
-	      
-	      if ( value_hash >= beta
-		   && ( depth_hash >= depth_current
-			|| score_max_eval < value_hash
-			|| ( turn_current != turn_hash
-			     && depth_hash >= null_depth
-			     && ( *pstate_node & node_do_null ) ) ) )
-		{
-		  HASH_VALUE = value_hash;
-		  ptree->ntrans_superior_hit++;
-		  return value_lower;
-		}
-	    }
+          if ( ( turn_hash == turn_current ) && ! move_supe )
+            {
+              move_supe = move_hash;
+            }
+          
+          if ( type_hash & flag_value_low_exact )
+            {
+              if ( ! ptree->nsuc_check[ply]
+                   && ! ptree->nsuc_check[ply-1]
+                   && ( ( depth_current < 2*PLY_INC
+                          && beta+EFUTIL_MG1 <= value_hash )
+                        || ( depth_current < 3*PLY_INC
+                             && beta+EFUTIL_MG2 <= value_hash ) ) )
+                {
+                  HASH_VALUE = beta;
+                  ptree->ntrans_lower++;
+                  return value_lower;
+                }
+              
+              if ( value_hash >= beta
+                   && ( depth_hash >= depth_current
+                        || score_max_eval < value_hash
+                        || ( turn_current != turn_hash
+                             && depth_hash >= null_depth
+                             && ( *pstate_node & node_do_null ) ) ) )
+                {
+                  HASH_VALUE = value_hash;
+                  ptree->ntrans_superior_hit++;
+                  return value_lower;
+                }
+            }
 
-	} else if ( is_superior == -1 ) {
+        } else if ( is_superior == -1 ) {
 
-	  *pstate_node |= state_node_hash;
-	  
-	  if ( value_hash <= score_max_eval )
-	    {
-	      *pstate_node &= ~node_do_mate;
-	    }
-	  
-	  if ( ( type_hash & flag_value_up_exact )
-	       && value_hash <= alpha
-	       && RecursionDepth(depth_current) <= depth_hash )
-	    {
-	      *pstate_node &= ~node_do_recursion;
-	    }
-	  
-	  if ( type_hash & flag_value_up_exact )
-	    {
-	      if ( value_hash < beta && null_depth <= depth_hash )
-		{
-		  *pstate_node &= ~node_do_null;
-		}
-	      if ( value_hash <= alpha
-		   && ( depth_hash >= depth_current
-			|| value_hash < -score_max_eval ) )
-		{
-		  HASH_VALUE = value_hash;
-		  ptree->ntrans_inferior_hit++;
-		  return value_upper;
-		}
-	    }
-	}
+          *pstate_node |= state_node_hash;
+          
+          if ( value_hash <= score_max_eval )
+            {
+              *pstate_node &= ~node_do_mate;
+            }
+          
+          if ( ( type_hash & flag_value_up_exact )
+               && value_hash <= alpha
+               && RecursionDepth(depth_current) <= depth_hash )
+            {
+              *pstate_node &= ~node_do_recursion;
+            }
+          
+          if ( type_hash & flag_value_up_exact )
+            {
+              if ( value_hash < beta && null_depth <= depth_hash )
+                {
+                  *pstate_node &= ~node_do_null;
+                }
+              if ( value_hash <= alpha
+                   && ( depth_hash >= depth_current
+                        || value_hash < -score_max_eval ) )
+                {
+                  HASH_VALUE = value_hash;
+                  ptree->ntrans_inferior_hit++;
+                  return value_upper;
+                }
+            }
+        }
     }
   }
   
   if ( ! ptree->amove_hash[ply] )
     {
       if ( move_supe )
-	{
-	  ifrom = (int)I2From(move_supe);
-	  if ( ifrom >= nsquare )
-	    {
-	      unsigned int hand = turn_current ? HAND_W : HAND_B;
-	      switch( From2Drop(ifrom) )
-		{
-		case pawn:
-		  if ( ! IsHandPawn(hand) ) {
-		    move_supe = To2Move(I2To(move_supe));
-		    if ( IsHandLance(hand) )
-		      {
-			move_supe |= Drop2Move(lance);
-		      }
-		    else if ( IsHandSilver(hand))
-		      {
-			move_supe |= Drop2Move(silver);
-		      }
-		    else if ( IsHandGold(hand) )
-		      {
-			move_supe |= Drop2Move(gold);
-		      }
-		    else { move_supe |= Drop2Move(rook); }
-		  }
-		  break;
-		
-		case lance:
-		  if ( ! IsHandLance(hand) )
-		    {
-		      move_supe = To2Move(I2To(move_supe)) | Drop2Move(rook);
-		    }
-		  break;
-		}
-	    }
+        {
+          ifrom = (int)I2From(move_supe);
+          if ( ifrom >= nsquare )
+            {
+              unsigned int hand = turn_current ? HAND_W : HAND_B;
+              switch( From2Drop(ifrom) )
+                {
+                case pawn:
+                  if ( ! IsHandPawn(hand) ) {
+                    move_supe = To2Move(I2To(move_supe));
+                    if ( IsHandLance(hand) )
+                      {
+                        move_supe |= Drop2Move(lance);
+                      }
+                    else if ( IsHandSilver(hand))
+                      {
+                        move_supe |= Drop2Move(silver);
+                      }
+                    else if ( IsHandGold(hand) )
+                      {
+                        move_supe |= Drop2Move(gold);
+                      }
+                    else { move_supe |= Drop2Move(rook); }
+                  }
+                  break;
+                
+                case lance:
+                  if ( ! IsHandLance(hand) )
+                    {
+                      move_supe = To2Move(I2To(move_supe)) | Drop2Move(rook);
+                    }
+                  break;
+                }
+            }
 
-	  assert( is_move_valid( ptree, move_supe, turn_current ) );
-	  ptree->amove_hash[ply] = move_supe;
-	}
+          assert( is_move_valid( ptree, move_supe, turn_current ) );
+          ptree->amove_hash[ply] = move_supe;
+        }
     }
   
   return value_null;
@@ -654,8 +654,8 @@ hash_probe( tree_t * restrict ptree, int ply, int depth_current,
 
 static int CONV
 eval_supe( unsigned int hand_current, unsigned int hand_hash,
-	   int turn_current, int turn_hash,
-	   int * restrict pvalue_hash, int * restrict ptype_hash )
+           int turn_current, int turn_hash,
+           int * restrict pvalue_hash, int * restrict ptype_hash )
 {
   int is_superior;
 
@@ -674,13 +674,13 @@ eval_supe( unsigned int hand_current, unsigned int hand_hash,
     {
       if ( is_superior == -1 ) { is_superior = 0; }
       else {
-	is_superior   = 1;
-	*pvalue_hash *= -1;
-	switch ( *ptype_hash )
-	  {
-	  case value_lower:  *ptype_hash=value_upper;  break;
-	  case value_upper:  *ptype_hash=value_lower;  break;
-	  }
+        is_superior   = 1;
+        *pvalue_hash *= -1;
+        switch ( *ptype_hash )
+          {
+          case value_lower:  *ptype_hash=value_upper;  break;
+          case value_upper:  *ptype_hash=value_lower;  break;
+          }
       }
     }
 

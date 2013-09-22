@@ -17,8 +17,8 @@ static void rparam( short *pv, float dv );
 static void fv_sym( void );
 static int brand( void );
 static int make_list( const tree_t * restrict ptree, int list0[52],
-		      int list1[52], int anpiece[16], param_t * restrict pd,
-		      float f );
+                      int list1[52], int anpiece[16], param_t * restrict pd,
+                      float f );
 
 
 void
@@ -103,33 +103,33 @@ param_sym( param_t *p )
     for ( il = 0; il < fe_end; il++ ) {
       if ( il < fe_hand_end ) { ir0 = il; }
       else {
-	q = ( il- fe_hand_end ) / nfile;
-	r = ( il- fe_hand_end ) % nfile;
-	ir0 = q*nfile + nfile-1-r + fe_hand_end;
+        q = ( il- fe_hand_end ) / nfile;
+        r = ( il- fe_hand_end ) % nfile;
+        ir0 = q*nfile + nfile-1-r + fe_hand_end;
       }
 
       for ( jl = 0; jl <= il; jl++ ) {
-	if ( jl < fe_hand_end )
-	  {
-	    ir = ir0;
-	    jr = jl;
-	  }
-	else {
-	  q = ( jl - fe_hand_end ) / nfile;
-	  r = ( jl - fe_hand_end ) % nfile;
-	  jr = q*nfile + nfile-1-r + fe_hand_end;
-	  if ( jr > ir0 )
-	    {
-	      ir = jr;
-	      jr = ir0;
-	    }
-	  else { ir = ir0; }
-	}
-	if ( k0l == k0r && il*(il+1)/2+jl >= ir*(ir+1)/2+jr ) { continue; }
+        if ( jl < fe_hand_end )
+          {
+            ir = ir0;
+            jr = jl;
+          }
+        else {
+          q = ( jl - fe_hand_end ) / nfile;
+          r = ( jl - fe_hand_end ) % nfile;
+          jr = q*nfile + nfile-1-r + fe_hand_end;
+          if ( jr > ir0 )
+            {
+              ir = jr;
+              jr = ir0;
+            }
+          else { ir = ir0; }
+        }
+        if ( k0l == k0r && il*(il+1)/2+jl >= ir*(ir+1)/2+jr ) { continue; }
 
-	p->PcPcOnSq(k0l,il,jl)
-	  = p->PcPcOnSq(k0r,ir,jr)
-	  = p->PcPcOnSq(k0l,il,jl) + p->PcPcOnSq(k0r,ir,jr);
+        p->PcPcOnSq(k0l,il,jl)
+          = p->PcPcOnSq(k0r,ir,jr)
+          = p->PcPcOnSq(k0l,il,jl) + p->PcPcOnSq(k0r,ir,jr);
       }
     }
   }
@@ -147,17 +147,17 @@ param_sym( param_t *p )
       if ( k0l == k0r && k1l > k1r ) { continue; }
 
       for ( il = 0; il < kkp_end; il++ ) {
-	if ( il < kkp_hand_end ) { ir = il; }
-	else {
-	  q  = ( il- kkp_hand_end ) / nfile;
-	  r  = ( il- kkp_hand_end ) % nfile;
-	  ir = q*nfile + nfile-1-r + kkp_hand_end;
-	}
-	if ( k0l == k0r && k1l == k1r && il >= ir ) { continue; }
+        if ( il < kkp_hand_end ) { ir = il; }
+        else {
+          q  = ( il- kkp_hand_end ) / nfile;
+          r  = ( il- kkp_hand_end ) % nfile;
+          ir = q*nfile + nfile-1-r + kkp_hand_end;
+        }
+        if ( k0l == k0r && k1l == k1r && il >= ir ) { continue; }
 
-	p->kkp[k0l][k1l][il]
-	  = p->kkp[k0r][k1r][ir]
-	  = p->kkp[k0l][k1l][il] + p->kkp[k0r][k1r][ir];
+        p->kkp[k0l][k1l][il]
+          = p->kkp[k0r][k1r][ir]
+          = p->kkp[k0l][k1l][il] + p->kkp[k0r][k1r][ir];
       }
     }
   }
@@ -177,31 +177,31 @@ static void fv_sym( void )
     for ( il = 0; il < fe_end; il++ ) {
       if ( il < fe_hand_end ) { ir0 = il; }
       else {
-	q = ( il- fe_hand_end ) / nfile;
-	r = ( il- fe_hand_end ) % nfile;
-	ir0 = q*nfile + nfile-1-r + fe_hand_end;
+        q = ( il- fe_hand_end ) / nfile;
+        r = ( il- fe_hand_end ) % nfile;
+        ir0 = q*nfile + nfile-1-r + fe_hand_end;
       }
 
       for ( jl = 0; jl <= il; jl++ ) {
-	if ( jl < fe_hand_end )
-	  {
-	    ir = ir0;
-	    jr = jl;
-	  }
-	else {
-	  q = ( jl - fe_hand_end ) / nfile;
-	  r = ( jl - fe_hand_end ) % nfile;
-	  jr = q*nfile + nfile-1-r + fe_hand_end;
-	  if ( jr > ir0 )
-	    {
-	      ir = jr;
-	      jr = ir0;
-	    }
-	  else { ir = ir0; }
-	}
-	if ( k0l == k0r && il*(il+1)/2+jl >= ir*(ir+1)/2+jr ) { continue; }
+        if ( jl < fe_hand_end )
+          {
+            ir = ir0;
+            jr = jl;
+          }
+        else {
+          q = ( jl - fe_hand_end ) / nfile;
+          r = ( jl - fe_hand_end ) % nfile;
+          jr = q*nfile + nfile-1-r + fe_hand_end;
+          if ( jr > ir0 )
+            {
+              ir = jr;
+              jr = ir0;
+            }
+          else { ir = ir0; }
+        }
+        if ( k0l == k0r && il*(il+1)/2+jl >= ir*(ir+1)/2+jr ) { continue; }
 
-	PcPcOnSq(k0l,il,jl) = PcPcOnSq(k0r,ir,jr);
+        PcPcOnSq(k0l,il,jl) = PcPcOnSq(k0r,ir,jr);
       }
     }
   }
@@ -219,15 +219,15 @@ static void fv_sym( void )
       if ( k0l == k0r && k1l > k1r ) { continue; }
 
       for ( il = 0; il < kkp_end; il++ ) {
-	if ( il < kkp_hand_end ) { ir = il; }
-	else {
-	  q  = ( il- kkp_hand_end ) / nfile;
-	  r  = ( il- kkp_hand_end ) % nfile;
-	  ir = q*nfile + nfile-1-r + kkp_hand_end;
-	}
-	if ( k0l == k0r && k1l == k1r && il >= ir ) { continue; }
+        if ( il < kkp_hand_end ) { ir = il; }
+        else {
+          q  = ( il- kkp_hand_end ) / nfile;
+          r  = ( il- kkp_hand_end ) % nfile;
+          ir = q*nfile + nfile-1-r + kkp_hand_end;
+        }
+        if ( k0l == k0r && k1l == k1r && il >= ir ) { continue; }
 
-	kkp[k0l][k1l][il] = kkp[k0r][k1r][ir];
+        kkp[k0l][k1l][il] = kkp[k0r][k1r][ir];
       }
     }
   }
@@ -347,10 +347,10 @@ out_param( void )
     {
       pv = apv[i];  pc = apc[i];
       for ( j = i+1; apv[j] < pv; j++ )
-	{
-	  apv[j-1] = apv[j];
-	  apc[j-1] = apc[j];
-	}
+        {
+          apv[j-1] = apv[j];
+          apc[j-1] = apc[j];
+        }
       apv[j-1] = pv;  apc[j-1] = pc;
     }
       
@@ -361,21 +361,21 @@ out_param( void )
     {
       fprintf( pf, "#define " );
       switch ( apc[i] )
-	{
-	case pawn:        fprintf( pf, "DPawn     " );  break;
-	case lance:       fprintf( pf, "DLance    " );  break;
-	case knight:      fprintf( pf, "DKnight   " );  break;
-	case silver:      fprintf( pf, "DSilver   " );  break;
-	case gold:        fprintf( pf, "DGold     " );  break;
-	case bishop:      fprintf( pf, "DBishop   " );  break;
-	case rook:        fprintf( pf, "DRook     " );  break;
-	case pro_pawn:    fprintf( pf, "DProPawn  " );  break;
-	case pro_lance:   fprintf( pf, "DProLance " );  break;
-	case pro_knight:  fprintf( pf, "DProKnight" );  break;
-	case pro_silver:  fprintf( pf, "DProSilver" );  break;
-	case horse:       fprintf( pf, "DHorse    " );  break;
-	case dragon:      fprintf( pf, "DDragon   " );  break;
-	}
+        {
+        case pawn:        fprintf( pf, "DPawn     " );  break;
+        case lance:       fprintf( pf, "DLance    " );  break;
+        case knight:      fprintf( pf, "DKnight   " );  break;
+        case silver:      fprintf( pf, "DSilver   " );  break;
+        case gold:        fprintf( pf, "DGold     " );  break;
+        case bishop:      fprintf( pf, "DBishop   " );  break;
+        case rook:        fprintf( pf, "DRook     " );  break;
+        case pro_pawn:    fprintf( pf, "DProPawn  " );  break;
+        case pro_lance:   fprintf( pf, "DProLance " );  break;
+        case pro_knight:  fprintf( pf, "DProKnight" );  break;
+        case pro_silver:  fprintf( pf, "DProSilver" );  break;
+        case horse:       fprintf( pf, "DHorse    " );  break;
+        case dragon:      fprintf( pf, "DDragon   " );  break;
+        }
       fprintf( pf, "     %4d /* %4d */\n", p_value[15+apc[i]], apv[i] );
     }
   fprintf( pf, "#define DKing         15000\n\n" );
@@ -435,20 +435,20 @@ inc_param( const tree_t * restrict ptree, param_t * restrict pd, double dinc )
       k0 = list0[i];
       k1 = list1[i];
       for ( j = 0; j <= i; j++ )
-	{
-	  l0 = list0[j];
-	  l1 = list1[j];
-	  assert( k0 >= l0 && k1 >= l1 );
-	  pd->PcPcOnSq( sq_bk, k0, l0 ) += f;
-	  pd->PcPcOnSq( sq_wk, k1, l1 ) -= f;
-	}
+        {
+          l0 = list0[j];
+          l1 = list1[j];
+          assert( k0 >= l0 && k1 >= l1 );
+          pd->PcPcOnSq( sq_bk, k0, l0 ) += f;
+          pd->PcPcOnSq( sq_wk, k1, l1 ) -= f;
+        }
     }
 }
 
 
 static int
 make_list( const tree_t * restrict ptree, int list0[52], int list1[52],
-	   int anpiece[16], param_t * restrict pd, float f )
+           int anpiece[16], param_t * restrict pd, float f )
 {
   bitboard_t bb;
   int list2[34];
@@ -810,7 +810,7 @@ rmt( const double avalue[16], int pc )
   if ( 0 < pc_v && pc_v <= SHRT_MAX ) { p_value[15+pc] = (short)pc_v; }
   else {
     out_warning( "A material value is out of bounce. (%s=%d)\n",
-		 astr_table_piece[pc], pc_v );
+                 astr_table_piece[pc], pc_v );
   }
 }
 

@@ -86,13 +86,13 @@ enum { weak_chuai = 1, weak_drop  = 100 };
 
 
 void CONV dfpn_hash_probe( const dfpn_tree_t * restrict pdfpn_tree,
-			   child_t * restrict pchild, int ply, int turn );
+                           child_t * restrict pchild, int ply, int turn );
 void CONV dfpn_hash_store( const tree_t * restrict ptree,
-			   dfpn_tree_t * restrict pdfpn_tree,
-			   int ply );
+                           dfpn_tree_t * restrict pdfpn_tree,
+                           int ply );
 int CONV dfpn_detect_rep( const dfpn_tree_t * restrict pdfpn_tree,
-			  uint64_t hash_key, unsigned int hand_b,
-			  int ply, int * restrict ip );
+                          uint64_t hash_key, unsigned int hand_b,
+                          int ply, int * restrict ip );
 unsigned int CONV dfpn_max_hand_b( unsigned int hand_b, unsigned hand_w );
 unsigned int CONV dfpn_max_hand_w( unsigned int hand_b, unsigned hand_w );
 float CONV dfpn_hash_sat( void );

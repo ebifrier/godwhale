@@ -377,19 +377,19 @@ static void doRoot() {
              int i, j, k, h;
              
              for ( k = SHELL_H_LEN - 1; k >= 0; k-- )
-	       {
-	         h = ashell_h[k];
-	         for ( i = n-h-1; i > 0; i-- )
-	           {
-	             root_move_swap = root_move_list[i];
-	             sortv          = root_move_list[i].nodes;
-	             for (j=i+h; j<n && root_move_list[j].nodes > sortv; j += h)
-		       {
-		         root_move_list[j-h] = root_move_list[j];
-		       }
-	             root_move_list[j-h] = root_move_swap;
-	           }
-	       }
+               {
+                 h = ashell_h[k];
+                 for ( i = n-h-1; i > 0; i-- )
+                   {
+                     root_move_swap = root_move_list[i];
+                     sortv          = root_move_list[i].nodes;
+                     for (j=i+h; j<n && root_move_list[j].nodes > sortv; j += h)
+                       {
+                         root_move_list[j-h] = root_move_list[j];
+                       }
+                     root_move_list[j-h] = root_move_swap;
+                   }
+               }
            }
 #endif
 

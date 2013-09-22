@@ -97,8 +97,8 @@ lock( lock_t *plock )
   for ( ;; )
     {
       asm ( "1:   movl     $1,  %1 \n\t"
-	    "     xchgl   (%0), %1 \n\t"
-	    : "=g" (plock), "=r" (itemp) : "0" (plock) );
+            "     xchgl   (%0), %1 \n\t"
+            : "=g" (plock), "=r" (itemp) : "0" (plock) );
       if ( ! itemp ) { return; }
       while ( *plock ) { tlp_yield();}
     }
@@ -153,7 +153,7 @@ dfpn_client_start( const tree_t * restrict ptree )
     }
   else {
     Out( "New connection to DFPN server: %s %d\n",
-	 dfpn_client_str_addr, dfpn_client_port );
+         dfpn_client_str_addr, dfpn_client_port );
   }
 
 #  if defined(_WIN32)
@@ -168,9 +168,9 @@ dfpn_client_start( const tree_t * restrict ptree )
     pthread_t pt;
     if ( pthread_create( &pt, &pthread_attr, &dfpn_client_receiver, NULL ) )
       {
-	sckt_shutdown( dfpn_client_sckt );
-	dfpn_client_sckt = SCKT_NULL;
-	out_warning( "_beginthreadex() failed." );
+        sckt_shutdown( dfpn_client_sckt );
+        dfpn_client_sckt = SCKT_NULL;
+        out_warning( "_beginthreadex() failed." );
       }
   }
 #  endif
@@ -222,10 +222,10 @@ static void *dfpn_client_receiver( void *arg )
       
       iret = select( (int)dfpn_client_sckt+1, &readfds, NULL, NULL, &tv );
       if ( iret == SOCKET_ERROR )
-	{
-	  out_warning( "%s", str_error );
-	  goto dfpn_client_receiver_shutdown;
-	}
+        {
+          out_warning( "%s", str_error );
+          goto dfpn_client_receiver_shutdown;
+        }
 
       /* message arrived */
       if ( iret ) { break; }
@@ -244,9 +244,9 @@ static void *dfpn_client_receiver( void *arg )
     iret = recv( dfpn_client_sckt, str_end, SIZE_RECV_BUF-1-len_recv_buf, 0 );
     if ( iret == SOCKET_ERROR )
       {
-	str_error = str_WSAError( "recv() failed:" );
-	out_warning( "%s", str_error );
-	goto dfpn_client_receiver_shutdown;
+        str_error = str_WSAError( "recv() failed:" );
+        out_warning( "%s", str_error );
+        goto dfpn_client_receiver_shutdown;
       }
     if ( ! iret ) { goto dfpn_client_receiver_shutdown; }
     recv_buf[ len_recv_buf + iret ] = '\0';
@@ -257,23 +257,23 @@ static void *dfpn_client_receiver( void *arg )
 
       str_line_end = strchr( recv_buf, '\n' );
       if ( str_line_end == NULL )
-	{
-	  if ( iret + len_recv_buf + 1 >= SIZE_RECV_BUF )
-	    {
-	      unlock( &dfpn_client_lock );
-	      out_warning( "%s", str_ovrflw_line );
-	      goto dfpn_client_receiver_shutdown;
-	    }
-	  break;
-	}
+        {
+          if ( iret + len_recv_buf + 1 >= SIZE_RECV_BUF )
+            {
+              unlock( &dfpn_client_lock );
+              out_warning( "%s", str_ovrflw_line );
+              goto dfpn_client_receiver_shutdown;
+            }
+          break;
+        }
 
       size = str_line_end - recv_buf;
       if ( size + 1 >= SIZE_LINE_BUF )
-	{
-	  unlock( &dfpn_client_lock );
-	  out_warning( "%s", str_ovrflw_line );
-	  goto dfpn_client_receiver_shutdown;
-	}
+        {
+          unlock( &dfpn_client_lock );
+          out_warning( "%s", str_ovrflw_line );
+          goto dfpn_client_receiver_shutdown;
+        }
       
       memcpy( line_buf, recv_buf, size );
       memmove( recv_buf, str_line_end+1, strlen(str_line_end+1) + 1 );
@@ -281,11 +281,11 @@ static void *dfpn_client_receiver( void *arg )
       line_buf[size] = '\0';
 
       if ( proce_line( line_buf ) < 0 )
-	{
-	  unlock( &dfpn_client_lock );
-	  out_warning( "invalid messages from DFPN server" );
-	  goto dfpn_client_receiver_shutdown;
-	}
+        {
+          unlock( &dfpn_client_lock );
+          out_warning( "invalid messages from DFPN server" );
+          goto dfpn_client_receiver_shutdown;
+        }
     }
     unlock( &dfpn_client_lock );
   }
@@ -393,9 +393,9 @@ static void *start_address( void *arg );
 
 static tree_t *find_child( void );
 static void init_state( const tree_t * restrict parent,
-			tree_t * restrict child );
+                        tree_t * restrict child );
 static void copy_state( tree_t * restrict parent,
-			const tree_t * restrict child, int value );
+                        const tree_t * restrict child, int value );
 static void wait_work( int tid, tree_t *parent );
 
 int
@@ -420,18 +420,18 @@ tlp_start( void )
       
 #  if defined(_WIN32)
       if ( ! _beginthreadex( 0, 0, start_address, work+num, 0, 0 ) )
-	{
-	  str_error = "_beginthreadex() failed.";
-	  return -2;
-	}
+        {
+          str_error = "_beginthreadex() failed.";
+          return -2;
+        }
 #  else
       {
-	pthread_t pt;
-	if ( pthread_create( &pt, &pthread_attr, start_address, work+num ) )
-	  {
-	    str_error = "pthread_create() failed.";
-	    return -2;
-	  }
+        pthread_t pt;
+        if ( pthread_create( &pt, &pthread_attr, start_address, work+num ) )
+          {
+            str_error = "pthread_create() failed.";
+            return -2;
+          }
       }
 #  endif
     }
@@ -471,21 +471,21 @@ tlp_split( tree_t * restrict ptree )
     {
       if ( tlp_ptrees[num] ) { ptree->tlp_ptrees_sibling[num] = 0; }
       else {
-	child = find_child();
-	if ( ! child ) { continue; }
+        child = find_child();
+        if ( ! child ) { continue; }
 
-	nchild += 1;
+        nchild += 1;
 
-	for ( i=0; i<tlp_max; i++ ) { child->tlp_ptrees_sibling[i] = NULL; }
-	child->tlp_ptree_parent        = ptree;
-	child->tlp_id                  = (unsigned char)num;
-	child->tlp_used                = 1;
-	child->tlp_abort               = 0;
-	ptree->tlp_ptrees_sibling[num] = child;
-	ptree->tlp_nsibling           += 1;
-	init_state( ptree, child );
+        for ( i=0; i<tlp_max; i++ ) { child->tlp_ptrees_sibling[i] = NULL; }
+        child->tlp_ptree_parent        = ptree;
+        child->tlp_id                  = (unsigned char)num;
+        child->tlp_used                = 1;
+        child->tlp_abort               = 0;
+        ptree->tlp_ptrees_sibling[num] = child;
+        ptree->tlp_nsibling           += 1;
+        init_state( ptree, child );
 
-	tlp_ptrees[num] = child;
+        tlp_ptrees[num] = child;
       }
     }
 
@@ -516,7 +516,7 @@ tlp_set_abort( tree_t * restrict ptree )
   for ( num = 0; num < tlp_max; num++ )
     if ( ptree->tlp_ptrees_sibling[num] )
       {
-	tlp_set_abort( ptree->tlp_ptrees_sibling[num] );
+        tlp_set_abort( ptree->tlp_ptrees_sibling[num] );
       }
 }
 
@@ -531,7 +531,7 @@ tlp_count_node( tree_t * restrict ptree )
   for ( num = 0; num < tlp_max; num++ )
     if ( ptree->tlp_ptrees_sibling[num] )
       {
-	uret += tlp_count_node( ptree->tlp_ptrees_sibling[num] );
+        uret += tlp_count_node( ptree->tlp_ptrees_sibling[num] );
       }
 
   return uret;
@@ -613,12 +613,12 @@ wait_work( int tid, tree_t *parent )
     if ( slot == parent ) { return; }
 
     value = tlp_search( slot,
-			slot->tlp_ptree_parent->tlp_best,
-			slot->tlp_ptree_parent->tlp_beta,
-			slot->tlp_ptree_parent->tlp_turn,
-			slot->tlp_ptree_parent->tlp_depth,
-			slot->tlp_ptree_parent->tlp_ply,
-			slot->tlp_ptree_parent->tlp_state_node );
+                        slot->tlp_ptree_parent->tlp_best,
+                        slot->tlp_ptree_parent->tlp_beta,
+                        slot->tlp_ptree_parent->tlp_turn,
+                        slot->tlp_ptree_parent->tlp_depth,
+                        slot->tlp_ptree_parent->tlp_ply,
+                        slot->tlp_ptree_parent->tlp_state_node );
     
     lock( &tlp_lock );
     copy_state( slot->tlp_ptree_parent, slot, value );
@@ -715,7 +715,7 @@ init_state( const tree_t * restrict parent, tree_t * restrict child )
 
 static void
 copy_state( tree_t * restrict parent, const tree_t * restrict child,
-	    int value )
+            int value )
 {
   int i, ply;
 

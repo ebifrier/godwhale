@@ -88,18 +88,18 @@ static int read_game( parse1_data_t *pdata );
 static int read_buf( unsigned short *buf, FILE *pf );
 static int calc_deriv( parse2_data_t *pdata, int pos_buf, int turn );
 static int learn_parse1( tree_t * restrict ptree, book_entry_t *pbook_entry,
-			 FILE *pf_tmp, record_t *precord,
-			 unsigned int max_games, double *ptarget_out_window,
-			 double *pobj_norm, int tlp1 );
+                         FILE *pf_tmp, record_t *precord,
+                         unsigned int max_games, double *ptarget_out_window,
+                         double *pobj_norm, int tlp1 );
 static int learn_parse2( tree_t * restrict ptree, FILE *pf_tmp,
-			 int nsteps, double target_out_window,
-			 double obj_norm, int tlp2 );
+                         int nsteps, double target_out_window,
+                         double obj_norm, int tlp2 );
 static int book_probe_learn( const tree_t * restrict ptree,
-			     book_entry_t *pbook_entry, int ply,
-			     unsigned int move );
+                             book_entry_t *pbook_entry, int ply,
+                             unsigned int move );
 static int rep_check_learn( tree_t * restrict ptree, int ply );
 static unsigned int s2move( const tree_t * restrict ptree, unsigned int move,
-			    int tt );
+                            int tt );
 static double func( double x );
 static double dfunc( double x );
 
@@ -146,60 +146,60 @@ learn( tree_t * restrict ptree, int is_ini, int nsteps, unsigned int max_games,
   
       pf_tmp = file_open( "tmp.bin", "wb" );
       if ( pf_tmp == NULL )
-	{
-	  record_close( &record );
-	  iret = -2;
-	  break;
-	}
+        {
+          record_close( &record );
+          iret = -2;
+          break;
+        }
 
       iret = learn_parse1( ptree, pbook_entry, pf_tmp, &record, max_games,
-			   &target_out_window, &obj_norm, nworker1 );
+                           &target_out_window, &obj_norm, nworker1 );
 
       if ( iret < 0 )
-	{
-	  record_close( &record );
-	  file_close( pf_tmp );
-	  break;
-	}
+        {
+          record_close( &record );
+          file_close( pf_tmp );
+          break;
+        }
 
       iret = file_close( pf_tmp );
       if ( iret < 0 )
-	{
-	  record_close( &record );
-	  break;
-	}
+        {
+          record_close( &record );
+          break;
+        }
 
       pf_tmp = file_open( "tmp.bin", "rb" );
       if ( pf_tmp == NULL )
-	{
-	  record_close( &record );
-	  iret = -2;
-	  break;
-	}
+        {
+          record_close( &record );
+          iret = -2;
+          break;
+        }
 
       iret = learn_parse2( ptree, pf_tmp, nsteps, target_out_window, obj_norm,
-			   nworker2 );
+                           nworker2 );
       if ( iret < 0 )
-	{
-	  file_close( pf_tmp );
-	  record_close( &record );
-	  break;
-	}
+        {
+          file_close( pf_tmp );
+          record_close( &record );
+          break;
+        }
 
       iret = file_close( pf_tmp );
       if ( iret < 0 )
-	{
-	  record_close( &record );
-	  break;
-	}
+        {
+          record_close( &record );
+          break;
+        }
 
       iret = record_close( &record );
       if ( iret < 0 ) { break; }
 
       if ( ! ( game_status & flag_learning ) )
-	{
-	  out_warning( "flag_learning is not set." );
-	}
+        {
+          out_warning( "flag_learning is not set." );
+        }
     }
   
   memory_free( pbook_entry );
@@ -211,8 +211,8 @@ learn( tree_t * restrict ptree, int is_ini, int nsteps, unsigned int max_games,
 
 static int
 learn_parse1( tree_t * restrict ptree, book_entry_t *pbook_entry, FILE *pf_tmp,
-	      record_t *precord, unsigned int max_games,
-	      double *ptarget_out_window, double *pobj_norm, int nworker )
+              record_t *precord, unsigned int max_games,
+              double *ptarget_out_window, double *pobj_norm, int nworker )
 {
   parse1_data_t *pdata[ TLP_MAX_THREADS ];
   int i, id;
@@ -240,19 +240,19 @@ learn_parse1( tree_t * restrict ptree, book_entry_t *pbook_entry, FILE *pf_tmp,
 #  if defined(_WIN32)
       pdata[id]->ptree = tlp_atree_work + id;
       if ( ! _beginthreadex( 0, 0, parse1_worker, pdata[id], 0, 0 ) )
-	{
-	  str_error = "_beginthreadex() failed.";
-	  return -1;
-	}
+        {
+          str_error = "_beginthreadex() failed.";
+          return -1;
+        }
 #  else
       pthread_t pt;
 
       pdata[id]->ptree = tlp_atree_work + id;
       if ( pthread_create( &pt, &pthread_attr, parse1_worker, pdata[id] ) )
-	{
-	  str_error = "pthread_create() failed.";
-	  return -1;
-	}
+        {
+          str_error = "pthread_create() failed.";
+          return -1;
+        }
 #  endif
     }
 #endif /* TLP */
@@ -272,9 +272,9 @@ learn_parse1( tree_t * restrict ptree, book_entry_t *pbook_entry, FILE *pf_tmp,
   for ( id = 1; id < nworker; id++ )
     {
       for ( i = 0; i < NUM_RESULT; i++ )
-	{
-	  pdata[0]->result[i] += pdata[id]->result[i];
-	}
+        {
+          pdata[0]->result[i] += pdata[id]->result[i];
+        }
       pdata[0]->num_moves_counted += pdata[id]->num_moves_counted;
       pdata[0]->num_moves         += pdata[id]->num_moves;
       pdata[0]->num_nodes         += pdata[id]->num_nodes;
@@ -283,9 +283,9 @@ learn_parse1( tree_t * restrict ptree, book_entry_t *pbook_entry, FILE *pf_tmp,
       pdata[0]->target_out_window += pdata[id]->target_out_window;
       pdata[0]->illegal_moves     += pdata[id]->illegal_moves;
       if ( pdata[0]->max_pos_buf < pdata[id]->max_pos_buf )
-	{
-	  pdata[0]->max_pos_buf = pdata[id]->max_pos_buf;
-	}
+        {
+          pdata[0]->max_pos_buf = pdata[id]->max_pos_buf;
+        }
     }
   if ( pdata[0]->result_norm == 0 ) { pdata[0]->result_norm = 1; }
   if ( pdata[0]->num_moves   == 0 ) { pdata[0]->num_moves   = 1; }
@@ -306,8 +306,8 @@ learn_parse1( tree_t * restrict ptree, book_entry_t *pbook_entry, FILE *pf_tmp,
     Out( "   Prediction (%)  :" );
     for ( i = 0, dtemp = 0.0; i < NUM_RESULT; i++ )
       {
-	dtemp += (double)pdata[0]->result[i] * 100.0;
-	Out( " %4.2f", dtemp / (double)pdata[0]->result_norm );
+        dtemp += (double)pdata[0]->result[i] * 100.0;
+        Out( " %4.2f", dtemp / (double)pdata[0]->result_norm );
       }
     Out( "\n" );
   
@@ -322,7 +322,7 @@ learn_parse1( tree_t * restrict ptree, book_entry_t *pbook_entry, FILE *pf_tmp,
     misc_king = fmg_misc_king / 2;
     cap_king  = fmg_cap_king  / 2;
     Out( "   Futility        : misc=%d drop=%d cap=%d mt=%d misc(k)=%d "
-	 "cap(k)=%d\n", misc, drop, cap, mt, misc_king, cap_king );
+         "cap(k)=%d\n", misc, drop, cap, mt, misc_king, cap_king );
   }
 
   for ( id = 0; id < nworker; id++ ) { memory_free( pdata[id] ); }
@@ -363,21 +363,21 @@ static void *parse1_worker( void *arg )
     pdata->pos_buf = 2U;
     for ( imove = 0; imove < (int)pdata->record_length; imove++ )
       {
-	record_move                    = pdata->record_moves[imove];
+        record_move                    = pdata->record_moves[imove];
 
-	pdata->buf[ pdata->pos_buf++ ] = Move2S(record_move);
+        pdata->buf[ pdata->pos_buf++ ] = Move2S(record_move);
 
-	if ( record_move & MOVE_VOID ) { record_move &= ~MOVE_VOID; }
-	else                           { make_pv( pdata, record_move ); }
+        if ( record_move & MOVE_VOID ) { record_move &= ~MOVE_VOID; }
+        else                           { make_pv( pdata, record_move ); }
 
-	pdata->buf[ pdata->pos_buf++ ] = 0;
+        pdata->buf[ pdata->pos_buf++ ] = 0;
 
-	MakeMove( pdata->root_turn, record_move, 1 );
-	pdata->root_turn     = Flip( pdata->root_turn );
-	ptree->move_last[1]  = ptree->move_last[0];
-	ptree->nsuc_check[0] = 0;
-	ptree->nsuc_check[1]
-	  = (unsigned char)( InCheck( pdata->root_turn ) ? 1U : 0 );
+        MakeMove( pdata->root_turn, record_move, 1 );
+        pdata->root_turn     = Flip( pdata->root_turn );
+        ptree->move_last[1]  = ptree->move_last[0];
+        ptree->nsuc_check[0] = 0;
+        ptree->nsuc_check[1]
+          = (unsigned char)( InCheck( pdata->root_turn ) ? 1U : 0 );
       }
 
 #if defined(TLP)
@@ -387,19 +387,19 @@ static void *parse1_worker( void *arg )
     /* save pv */
     if ( pdata->record_length )
       {
-	if ( pdata->pos_buf > pdata->max_pos_buf )
-	  {
-	    pdata->max_pos_buf = pdata->pos_buf;
-	  }
-	pdata->buf[0] = (unsigned short)( pdata->pos_buf / 0x10000U );
-	pdata->buf[1] = (unsigned short)( pdata->pos_buf % 0x10000U );
+        if ( pdata->pos_buf > pdata->max_pos_buf )
+          {
+            pdata->max_pos_buf = pdata->pos_buf;
+          }
+        pdata->buf[0] = (unsigned short)( pdata->pos_buf / 0x10000U );
+        pdata->buf[1] = (unsigned short)( pdata->pos_buf % 0x10000U );
 
-	if ( fwrite( pdata->buf, sizeof(unsigned short), pdata->pos_buf,
-		     pdata->pf_tmp ) != pdata->pos_buf )
-	  {
-	    str_error = str_io_error;
-	    iret      = -2;
-	  }
+        if ( fwrite( pdata->buf, sizeof(unsigned short), pdata->pos_buf,
+                     pdata->pf_tmp ) != pdata->pos_buf )
+          {
+            str_error = str_io_error;
+            iret      = -2;
+          }
       }
 
     /* read next game */
@@ -481,10 +481,10 @@ make_pv( parse1_data_t *pdata, unsigned int record_move )
     ptree->current_move[1] = move;
     if ( imove )
       {
-	alpha = record_value - FV_WINDOW;
-	beta  = record_value + FV_WINDOW;
-	if ( alpha < root_alpha ) { alpha = root_alpha; }
-	if ( beta  > root_beta )  { beta  = root_beta; }
+        alpha = record_value - FV_WINDOW;
+        beta  = record_value + FV_WINDOW;
+        if ( alpha < root_alpha ) { alpha = root_alpha; }
+        if ( beta  > root_beta )  { beta  = root_beta; }
       }
     else {
       alpha = root_alpha;
@@ -494,14 +494,14 @@ make_pv( parse1_data_t *pdata, unsigned int record_move )
     MakeMove( pdata->root_turn, move, 1 );
     if ( InCheck(pdata->root_turn) )
       {
-	UnMakeMove( pdata->root_turn, move, 1 );
-	continue;
+        UnMakeMove( pdata->root_turn, move, 1 );
+        continue;
       }
 
     if ( InCheck(tt) )
       {
-	new_depth = depth + PLY_INC;
-	ptree->nsuc_check[2] = (unsigned char)( ptree->nsuc_check[0] + 1U );
+        new_depth = depth + PLY_INC;
+        ptree->nsuc_check[2] = (unsigned char)( ptree->nsuc_check[0] + 1U );
       }
     else {
       new_depth            = depth;
@@ -512,43 +512,43 @@ make_pv( parse1_data_t *pdata, unsigned int record_move )
     ptree->pv[1].type = no_rep;
       
     value = -search( ptree, -beta, -alpha, tt, new_depth, 2,
-		     node_do_mate | node_do_null | node_do_futile
-		     | node_do_recap | node_do_recursion | node_do_hashcut );
+                     node_do_mate | node_do_null | node_do_futile
+                     | node_do_recap | node_do_recursion | node_do_hashcut );
 
     UnMakeMove( pdata->root_turn, move, 1 );
 
     if ( abs(value) > score_mate1ply )
       {
-	out_warning( "value is larger than mate1ply!" );
+        out_warning( "value is larger than mate1ply!" );
       }
     
     if ( imove )
       {
-	func_value        = func( value - record_value );
-	pdata->target    += func_value;
-	pdata->num_moves += 1U;
-	if ( alpha < value && value < beta )
-	  {
-	    nc += 1;
-	  }
-	else { pdata->target_out_window += func_value; }
-	if ( value >= record_value ) { nth += 1; }
+        func_value        = func( value - record_value );
+        pdata->target    += func_value;
+        pdata->num_moves += 1U;
+        if ( alpha < value && value < beta )
+          {
+            nc += 1;
+          }
+        else { pdata->target_out_window += func_value; }
+        if ( value >= record_value ) { nth += 1; }
       }
     else if ( alpha < value && value < beta )
       {
-	nth          += 1;
-	record_value  = value;
+        nth          += 1;
+        record_value  = value;
       }
     else { break; } /* record move failed high or low. */
 
     if ( alpha < value && value < beta )
       {
-	pdata->buf[ pos_buf++ ] = Move2S(move);
-	for ( ply = 2; ply <= ptree->pv[1].length; ply++ )
-	  {
-	    pdata->buf[ pos_buf++ ] = Move2S(ptree->pv[1].a[ply]);
-	  }
-	pdata->buf[ pos_buf - 1 ] |= 0x8000U;
+        pdata->buf[ pos_buf++ ] = Move2S(move);
+        for ( ply = 2; ply <= ptree->pv[1].length; ply++ )
+          {
+            pdata->buf[ pos_buf++ ] = Move2S(ptree->pv[1].a[ply]);
+          }
+        pdata->buf[ pos_buf - 1 ] |= 0x8000U;
       }
   }
 
@@ -584,49 +584,49 @@ read_game( parse1_data_t *pdata )
   if ( ! ( (pdata->precord->games+1) % DOT_INTERVAL ) )
     {
       if ( ! ( (pdata->precord->games+1) % ( DOT_INTERVAL * 10 ) ) )
-	{
-	  Out( "o" );
-	  if ( ! ( (pdata->precord->games+1) % ( DOT_INTERVAL * 50 ) ) )
-	    {
-	      Out( "%7d\n          ", pdata->precord->games+1 );
-	    }
-	}
+        {
+          Out( "o" );
+          if ( ! ( (pdata->precord->games+1) % ( DOT_INTERVAL * 50 ) ) )
+            {
+              Out( "%7d\n          ", pdata->precord->games+1 );
+            }
+        }
       else { Out( "." ); }
     }
 
   for ( imove = 0; imove < MAX_RECORD_LENGTH; imove++ )
     {
       istatus = in_CSA( ptree, pdata->precord, &record_move,
-			flag_nomake_move | flag_detect_hang | flag_nofmargin );
+                        flag_nomake_move | flag_detect_hang | flag_nofmargin );
       if ( istatus < 0 )
-	{
-	  pdata->illegal_moves += 1;
-	  break;
-	}
+        {
+          pdata->illegal_moves += 1;
+          break;
+        }
       if ( istatus >= record_eof ) { break; }
 
       if ( ! imove
-	   && ( root_turn != min_posi_no_handicap.turn_to_move
-		|| HAND_B != min_posi_no_handicap.hand_black
-		|| HAND_W != min_posi_no_handicap.hand_white
-		|| memcmp( BOARD, min_posi_no_handicap.asquare, nsquare ) ) )
-	{
-	  break;
-	}
+           && ( root_turn != min_posi_no_handicap.turn_to_move
+                || HAND_B != min_posi_no_handicap.hand_black
+                || HAND_W != min_posi_no_handicap.hand_white
+                || memcmp( BOARD, min_posi_no_handicap.asquare, nsquare ) ) )
+        {
+          break;
+        }
       
       if ( ! imove )
-	{
-	  *(pdata->ptree)  = *ptree;
-	  pdata->root_turn = root_turn;
-	}
+        {
+          *(pdata->ptree)  = *ptree;
+          pdata->root_turn = root_turn;
+        }
 
       if ( rep_check_learn( ptree, 1 ) == four_fold_rep
-	   || ( pdata->precord->moves < MAX_BOOK_PLY
-		&& book_probe_learn( ptree, pdata->pbook_entry,
-				     pdata->precord->moves, record_move ) ) )
-	{
-	  pdata->record_moves[ imove ] = record_move | MOVE_VOID;
-	}
+           || ( pdata->precord->moves < MAX_BOOK_PLY
+                && book_probe_learn( ptree, pdata->pbook_entry,
+                                     pdata->precord->moves, record_move ) ) )
+        {
+          pdata->record_moves[ imove ] = record_move | MOVE_VOID;
+        }
       else { pdata->record_moves[ imove ] = record_move; }
 
       iret = make_move_root( ptree, record_move, 0 );
@@ -648,7 +648,7 @@ read_game( parse1_data_t *pdata )
 
 static int
 learn_parse2( tree_t * restrict ptree, FILE *pf_tmp, int nsteps,
-	      double target_out_window, double obj_norm, int nworker )
+              double target_out_window, double obj_norm, int nworker )
 {
   parse2_data_t *pdata[ TLP_MAX_THREADS ];
   int istep, id;
@@ -674,21 +674,21 @@ learn_parse2( tree_t * restrict ptree, FILE *pf_tmp, int nsteps,
     for ( id = 1; id < nworker; id++ )
       {
 #  if defined(_WIN32)
-	pdata[id]->ptree = tlp_atree_work + id;
-	if ( ! _beginthreadex( 0, 0, parse2_worker, pdata[id], 0, 0 ) )
-	  {
-	    str_error = "_beginthreadex() failed.";
-	    return -1;
-	  }
+        pdata[id]->ptree = tlp_atree_work + id;
+        if ( ! _beginthreadex( 0, 0, parse2_worker, pdata[id], 0, 0 ) )
+          {
+            str_error = "_beginthreadex() failed.";
+            return -1;
+          }
 #  else
-	pthread_t pt;
-	
-	pdata[id]->ptree = tlp_atree_work + id;
-	if ( pthread_create( &pt, &pthread_attr, parse2_worker, pdata[id] ) )
-	  {
-	    str_error = "pthread_create() failed.";
-	    return -1;
-	  }
+        pthread_t pt;
+        
+        pdata[id]->ptree = tlp_atree_work + id;
+        if ( pthread_create( &pt, &pthread_attr, parse2_worker, pdata[id] ) )
+          {
+            str_error = "pthread_create() failed.";
+            return -1;
+          }
 #  endif
       }
 #endif /* TLP */
@@ -702,27 +702,27 @@ learn_parse2( tree_t * restrict ptree, FILE *pf_tmp, int nsteps,
   
     for ( id = 0; id < nworker; id++ )
       {
-	if ( pdata[id]->info < 0 ) { return -1; }
+        if ( pdata[id]->info < 0 ) { return -1; }
       }
 
     for ( id = 1; id < nworker; id++ )
       {
-	add_param( &pdata[0]->param, &pdata[id]->param );
-	pdata[0]->num_moves_counted += pdata[id]->num_moves_counted;
-	pdata[0]->target            += pdata[id]->target;
+        add_param( &pdata[0]->param, &pdata[id]->param );
+        pdata[0]->num_moves_counted += pdata[id]->num_moves_counted;
+        pdata[0]->target            += pdata[id]->target;
       }
 
     if ( ! istep )
       {
-	double target, penalty, objective_function;
+        double target, penalty, objective_function;
 
-	penalty = calc_penalty() / obj_norm;
-	target  = ( pdata[0]->target + target_out_window ) / obj_norm;
-	objective_function = target + penalty;
-	Out( "   Moves Counted   : %d\n", pdata[0]->num_moves_counted );
-	Out( "   Objective Func. : %.8f %.8f %.8f\n",
-		  objective_function, target, penalty );
-	Out( "   Steps " );
+        penalty = calc_penalty() / obj_norm;
+        target  = ( pdata[0]->target + target_out_window ) / obj_norm;
+        objective_function = target + penalty;
+        Out( "   Moves Counted   : %d\n", pdata[0]->num_moves_counted );
+        Out( "   Objective Func. : %.8f %.8f %.8f\n",
+                  objective_function, target, penalty );
+        Out( "   Steps " );
       }
 
     param_sym( &pdata[0]->param );
@@ -775,26 +775,26 @@ static void *parse2_worker( void *arg )
     nbuf = iret;
 
     iret = ini_game( ptree, &min_posi_no_handicap, flag_nofmargin,
-		     NULL, NULL );
+                     NULL, NULL );
     if ( iret < 0 ) { break; }
 
     turn    = black;
     pos_buf = 2;
     for ( imove = 0; pos_buf < nbuf; imove++ )
       {
-	record_move = s2move( ptree, pdata->buf[pos_buf++], turn );
+        record_move = s2move( ptree, pdata->buf[pos_buf++], turn );
 
-	if ( pdata->buf[pos_buf] )
-	  {
-	    pos_buf = calc_deriv( pdata, pos_buf, turn );
-	  }
-	pos_buf += 1;
+        if ( pdata->buf[pos_buf] )
+          {
+            pos_buf = calc_deriv( pdata, pos_buf, turn );
+          }
+        pos_buf += 1;
 
-	MakeMove( turn, record_move, 1 );
-	turn                 = Flip( turn );
-	ptree->move_last[1]  = ptree->move_last[0];
-	ptree->nsuc_check[0] = 0;
-	ptree->nsuc_check[1] = (unsigned char)( InCheck( turn ) ? 1U : 0 );
+        MakeMove( turn, record_move, 1 );
+        turn                 = Flip( turn );
+        ptree->move_last[1]  = ptree->move_last[0];
+        ptree->nsuc_check[0] = 0;
+        ptree->nsuc_check[1] = (unsigned char)( InCheck( turn ) ? 1U : 0 );
       }
   }
 
@@ -885,7 +885,7 @@ calc_deriv( parse2_data_t *pdata, int pos0, int turn0 )
     value = evaluate( ptree, ply+1, turn );
     if ( turn != turn0 ) { value = -value; }
     target += func( value - record_value );
-	  
+          
     dT = dfunc( value - record_value );
     if ( turn0 ) { dT = -dT; }
     sum_dT += dT;
@@ -970,7 +970,7 @@ s2move( const tree_t * restrict ptree, unsigned int move, int tt )
     {
       to = I2To(move);
       move |= tt ? (Piece2Move(-BOARD[from])|Cap2Move( BOARD[to]))
-	         : (Piece2Move( BOARD[from])|Cap2Move(-BOARD[to]));
+                 : (Piece2Move( BOARD[from])|Cap2Move(-BOARD[to]));
     }
   return move;
 }
@@ -999,8 +999,8 @@ b: ply      9  41
 */
 static int
 book_probe_learn( const tree_t * restrict ptree,
-		  book_entry_t *pbook_entry,
-		  int ply, unsigned int move )
+                  book_entry_t *pbook_entry,
+                  int ply, unsigned int move )
 {
   book_entry_t *p;
   int i, j;
@@ -1011,16 +1011,16 @@ book_probe_learn( const tree_t * restrict ptree,
 
   for ( i = 0; i < NumBookCluster; i++ )
     if ( p->cluster[i].a == HASH_KEY
-	 && ((unsigned int)p->cluster[i].b & 0x1fffffU) == HAND_B
-	 && ( (((unsigned int)p->cluster[i].b>>21) & 0x1U)
-	      == (unsigned int)root_turn )
-	 && ((unsigned int)(p->cluster[i].b>>22) & 0x7ffffU) == move ) {
+         && ((unsigned int)p->cluster[i].b & 0x1fffffU) == HAND_B
+         && ( (((unsigned int)p->cluster[i].b>>21) & 0x1U)
+              == (unsigned int)root_turn )
+         && ((unsigned int)(p->cluster[i].b>>22) & 0x7ffffU) == move ) {
       return 1;
     }
   
   for ( i = 0; i < NumBookCluster; i++ )
     if ( ( (unsigned int)( p->cluster[i].b >> 41 ) & 0x1ffU )
-	 > (unsigned int)ply ) { break; }
+         > (unsigned int)ply ) { break; }
 
   if ( i < NumBookCluster ) {
     for ( j = NumBookCluster-1; j > i; j-- ) {
@@ -1049,7 +1049,7 @@ rep_check_learn( tree_t * restrict ptree, int ply )
 
   for ( i = n-2; i >= imin; i -= 2 )
     if ( ptree->rep_board_list[i] == HASH_KEY
-	 && ptree->rep_hand_list[i] == HAND_B ) { return four_fold_rep; }
+         && ptree->rep_hand_list[i] == HAND_B ) { return four_fold_rep; }
 
   return no_rep;
 }

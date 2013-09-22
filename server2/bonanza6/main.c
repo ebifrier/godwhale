@@ -39,10 +39,10 @@ main()
   if ( argc != 2 || strcmp( argv[1], "csa_shogi" ) )
     {
       MessageBox( NULL,
-		  "The executable image is not intended\x0d"
-		  "as an independent program file.\x0d"
-		  "Execute CSA.EXE instead.",
-		  str_myname, MB_OK | MB_ICONINFORMATION );
+                  "The executable image is not intended\x0d"
+                  "as an independent program file.\x0d"
+                  "Execute CSA.EXE instead.",
+                  str_myname, MB_OK | MB_ICONINFORMATION );
       return EXIT_FAILURE;
     }
 #endif
@@ -72,15 +72,15 @@ main()
     {
       iret = main_child( ptree );
       if ( iret == -1 )
-	{
-	  out_error( "%s", str_error );
-	  ShutdownAll();
-	  break;
-	}
+        {
+          out_error( "%s", str_error );
+          ShutdownAll();
+          break;
+        }
       else if ( iret == -2 )
-	{
-	  out_warning( "%s", str_error );
-	  ShutdownAll();
+        {
+          out_warning( "%s", str_error );
+          ShutdownAll();
            // 3/9/2011 when a perpetual check is the only move that
            // avoids being mated, bnz picks it and plays it, and then
            // returns -2 here.  if we CONTINUE here, it leads to a
@@ -88,7 +88,7 @@ main()
           //continue;
           break;
 
-	}
+        }
       else if ( iret == -3 ) { break; }
     }
 

@@ -17,51 +17,51 @@ solve_problems( tree_t * restrict ptree, unsigned int nposition )
   for ( uposition = 0; uposition < nposition; uposition++ )
     {
       istatus = in_CSA( ptree, &record_problems, NULL,
-			( flag_nomake_move | flag_detect_hang ) );
+                        ( flag_nomake_move | flag_detect_hang ) );
       if ( istatus < 0 ) { return istatus; }
 
       if ( istatus > record_next )
-	{
-	  snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
-		    record_problems.lines, str_bad_record );
-	  str_error = str_message;
-	  return -2;
-	}
+        {
+          snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
+                    record_problems.lines, str_bad_record );
+          str_error = str_message;
+          return -2;
+        }
 
       /* examine all of answers */
       Out( "Answers:" );
       for ( ianswer = 0; ianswer < MAX_ANSWER; ianswer++ )
-	{
-	  str_move = &( record_problems.info.str_move[ianswer][0] );
-	  if ( str_move[0] == '\0' ) { break; }
-	  if ( ( root_turn && str_move[0] != '-' )
-	       || ( ! root_turn && str_move[0] != '+' ) )
-	    {
-	      snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
-			record_problems.lines,
-			"Answers has invalid sign of turn." );
-	      str_error = str_message;
-	      return -2;
-	    }
+        {
+          str_move = &( record_problems.info.str_move[ianswer][0] );
+          if ( str_move[0] == '\0' ) { break; }
+          if ( ( root_turn && str_move[0] != '-' )
+               || ( ! root_turn && str_move[0] != '+' ) )
+            {
+              snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
+                        record_problems.lines,
+                        "Answers has invalid sign of turn." );
+              str_error = str_message;
+              return -2;
+            }
 
-	  iret = interpret_CSA_move( ptree, &move, str_move+1 );
-	  if ( iret < 0 ) { return iret; }
+          iret = interpret_CSA_move( ptree, &move, str_move+1 );
+          if ( iret < 0 ) { return iret; }
 
-	  iret = make_move_root( ptree, move, ( flag_detect_hang | flag_rep
-						| flag_nomake_move ) );
-	  if ( iret < 0 ) { return iret; }
+          iret = make_move_root( ptree, move, ( flag_detect_hang | flag_rep
+                                                | flag_nomake_move ) );
+          if ( iret < 0 ) { return iret; }
 
-	  Out( "%s ", str_move );
-	}
+          Out( "%s ", str_move );
+        }
       Out( "\n" );
       if ( ! ianswer )
-	{
-	  snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
-		    record_problems.lines,
-		    "No answers in the record" );
-	  str_error = str_message;
-	  return -2;
-	}
+        {
+          snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
+                    record_problems.lines,
+                    "No answers in the record" );
+          str_error = str_message;
+          return -2;
+        }
 
       iret = out_board( ptree, stdout, 0, 0 );
       if ( iret < 0 ) { return iret; }
@@ -82,16 +82,16 @@ solve_problems( tree_t * restrict ptree, unsigned int nposition )
 
       str_move = str_CSA_move( last_pv.a[1] );
       Out( "problem #%d answer=%s -- %s (correct=%d, incorrect=%d)\n\n",
-	   success+failure, str_move, iresult ? "correct" : "incorrect",
-	   success, failure );
+           success+failure, str_move, iresult ? "correct" : "incorrect",
+           success, failure );
 
       if ( istatus == record_eof ) { break; }
       if ( istatus == record_misc )
-	{
-	  iret = record_wind( &record_problems );
-	  if ( iret < 0 )           { return iret; }
-	  if ( iret == record_eof ) { break; }
-	}
+        {
+          iret = record_wind( &record_problems );
+          if ( iret < 0 )           { return iret; }
+          if ( iret == record_eof ) { break; }
+        }
     }
 
   if ( get_elapsed( &te1 ) < 0 ) { return -1; }
@@ -116,35 +116,35 @@ solve_mate_problems( tree_t * restrict ptree, unsigned int nposition )
       unsigned int record_move;
 
       for ( imove = 0; ; imove++ )
-	{
-	  istatus = in_CSA( ptree, &record_problems, &record_move,
-			    ( flag_nomake_move | flag_detect_hang
-			      | flag_nofmargin ) );
-	  if ( istatus < 0 )
-	    {
-	      str_error = str_illegal_move;
-	      return -1;
-	    }
+        {
+          istatus = in_CSA( ptree, &record_problems, &record_move,
+                            ( flag_nomake_move | flag_detect_hang
+                              | flag_nofmargin ) );
+          if ( istatus < 0 )
+            {
+              str_error = str_illegal_move;
+              return -1;
+            }
 
-	  if ( istatus >= record_eof ) { break; }
+          if ( istatus >= record_eof ) { break; }
 
-	  iret = make_move_root( ptree, record_move, 0 );
-	  if ( iret < 0 ) { return iret; }
-	}
+          iret = make_move_root( ptree, record_move, 0 );
+          if ( iret < 0 ) { return iret; }
+        }
 
       Out( "Problem #%d %s\n",
-	   uposition, ptree->nsuc_check[1] ? "(in check)" : "" );
-	
+           uposition, ptree->nsuc_check[1] ? "(in check)" : "" );
+        
       iret = dfpn( ptree, root_turn, 1 );
       if ( iret < 0 ) { return iret; }
 
       if ( istatus == record_eof ) { break; }
       if ( istatus == record_misc )
-	{
-	  iret = record_wind( &record_problems );
-	  if ( iret < 0 )           { return iret; }
-	  if ( iret == record_eof ) { break; }
-	}
+        {
+          iret = record_wind( &record_problems );
+          if ( iret < 0 )           { return iret; }
+          if ( iret == record_eof ) { break; }
+        }
     }
 
   return 1;

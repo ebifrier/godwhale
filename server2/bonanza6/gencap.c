@@ -20,7 +20,7 @@ b_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
 
       ifrom = ito + 9;
       utemp = ( To2Move(ito) | From2Move(ifrom) | Cap2Move(-BOARD[ito])
-		| Piece2Move(pawn) );
+                | Piece2Move(pawn) );
       if ( ito < A6 ) { utemp |= FLAG_PROMO; }
       *pmove++ = utemp;
     }
@@ -33,15 +33,15 @@ b_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
 
       BBAnd( bb_desti, bb_capture, abb_b_silver_attacks[ifrom] );
       while ( BBTest( bb_desti ) )
-	{
-	  ito = LastOne( bb_desti );
-	  Xor( ito, bb_desti );
+        {
+          ito = LastOne( bb_desti );
+          Xor( ito, bb_desti );
 
-	  utemp = ( To2Move(ito) | From2Move(ifrom) | Cap2Move(-BOARD[ito])
-		    | Piece2Move(silver) );
-	  if ( ito < A6 || ifrom < A6 ) { *pmove++ = utemp | FLAG_PROMO; }
-	  *pmove++ = utemp;
-	}
+          utemp = ( To2Move(ito) | From2Move(ifrom) | Cap2Move(-BOARD[ito])
+                    | Piece2Move(silver) );
+          if ( ito < A6 || ifrom < A6 ) { *pmove++ = utemp | FLAG_PROMO; }
+          *pmove++ = utemp;
+        }
     }
 
   bb_piece = BB_BTGOLD;
@@ -52,14 +52,14 @@ b_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
 
       BBAnd( bb_desti, bb_capture, abb_b_gold_attacks[ifrom] );
       while ( BBTest( bb_desti ) )
-	{
-	  ito = LastOne( bb_desti );
-	  Xor( ito, bb_desti );
+        {
+          ito = LastOne( bb_desti );
+          Xor( ito, bb_desti );
 
-	  *pmove++ = ( To2Move(ito) | From2Move(ifrom)
-		       | Cap2Move(-BOARD[ito])
-		       | Piece2Move(BOARD[ifrom]) );
-	}
+          *pmove++ = ( To2Move(ito) | From2Move(ifrom)
+                       | Cap2Move(-BOARD[ito])
+                       | Piece2Move(BOARD[ifrom]) );
+        }
     }
 
   ifrom = SQ_BKING;
@@ -70,7 +70,7 @@ b_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
       Xor( ito, bb_desti );
 
       *pmove++ = ( To2Move(ito) | From2Move(ifrom)
-		   | Cap2Move(-BOARD[ito]) | Piece2Move(king) );
+                   | Cap2Move(-BOARD[ito]) | Piece2Move(king) );
     }
 
   bb_piece = BB_BBISHOP;
@@ -82,25 +82,25 @@ b_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
       AttackBishop( bb_desti, ifrom );
       bb_desti.p[0] &= bb_movable.p[0];
       if ( ifrom < A6 )
-	{
-	  bb_desti.p[1] &= bb_movable.p[1];
-	  bb_desti.p[2] &= bb_movable.p[2];
-	}
+        {
+          bb_desti.p[1] &= bb_movable.p[1];
+          bb_desti.p[2] &= bb_movable.p[2];
+        }
       else {
-	bb_desti.p[1] &= bb_capture.p[1];
-	bb_desti.p[2] &= bb_capture.p[2];
+        bb_desti.p[1] &= bb_capture.p[1];
+        bb_desti.p[2] &= bb_capture.p[2];
       }
 
       while ( BBTest( bb_desti ) )
-	{
-	  ito = LastOne( bb_desti );
-	  Xor( ito, bb_desti );
+        {
+          ito = LastOne( bb_desti );
+          Xor( ito, bb_desti );
 
-	  utemp = ( To2Move(ito) | From2Move(ifrom)
-		    | Cap2Move(-BOARD[ito]) | Piece2Move(bishop) );
-	  if ( ito < A6 || ifrom < A6 ) { utemp |= FLAG_PROMO; }
-	  *pmove++ = utemp;
-	}
+          utemp = ( To2Move(ito) | From2Move(ifrom)
+                    | Cap2Move(-BOARD[ito]) | Piece2Move(bishop) );
+          if ( ito < A6 || ifrom < A6 ) { utemp |= FLAG_PROMO; }
+          *pmove++ = utemp;
+        }
     }
 
   bb_piece = BB_BROOK;
@@ -112,25 +112,25 @@ b_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
       AttackRook( bb_desti, ifrom );
       bb_desti.p[0] &= bb_movable.p[0];
       if ( ifrom < A6 )
-	{
-	  bb_desti.p[1] &= bb_movable.p[1];
-	  bb_desti.p[2] &= bb_movable.p[2];
-	}
+        {
+          bb_desti.p[1] &= bb_movable.p[1];
+          bb_desti.p[2] &= bb_movable.p[2];
+        }
       else {
-	bb_desti.p[1] &= bb_capture.p[1];
-	bb_desti.p[2] &= bb_capture.p[2];
+        bb_desti.p[1] &= bb_capture.p[1];
+        bb_desti.p[2] &= bb_capture.p[2];
       }
 
       while ( BBTest( bb_desti ) )
-	{
-	  ito = LastOne( bb_desti );
-	  Xor( ito, bb_desti );
+        {
+          ito = LastOne( bb_desti );
+          Xor( ito, bb_desti );
 
-	  utemp = ( To2Move(ito) | From2Move(ifrom)
-		    | Cap2Move(-BOARD[ito]) | Piece2Move(rook) );
-	  if ( ito < A6 || ifrom < A6 ) { utemp |= FLAG_PROMO; }
-	  *pmove++ = utemp;
-	}
+          utemp = ( To2Move(ito) | From2Move(ifrom)
+                    | Cap2Move(-BOARD[ito]) | Piece2Move(rook) );
+          if ( ito < A6 || ifrom < A6 ) { utemp |= FLAG_PROMO; }
+          *pmove++ = utemp;
+        }
     }
 
   bb_piece = BB_BHORSE;
@@ -142,13 +142,13 @@ b_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
       AttackHorse( bb_desti, ifrom );
       BBAnd( bb_desti, bb_desti, bb_capture );
       while ( BBTest( bb_desti ) )
-	{
-	  ito = LastOne( bb_desti );
-	  Xor( ito, bb_desti );
+        {
+          ito = LastOne( bb_desti );
+          Xor( ito, bb_desti );
 
-	  *pmove++ = ( To2Move(ito) | From2Move(ifrom)
-		       | Cap2Move(-BOARD[ito]) | Piece2Move(horse) );
-	}
+          *pmove++ = ( To2Move(ito) | From2Move(ifrom)
+                       | Cap2Move(-BOARD[ito]) | Piece2Move(horse) );
+        }
     }
 
   bb_piece = BB_BDRAGON;
@@ -160,13 +160,13 @@ b_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
       AttackDragon( bb_desti, ifrom );
       BBAnd( bb_desti, bb_desti, bb_capture );
       while ( BBTest( bb_desti ) )
-	{
-	  ito = LastOne( bb_desti );
-	  Xor( ito, bb_desti );
+        {
+          ito = LastOne( bb_desti );
+          Xor( ito, bb_desti );
 
-	  *pmove++ = ( To2Move(ito) | From2Move(ifrom)
-		       | Cap2Move(-BOARD[ito]) | Piece2Move(dragon) );
-	}
+          *pmove++ = ( To2Move(ito) | From2Move(ifrom)
+                       | Cap2Move(-BOARD[ito]) | Piece2Move(dragon) );
+        }
     }
 
   bb_piece = BB_BLANCE;
@@ -182,20 +182,20 @@ b_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
       bb_desti.p[2] &= bb_capture.p[2];
 
       while ( BBTest( bb_desti ) )
-	{
-	  ito = LastOne( bb_desti );
-	  Xor( ito, bb_desti );
+        {
+          ito = LastOne( bb_desti );
+          Xor( ito, bb_desti );
 
-	  utemp = ( To2Move(ito) | From2Move(ifrom)
-		    | Cap2Move(-BOARD[ito]) | Piece2Move(lance) );
-	  if      ( ito < A7 ) { *pmove++ = utemp | FLAG_PROMO; }
-	  else if ( ito < A6 )
-	    {
-	      *pmove++ = utemp | FLAG_PROMO;
-	      if ( UToCap(utemp) ) { *pmove++ = utemp; }
-	    }
-	  else { *pmove++ = utemp; }
-	}
+          utemp = ( To2Move(ito) | From2Move(ifrom)
+                    | Cap2Move(-BOARD[ito]) | Piece2Move(lance) );
+          if      ( ito < A7 ) { *pmove++ = utemp | FLAG_PROMO; }
+          else if ( ito < A6 )
+            {
+              *pmove++ = utemp | FLAG_PROMO;
+              if ( UToCap(utemp) ) { *pmove++ = utemp; }
+            }
+          else { *pmove++ = utemp; }
+        }
     }
 
   bb_piece = BB_BKNIGHT;
@@ -210,20 +210,20 @@ b_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
       bb_desti.p[2] &= bb_capture.p[2];
 
       while ( BBTest( bb_desti ) )
-	{
-	  ito = LastOne( bb_desti );
-	  Xor( ito, bb_desti );
+        {
+          ito = LastOne( bb_desti );
+          Xor( ito, bb_desti );
 
-	  utemp = ( To2Move(ito) | From2Move(ifrom)
-		    | Cap2Move(-BOARD[ito]) | Piece2Move(knight) );
-	  if      ( ito < A7 ) { *pmove++ = utemp | FLAG_PROMO; }
-	  else if ( ito < A6 )
-	    {
-	      *pmove++ = utemp | FLAG_PROMO;
-	      if ( UToCap(utemp) ) { *pmove++ = utemp; }
-	    }
-	  else { *pmove++ = utemp; }
-	}
+          utemp = ( To2Move(ito) | From2Move(ifrom)
+                    | Cap2Move(-BOARD[ito]) | Piece2Move(knight) );
+          if      ( ito < A7 ) { *pmove++ = utemp | FLAG_PROMO; }
+          else if ( ito < A6 )
+            {
+              *pmove++ = utemp | FLAG_PROMO;
+              if ( UToCap(utemp) ) { *pmove++ = utemp; }
+            }
+          else { *pmove++ = utemp; }
+        }
     }
 
   return pmove;
@@ -250,7 +250,7 @@ w_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
 
       ifrom = ito - 9;
       utemp = ( To2Move(ito) | From2Move(ifrom) | Cap2Move(BOARD[ito])
-		| Piece2Move(pawn) );
+                | Piece2Move(pawn) );
       if ( ito > I4 ) { utemp |= FLAG_PROMO; }
       *pmove++ = utemp;
     }
@@ -263,15 +263,15 @@ w_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
 
       BBAnd( bb_desti, bb_capture, abb_w_silver_attacks[ifrom] );
       while ( BBTest( bb_desti ) )
-	{
-	  ito = FirstOne( bb_desti );
-	  Xor( ito, bb_desti );
+        {
+          ito = FirstOne( bb_desti );
+          Xor( ito, bb_desti );
 
-	  utemp = ( To2Move(ito) | From2Move(ifrom) | Cap2Move(BOARD[ito])
-		    | Piece2Move(silver) );
-	  if ( ito > I4 || ifrom > I4 ) { *pmove++ = utemp | FLAG_PROMO; }
-	  *pmove++ = utemp;
-	}
+          utemp = ( To2Move(ito) | From2Move(ifrom) | Cap2Move(BOARD[ito])
+                    | Piece2Move(silver) );
+          if ( ito > I4 || ifrom > I4 ) { *pmove++ = utemp | FLAG_PROMO; }
+          *pmove++ = utemp;
+        }
     }
 
   bb_piece = BB_WTGOLD;
@@ -282,14 +282,14 @@ w_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
 
       BBAnd( bb_desti, bb_capture, abb_w_gold_attacks[ifrom] );
       while ( BBTest( bb_desti ) )
-	{
-	  ito = FirstOne( bb_desti );
-	  Xor( ito, bb_desti );
+        {
+          ito = FirstOne( bb_desti );
+          Xor( ito, bb_desti );
 
-	  *pmove++ = ( To2Move(ito) | From2Move(ifrom)
-		       | Cap2Move(BOARD[ito])
-		       | Piece2Move(-BOARD[ifrom]) );
-	}
+          *pmove++ = ( To2Move(ito) | From2Move(ifrom)
+                       | Cap2Move(BOARD[ito])
+                       | Piece2Move(-BOARD[ifrom]) );
+        }
     }
 
   ifrom = SQ_WKING;
@@ -300,7 +300,7 @@ w_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
       Xor( ito, bb_desti );
 
       *pmove++ = ( To2Move(ito) | From2Move(ifrom)
-		   | Cap2Move(BOARD[ito]) | Piece2Move(king) );
+                   | Cap2Move(BOARD[ito]) | Piece2Move(king) );
     }
 
   bb_piece = BB_WBISHOP;
@@ -312,25 +312,25 @@ w_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
       AttackBishop( bb_desti, ifrom );
       bb_desti.p[2] &= bb_movable.p[2];
       if ( ifrom > I4 )
-	{
-	  bb_desti.p[1] &= bb_movable.p[1];
-	  bb_desti.p[0] &= bb_movable.p[0];
-	}
+        {
+          bb_desti.p[1] &= bb_movable.p[1];
+          bb_desti.p[0] &= bb_movable.p[0];
+        }
       else {
-	bb_desti.p[1] &= bb_capture.p[1];
-	bb_desti.p[0] &= bb_capture.p[0];
+        bb_desti.p[1] &= bb_capture.p[1];
+        bb_desti.p[0] &= bb_capture.p[0];
       }
 
       while ( BBTest( bb_desti ) )
-	{
-	  ito = FirstOne( bb_desti );
-	  Xor( ito, bb_desti );
+        {
+          ito = FirstOne( bb_desti );
+          Xor( ito, bb_desti );
 
-	  utemp = ( To2Move(ito) | From2Move(ifrom)
-		    | Cap2Move(BOARD[ito]) | Piece2Move(bishop) );
-	  if ( ito > I4 || ifrom > I4 ) { utemp |= FLAG_PROMO; }
-	  *pmove++ = utemp;
-	}
+          utemp = ( To2Move(ito) | From2Move(ifrom)
+                    | Cap2Move(BOARD[ito]) | Piece2Move(bishop) );
+          if ( ito > I4 || ifrom > I4 ) { utemp |= FLAG_PROMO; }
+          *pmove++ = utemp;
+        }
     }
 
   bb_piece = BB_WROOK;
@@ -342,25 +342,25 @@ w_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
       AttackRook( bb_desti, ifrom );
       bb_desti.p[2] &= bb_movable.p[2];
       if ( ifrom > I4 )
-	{
-	  bb_desti.p[1] &= bb_movable.p[1];
-	  bb_desti.p[0] &= bb_movable.p[0];
-	}
+        {
+          bb_desti.p[1] &= bb_movable.p[1];
+          bb_desti.p[0] &= bb_movable.p[0];
+        }
       else {
-	bb_desti.p[1] &= bb_capture.p[1];
-	bb_desti.p[0] &= bb_capture.p[0];
+        bb_desti.p[1] &= bb_capture.p[1];
+        bb_desti.p[0] &= bb_capture.p[0];
       }
 
       while ( BBTest( bb_desti ) )
-	{
-	  ito = FirstOne( bb_desti );
-	  Xor( ito, bb_desti );
+        {
+          ito = FirstOne( bb_desti );
+          Xor( ito, bb_desti );
 
-	  utemp = ( To2Move(ito) | From2Move(ifrom)
-		    | Cap2Move(BOARD[ito]) | Piece2Move(rook) );
-	  if ( ito > I4 || ifrom > I4 ) { utemp |= FLAG_PROMO; }
-	  *pmove++ = utemp;
-	}
+          utemp = ( To2Move(ito) | From2Move(ifrom)
+                    | Cap2Move(BOARD[ito]) | Piece2Move(rook) );
+          if ( ito > I4 || ifrom > I4 ) { utemp |= FLAG_PROMO; }
+          *pmove++ = utemp;
+        }
     }
 
   bb_piece = BB_WHORSE;
@@ -372,13 +372,13 @@ w_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
       AttackHorse( bb_desti, ifrom );
       BBAnd( bb_desti, bb_desti, bb_capture );
       while ( BBTest( bb_desti ) )
-	{
-	  ito = FirstOne( bb_desti );
-	  Xor( ito, bb_desti );
+        {
+          ito = FirstOne( bb_desti );
+          Xor( ito, bb_desti );
 
-	  *pmove++ = ( To2Move(ito) | From2Move(ifrom)
-		       | Cap2Move(BOARD[ito]) | Piece2Move(horse) );
-	}
+          *pmove++ = ( To2Move(ito) | From2Move(ifrom)
+                       | Cap2Move(BOARD[ito]) | Piece2Move(horse) );
+        }
     }
 
   bb_piece = BB_WDRAGON;
@@ -390,13 +390,13 @@ w_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
       AttackDragon( bb_desti, ifrom );
       BBAnd( bb_desti, bb_desti, bb_capture );
       while ( BBTest( bb_desti ) )
-	{
-	  ito = FirstOne( bb_desti );
-	  Xor( ito, bb_desti );
+        {
+          ito = FirstOne( bb_desti );
+          Xor( ito, bb_desti );
 
-	  *pmove++ = ( To2Move(ito) | From2Move(ifrom)
-		       | Cap2Move(BOARD[ito]) | Piece2Move(dragon) );
-	}
+          *pmove++ = ( To2Move(ito) | From2Move(ifrom)
+                       | Cap2Move(BOARD[ito]) | Piece2Move(dragon) );
+        }
     }
 
   bb_piece = BB_WLANCE;
@@ -412,20 +412,20 @@ w_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
       bb_desti.p[0] &= bb_capture.p[0];
 
       while ( BBTest( bb_desti ) )
-	{
-	  ito = FirstOne( bb_desti );
-	  Xor( ito, bb_desti );
+        {
+          ito = FirstOne( bb_desti );
+          Xor( ito, bb_desti );
 
-	  utemp = ( To2Move(ito) | From2Move(ifrom)
-		    | Cap2Move(BOARD[ito]) | Piece2Move(lance) );
-	  if      ( ito > I3 ) { *pmove++ = utemp | FLAG_PROMO; }
-	  else if ( ito > I4 )
-	    {
-	      *pmove++ = utemp | FLAG_PROMO;
-	      if ( UToCap(utemp) ) { *pmove++ = utemp; }
-	    }
-	  else { *pmove++ = utemp; }
-	}
+          utemp = ( To2Move(ito) | From2Move(ifrom)
+                    | Cap2Move(BOARD[ito]) | Piece2Move(lance) );
+          if      ( ito > I3 ) { *pmove++ = utemp | FLAG_PROMO; }
+          else if ( ito > I4 )
+            {
+              *pmove++ = utemp | FLAG_PROMO;
+              if ( UToCap(utemp) ) { *pmove++ = utemp; }
+            }
+          else { *pmove++ = utemp; }
+        }
     }
 
   bb_piece = BB_WKNIGHT;
@@ -440,20 +440,20 @@ w_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
       bb_desti.p[0] &= bb_capture.p[0];
 
       while ( BBTest( bb_desti ) )
-	{
-	  ito = FirstOne( bb_desti );
-	  Xor( ito, bb_desti );
+        {
+          ito = FirstOne( bb_desti );
+          Xor( ito, bb_desti );
 
-	  utemp = ( To2Move(ito) | From2Move(ifrom)
-		    | Cap2Move(BOARD[ito]) | Piece2Move(knight) );
-	  if      ( ito > I3 ) { *pmove++ = utemp | FLAG_PROMO; }
-	  else if ( ito > I4 )
-	    {
-	      *pmove++ = utemp | FLAG_PROMO;
-	      if ( UToCap(utemp) ) { *pmove++ = utemp; }
-	    }
-	  else { *pmove++ = utemp; }
-	}
+          utemp = ( To2Move(ito) | From2Move(ifrom)
+                    | Cap2Move(BOARD[ito]) | Piece2Move(knight) );
+          if      ( ito > I3 ) { *pmove++ = utemp | FLAG_PROMO; }
+          else if ( ito > I4 )
+            {
+              *pmove++ = utemp | FLAG_PROMO;
+              if ( UToCap(utemp) ) { *pmove++ = utemp; }
+            }
+          else { *pmove++ = utemp; }
+        }
     }
 
   return pmove;

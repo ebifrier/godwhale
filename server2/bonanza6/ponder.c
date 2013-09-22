@@ -96,8 +96,8 @@ analyze( tree_t * restrict ptree )
   if ( game_status & mask_game_end )
     {
       MnjOut( "pid=%d move=%%TORYO v=%de n=0 final%s\n",
-	      mnj_posi_id, -score_bound,
-	      ( mnj_depth_stable == INT_MAX ) ? "" : " stable" );
+              mnj_posi_id, -score_bound,
+              ( mnj_depth_stable == INT_MAX ) ? "" : " stable" );
       return 1;
     }
 #endif
@@ -112,7 +112,7 @@ analyze( tree_t * restrict ptree )
   if ( abs(last_root_value) > score_max_eval )
     {
       MnjOut( "pid=%d final%s\n", mnj_posi_id,
-	      ( mnj_depth_stable == INT_MAX ) ? "" : " stable" );
+              ( mnj_depth_stable == INT_MAX ) ? "" : " stable" );
     }
 
   return iret;

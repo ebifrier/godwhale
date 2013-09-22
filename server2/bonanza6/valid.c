@@ -18,25 +18,25 @@ is_move_valid( tree_t * restrict __ptree__, unsigned int move, int turn )
     {
       piece_move = (int)I2PieceMove(move);
       if ( turn )
-	{
-	  if ( BOARD[from] != -piece_move )       { return 0; }
-	  if ( BOARD[to]   != (int)UToCap(move) ) { return 0; }
-	}
+        {
+          if ( BOARD[from] != -piece_move )       { return 0; }
+          if ( BOARD[to]   != (int)UToCap(move) ) { return 0; }
+        }
       else {
-	if ( BOARD[from] !=  piece_move )        { return 0; }
-	if ( BOARD[to]   != -(int)UToCap(move) ) { return 0; }
+        if ( BOARD[from] !=  piece_move )        { return 0; }
+        if ( BOARD[to]   != -(int)UToCap(move) ) { return 0; }
       }
       
       switch ( piece_move )
-	{
-	case 0:  return 0;
+        {
+        case 0:  return 0;
 
-	case lance:  case bishop:  case horse:  case rook:  case dragon:
-	  BBOr( bb, BB_BOCCUPY, BB_WOCCUPY );
-	  BBAnd( bb, bb, abb_obstacle[from][to] );
-	  if ( BBTest( bb ) ) { return 0; }
-	  break;
-	}
+        case lance:  case bishop:  case horse:  case rook:  case dragon:
+          BBOr( bb, BB_BOCCUPY, BB_WOCCUPY );
+          BBAnd( bb, bb, abb_obstacle[from][to] );
+          if ( BBTest( bb ) ) { return 0; }
+          break;
+        }
 
       return 1;
     }
@@ -47,21 +47,21 @@ is_move_valid( tree_t * restrict __ptree__, unsigned int move, int turn )
     switch ( From2Drop(from) )
       {
       case pawn:
-	if ( ! IsHandPawn(u) ) { return 0; }
-	{
-	  if ( turn )
-	    {
-	      u = BBToU( BB_WPAWN_ATK );
-	      if ( ( mask_file1 >> aifile[to] ) & u ) { return 0; }
-	      if ( IsMateWPawnDrop(__ptree__, to) )   { return 0; }
-	    }
-	  else {
-	    u = BBToU( BB_BPAWN_ATK );
-	    if ( ( mask_file1 >> aifile[to] ) & u ) { return 0; }
-	    if ( IsMateBPawnDrop(__ptree__, to) )   { return 0; }
-	  }
-	  return 1;
-	}
+        if ( ! IsHandPawn(u) ) { return 0; }
+        {
+          if ( turn )
+            {
+              u = BBToU( BB_WPAWN_ATK );
+              if ( ( mask_file1 >> aifile[to] ) & u ) { return 0; }
+              if ( IsMateWPawnDrop(__ptree__, to) )   { return 0; }
+            }
+          else {
+            u = BBToU( BB_BPAWN_ATK );
+            if ( ( mask_file1 >> aifile[to] ) & u ) { return 0; }
+            if ( IsMateBPawnDrop(__ptree__, to) )   { return 0; }
+          }
+          return 1;
+        }
       case lance:   if ( IsHandLance(u) )  { return 1; }  break;
       case knight:  if ( IsHandKnight(u) ) { return 1; }  break;
       case silver:  if ( IsHandSilver(u) ) { return 1; }  break;
@@ -107,9 +107,9 @@ exam_tree( const tree_t * restrict ptree )
       case bishop:  case horse:       nbishop++;  break;
       case rook:    case dragon:      nrook++;    break;
       case king:
-	if ( BOARD[isquare] == king ) { nbking++; }
-	else                            { nwking++; }
-	break;
+        if ( BOARD[isquare] == king ) { nbking++; }
+        else                            { nwking++; }
+        break;
       }
   NpchkReturn( pawn );    NpchkReturn( lance );
   NpchkReturn( knight );  NpchkReturn( silver );
@@ -126,61 +126,61 @@ exam_tree( const tree_t * restrict ptree )
     {
       bcounter = wcounter = 0;
       for ( irank = 0; irank < 9; irank++ )
-	{
-	  if ( BOARD[ irank*nfile+ifile ] ==  pawn ) { bcounter++; }
-	  if ( BOARD[ irank*nfile+ifile ] == -pawn ) { wcounter++; }
-	}
+        {
+          if ( BOARD[ irank*nfile+ifile ] ==  pawn ) { bcounter++; }
+          if ( BOARD[ irank*nfile+ifile ] == -pawn ) { wcounter++; }
+        }
       if ( bcounter > 1 )
-	{
-	  str_error = "two black pawns at a file";
-	  return -2;
-	}
+        {
+          str_error = "two black pawns at a file";
+          return -2;
+        }
       if ( wcounter > 1 )
-	{
-	  str_error="two white pawns at a file";
-	  return -2;
-	}
+        {
+          str_error="two white pawns at a file";
+          return -2;
+        }
     }
 
   /* pieces can not move */
   for ( isquare = 0; isquare < 9; isquare++ )
     {
       if ( BOARD[ isquare ] == pawn )
-	{
-	  str_error = "black pawns in rank 1";
-	  return -2;
-	}
+        {
+          str_error = "black pawns in rank 1";
+          return -2;
+        }
       if ( BOARD[ isquare ] == lance )
-	{
-	  str_error = "black lances in rank 1";
-	  return -2;
-	}
+        {
+          str_error = "black lances in rank 1";
+          return -2;
+        }
     }
   for ( isquare = 0; isquare < 18; isquare++ )
     if ( BOARD[ isquare ] == knight )
       {
-	str_error = "black knights in rank 1-2";
-	return -2;
+        str_error = "black knights in rank 1-2";
+        return -2;
       }
 
   for ( isquare = 72; isquare < 81; isquare++ )
     {
       if ( BOARD[ isquare ] == -pawn )
-	{
-	  str_error = "white pawns in rank 9";
-	  return -2;
-	}
+        {
+          str_error = "white pawns in rank 9";
+          return -2;
+        }
       if ( BOARD[ isquare ] == -lance )
-	{
-	  str_error = "white lances in rank 9";
-	  return -2;
-	}
+        {
+          str_error = "white lances in rank 9";
+          return -2;
+        }
     }
   for ( isquare = 63; isquare < 81; isquare++ )
     if ( BOARD[ isquare ] == -knight )
       {
-	str_error = "white knights in rank 8-9";
-	return -2;
+        str_error = "white knights in rank 8-9";
+        return -2;
       }
 
   if ( InCheck( Flip(root_turn) ) )

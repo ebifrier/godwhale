@@ -24,14 +24,14 @@ static int CONV useless_delta_ticking( node_t * restrict pnode );
 static unsigned int CONV min_delta_c( const node_t * restrict pnode );
 static unsigned int CONV sum_phi_c( const node_t * restrict pnode );
 static int CONV init_children( tree_t * restrict ptree,
-			       dfpn_tree_t * restrict pdfpn_tree, int ply );
+                               dfpn_tree_t * restrict pdfpn_tree, int ply );
 static int CONV mid( tree_t * restrict ptree,
-		     dfpn_tree_t * restrict pdfpn_tree, int ply );
+                     dfpn_tree_t * restrict pdfpn_tree, int ply );
 static void CONV select_child( const tree_t * restrict ptree,
-			       node_t * restrict pnode_c,
-			       unsigned int * restrict pphi_c,
-			       unsigned int * restrict pdelta_c,
-			       unsigned int * restrict pdelta_2 );
+                               node_t * restrict pnode_c,
+                               unsigned int * restrict pphi_c,
+                               unsigned int * restrict pdelta_c,
+                               unsigned int * restrict pdelta_2 );
 static void CONV num2str( char buf[16], unsigned int num );
 
 #if defined(TLP)
@@ -112,9 +112,9 @@ dfpn( tree_t * restrict ptree, int turn, int ply )
       case DFPN_ERRNO_SUMPHI:   Out( "RESULT: MAX SUM_PHI\n" );   break;
       case DFPN_ERRNO_DELTA2P:  Out( "RESULT: MAX DELTA2+1\n" );  break;
       default:
-	assert( DFPN_ERRNO_SIGNAL == iret );
+        assert( DFPN_ERRNO_SIGNAL == iret );
         Out( "RESULT: SIGNAL\n" );
-	break;
+        break;
       }
     }
   else if ( pnode->delta == INF )
@@ -177,7 +177,7 @@ mid( tree_t * restrict ptree, dfpn_tree_t * restrict pdfpn_tree, int ply )
 #if defined(DFPN_DBG)
   if ( ptree->node_searched >= 1000000 ) { dbg_flag = 1; }
   DOut( ply, "MID START [%u,%u]",
-	pnode->phi, pnode->delta );
+        pnode->phi, pnode->delta );
   dbg_out_move_seq( pdfpn_tree->anode, ply );
 #endif
 
@@ -193,9 +193,9 @@ mid( tree_t * restrict ptree, dfpn_tree_t * restrict pdfpn_tree, int ply )
     if ( ! ptree->tlp_id )
 #endif
       if ( node_next_signal < ++node_last_check && detect_signals( ptree ) )
-	{
-	  return DFPN_ERRNO_SIGNAL;
-	}
+        {
+          return DFPN_ERRNO_SIGNAL;
+        }
   
   if ( PLY_MAX-4 < ply ) { return DFPN_ERRNO_MAXPLY; }
   
@@ -235,7 +235,7 @@ mid( tree_t * restrict ptree, dfpn_tree_t * restrict pdfpn_tree, int ply )
 
     if ( pdfpn_tree->sum_phi_max < pnode->sum_phi && pnode->sum_phi < INF_1 )
       {
-	pdfpn_tree->sum_phi_max = pnode->sum_phi;
+        pdfpn_tree->sum_phi_max = pnode->sum_phi;
       }
 
 #if defined(DFPN_DBG)
@@ -245,20 +245,20 @@ mid( tree_t * restrict ptree, dfpn_tree_t * restrict pdfpn_tree, int ply )
 #endif
     
     if ( pnode->phi <= pnode->min_delta
-	 || pnode->delta <= pnode->sum_phi ) { break; }
+         || pnode->delta <= pnode->sum_phi ) { break; }
 
 
     DOut( ply, "PROGRESS: [%u/%u,%u/%u] %u\n",
-	  pnode->min_delta, pnode->phi, pnode->sum_phi, pnode->delta, INF );
+          pnode->min_delta, pnode->phi, pnode->sum_phi, pnode->delta, INF );
     
     select_child( ptree, pnode, &phi_c, &delta_c, &delta_2 );
     assert( pdfpn_tree->root_ply == ply
-	    || ! pnode->children[pnode->icurr_c].is_loop );
+            || ! pnode->children[pnode->icurr_c].is_loop );
 
     if ( useless_delta_ticking( pnode ) )
       {
-	DOut( ply, "USELESS DELTA TICKING, DELTA_2=%u", pnode->phi );
-	delta_2 = pnode->phi;
+        DOut( ply, "USELESS DELTA TICKING, DELTA_2=%u", pnode->phi );
+        delta_2 = pnode->phi;
       }
 
     if      ( phi_c        == INF_1 ) { pnode_c->phi = INF; }
@@ -282,7 +282,7 @@ mid( tree_t * restrict ptree, dfpn_tree_t * restrict pdfpn_tree, int ply )
 
     if ( pnode->children[pnode->icurr_c].nodes == 0 )
       {
-	pnode_c->new_expansion = 1;
+        pnode_c->new_expansion = 1;
       }
     else { pnode_c->new_expansion = 0; }
 
@@ -299,7 +299,7 @@ mid( tree_t * restrict ptree, dfpn_tree_t * restrict pdfpn_tree, int ply )
     pnode->children[pnode->icurr_c].expanded  = pnode_c->new_expansion;
 
     dfpn_hash_probe( pdfpn_tree, &pnode->children[pnode->icurr_c], ply,
-		     Flip(pnode->turn) );
+                     Flip(pnode->turn) );
   }
 
   pnode->phi   = pnode->min_delta;
@@ -335,7 +335,7 @@ useless_delta_ticking( node_t * restrict pnode )
 
 static int CONV
 init_children( tree_t * restrict ptree, dfpn_tree_t * restrict pdfpn_tree,
-	       int ply )
+               int ply )
 {
   node_t * restrict pnode = pdfpn_tree->anode + ply;
   const unsigned int *plast, *pmove;
@@ -351,83 +351,83 @@ init_children( tree_t * restrict ptree, dfpn_tree_t * restrict pdfpn_tree,
     
     for ( pmove = amove; pmove != plast; pmove++ )
       {
-	int from = I2From(*pmove);
-	int to   = I2To(*pmove);
-	assert( is_move_valid( ptree, *pmove, pnode->turn ) );
-	
-	MakeMove( pnode->turn, *pmove, ply );
+        int from = I2From(*pmove);
+        int to   = I2To(*pmove);
+        assert( is_move_valid( ptree, *pmove, pnode->turn ) );
+        
+        MakeMove( pnode->turn, *pmove, ply );
 
-	if ( InCheck(pnode->turn) )
-	  {
-	    UnMakeMove( pnode->turn, *pmove, ply );
-	    continue;
-	  }
+        if ( InCheck(pnode->turn) )
+          {
+            UnMakeMove( pnode->turn, *pmove, ply );
+            continue;
+          }
 
-	if ( pnode->new_expansion
-	     && ! ( pnode->turn ? b_have_evasion(ptree)
+        if ( pnode->new_expansion
+             && ! ( pnode->turn ? b_have_evasion(ptree)
                                 : w_have_evasion(ptree) ) )
-	  {
-	    pnode->children[0].move  = *pmove;
-	    pnode->children[0].phi   = INF;
-	    pnode->children[0].delta = 0;
-	    pnode->icurr_c           = 0;
-	    pnode->nmove             = 1;
-	    pnode->children[0].min_hand_b
-	      = pnode->turn ? dfpn_max_hand_b( HAND_B, HAND_W )
+          {
+            pnode->children[0].move  = *pmove;
+            pnode->children[0].phi   = INF;
+            pnode->children[0].delta = 0;
+            pnode->icurr_c           = 0;
+            pnode->nmove             = 1;
+            pnode->children[0].min_hand_b
+              = pnode->turn ? dfpn_max_hand_b( HAND_B, HAND_W )
                             : dfpn_max_hand_w( HAND_B, HAND_W );
-	    
-	    UnMakeMove( pnode->turn, *pmove, ply );
-	    return 1;
-	  }
+            
+            UnMakeMove( pnode->turn, *pmove, ply );
+            return 1;
+          }
 
 
-	if ( from < nsquare )
-	  {
-	    pnode->children[n].is_weak  = 0;
-	    pnode->children[n].priority = 1U;
-	  }
-	/* drop to next square of the king */
-	else if ( From2Drop(from) == knight
-		  || BBContract( abb_king_attacks[sq_king], abb_mask[to] ) )
-	  {
-	    pnode->children[n].is_weak  = 0;
-	    pnode->children[n].priority = 1U;
-	  }
-	/* check by piece drop from far way */
-	else {
-	  pnode->children[n].is_weak
-	    = weak_drop + ( adirec[sq_king][to] << 1 ) + ( sq_king < to );
-	  pnode->children[n].priority = 1U;
-	}
+        if ( from < nsquare )
+          {
+            pnode->children[n].is_weak  = 0;
+            pnode->children[n].priority = 1U;
+          }
+        /* drop to next square of the king */
+        else if ( From2Drop(from) == knight
+                  || BBContract( abb_king_attacks[sq_king], abb_mask[to] ) )
+          {
+            pnode->children[n].is_weak  = 0;
+            pnode->children[n].priority = 1U;
+          }
+        /* check by piece drop from far way */
+        else {
+          pnode->children[n].is_weak
+            = weak_drop + ( adirec[sq_king][to] << 1 ) + ( sq_king < to );
+          pnode->children[n].priority = 1U;
+        }
 
-	pnode->children[n].nodes         = 0;
-	pnode->children[n].phi           = 1U;
-	pnode->children[n].delta         = 1U;
-	pnode->children[n].is_loop       = 0;
-	pnode->children[n].is_phi_loop   = 0;
-	pnode->children[n].is_delta_loop = 0;
-	pnode->children[n].hash_key      = HASH_KEY;
-	pnode->children[n].hand_b        = HAND_B;
-	pnode->children[n].min_hand_b    = HAND_B;
-	pnode->children[n].move          = *pmove;
-	pnode->children[n].expanded      = UINT64_MAX;
-	switch( dfpn_detect_rep( pdfpn_tree, HASH_KEY, HAND_B, ply-3, &ip ) )
-	  {
-	  case 1:
-	    DOut( ply, "LOOP DELTA: %s", str_CSA_move(*pmove) );
-	    pnode->children[n].is_loop       = 1;
-	    pnode->children[n].is_delta_loop = 1;
-	    pnode->children[n].delta = pdfpn_tree->anode[ip].delta;
-	    assert( pnode->phi <= pdfpn_tree->anode[ip].delta );
-	    break;
+        pnode->children[n].nodes         = 0;
+        pnode->children[n].phi           = 1U;
+        pnode->children[n].delta         = 1U;
+        pnode->children[n].is_loop       = 0;
+        pnode->children[n].is_phi_loop   = 0;
+        pnode->children[n].is_delta_loop = 0;
+        pnode->children[n].hash_key      = HASH_KEY;
+        pnode->children[n].hand_b        = HAND_B;
+        pnode->children[n].min_hand_b    = HAND_B;
+        pnode->children[n].move          = *pmove;
+        pnode->children[n].expanded      = UINT64_MAX;
+        switch( dfpn_detect_rep( pdfpn_tree, HASH_KEY, HAND_B, ply-3, &ip ) )
+          {
+          case 1:
+            DOut( ply, "LOOP DELTA: %s", str_CSA_move(*pmove) );
+            pnode->children[n].is_loop       = 1;
+            pnode->children[n].is_delta_loop = 1;
+            pnode->children[n].delta = pdfpn_tree->anode[ip].delta;
+            assert( pnode->phi <= pdfpn_tree->anode[ip].delta );
+            break;
 
-	  default:
-	    dfpn_hash_probe( pdfpn_tree, &pnode->children[n], ply,
-			     Flip(pnode->turn) );
-	  }
+          default:
+            dfpn_hash_probe( pdfpn_tree, &pnode->children[n], ply,
+                             Flip(pnode->turn) );
+          }
 
-	UnMakeMove( pnode->turn, *pmove, ply );
-	n += 1;
+        UnMakeMove( pnode->turn, *pmove, ply );
+        n += 1;
       }
 
   } else {
@@ -443,112 +443,112 @@ init_children( tree_t * restrict ptree, dfpn_tree_t * restrict pdfpn_tree,
     
     for ( pmove  = amove; pmove != plast; pmove++ )
       {
-	assert( is_move_valid( ptree, *pmove, pnode->turn ) );
-	
-	MakeMove( pnode->turn, *pmove, ply );
+        assert( is_move_valid( ptree, *pmove, pnode->turn ) );
+        
+        MakeMove( pnode->turn, *pmove, ply );
 
-	pnode->children[n].is_weak = 0;
-	to                         = I2To(*pmove);
+        pnode->children[n].is_weak = 0;
+        to                         = I2To(*pmove);
 
-	/* capture or king move */
-	if ( I2PieceMove(*pmove) == king || UToCap(*pmove) )
-	  {
-	    if ( I2PieceMove(*pmove) == king && UToCap(*pmove) )
-	      {
-		pnode->children[n].priority = 2U;
-	      }
-	    else if ( UToCap(*pmove) )
-	      {
-		pnode->children[n].priority = 3U;
-	      }
-	    else { pnode->children[n].priority = 4U; }
+        /* capture or king move */
+        if ( I2PieceMove(*pmove) == king || UToCap(*pmove) )
+          {
+            if ( I2PieceMove(*pmove) == king && UToCap(*pmove) )
+              {
+                pnode->children[n].priority = 2U;
+              }
+            else if ( UToCap(*pmove) )
+              {
+                pnode->children[n].priority = 3U;
+              }
+            else { pnode->children[n].priority = 4U; }
 
-	    /* non-intercepts may disproof this node easily. */
-	    if ( pnode->new_expansion
-		 && ! ( pnode->turn ? b_have_checks(ptree)
+            /* non-intercepts may disproof this node easily. */
+            if ( pnode->new_expansion
+                 && ! ( pnode->turn ? b_have_checks(ptree)
                                     : w_have_checks(ptree) ) )
-	      {
-		pnode->children[0].move  = *pmove;
-		pnode->children[0].phi   = INF;
-		pnode->children[0].delta = 0;
-		pnode->icurr_c           = 0;
-		pnode->nmove             = 1;
-		pnode->children[0].min_hand_b
-		  = pnode->turn ? dfpn_max_hand_b( HAND_B, HAND_W )
+              {
+                pnode->children[0].move  = *pmove;
+                pnode->children[0].phi   = INF;
+                pnode->children[0].delta = 0;
+                pnode->icurr_c           = 0;
+                pnode->nmove             = 1;
+                pnode->children[0].min_hand_b
+                  = pnode->turn ? dfpn_max_hand_b( HAND_B, HAND_W )
                                 : dfpn_max_hand_w( HAND_B, HAND_W );
-		UnMakeMove( pnode->turn, *pmove, ply );
-		return 1;
-	      }
-	  }
+                UnMakeMove( pnode->turn, *pmove, ply );
+                return 1;
+              }
+          }
 
-	/* interseptions by move */
-	else if ( I2From(*pmove) < nsquare )
-	  {
-	    pnode->children[n].priority = 4U;
-	    BBOr( bb_intercept, bb_intercept, abb_mask[to] );
-	  }
-	/* interseptions by drop */
-	else if ( BBContract( bb_intercept, abb_mask[to] )
-		  || BBContract( abb_king_attacks[sq_king],
-				 abb_mask[to] ) )
-	  {
-	    pnode->children[n].priority = 5U;
-	    pnode->children[n].is_weak  = weak_drop + to;
-	  }
-	/* 'chuai' interseptions */
-	else {
-	  pnode->children[n].priority = 6U;
-	  pnode->children[n].is_weak  = weak_chuai;
-	}
+        /* interseptions by move */
+        else if ( I2From(*pmove) < nsquare )
+          {
+            pnode->children[n].priority = 4U;
+            BBOr( bb_intercept, bb_intercept, abb_mask[to] );
+          }
+        /* interseptions by drop */
+        else if ( BBContract( bb_intercept, abb_mask[to] )
+                  || BBContract( abb_king_attacks[sq_king],
+                                 abb_mask[to] ) )
+          {
+            pnode->children[n].priority = 5U;
+            pnode->children[n].is_weak  = weak_drop + to;
+          }
+        /* 'chuai' interseptions */
+        else {
+          pnode->children[n].priority = 6U;
+          pnode->children[n].is_weak  = weak_chuai;
+        }
 
-	pnode->children[n].is_loop       = 0;
-	pnode->children[n].is_phi_loop   = 0;
-	pnode->children[n].is_delta_loop = 0;
-	pnode->children[n].hash_key      = HASH_KEY;
-	pnode->children[n].hand_b        = HAND_B;
-	pnode->children[n].min_hand_b    = HAND_B;
-	pnode->children[n].nodes         = 0;
-	pnode->children[n].phi           = 1U;
-	pnode->children[n].delta         = 1U;
-	pnode->children[n].move          = *pmove;
-	pnode->children[n].expanded      = UINT64_MAX;
-	switch( dfpn_detect_rep( pdfpn_tree, HASH_KEY, HAND_B, ply-3, &ip ) )
-	  {
-	  case 1:
-	    DOut( ply, "LOOP PHI: %s", str_CSA_move(*pmove) );
-	    pnode->children[n].is_loop     = 1;
-	    pnode->children[n].is_phi_loop = 1;
-	    pnode->children[n].phi = pdfpn_tree->anode[ip].phi;
-	    assert( pnode->delta <= pdfpn_tree->anode[ip].phi );
-	    break;
+        pnode->children[n].is_loop       = 0;
+        pnode->children[n].is_phi_loop   = 0;
+        pnode->children[n].is_delta_loop = 0;
+        pnode->children[n].hash_key      = HASH_KEY;
+        pnode->children[n].hand_b        = HAND_B;
+        pnode->children[n].min_hand_b    = HAND_B;
+        pnode->children[n].nodes         = 0;
+        pnode->children[n].phi           = 1U;
+        pnode->children[n].delta         = 1U;
+        pnode->children[n].move          = *pmove;
+        pnode->children[n].expanded      = UINT64_MAX;
+        switch( dfpn_detect_rep( pdfpn_tree, HASH_KEY, HAND_B, ply-3, &ip ) )
+          {
+          case 1:
+            DOut( ply, "LOOP PHI: %s", str_CSA_move(*pmove) );
+            pnode->children[n].is_loop     = 1;
+            pnode->children[n].is_phi_loop = 1;
+            pnode->children[n].phi = pdfpn_tree->anode[ip].phi;
+            assert( pnode->delta <= pdfpn_tree->anode[ip].phi );
+            break;
 
-	  default:
-	    dfpn_hash_probe( pdfpn_tree, &pnode->children[n], ply,
-			     Flip(pnode->turn) );
-	  }
+          default:
+            dfpn_hash_probe( pdfpn_tree, &pnode->children[n], ply,
+                             Flip(pnode->turn) );
+          }
 
-	if ( pnode->children[n].nodes == 0
-	     && ! pnode->children[n].is_loop
-	     && ! InCheck(Flip(pnode->turn)) ) {
-	  unsigned int move = IsMateIn1Ply(Flip(pnode->turn));
-	  if ( move ) {
-	    
-	    unsigned int from       = I2From(move);
-	    unsigned int min_hand_b = pnode->turn ? 0 : HAND_B + HAND_W;
-	    if ( nsquare <= from ) {
-	      unsigned int pc = From2Drop(from);
-	      if ( pnode->turn ) { min_hand_b += hand_tbl[pc]; }
-	      else               { min_hand_b -= hand_tbl[pc]; }
-	    }
-	    pnode->children[n].min_hand_b = min_hand_b;
-	    pnode->children[n].nodes      = 1;
-	    pnode->children[n].phi        = 0;
-	    pnode->children[n].delta      = INF;
-	  }
-	}
+        if ( pnode->children[n].nodes == 0
+             && ! pnode->children[n].is_loop
+             && ! InCheck(Flip(pnode->turn)) ) {
+          unsigned int move = IsMateIn1Ply(Flip(pnode->turn));
+          if ( move ) {
+            
+            unsigned int from       = I2From(move);
+            unsigned int min_hand_b = pnode->turn ? 0 : HAND_B + HAND_W;
+            if ( nsquare <= from ) {
+              unsigned int pc = From2Drop(from);
+              if ( pnode->turn ) { min_hand_b += hand_tbl[pc]; }
+              else               { min_hand_b -= hand_tbl[pc]; }
+            }
+            pnode->children[n].min_hand_b = min_hand_b;
+            pnode->children[n].nodes      = 1;
+            pnode->children[n].phi        = 0;
+            pnode->children[n].delta      = INF;
+          }
+        }
 
-	UnMakeMove( pnode->turn, *pmove, ply );
-	n += 1;
+        UnMakeMove( pnode->turn, *pmove, ply );
+        n += 1;
       }
   }
   
@@ -561,10 +561,10 @@ init_children( tree_t * restrict ptree, dfpn_tree_t * restrict pdfpn_tree,
 /* Select the most promising child */
 static void CONV
 select_child( const tree_t * restrict ptree,
-	      node_t * restrict pnode,
-	      unsigned int * restrict pphi_c,
-	      unsigned int * restrict pdelta_c,
-	      unsigned int * restrict pdelta_2 )
+              node_t * restrict pnode,
+              unsigned int * restrict pphi_c,
+              unsigned int * restrict pdelta_c,
+              unsigned int * restrict pdelta_2 )
 {
   int n = pnode->nmove;
   int i, sq_king, dist, drank, dfile, to, dist_c;
@@ -589,19 +589,19 @@ select_child( const tree_t * restrict ptree,
 
       /* Store the smallest and second smallest delta in delta_c and delta_2 */
       if ( delta < *pdelta_c
-	   || ( delta == *pdelta_c && nodes < nodes_c )
-	   || ( delta == *pdelta_c && nodes == nodes_c && phi < *pphi_c )
-	   || ( delta == *pdelta_c && nodes == nodes_c && phi == *pphi_c
-		&& priori < priori_c ) )
-	{
-	  pnode->icurr_c = i;
+           || ( delta == *pdelta_c && nodes < nodes_c )
+           || ( delta == *pdelta_c && nodes == nodes_c && phi < *pphi_c )
+           || ( delta == *pdelta_c && nodes == nodes_c && phi == *pphi_c
+                && priori < priori_c ) )
+        {
+          pnode->icurr_c = i;
 
-	  *pdelta_2 = *pdelta_c;
-	  *pphi_c   = phi;
-	  *pdelta_c = delta;
-	  priori_c  = priori;
-	  nodes_c   = nodes;
-	}
+          *pdelta_2 = *pdelta_c;
+          *pphi_c   = phi;
+          *pdelta_c = delta;
+          priori_c  = priori;
+          nodes_c   = nodes;
+        }
       else if ( delta < *pdelta_2 ) { *pdelta_2 = delta; }
       
       assert( phi != INF );
@@ -629,12 +629,12 @@ select_child( const tree_t * restrict ptree,
       if ( pnode->phi <= delta ) { continue; }
 
       if ( dist_c == INT_MAX || dist < dist_c )
-	{
-	  pnode->icurr_c = i;
-	  *pphi_c        = phi;
-	  *pdelta_c      = delta;
-	  dist_c         = dist;
-	}
+        {
+          pnode->icurr_c = i;
+          *pphi_c        = phi;
+          *pdelta_c      = delta;
+          dist_c         = dist;
+        }
       
       assert( phi != INF );
     }
@@ -695,26 +695,26 @@ sum_phi_c( const node_t * restrict pnode )
       if ( value == 0 ) { continue; }
 
       if ( type == weak_chuai )
-	{
-	  if ( value_chuai < value ) { value_chuai = value; }
-	  continue;
-	}
+        {
+          if ( value_chuai < value ) { value_chuai = value; }
+          continue;
+        }
       
       if ( type == 0 || value != 1 )
-	{
-	  sum += value;
-	  continue;
-	}
+        {
+          sum += value;
+          continue;
+        }
 
       /* find type in aphi[j].type */
       for ( j = 0, aphi[ntype].type = type; aphi[j].type != type; j++ );
 
       
       if ( j == ntype )  /* not found */
-	{
-	  aphi[j].value  = value;
-	  ntype         += 1;
-	}
+        {
+          aphi[j].value  = value;
+          ntype         += 1;
+        }
       else if ( aphi[j].value < value ) { aphi[j].value = value; }
     }
 
@@ -741,7 +741,7 @@ static void CONV dbg_nodes( const node_t * restrict pnode, int ply )
   for ( i = 0; i < n; i++ )
     {
       snprintf( buf, 65536, "%s %" PRIu64 "%c ", buf, pnode->children[i].nodes,
-		pnode->children[i].expanded != 0 ? 'o' : 'x' );
+                pnode->children[i].expanded != 0 ? 'o' : 'x' );
     }
   DOut( ply, "NODES:%s", buf );
 }
@@ -761,8 +761,8 @@ static void CONV dbg_min_delta_c( const node_t * restrict pnode, int ply )
       if      ( value == INF )   { snprintf( buf, 65536, "%s inf", buf ); }
       else if ( value == INF_1 ) { snprintf( buf, 65536, "%s inf-1", buf ); }
       else {
-	snprintf( buf, 65536, "%s %u%s", buf, value,
-		  pnode->children[i].is_delta_loop ? "l" : "" );
+        snprintf( buf, 65536, "%s %u%s", buf, value,
+                  pnode->children[i].is_delta_loop ? "l" : "" );
       }
     }
   DOut( ply, "DELTA_C=%u:%s", pnode->min_delta, buf );
@@ -789,21 +789,21 @@ static void CONV dbg_sum_phi_c( const node_t * restrict pnode, int ply )
       value = pnode->children[i].phi;
 
       if ( value == INF )
-	{
-	  DOut( ply, "PHI_C=inf: %s",
-		 str_CSA_move(pnode->children[i].move) );
-	  return;
-	}
+        {
+          DOut( ply, "PHI_C=inf: %s",
+                 str_CSA_move(pnode->children[i].move) );
+          return;
+        }
 
       if ( value == INF_1 ) { have_inf_1 = 1;  iinf_1 = i; }
 
       if ( have_inf_1 ) { continue; }
 
       if ( type == weak_chuai )
-	{
-	  if ( value_chuai < value ) { value_chuai = value; }
-	  continue;
-	}
+        {
+          if ( value_chuai < value ) { value_chuai = value; }
+          continue;
+        }
       if ( type == 0 || value != 1 ) { type  = UINT_MAX - i; }
 
       /* find type in aphi[j].type */
@@ -811,24 +811,24 @@ static void CONV dbg_sum_phi_c( const node_t * restrict pnode, int ply )
 
       
       if ( j == ntype )  /* not found */
-	{
-	  aphi[j].value   = value;
-	  aphi[j].move    = pnode->children[i].move;
-	  aphi[j].is_loop = pnode->children[i].is_phi_loop;
-	  ntype          += 1;
-	}
+        {
+          aphi[j].value   = value;
+          aphi[j].move    = pnode->children[i].move;
+          aphi[j].is_loop = pnode->children[i].is_phi_loop;
+          ntype          += 1;
+        }
       else if ( aphi[j].value < value )
-	{
-	  aphi[j].value    = value;
-	  aphi[j].move     = pnode->children[i].move;
-	  aphi[j].is_loop &= pnode->children[i].is_phi_loop;
-	}
+        {
+          aphi[j].value    = value;
+          aphi[j].move     = pnode->children[i].move;
+          aphi[j].is_loop &= pnode->children[i].is_phi_loop;
+        }
     }
 
   if ( have_inf_1 )
     {
       DOut( ply, "PHI_C=inf-1: %s",
-	    str_CSA_move(pnode->children[iinf_1].move) );
+            str_CSA_move(pnode->children[iinf_1].move) );
     }
   else {
     char buf[65536];
@@ -836,14 +836,14 @@ static void CONV dbg_sum_phi_c( const node_t * restrict pnode, int ply )
     buf[0] = '\0';
     for ( i = 0; i < ntype; i++ )
       {
-	snprintf ( buf, 65536, "%s %s(%u%s)", buf,
-		   str_CSA_move(aphi[i].move), aphi[i].value,
-		   aphi[i].is_loop ? "l" : "" );
+        snprintf ( buf, 65536, "%s %s(%u%s)", buf,
+                   str_CSA_move(aphi[i].move), aphi[i].value,
+                   aphi[i].is_loop ? "l" : "" );
       }
     
     if ( value_chuai )
       {
-	snprintf( buf, 65536, "%s CHUAI(%u)", buf, value_chuai );
+        snprintf( buf, 65536, "%s CHUAI(%u)", buf, value_chuai );
       }
     DOut( ply, "PHI_C=%u:%s", pnode->sum_phi, buf );
   }

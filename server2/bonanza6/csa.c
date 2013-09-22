@@ -18,7 +18,7 @@ static int read_board_rep3( const char *str_line, min_posi_t *pmin_posi );
 
 int
 read_record( tree_t * restrict ptree, const char *str_file,
-	     unsigned int moves, int flag )
+             unsigned int moves, int flag )
 {
   record_t record;
   int iret;
@@ -30,21 +30,21 @@ read_record( tree_t * restrict ptree, const char *str_file,
     {
       iret = in_CSA_header( ptree, &record, flag );
       if ( iret < 0 )
-	{
-	  record_close( &record );
-	  return iret;
-	}
+        {
+          record_close( &record );
+          return iret;
+        }
     }
   else do {
     iret = in_CSA( ptree, &record, NULL, flag );
     if ( iret < 0 )
       {
-	record_close( &record );
-	return iret;
+        record_close( &record );
+        return iret;
       }
   } while ( iret != record_next
-	    && iret != record_eof
-	    && moves > record.moves );
+            && iret != record_eof
+            && moves > record.moves );
   
   return record_close( &record );
 }
@@ -52,7 +52,7 @@ read_record( tree_t * restrict ptree, const char *str_file,
 
 int
 record_open( record_t *pr, const char *str_file, record_mode_t record_mode,
-	     const char *str_name1, const char *str_name2 )
+             const char *str_name1, const char *str_name2 )
 {
   pr->games = pr->moves = pr->lines = 0;
   pr->str_name1[0] = '\0';
@@ -116,11 +116,11 @@ out_CSA( tree_t * restrict ptree, record_t *pr, unsigned int move )
   else {
     if ( ! pr->moves )
       {
-	root_turn = Flip(root_turn);
-	UnMakeMove( root_turn, move, 1 );
-	out_CSA_header( ptree, pr );
-	MakeMove( root_turn, move, 1 );
-	root_turn = Flip(root_turn);
+        root_turn = Flip(root_turn);
+        UnMakeMove( root_turn, move, 1 );
+        out_CSA_header( ptree, pr );
+        MakeMove( root_turn, move, 1 );
+        root_turn = Flip(root_turn);
       }
     str_move = str_CSA_move( move );
     fprintf( pr->pf, "%c%s\n", ach_turn[Flip(root_turn)], str_move );
@@ -233,18 +233,18 @@ in_CSA( tree_t * restrict ptree, record_t *pr, unsigned int *pmove, int flag )
     if ( ! iret ) { return record_eof; }
     if ( ! strcmp( str_line, str_resign ) )
       {
-	game_status |= flag_resigned;
-	return record_resign;
+        game_status |= flag_resigned;
+        return record_resign;
       }
     if ( ! strcmp( str_line, str_repetition )
-	 || ! strcmp( str_line, str_jishogi ) )
+         || ! strcmp( str_line, str_jishogi ) )
       {
-	game_status |= flag_drawn;
-	return record_drawn;
+        game_status |= flag_drawn;
+        return record_drawn;
       }
     if ( ! strcmp( str_line, str_record_error ) )
       {
-	return record_error;
+        return record_error;
       }
   } while ( str_line[0] == 'T' || str_line[0] == '%' );
 
@@ -258,7 +258,7 @@ in_CSA( tree_t * restrict ptree, record_t *pr, unsigned int *pmove, int flag )
   if ( game_status & mask_game_end )
     {
       snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
-		pr->lines, str_bad_record );
+                pr->lines, str_bad_record );
       str_error = str_message;
       return -2;
     }
@@ -267,7 +267,7 @@ in_CSA( tree_t * restrict ptree, record_t *pr, unsigned int *pmove, int flag )
   if ( iret < 0 )
     {
       snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
-		pr->lines, str_error );
+                pr->lines, str_error );
       str_error = str_message;
       return -2;
     }
@@ -279,27 +279,27 @@ in_CSA( tree_t * restrict ptree, record_t *pr, unsigned int *pmove, int flag )
       iret = read_CSA_line( pr, str_line );
       if ( iret < 0 ) { return iret; }
       if ( ! iret )
-	{
-	  snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
-		    pr->lines, str_unexpect_eof );
-	  str_error = str_message;
-	  return -2;
-	}
+        {
+          snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
+                    pr->lines, str_unexpect_eof );
+          str_error = str_message;
+          return -2;
+        }
       if ( str_line[0] != 'T' )
-	{
-	  snprintf( str_message, SIZE_MESSAGE, str_fmt_line, pr->lines,
-		   "Time spent is not available." );
-	  str_error = str_message;
-	  return -2;
-	}
+        {
+          snprintf( str_message, SIZE_MESSAGE, str_fmt_line, pr->lines,
+                   "Time spent is not available." );
+          str_error = str_message;
+          return -2;
+        }
       l = strtol( str_line+1, &ptr, 0 );
       if ( ptr == str_line+1 || l == LONG_MAX || l < 0 )
-	{
-	  snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
-		    pr->lines, str_bad_record );
-	  str_error = str_message;
-	  return -2;
-	}
+        {
+          snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
+                    pr->lines, str_bad_record );
+          str_error = str_message;
+          return -2;
+        }
     }
   else { l = 0; }
   sec_elapsed = (unsigned int)l;
@@ -310,7 +310,7 @@ in_CSA( tree_t * restrict ptree, record_t *pr, unsigned int *pmove, int flag )
   if ( iret < 0 )
     {
       snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
-		pr->lines, str_error );
+                pr->lines, str_error );
       str_error = str_message;
       return iret;
     }
@@ -323,7 +323,7 @@ in_CSA( tree_t * restrict ptree, record_t *pr, unsigned int *pmove, int flag )
 
 int
 interpret_CSA_move( tree_t * restrict ptree, unsigned int *pmove,
-		    const char *str )
+                    const char *str )
 {
   int ifrom_file, ifrom_rank, ito_file, ito_rank, ipiece;
   int ifrom, ito;
@@ -357,13 +357,13 @@ interpret_CSA_move( tree_t * restrict ptree, unsigned int *pmove,
     ifrom      = ifrom_rank * 9 + ifrom_file;
     if ( abs(BOARD[ifrom]) + promote == ipiece )
       {
-	ipiece -= promote;
-	move    = FLAG_PROMO;
+        ipiece -= promote;
+        move    = FLAG_PROMO;
       }
     else { move = 0; }
 
     move |= ( To2Move(ito) | From2Move(ifrom) | Cap2Move(abs(BOARD[ito]))
-	      | Piece2Move(ipiece) );
+              | Piece2Move(ipiece) );
   }
 
   *pmove = 0;
@@ -376,43 +376,43 @@ interpret_CSA_move( tree_t * restrict ptree, unsigned int *pmove,
   for ( p = ptree->amove; p < pmove_last; p++ )
     {
       if ( *p == move )
-	{
-	  *pmove = move;
-	  break;
-	}
+        {
+          *pmove = move;
+          break;
+        }
     }
     
   if ( ! *pmove )
     {
       str_error = str_illegal_move;
       if ( ipiece == pawn
-	   && ifrom == nsquare
-	   && ! BOARD[ito]
-	   && ( root_turn ? IsHandPawn(HAND_W) : IsHandPawn(HAND_B) ) )
-	{
-	  unsigned int u;
+           && ifrom == nsquare
+           && ! BOARD[ito]
+           && ( root_turn ? IsHandPawn(HAND_W) : IsHandPawn(HAND_B) ) )
+        {
+          unsigned int u;
 
-	  if ( root_turn )
-	    {
-	      u = BBToU( BB_WPAWN_ATK );
-	      if ( u & (mask_file1>>ito_file) )
-		{
-		  str_error = str_double_pawn;
-		}
-	      else if ( BOARD[ito+nfile] == king )
-		{
-		  str_error = str_mate_drppawn;
-		}
-	    }
-	  else {
-	    u = BBToU( BB_BPAWN_ATK );
-	    if ( u & (mask_file1>>ito_file) ) { str_error = str_double_pawn; }
-	    else if ( BOARD[ito-nfile] == -king )
-	      {
-		str_error = str_mate_drppawn;
-	      }
-	  }
-	}
+          if ( root_turn )
+            {
+              u = BBToU( BB_WPAWN_ATK );
+              if ( u & (mask_file1>>ito_file) )
+                {
+                  str_error = str_double_pawn;
+                }
+              else if ( BOARD[ito+nfile] == king )
+                {
+                  str_error = str_mate_drppawn;
+                }
+            }
+          else {
+            u = BBToU( BB_BPAWN_ATK );
+            if ( u & (mask_file1>>ito_file) ) { str_error = str_double_pawn; }
+            else if ( BOARD[ito-nfile] == -king )
+              {
+                str_error = str_mate_drppawn;
+              }
+          }
+        }
       return -2;
     }
   
@@ -434,21 +434,21 @@ str_CSA_move( unsigned int move )
   if ( is_promote )
     {
       snprintf( str, 7, "%d%d%d%d%s",
-		9-aifile[ifrom], airank[ifrom]+1,
-		9-aifile[ito],   airank[ito]  +1,
-		astr_table_piece[ ipiece_move + promote ] );
+                9-aifile[ifrom], airank[ifrom]+1,
+                9-aifile[ito],   airank[ito]  +1,
+                astr_table_piece[ ipiece_move + promote ] );
     }
   else if ( ifrom < nsquare )
     {
       snprintf( str, 7, "%d%d%d%d%s",
-		9-aifile[ifrom], airank[ifrom]+1,
-		9-aifile[ito],   airank[ito]  +1,
-		astr_table_piece[ ipiece_move ] );
+                9-aifile[ifrom], airank[ifrom]+1,
+                9-aifile[ito],   airank[ito]  +1,
+                astr_table_piece[ ipiece_move ] );
     }
   else {
     snprintf( str, 7, "00%d%d%s",
-	      9-aifile[ito], airank[ito]+1,
-	      astr_table_piece[ From2Drop(ifrom) ] );
+              9-aifile[ito], airank[ito]+1,
+              astr_table_piece[ From2Drop(ifrom) ] );
   }
   
   return str;
@@ -468,10 +468,10 @@ read_board_rep1( const char *str_line, min_posi_t *pmin_posi )
   for ( p = str_line + 2; p[0] != '\0'; p += 4 )
     {
       if ( p[1] == '\0' || p[2] == '\0' || p[3] == '\0' )
-	{
-	  str_error = str_bad_board;
-	  return -2;
-	}
+        {
+          str_error = str_bad_board;
+          return -2;
+        }
       str_piece[0] = p[2];
       str_piece[1] = p[3];
       str_piece[2] = '\0';
@@ -482,21 +482,21 @@ read_board_rep1( const char *str_line, min_posi_t *pmin_posi )
       irank        = irank - 1;
       isquare      = irank * nfile + ifile;
       if ( piece == -2 || ifile < file1 || ifile > file9 || irank < rank1
-	   || irank > rank9 || abs(board[isquare]) != piece )
-	{
-	  str_error = str_bad_board;
-	  return -2;
-	}
+           || irank > rank9 || abs(board[isquare]) != piece )
+        {
+          str_error = str_bad_board;
+          return -2;
+        }
       board[isquare] = empty;
     }
   
   for ( isquare = 0; isquare < nsquare; isquare++ ) if ( board[isquare] )
     {
       if ( pmin_posi->asquare[isquare] )
-	{
-	  str_error = str_bad_board;
-	  return -2;
-	}
+        {
+          str_error = str_bad_board;
+          return -2;
+        }
       pmin_posi->asquare[isquare] = board[isquare];
     }
   
@@ -547,16 +547,16 @@ usi2csa( const tree_t * restrict ptree, const char *str_usi, char *str_csa )
       str_csa[3] = (char)( str_usi[3] - 'a' + '1' );
       
       switch ( str_usi[0] )
-	{
-	case 'P':  pc = pawn;    break;
-	case 'L':  pc = lance;   break;
-	case 'N':  pc = knight;  break;
-	case 'S':  pc = silver;  break;
-	case 'G':  pc = gold;    break;
-	case 'B':  pc = bishop;  break;
-	case 'R':  pc = rook;    break;
-	default:   return -1;
-	}
+        {
+        case 'P':  pc = pawn;    break;
+        case 'L':  pc = lance;   break;
+        case 'N':  pc = knight;  break;
+        case 'S':  pc = silver;  break;
+        case 'G':  pc = gold;    break;
+        case 'B':  pc = bishop;  break;
+        case 'R':  pc = rook;    break;
+        default:   return -1;
+        }
 
       str_csa[4] = astr_table_piece[pc][0];
       str_csa[5] = astr_table_piece[pc][1];
@@ -581,16 +581,16 @@ csa2usi( const tree_t * restrict ptree, const char *str_csa, char *str_usi )
        && 'A' <= str_csa[5] && str_csa[5] <= 'Z' )
     {
       switch ( str2piece( str_csa + 4 ) )
-	{
-	case pawn:    str_usi[0] = 'P';  break;
-	case lance:   str_usi[0] = 'L';  break;
-	case knight:  str_usi[0] = 'N';  break;
-	case silver:  str_usi[0] = 'S';  break;
-	case gold:    str_usi[0] = 'G';  break;
-	case bishop:  str_usi[0] = 'B';  break;
-	case rook:    str_usi[0] = 'R';  break;
-	default:  return -1;  break;
-	}
+        {
+        case pawn:    str_usi[0] = 'P';  break;
+        case lance:   str_usi[0] = 'L';  break;
+        case knight:  str_usi[0] = 'N';  break;
+        case silver:  str_usi[0] = 'S';  break;
+        case gold:    str_usi[0] = 'G';  break;
+        case bishop:  str_usi[0] = 'B';  break;
+        case rook:    str_usi[0] = 'R';  break;
+        default:  return -1;  break;
+        }
 
       str_usi[1] = '*';
       str_usi[2] = str_csa[2];
@@ -625,10 +625,10 @@ csa2usi( const tree_t * restrict ptree, const char *str_csa, char *str_usi )
       pc      = abs(BOARD[sq]);
 
       if ( pc + promote == str2piece( str_csa + 4 ) )
-	{
-	  str_usi[4] = '+';
-	  str_usi[5] = '\0';
-	}
+        {
+          str_usi[4] = '+';
+          str_usi[5] = '\0';
+        }
       else { str_usi[4] = '\0'; }
 
 
@@ -666,14 +666,14 @@ out_CSA_header( const tree_t * restrict ptree, record_t *pr )
     struct tm tm;
     localtime_s( &tm, &t );
     fprintf( pr->pf, "$START_TIME:%4d/%02d/%02d %02d:%02d:%02d\n",
-	     tm.tm_year+1900, tm.tm_mon+1, tm.tm_mday,
-	     tm.tm_hour, tm.tm_min, tm.tm_sec );
+             tm.tm_year+1900, tm.tm_mon+1, tm.tm_mday,
+             tm.tm_hour, tm.tm_min, tm.tm_sec );
 #else
     struct tm *ptm;
     ptm = localtime( &t );
     fprintf( pr->pf, "$START_TIME:%4d/%02d/%02d %02d:%02d:%02d\n",
-	     ptm->tm_year+1900, ptm->tm_mon+1, ptm->tm_mday,
-	     ptm->tm_hour, ptm->tm_min, ptm->tm_sec );
+             ptm->tm_year+1900, ptm->tm_mon+1, ptm->tm_mday,
+             ptm->tm_hour, ptm->tm_min, ptm->tm_sec );
 #endif
   }
 
@@ -714,45 +714,45 @@ in_CSA_header( tree_t * restrict ptree, record_t *pr, int flag )
       if ( iret < 0 ) { return iret; }
 
       if ( str_line[0] != 'N'
-	   && str_line[0] != 'V'
-	   && str_line[0] != '$' ) { break; }
+           && str_line[0] != 'V'
+           && str_line[0] != '$' ) { break; }
 
       if ( ! memcmp( str_line, "$ANSWER:", 8 ) )
-	{
-	  for ( i = 0; i < MAX_ANSWER; i++ )
-	    {
-	      for ( j = 0; j < 8; j++ )
-		{
-		  pr->info.str_move[i][j] = str_line[8+i*8+j];
-		}
-	      pr->info.str_move[i][7] = '\0';
-	      if ( str_line[8+i*8+7] == '\0' ) { break; }
-	    }
-	  if ( i == MAX_ANSWER )
-	    {
-	      snprintf( str_message, SIZE_MESSAGE, str_fmt_line, pr->lines,
-		       "The number of answers reached MAX_ANSWER." );
-	      str_error = str_message;
-	      return -2;
-	    }
-	}
+        {
+          for ( i = 0; i < MAX_ANSWER; i++ )
+            {
+              for ( j = 0; j < 8; j++ )
+                {
+                  pr->info.str_move[i][j] = str_line[8+i*8+j];
+                }
+              pr->info.str_move[i][7] = '\0';
+              if ( str_line[8+i*8+7] == '\0' ) { break; }
+            }
+          if ( i == MAX_ANSWER )
+            {
+              snprintf( str_message, SIZE_MESSAGE, str_fmt_line, pr->lines,
+                       "The number of answers reached MAX_ANSWER." );
+              str_error = str_message;
+              return -2;
+            }
+        }
       else if ( ! memcmp( str_line, "N+", 2 ) )
-	{
-	  strncpy( pr->str_name1, str_line+2, SIZE_PLAYERNAME-1 );
-	  pr->str_name1[SIZE_PLAYERNAME-1] = '\0';
-	  str_name1 = pr->str_name1;
-	}
+        {
+          strncpy( pr->str_name1, str_line+2, SIZE_PLAYERNAME-1 );
+          pr->str_name1[SIZE_PLAYERNAME-1] = '\0';
+          str_name1 = pr->str_name1;
+        }
       else if ( ! memcmp( str_line, "N-", 2 ) )
-	{
-	  strncpy( pr->str_name2, str_line+2, SIZE_PLAYERNAME-1 );
-	  pr->str_name2[SIZE_PLAYERNAME-1] = '\0';
-	  str_name2 = pr->str_name2;
-	}
+        {
+          strncpy( pr->str_name2, str_line+2, SIZE_PLAYERNAME-1 );
+          pr->str_name2[SIZE_PLAYERNAME-1] = '\0';
+          str_name2 = pr->str_name2;
+        }
     }
   if ( ! iret )
     {
       snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
-		pr->lines, str_unexpect_eof );
+                pr->lines, str_unexpect_eof );
       str_error = str_message;
       return -2;
     }
@@ -764,45 +764,45 @@ in_CSA_header( tree_t * restrict ptree, record_t *pr, int flag )
   while ( str_line[0] == 'P' )
     {
       if ( str_line[1] == 'I' && ! is_rep2_done && ! is_all_done )
-	{
-	  is_rep1_done = 1;
-	  iret = read_board_rep1( str_line, &min_posi );
-	}
+        {
+          is_rep1_done = 1;
+          iret = read_board_rep1( str_line, &min_posi );
+        }
       else if ( isdigit( (int)str_line[1] ) && str_line[1] != '0'
-		&& ! is_rep1_done && ! is_all_done )
-	{
-	  is_rep2_done = 1;
-	  iret = read_board_rep2( str_line, &min_posi );
-	}
+                && ! is_rep1_done && ! is_all_done )
+        {
+          is_rep2_done = 1;
+          iret = read_board_rep2( str_line, &min_posi );
+        }
       else if ( str_line[1] == '+' || str_line[1] == '-' )
-	{
-	  is_all_done = iret = read_board_rep3( str_line, &min_posi );
-	}
+        {
+          is_all_done = iret = read_board_rep3( str_line, &min_posi );
+        }
       else { break; }
       if ( iret < 0 )
-	{
-	  snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
-		    pr->lines, str_error );
-	  str_error = str_message;
-	  return iret;
-	}
+        {
+          snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
+                    pr->lines, str_error );
+          str_error = str_message;
+          return iret;
+        }
 
       iret = read_CSA_line( pr, str_line );
       if ( iret < 0 ) { return iret; }
       if ( ! iret )
-	{
-	  snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
-		    pr->lines, str_unexpect_eof );
-	  str_error = str_message;
-	  return -2;
-	}
+        {
+          snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
+                    pr->lines, str_unexpect_eof );
+          str_error = str_message;
+          return -2;
+        }
     }
   
   /* turn to move */
   if ( strcmp( str_line, "+" ) && strcmp( str_line, "-" ) )
     {
       snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
-		pr->lines, str_bad_record );
+                pr->lines, str_bad_record );
       str_error = str_message;
       return -2;
     }
@@ -826,13 +826,13 @@ read_board_rep3( const char *str_line, min_posi_t *pmin_posi )
   color = str_line[1] == '+' ? black : white;
   for ( n = 2; str_line[n] != '\0'; n += 4 ) {
     if ( str_line[n+1] == '\0' || str_line[n+2] == '\0'
-	 || str_line[n+3] == '\0' || is_all_done )
+         || str_line[n+3] == '\0' || is_all_done )
       {
-	str_error = str_bad_board;
-	return -2;
+        str_error = str_bad_board;
+        return -2;
       }
     if ( str_line[n] == '0' && str_line[n+1] == '0'
-	 && str_line[n+2] == 'A' && str_line[n+3] == 'L' ) {
+         && str_line[n+2] == 'A' && str_line[n+3] == 'L' ) {
       hand_black = pmin_posi->hand_black;
       hand_white = pmin_posi->hand_white;
       npawn   = (int)(I2HandPawn(hand_black)   + I2HandPawn(hand_white));
@@ -843,19 +843,19 @@ read_board_rep3( const char *str_line, min_posi_t *pmin_posi )
       nbishop = (int)(I2HandBishop(hand_black) + I2HandBishop(hand_white));
       nrook   = (int)(I2HandRook(hand_black)   + I2HandRook(hand_white));
       for ( isquare = 0; isquare < nsquare; isquare++ )
-	switch ( abs( pmin_posi->asquare[isquare] ) )
-	  {
-	  case pawn:    case pro_pawn:    npawn++;    break;
-	  case lance:   case pro_lance:   nlance++;   break;
-	  case knight:  case pro_knight:  nknight++;  break;
-	  case silver:  case pro_silver:  nsilver++;  break;
-	  case gold:                      ngold++;    break;
-	  case bishop:  case horse:       nbishop++;  break;
-	  case rook:    case dragon:      nrook++;    break;
-	  default:
-	    assert( pmin_posi->asquare[isquare] == empty );
-	    break;
-	  }
+        switch ( abs( pmin_posi->asquare[isquare] ) )
+          {
+          case pawn:    case pro_pawn:    npawn++;    break;
+          case lance:   case pro_lance:   nlance++;   break;
+          case knight:  case pro_knight:  nknight++;  break;
+          case silver:  case pro_silver:  nsilver++;  break;
+          case gold:                      ngold++;    break;
+          case bishop:  case horse:       nbishop++;  break;
+          case rook:    case dragon:      nrook++;    break;
+          default:
+            assert( pmin_posi->asquare[isquare] == empty );
+            break;
+          }
       handv  = flag_hand_pawn   * ( npawn_max   -npawn );
       handv += flag_hand_lance  * ( nlance_max  -nlance );
       handv += flag_hand_knight * ( nknight_max -nknight );
@@ -878,21 +878,21 @@ read_board_rep3( const char *str_line, min_posi_t *pmin_posi )
     /* hand */
     if ( ifile == 0 && ifile == 0 )
       {
-	switch ( piece )
-	  {
-	  case pawn:    handv = flag_hand_pawn;    break;
-	  case lance:   handv = flag_hand_lance;   break;
-	  case knight:  handv = flag_hand_knight;  break;
-	  case silver:  handv = flag_hand_silver;  break;
-	  case gold:    handv = flag_hand_gold;    break;
-	  case bishop:  handv = flag_hand_bishop;  break;
-	  case rook:    handv = flag_hand_rook;    break;
-	  default:
-	    str_error = str_bad_board;
-	    return -2;
-	  }
-	if ( color ) { pmin_posi->hand_white += handv; }
-	else         { pmin_posi->hand_black += handv; }
+        switch ( piece )
+          {
+          case pawn:    handv = flag_hand_pawn;    break;
+          case lance:   handv = flag_hand_lance;   break;
+          case knight:  handv = flag_hand_knight;  break;
+          case silver:  handv = flag_hand_silver;  break;
+          case gold:    handv = flag_hand_gold;    break;
+          case bishop:  handv = flag_hand_bishop;  break;
+          case rook:    handv = flag_hand_rook;    break;
+          default:
+            str_error = str_bad_board;
+            return -2;
+          }
+        if ( color ) { pmin_posi->hand_white += handv; }
+        else         { pmin_posi->hand_black += handv; }
       }
     /* board */
     else {
@@ -900,11 +900,11 @@ read_board_rep3( const char *str_line, min_posi_t *pmin_posi )
       irank   = irank - 1;
       isquare = irank * nfile + ifile;
       if ( piece == -2 || ifile < file1 || ifile > file9
-	   || irank < rank1 || irank > rank9 || pmin_posi->asquare[isquare] )
-	{
-	  str_error = str_bad_board;
-	  return -2;
-	}
+           || irank < rank1 || irank > rank9 || pmin_posi->asquare[isquare] )
+        {
+          str_error = str_bad_board;
+          return -2;
+        }
       pmin_posi->asquare[isquare] = (signed char)( color ? -piece : piece );
     }
   }
@@ -926,16 +926,16 @@ read_board_rep2( const char * str_line, min_posi_t *pmin_posi )
   for ( ifile = 0; ifile < nfile; ifile++ )
     if ( str_line[2+ifile*3] == '+' || str_line[2+ifile*3] == '-' )
       {
-	str_piece[0] = str_line[2+ifile*3+1];
-	str_piece[1] = str_line[2+ifile*3+2];
-	piece = str2piece( str_piece );
-	if ( piece < 0 || pmin_posi->asquare[ irank*nfile + ifile ] )
-	  {
-	    str_error = str_bad_board;
-	    return -2;
-	  }
-	pmin_posi->asquare[ irank*nfile + ifile ]
-	  = (signed char)( str_line[ 2 + ifile*3 ] == '-' ? -piece : piece );
+        str_piece[0] = str_line[2+ifile*3+1];
+        str_piece[1] = str_line[2+ifile*3+2];
+        piece = str2piece( str_piece );
+        if ( piece < 0 || pmin_posi->asquare[ irank*nfile + ifile ] )
+          {
+            str_error = str_bad_board;
+            return -2;
+          }
+        pmin_posi->asquare[ irank*nfile + ifile ]
+          = (signed char)( str_line[ 2 + ifile*3 ] == '-' ? -piece : piece );
       }
     else { pmin_posi->asquare[ irank*nfile + ifile ] = empty; }
 
@@ -988,7 +988,7 @@ read_CSA_line( record_t *pr, char *str )
   if ( i == SIZE_CSALINE-1 )
     {
       snprintf( str_message, SIZE_MESSAGE, str_fmt_line,
-		pr->lines, str_ovrflw_line );
+                pr->lines, str_ovrflw_line );
       return -2;
     }
 
@@ -1010,10 +1010,10 @@ skip_comment( record_t *pr )
     {
       if ( c != '\'' ) { break; }
       for ( ;; )
-	{
-	  c = read_char( pr );
-	  if ( c == EOF || c == '\n' ) { break; }
-	}
+        {
+          c = read_char( pr );
+          if ( c == EOF || c == '\n' ) { break; }
+        }
     }
   
   return c;

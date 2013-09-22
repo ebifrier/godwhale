@@ -63,7 +63,7 @@ static unsigned int cpu_start;
 int
 initPerf( tree_t * restrict ptree )
 {
-	
+        
   /* initialize variables */
   if ( get_cputime( &cpu_start ) < 0 ) { return -1; }
   time_start = time_turn_start;
@@ -152,11 +152,11 @@ displayPerf( tree_t * restrict ptree )
     SLTOut( "    pruning  -> rep=%4.2f%%  reject=%4.2f%%\n", drep, dreject );
     
     SLTOut( "    pruning  -> hash=%2.0f%%  null=%2.0f%%  fh1st=%4.1f%%\n",
-	 dhash, dnull, dfh1st );
+         dhash, dnull, dfh1st );
     
     SLTOut( "    extension-> chk=%u recap=%u 1rep=%u\n",
-	 ptree->check_extension_done, ptree->recap_extension_done,
-	 ptree->onerp_extension_done );
+         ptree->check_extension_done, ptree->recap_extension_done,
+         ptree->onerp_extension_done );
   }
 
   /* futility threashold */
@@ -169,7 +169,7 @@ displayPerf( tree_t * restrict ptree )
     int misc_k = fmg_misc_king;
     int cap_k  = fmg_cap_king;
     SLTOut( "    futility -> misc=%d drop=%d cap=%d mt=%d misc(k)=%d cap(k)=%d\n",
-	 misc, drop, cap, mt, misc_k, cap_k );
+         misc, drop, cap, mt, misc_k, cap_k );
   }
 #endif
 
@@ -185,17 +185,17 @@ displayPerf( tree_t * restrict ptree )
     
     for ( i = 0, n = 0; i < ntrans_table; i++ )
       {
-	word2 = ptrans_table[i].prefer.word2;
-	SignKey( word2, ptrans_table[i].prefer.word1 );
-	if ( trans_table_age == ( 7 & (int)word2 ) ) { n++; }
+        word2 = ptrans_table[i].prefer.word2;
+        SignKey( word2, ptrans_table[i].prefer.word1 );
+        if ( trans_table_age == ( 7 & (int)word2 ) ) { n++; }
 
-	word2 = ptrans_table[i].always[0].word2;
-	SignKey( word2, ptrans_table[i].always[0].word1 );
-	if ( trans_table_age == ( 7 & (int)word2 ) ) { n++; }
+        word2 = ptrans_table[i].always[0].word2;
+        SignKey( word2, ptrans_table[i].always[0].word1 );
+        if ( trans_table_age == ( 7 & (int)word2 ) ) { n++; }
 
-	word2 = ptrans_table[i].always[1].word2;
-	SignKey( word2, ptrans_table[i].always[1].word1 );
-	if ( trans_table_age == ( 7 & (int)word2 ) ) { n++; }
+        word2 = ptrans_table[i].always[1].word2;
+        SignKey( word2, ptrans_table[i].always[1].word1 );
+        if ( trans_table_age == ( 7 & (int)word2 ) ) { n++; }
       }
 
     dalways  = 100.0 * (double)ptree->ntrans_always_hit;
@@ -211,7 +211,7 @@ displayPerf( tree_t * restrict ptree )
     dinfe   /= (double)( ptree->ntrans_probe + 1 );
 
     SLTOut( "    hashing  -> always=%2.0f%% prefer=%2.0f%% supe=%4.2f%% "
-	 "infe=%4.2f%%\n", dalways, dprefer, dsupe, dinfe );
+         "infe=%4.2f%%\n", dalways, dprefer, dsupe, dinfe );
 
     dlower  = 100.0 * (double)ptree->ntrans_lower;
     dlower /= (double)( ptree->ntrans_probe + 1 );
@@ -224,8 +224,8 @@ displayPerf( tree_t * restrict ptree )
 
     //OutCsaShogi( "statsatu=%.0f", dsat );
     SLTOut( "    hashing  -> "
-	 "exact=%d lower=%2.0f%% upper=%4.2f%% sat=%2.0f%% age=%d\n",
-	 ptree->ntrans_exact, dlower, dupper, dsat, trans_table_age );
+         "exact=%d lower=%2.0f%% upper=%4.2f%% sat=%2.0f%% age=%d\n",
+         ptree->ntrans_exact, dlower, dupper, dsat, trans_table_age );
     if ( dsat > 9.0 ) { trans_table_age  = ( trans_table_age + 1 ) & 0x7; }
   }
 
@@ -233,11 +233,11 @@ displayPerf( tree_t * restrict ptree )
   if ( tlp_max > 1 )
     {
       SLTOut( "    threading-> split=%d abort=%d slot=%d\n",
-	   tlp_nsplit, tlp_nabort, tlp_nslot+1 );
+           tlp_nsplit, tlp_nabort, tlp_nslot+1 );
       if ( tlp_nslot+1 == TLP_NUM_WORK )
-	{
-	  out_warning( "THREAD WORK AREA IS USED UP!!!" );
-	}
+        {
+          out_warning( "THREAD WORK AREA IS USED UP!!!" );
+        }
     }
 #endif
 
@@ -246,9 +246,9 @@ displayPerf( tree_t * restrict ptree )
     unsigned int cpu, elapsed;
 
     SLTOut( "    n=%" PRIu64 " quies=%u eval=%u rep=%u %u(chk) %u(supe)\n",
-	 ptree->node_searched, ptree->nquies_called, ptree->neval_called,
-	 ptree->nfour_fold_rep, ptree->nperpetual_check,
-	 ptree->nsuperior_rep );
+         ptree->node_searched, ptree->nquies_called, ptree->neval_called,
+         ptree->nfour_fold_rep, ptree->nperpetual_check,
+         ptree->nsuperior_rep );
 
     if ( get_cputime( &cpu )     < 0 ) { return -1; }
     if ( get_elapsed( &elapsed ) < 0 ) { return -1; }
@@ -278,7 +278,7 @@ displayPerf( tree_t * restrict ptree )
     SLTOut( "    time=%s  ", str_time_symple( elapsed ) );
    SLTOut( "cpu=%3.0f%%  mat=%.1f  nps=%.2fK", dcpu_percent, dmat, dnps / 1e3 );
     //SLTOut( "  time_eff=%s\n\n",
-	// str_time_symple( time_last_eff_search - time_start ) );
+        // str_time_symple( time_last_eff_search - time_start ) );
   }
 
   return 0;  // dummy for compiler
