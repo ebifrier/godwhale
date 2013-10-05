@@ -5,6 +5,7 @@ server/restart_[0-9]+
 [.]user$
 [.]suo$
 [.]sdf$
+[.]o
 syntax: glob
 client/visualc10/Release/
 client/visualc10/ipch/

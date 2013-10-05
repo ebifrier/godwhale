@@ -7,80 +7,85 @@
 
 //******** extshrRecordC ********
 
-struct extshrRecordUnitC {
- int call, mvs;
- extshrRecordUnitC() {}
- void clr() { memset(this, 0, sizeof(timeRecordUnitC)); }
- void regist(int nmv) { mvs += nmv; call++; }
+struct extshrRecordUnitC
+{
+    int call, mvs;
+
+    extshrRecordUnitC() {}
+    void clr() { memset(this, 0, sizeof(timeRecordUnitC)); }
+    void regist(int nmv) { mvs += nmv; call++; }
 };
 
 
-struct perfMsC {
- int perfUsefirst, perfUselist, perfUseroot;
- extshrRecordUnitC extshrRec[MAXPROC];
- perfMsC() {}
- //void clear() { perfUsefirst = perfUselist = perfUseroot = 0; }
- void clear() { memset(this, 0, sizeof(perfMsC)); }
- void print() {
-   MSTOut("perfMs: root %d first %d list %d\n",
-          perfUseroot, perfUsefirst, perfUselist);
-   MSTOut("extend/shrink: (call/nmove)");
-   forr(pr, 1, Nproc-1)
-     MSTOut("%d/%d ", extshrRec[pr].call, extshrRec[pr].mvs);
-   MSTOut("\n");
- }
+struct perfMsC
+{
+    int perfUsefirst, perfUselist, perfUseroot;
+    extshrRecordUnitC extshrRec[MAXPROC];
 
- void incRoot() { perfUseroot++; }
- void incFirst() { perfUsefirst++; }
- void incList() { perfUselist++; }
- void incExtshr(int pr, int nmv) { extshrRec[pr].regist(nmv); }
+    perfMsC() {}
+    void clear() { memset(this, 0, sizeof(perfMsC)); }
+    void print() {
+        MSTOut("perfMs: root %d first %d list %d\n",
+               perfUseroot, perfUsefirst, perfUselist);
+        MSTOut("extend/shrink: (call/nmove)");
+        forr (pr, 1, Nproc-1) {
+            MSTOut("%d/%d ", extshrRec[pr].call, extshrRec[pr].mvs);
+        }
+        MSTOut("\n");
+    }
+
+    void incRoot() { perfUseroot++; }
+    void incFirst() { perfUsefirst++; }
+    void incList() { perfUselist++; }
+    void incExtshr(int pr, int nmv) { extshrRec[pr].regist(nmv); }
 };
 
 perfMsC pfGame;
-
 extern int inhFirst;
 
-//void planeC::initialAction(int* usefirst, int* uselist) {
 void planeC::initialAction() {
- int i;
- int usefirst, uselist;
- int firstseqLeng;
- mvC firstseq[GMX_MAX_PV];
- usefirst = -1;
- uselist = -1;
- waitRoot = 0;
+    int i;
+    int usefirst, uselist;
+    int firstseqLeng;
+    mvC firstseq[GMX_MAX_PV];
+    usefirst = -1;
+    uselist = -1;
+    waitRoot = 0;
 
- lastDoneItd = shallowItd = deepItd = 0;
+    lastDoneItd = shallowItd = deepItd = 0;
 
-  // find the deepest ITD that's completed
-
+    // find the deepest ITD that's completed
 #define MIN_ITD 5   // FIXME define elsewhere
 
- for(i=MAX_ITD-1; i>=MIN_ITD; i--)
-   if (stream[i].seqFromPrev[0] == mv2root &&
-       stream[i].row[0].rowdone())
-     break;
+    for (i=MAX_ITD-1; i>=MIN_ITD; i--) {
+        if (stream[i].seqFromPrev[0] == mv2root &&
+            stream[i].row[0].rowdone()) {
+            break;
+        }
+    }
+    
+    if (i >= MIN_ITD) {
+        lastDoneItd = i;
+    }
 
- if (i >= MIN_ITD)
-   lastDoneItd = i;
+    MSTOut("== iact: rdone passed i=%d\n", i);
 
- MSTOut("== iact: rdone passed i=%d\n", i);
+    // if str[i]'s bestmv is done in i+1, use firstseq of i+1
+    if (i >= MIN_ITD &&
+        mv2root == stream[i+1].seqFromPrev[0] &&
+        stream[i+1].row[0].bestval > -score_max_eval &&
+        stream[i+1].row[0].bestule == ULE_EXACT   &&
+        stream[i+1].row[0].bestseqLeng > 2) {
+        assert(stream[i+1].row[0].bestseq[0] != NULLMV);
 
-  // if str[i]'s bestmv is done in i+1, use firstseq of i+1
- if (i >= MIN_ITD &&
-     mv2root == stream[i+1].seqFromPrev[0] &&
-     stream[i+1].row[0].bestval > -score_max_eval &&
-     stream[i+1].row[0].bestule == ULE_EXACT   &&
-     stream[i+1].row[0].bestseqLeng > 2) {
-   assert(stream[i+1].row[0].bestseq[0] != NULLMV);
-   if (stream[i+1].row[0].mvdone(itdexd2srd(i+1,0),
-                 stream[i].row[0].bestseq[0],
-                 stream[i+1].row[0].alpha,
-                 stream[i+1].row[0].beta)) {
-     i++;
-     MSTOut("== iact: str[last+1] to be used\n");
-   }
- }
+        if (stream[i+1].row[0].mvdone(itdexd2srd(i+1,0),
+                                      stream[i].row[0].bestseq[0],
+                                      stream[i+1].row[0].alpha,
+                                      stream[i+1].row[0].beta)) {
+            i++;
+            MSTOut("== iact: str[last+1] to be used\n");
+        }
+    }
 
  if (i >= MIN_ITD) {
    firstseqLeng = stream[i].row[0].bestseqLeng;
@@ -103,9 +108,7 @@ void planeC::initialAction() {
      break;
    }
 
-   rowC& r0last = stream[lastDoneItd].row[0];
-   forr(e, 0, st.seqprevLeng-2) {
-
+   forr (e, 0, st.seqprevLeng-2) {
       // check if last Itd's bestseq and shallow's seqPrev matches.
       // if not, use FIRST
 

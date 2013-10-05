@@ -130,17 +130,18 @@ static int timeCheck()
     }
 
     get_elapsed(&tnow);
-    if (!DBG_NO_TIME_CHECK && !(game_status & flag_problem) && 
-        (!(game_status & flag_pondering) &&
-         //(tnow > time_turn_start + tMaxSpent ||  3/18/2012 use tm_start
-         (tnow > time_start + tMaxSpent ||
-          tnow > time_turn_start + maxtimeTurn_ms() &&
-          tnow > time_start + maxtimeAll_ms()) ||
-         tnow > time_start + tMaxPonder)) {
-        MSTOut("time expired now %u pond %d st %u tnst %u mxspen %d mxpond %d\n",
-               tnow, ((game_status & flag_pondering)?1:0), time_start, 
-               time_turn_start, tMaxSpent, tMaxPonder);
-        return 1;
+    if (!DBG_NO_TIME_CHECK && !(game_status & flag_problem)) {
+        if ((!(game_status & flag_pondering) &&
+             (tnow > time_start + tMaxSpent ||
+              (tnow > (unsigned int)(time_turn_start + maxtimeTurn_ms()) &&
+               tnow > (unsigned int)(time_start + maxtimeAll_ms())))) ||
+            tnow > time_start + tMaxPonder) {
+
+            MSTOut("time expired now %u pond %d st %u tnst %u mxspen %d mxpond %d\n",
+                   tnow, ((game_status & flag_pondering)?1:0), time_start, 
+                   time_turn_start, tMaxSpent, tMaxPonder);
+            return 1;
+        }
     }
 
     return 0;

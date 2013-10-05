@@ -14,42 +14,44 @@
 #endif
 
  // set X if a single pause() takes X ns.
-//#define PAUSE_DURATION_NS 10
 #define PAUSE_DURATION_NS 1
 
 extern "C" void ei_clock_gettime(struct timespec* tsp) {
 #ifdef __MACH__
- clock_serv_t cclock;
- mach_timespec_t mts;
- host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
- clock_get_time(cclock, &mts);
- mach_port_deallocate(mach_task_self(), cclock);
- tsp->tv_sec = mts.tv_sec;
- tsp->tv_nsec = mts.tv_nsec;
+    clock_serv_t cclock;
+    mach_timespec_t mts;
+    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+    clock_get_time(cclock, &mts);
+    mach_port_deallocate(mach_task_self(), cclock);
+    tsp->tv_sec = mts.tv_sec;
+    tsp->tv_nsec = mts.tv_nsec;
 #else
- clock_gettime(CLOCK_REALTIME, tsp);
+    clock_gettime(CLOCK_REALTIME, tsp);
 #endif
 }
 
 extern FILE* slavelogfp;
 
+// bonanza mv format - cap:4 pc:4 prom:1 src:7 dst:7  -> convert to 4,4,4,8,8
 extern "C" int readable_c(int mv) {
-  // bnz mv format - cap:4 pc:4 prom:1 src:7 dst:7  -> convert to 4,4,4,8,8
- //if (mv == NULLMV.v) return 0;
- if (mv == 0) return 0;
- int x = mv;
- int dst  = x & 0x7f;
- int src  = (x >>  7) & 0x7f;
- int prom = (x <<  2) & 0x10000;
- int cappc = (x <<  5) & 0x0ff00000;
- int dx = 9 - (dst % 9);
- int dy = 1 + (dst / 9);
- int sx = (src >= nsquare ?   0     : 9 - (src % 9));
- int sy = (src >= nsquare ? src % 9 : 1 + (src / 9));
- return (cappc | prom | (sx << 12) | (sy << 8) | (dx << 4) | dy);
+    //if (mv == NULLMV.v) return 0;
+    if (mv == 0) return 0;
+
+    int x = mv;
+    int dst  = x & 0x7f;
+    int src  = (x >>  7) & 0x7f;
+    int prom = (x <<  2) & 0x10000;
+    int cappc = (x <<  5) & 0x0ff00000;
+    int dx = 9 - (dst % 9);
+    int dy = 1 + (dst / 9);
+    int sx = (src >= nsquare ?   0     : 9 - (src % 9));
+    int sy = (src >= nsquare ? src % 9 : 1 + (src / 9));
+    return (cappc | prom | (sx << 12) | (sy << 8) | (dx << 4) | dy);
 }
  
-int readable(mvC mv) { return readable_c(mv.v); }
+int readable(mvC mv) {
+    return readable_c(mv.v);
+}
 
  //**** time related
 
@@ -57,27 +59,23 @@ static int origin_sec = 0, origin_nsec = 0;
 int time_offset = 0;
 
 static int timespec2int(int sec, int nsec) {
-  // 1/14/2010 changed from us to 10us
- //return ((sec - origin_sec) * 1000000 + (nsec - origin_nsec) / 1000);
- return ((sec - origin_sec) * 100000 + (nsec - origin_nsec) / 10000);
+    // 1/14/2010 changed from us to 10us
+    //return ((sec - origin_sec) * 1000000 + (nsec - origin_nsec) / 1000);
+    return ((sec - origin_sec) * 100000 + (nsec - origin_nsec) / 10000);
 }
 
-int worldTime()
-{
+extern "C" int worldTime() {
     struct timespec ts;
-    //clock_gettime(CLOCK_REALTIME, &ts);
     ei_clock_gettime(&ts);
 
     return (timespec2int(ts.tv_sec, ts.tv_nsec) - time_offset);
     // NOTE before offset is set, this is equal to master's time
 }
 
-int64_t worldTimeLl()
-{
+extern "C" int64_t worldTimeLl() {
     struct timespec ts;
     int64_t x;
 
-    //clock_gettime(CLOCK_REALTIME, &ts);
     ei_clock_gettime(&ts);
     x = ts.tv_sec;
     x *= 1000000000;
@@ -88,93 +86,76 @@ int64_t worldTimeLl()
  // called by mpi_init(), just once.  after that, worldTime() will
  // return the 10us unit since start
 extern "C" void initTime() {
- struct timespec ts;
- //clock_gettime(CLOCK_REALTIME, &ts);
- ei_clock_gettime(&ts);
- origin_sec = ts.tv_sec;
- origin_nsec = ts.tv_nsec;
+    struct timespec ts;
+
+    ei_clock_gettime(&ts);
+    origin_sec = ts.tv_sec;
+    origin_nsec = ts.tv_nsec;
 }
 
-#if 0
-int x_dmy_for_calcinc = 0;
-int INCS_PER_USEC;
-#define CALCINC_CONST  1000000000
-
-static int calcIncsPerUsec() {
- int i, pre, post;
- pre = worldTime();
- for(i=0; i<CALCINC_CONST; i++)
-    x_dmy_for_calcinc &= x_dmy_for_calcinc - 2;
- post = worldTime();
- x_dmy_for_calcinc >>= 28;  // keep it close to zero
- if (post == pre) {
-   printf("Cannot measure time : post=%d pre=%d\n", post, pre);
-   exit(8);
- }
- return (CALCINC_CONST / (10 * (post - pre)));
+#if USE_PAUSE
+static void micropauseCore(int t) {
+    // single call of pause() pauses 10ns on i7 860.
+    // if you want to pause 40us, call pause 40us/10ns = 4000 times
+    int n = (1000 * t / PAUSE_DURATION_NS);
+    forr (i, 1, n) {
+        _mm_pause();
+    }
 }
 #endif
 
-static void micropauseCore(int t) {
-  // single call of pause() pauses 10ns on i7 860.
-  // if you want to pause 40us, call pause 40us/10ns = 4000 times
- int n = (1000 * t / PAUSE_DURATION_NS);
- forr(i, 1, n)
-   _mm_pause();
-}
-
 static void microsleepCore(int t) {
- struct timespec ts, tsrem;
- ts.tv_sec = 0;
- ts.tv_nsec = t * 1000;
- nanosleep(&ts, &tsrem);
+    struct timespec ts, tsrem;
+
+    ts.tv_sec = 0;
+    ts.tv_nsec = t * 1000;
+    nanosleep(&ts, &tsrem);
 }
 
 static void microspinCore(int t) {
- uint64_t n = t ;
- n *= INCS_PER_USEC;
- int x = t;
- forr(i,1,n)
-   x &= x - 2;
- x_dmy_for_calcinc &= x;
+    int64_t n = t * INCS_PER_USEC;
+
+    int x = t;
+    forr (i, 1, n) {
+        x &= x - 2;
+    }
+    x_dmy_for_calcinc &= x;
 }
 
 void microsleep(int t) {
 #if 0
-#if ( USE_SPIN )
- microspinCore(t);
+#if (USE_SPIN)
+    microspinCore(t);
 #else
-#if ( ! USE_PAUSE )
- microsleepCore(t);
+#if (!USE_PAUSE)
+    microsleepCore(t);
 #else
- micropauseCore(t);
+    micropauseCore(t);
 #endif
 #endif
 #else 
 if (VMMODE)
- microspinCore(t);
+    microspinCore(t);
 else
- microspinCore(t);
+    microspinCore(t);
 #endif
 }
 
 void microsleepMaster(int t) {
 #if 0
-#if ( USE_SPIN )
- microspinCore(t);
+#if (USE_SPIN)
+    microspinCore(t);
 #else
-#if ( ! USE_PAUSE_MASTER )
- microsleepCore(t);
+#if (!USE_PAUSE_MASTER)
+    microsleepCore(t);
 #else
- micropauseCore(t);
+    micropauseCore(t);
 #endif
 #endif
 #else
 if (VMMODE)
- microspinCore(t);
+    microspinCore(t);
 else
- microsleepCore(t);
+    microsleepCore(t);
 #endif
 }
-
-

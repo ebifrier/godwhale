@@ -55,8 +55,8 @@ BN = .
 endif
 endif
 
-G_CC  = mpicc
-G_CXX = mpicxx
+G_CC  = mpicc -Wall
+G_CXX = mpicxx -Wall
 G_MPICCOPT  = $(IPOOPT) $(PGOOPT) -g
 G_MPICXXOPT = $(IPOOPT) $(PGOOPT) -g -DTLP
 G_MPILDOPT  = -lrt $(IPOOPT) $(PGOOPT) -g

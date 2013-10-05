@@ -47,57 +47,62 @@ commands:
 - CANCEL        ITD, EXD
 */
 
-enum { CMD_OPCODE_NULL    = 0,
-       CMD_OPCODE_SETROOT = 1,
-       CMD_OPCODE_FWD        ,   // 2
-       CMD_OPCODE_RWD        ,   // 3
-       CMD_OPCODE_QUIT       ,   // 4
-       CMD_OPCODE_ROOT       ,   // 5
-       CMD_OPCODE_WARM       ,   // 6
-       CMD_OPCODE_FIRST      ,   // 7
-       CMD_OPCODE_LIST       ,   // 8
-       CMD_OPCODE_NOTIFY     ,   // 9
-       CMD_OPCODE_EXTEND     ,   // a
-       CMD_OPCODE_SHRINK     ,   // b
-       CMD_OPCODE_CANCEL     ,   // c
-       CMD_OPCODE_COMMIT     ,   // d
-       CMD_OPCODE_VERIFY     ,   // e
-       CMD_OPCODE_STOP       ,   // f
-       CMD_OPCODE_PICKED     ,   //10
-       CMD_OPCODE_END     }; // 0x11
+enum
+{
+    CMD_OPCODE_NULL    = 0,
+    CMD_OPCODE_SETROOT = 1,
+    CMD_OPCODE_FWD        ,   // 2
+    CMD_OPCODE_RWD        ,   // 3
+    CMD_OPCODE_QUIT       ,   // 4
+    CMD_OPCODE_ROOT       ,   // 5
+    CMD_OPCODE_WARM       ,   // 6
+    CMD_OPCODE_FIRST      ,   // 7
+    CMD_OPCODE_LIST       ,   // 8
+    CMD_OPCODE_NOTIFY     ,   // 9
+    CMD_OPCODE_EXTEND     ,   // a
+    CMD_OPCODE_SHRINK     ,   // b
+    CMD_OPCODE_CANCEL     ,   // c
+    CMD_OPCODE_COMMIT     ,   // d
+    CMD_OPCODE_VERIFY     ,   // e
+    CMD_OPCODE_STOP       ,   // f
+    CMD_OPCODE_PICKED     ,   //10
+    CMD_OPCODE_END,      // 0x11
+};
 
 
-enum { CMD_LOC_MAGIC    = 0,
-       CMD_LOC_SIZE     = 1,
-       CMD_LOC_OPCODE   = 2,
-       CMD_LOC_ITD      = 3,
-       CMD_LOC_EXD      = 4,
-       CMD_LOC_MVCNT    = 5,
-       CMD_LOC_TUPLE_OFS_EXTEND    = 6,
-       CMD_LOC_ALPHA    = 6,
-       CMD_LOC_HAVELIST_LIST = 7,  // 1/27/2011 not used, replaced by firstmv
-       CMD_LOC_FIRSTMV = 7,
-       CMD_LOC_ONEREP   = 8,
-       CMD_LOC_PVLENG_LIST  = 9,
-       CMD_LOC_BETA     = 10,
-       CMD_LOC_PV_OFS_LIST  = 11,
-       //CMD_LOC_PAIR_OFS = 19,
-       CMD_LOC_PAIR_OFS = CMD_LOC_PV_OFS_LIST + MAX_EXPDEP,
-       CMD_LOC_HANDB    = 3,
-       CMD_LOC_HANDW    = 4,
-       CMD_LOC_TURN     = 5,
-       CMD_LOC_ASQ_OFS  = 6,
-       CMD_LOC_FWDMV    = 3,
-       CMD_LOC_HAVELIST_FIRST = 4,
-       CMD_LOC_PVLENG   = 5,
-       CMD_LOC_PV_OFS   = 6,
-       CMD_LOC_NEWALPHA = 5,
-       CMD_LOC_NOTIFYMV = 6,
-       CMD_LOC_MV_OFS   = 6,
-       //CMD_LOC_BESTMV_OFS   = 16,
-       CMD_LOC_MVLOC    = 5,
-       CMD_LOC_TAIL     = 4,
-       CMD_LOC_ABGOFS   = 5 
+enum
+{
+    CMD_LOC_MAGIC    = 0,
+    CMD_LOC_SIZE     = 1,
+    CMD_LOC_OPCODE   = 2,
+    CMD_LOC_ITD      = 3,
+    CMD_LOC_EXD      = 4,
+    CMD_LOC_MVCNT    = 5,
+    CMD_LOC_TUPLE_OFS_EXTEND    = 6,
+    CMD_LOC_ALPHA    = 6,
+    CMD_LOC_HAVELIST_LIST = 7,  // 1/27/2011 not used, replaced by firstmv
+    CMD_LOC_FIRSTMV = 7,
+    CMD_LOC_ONEREP   = 8,
+    CMD_LOC_PVLENG_LIST  = 9,
+    CMD_LOC_BETA     = 10,
+    CMD_LOC_PV_OFS_LIST  = 11,
+    //CMD_LOC_PAIR_OFS = 19,
+    CMD_LOC_PAIR_OFS = CMD_LOC_PV_OFS_LIST + MAX_EXPDEP,
+    CMD_LOC_HANDB    = 3,
+    CMD_LOC_HANDW    = 4,
+    CMD_LOC_TURN     = 5,
+    CMD_LOC_ASQ_OFS  = 6,
+    CMD_LOC_FWDMV    = 3,
+    CMD_LOC_HAVELIST_FIRST = 4,
+    CMD_LOC_PVLENG   = 5,
+    CMD_LOC_PV_OFS   = 6,
+    CMD_LOC_NEWALPHA = 5,
+    CMD_LOC_NOTIFYMV = 6,
+    CMD_LOC_MV_OFS   = 6,
+    //CMD_LOC_BESTMV_OFS   = 16,
+    CMD_LOC_MVLOC    = 5,
+    CMD_LOC_TAIL     = 4,
+    CMD_LOC_ABGOFS   = 5 
 };
 
 
@@ -110,40 +115,45 @@ enum { CMD_LOC_MAGIC    = 0,
 #define GMX_MAX_LEGAL_MVS  600
 #define GMX_MAX_CMD_PACKET  2400
 
-struct mvtupleC {
- mvC mv, bestmv; 
- int depth;
- short upper, lower;
- mvtupleC() {}
- mvtupleC(mvC m, mvC b, int d, short u, short l) : mv(m), bestmv(b),
-             depth(d), upper(u), lower(l) {}
-} ;
+struct mvtupleC
+{
+    mvC mv, bestmv; 
+    int depth;
+    short upper, lower;
 
-static int mergeint(short a, short b) {
- unsigned int x = a + (1<<15);
- unsigned int y = b + (1<<15);
- unsigned int z = (x<<16) | y;
- return (int)z;
+    mvtupleC() {}
+    mvtupleC(mvC m, mvC b, int d, short u, short l)
+        : mv(m), bestmv(b), depth(d), upper(u), lower(l) {}
+};
+
+static int mergeint(short a, short b)
+{
+    unsigned int x = a + (1<<15);
+    unsigned int y = b + (1<<15);
+    return (int)((x<<16) | y);
 }
 
-static void splitint(int n, short *a, short *b) {
- unsigned int z = (unsigned)n;
- unsigned int x = z >> 16;
- unsigned int y = z & 0xffff;
- *a = (short)((int)x - (1<<15));
- *b = (short)((int)y - (1<<15));
+static void splitint(int n, short *a, short *b)
+{
+    unsigned int z = (unsigned)n;
+    unsigned int x = z >> 16;
+    unsigned int y = z & 0xffff;
+
+    *a = (short)((int)x - (1<<15));
+    *b = (short)((int)y - (1<<15));
 }
 
-class cmdPacketC {
- public:
+class cmdPacketC
+{
+public:
   int v[GMX_MAX_CMD_PACKET];
 
   cmdPacketC() { v[CMD_LOC_MAGIC] = GMX_MAGIC_CMD; }
-  void clear();                                           // erase all
+  void clear(); // erase all
   void erase() { int sz = v[CMD_LOC_SIZE]; //12/10/2010 #1 was forr(i,1,v[..]-1)
                  forr(i,1,sz-1) v[i] = 0; }  // erase just enough
-  bool havecmd() { return (CMD_OPCODE_NULL      < v[CMD_LOC_OPCODE]
-                           && v[CMD_LOC_OPCODE] < CMD_OPCODE_END);  }
+  bool havecmd() { return (CMD_OPCODE_NULL   < v[CMD_LOC_OPCODE] &&
+                           v[CMD_LOC_OPCODE] < CMD_OPCODE_END);  }
 
    // methods for master sending
 
@@ -422,240 +432,259 @@ replies:
 
 */
 
-enum { RPY_OPCODE_NULL    = 0,
-       RPY_OPCODE_SETPV   = 1,
-       RPY_OPCODE_SETLIST    ,   // 2
-       RPY_OPCODE_FIRST      ,   // 3
-       RPY_OPCODE_PVS        ,   // 4
-       RPY_OPCODE_RETRYING   ,   // 5
-       RPY_OPCODE_ROOT       ,   // 6
-       RPY_OPCODE_STOPACK    ,   // 7
-       RPY_OPCODE_FCOMP      ,   // 8
-       RPY_OPCODE_END         };   // 9
+enum
+{
+    RPY_OPCODE_NULL    = 0,
+    RPY_OPCODE_SETPV   = 1,
+    RPY_OPCODE_SETLIST    ,   // 2
+    RPY_OPCODE_FIRST      ,   // 3
+    RPY_OPCODE_PVS        ,   // 4
+    RPY_OPCODE_RETRYING   ,   // 5
+    RPY_OPCODE_ROOT       ,   // 6
+    RPY_OPCODE_STOPACK    ,   // 7
+    RPY_OPCODE_FCOMP      ,   // 8
+    RPY_OPCODE_END        ,   // 9
+};
 
-enum { RPY_LOC_SIZE     = 0,
-       RPY_LOC_OPCODE   = 1,
-       RPY_LOC_ITD      = 2,
-       RPY_LOC_EXD      = 3,
-       RPY_LOC_VAL      = 4,
-       RPY_LOC_PVSMV    = 5,
-       RPY_LOC_ULE      = 6,
-       RPY_LOC_NUMNODE  = 7,
-       RPY_LOC_SEQLENG_PVS  = 8,
-       RPY_LOC_BESTSEQ_OFS_PVS  = 9,
-       RPY_LOC_PVLENG   = 3,
-       RPY_LOC_PV_OFS   = 4,
-       RPY_LOC_MVCNT    = 4,
-       RPY_LOC_MVOFS    = 5,
-       RPY_LOC_SEQLENG_FIRST= 5,
-       RPY_LOC_BESTSEQ_OFS_FIRST= 6,
-       RPY_LOC_RETRYMV  = 4,
-       RPY_LOC_ROOTMV = 3,
-       RPY_LOC_SECONDMV  = 5
+enum
+{
+    RPY_LOC_SIZE     = 0,
+    RPY_LOC_OPCODE   = 1,
+    RPY_LOC_ITD      = 2,
+    RPY_LOC_EXD      = 3,
+    RPY_LOC_VAL      = 4,
+    RPY_LOC_PVSMV    = 5,
+    RPY_LOC_ULE      = 6,
+    RPY_LOC_NUMNODE  = 7,
+    RPY_LOC_SEQLENG_PVS  = 8,
+    RPY_LOC_BESTSEQ_OFS_PVS  = 9,
+    RPY_LOC_PVLENG   = 3,
+    RPY_LOC_PV_OFS   = 4,
+    RPY_LOC_MVCNT    = 4,
+    RPY_LOC_MVOFS    = 5,
+    RPY_LOC_SEQLENG_FIRST= 5,
+    RPY_LOC_BESTSEQ_OFS_FIRST= 6,
+    RPY_LOC_RETRYMV  = 4,
+    RPY_LOC_ROOTMV   = 3,
+    RPY_LOC_SECONDMV = 5,
 };
 
 #define GMX_MAX_RPY_ENTRY   2400
 
 #define RPY_RANK_BITPOS (16)
-#define RPY_SIZE_MASK  ((1 << RPY_RANK_BITPOS) - 1)
+#define RPY_SIZE_MASK   ((1 << RPY_RANK_BITPOS) - 1)
 
 class replyPacketC;  // defined below
 
-class replyEntryC {
- public:
-  replyPacketC* pktp;
-  int v[GMX_MAX_RPY_ENTRY];
+class replyEntryC
+{
+public:
+    replyPacketC* pktp;
+    int v[GMX_MAX_RPY_ENTRY];
 
-  replyEntryC(replyPacketC* p = NULL) : pktp(p) {}
-  int size() { return (v[RPY_LOC_SIZE] & RPY_SIZE_MASK); }
-  int rank() { return (v[RPY_LOC_SIZE] >> RPY_RANK_BITPOS); } // only in master
-  void clear() { memset(v, 0, sizeof(v)); }
-  void erase() { int sz = size(); forr(i,0,sz-1) v[i] = 0; } // erase just enuf
-  bool havereply() { return (RPY_OPCODE_NULL < v[RPY_LOC_OPCODE]
-                             && v[RPY_LOC_OPCODE] < RPY_OPCODE_END); }
+    replyEntryC(replyPacketC* p = NULL) : pktp(p) {}
+    int size() { return (v[RPY_LOC_SIZE] & RPY_SIZE_MASK); }
+    int rank() { return (v[RPY_LOC_SIZE] >> RPY_RANK_BITPOS); } // only in master
+    void clear() { memset(v, 0, sizeof(v)); }
+    void erase() { int sz = size(); forr(i,0,sz-1) v[i] = 0; } // erase just enuf
+    bool havereply() { return (RPY_OPCODE_NULL < v[RPY_LOC_OPCODE] &&
+                               v[RPY_LOC_OPCODE] < RPY_OPCODE_END); }
 
     // methods for slave setting
-  void pushEntry();  // defined after rpyPacketC
+    void pushEntry();  // defined after rpyPacketC
 
-  void pushSetpv(int itd, int pvleng, mvC* pv) {
-    v[RPY_LOC_OPCODE] = RPY_OPCODE_SETPV;
-    v[RPY_LOC_ITD   ] = itd;
-    v[RPY_LOC_PVLENG] = pvleng;
-    if (DBG_DUMP_COMM)
-           SLTOut("$$$$ rpy setpv  itd %d pvleng %d  pv: ", itd, pvleng);
-    forr(i,0,pvleng-1) {
-      v[RPY_LOC_PV_OFS + i] = pv[i].v;
-      if (DBG_DUMP_COMM)
-           SLTOut(" %07x", readable(pv[i]));
+    void pushSetpv(int itd, int pvleng, mvC* pv)
+    {
+        v[RPY_LOC_OPCODE] = RPY_OPCODE_SETPV;
+        v[RPY_LOC_ITD   ] = itd;
+        v[RPY_LOC_PVLENG] = pvleng;
+
+        if (DBG_DUMP_COMM) {
+            SLTOut("$$$$ rpy setpv  itd %d pvleng %d  pv: ", itd, pvleng);
+        }
+
+        forr (i, 0, pvleng-1) {
+            v[RPY_LOC_PV_OFS + i] = pv[i].v;
+            if (DBG_DUMP_COMM) {
+                SLTOut(" %07x", readable(pv[i]));
+            }
+        }
+
+        if (DBG_DUMP_COMM) SLTOut("\n");
+        v[RPY_LOC_SIZE] = RPY_LOC_PV_OFS + pvleng;
+        pushEntry();
     }
-    if (DBG_DUMP_COMM) SLTOut("\n");
-    //forr(i,pvleng,GMX_MAX_PV-1)
-    //  v[RPY_LOC_PV_OFS + i] = NULLMV;
-    v[RPY_LOC_SIZE] = RPY_LOC_PV_OFS + pvleng;
 
+    void pushSetlist(int itd, int exd, int mvcnt, mvC* mv)
+    {
+        v[RPY_LOC_OPCODE] = RPY_OPCODE_SETLIST;
+        v[RPY_LOC_ITD   ] = itd;
+        v[RPY_LOC_EXD   ] = exd;
+        v[RPY_LOC_MVCNT ] = mvcnt;
 
-    pushEntry();
-  }
+        if (DBG_DUMP_COMM) {
+            SLTOut("$$$$ rpy setlist  itd %d exd %d mvcnt %d   mvs:\n",
+                   itd, exd, mvcnt);
+        }
 
-  void pushSetlist(int itd, int exd, int mvcnt, mvC* mv) {
-    v[RPY_LOC_OPCODE] = RPY_OPCODE_SETLIST;
-    v[RPY_LOC_ITD   ] = itd;
-    v[RPY_LOC_EXD   ] = exd;
-    v[RPY_LOC_MVCNT] = mvcnt;
-    if (DBG_DUMP_COMM)
-           SLTOut("$$$$ rpy setlist  itd %d exd %d mvcnt %d   mvs:\n",
-                    itd, exd, mvcnt);
-    forr(i,0,mvcnt-1) {
-      v[RPY_LOC_MVOFS + i] = mv[i].v;
-      if (DBG_DUMP_COMM)
-           SLTOut(" %07x", readable(mv[i]));
+        forr (i, 0, mvcnt-1) {
+            v[RPY_LOC_MVOFS + i] = mv[i].v;
+            if (DBG_DUMP_COMM) {
+                SLTOut(" %07x", readable(mv[i]));
+            }
+        }
+
+        if (DBG_DUMP_COMM) SLTOut("\n");
+        v[RPY_LOC_SIZE] = RPY_LOC_MVOFS + mvcnt;
+        pushEntry();
     }
-    if (DBG_DUMP_COMM) SLTOut("\n");
-    v[RPY_LOC_SIZE] = RPY_LOC_MVOFS + mvcnt;
 
-    pushEntry();
-  }
+    void pushFirst(int itd, int exd, int val, int seqleng, mvC* bestseq) {
+        v[RPY_LOC_OPCODE] = RPY_OPCODE_FIRST;
+        v[RPY_LOC_ITD   ] = itd;
+        v[RPY_LOC_EXD   ] = exd;
+        v[RPY_LOC_VAL   ] = val;
+        v[RPY_LOC_SEQLENG_FIRST] = seqleng;
 
-  void pushFirst(int itd, int exd, int val, int seqleng, mvC* bestseq) {
-    v[RPY_LOC_OPCODE] = RPY_OPCODE_FIRST;
-    v[RPY_LOC_ITD   ] = itd;
-    v[RPY_LOC_EXD   ] = exd;
-    v[RPY_LOC_VAL   ] = val;
-    v[RPY_LOC_SEQLENG_FIRST] = seqleng;
-    if (DBG_DUMP_COMM)
-           SLTOut("%8d>$$$$ rpy first  itd %d exd %d val %d seqleng %d  bestseq:\n",
-                  worldTime(), itd, exd, val, seqleng);
-    forr(i,0,seqleng-1) {
-      v[RPY_LOC_BESTSEQ_OFS_FIRST + i] = bestseq[i].v;
-      if (DBG_DUMP_COMM)
-           SLTOut(" %07x", readable(bestseq[i]));
+        if (DBG_DUMP_COMM) {
+            SLTOut("%8d>$$$$ rpy first  itd %d exd %d val %d seqleng %d  bestseq:\n",
+                   worldTime(), itd, exd, val, seqleng);
+        }
+
+        forr (i, 0, seqleng-1) {
+            v[RPY_LOC_BESTSEQ_OFS_FIRST + i] = bestseq[i].v;
+            if (DBG_DUMP_COMM) {
+                SLTOut(" %07x", readable(bestseq[i]));
+            }
+        }
+
+        if (DBG_DUMP_COMM) SLTOut("\n");
+        v[RPY_LOC_SIZE] = RPY_LOC_BESTSEQ_OFS_FIRST + seqleng;
+        pushEntry();
     }
-    if (DBG_DUMP_COMM) SLTOut("\n");
-    v[RPY_LOC_SIZE] = RPY_LOC_BESTSEQ_OFS_FIRST + seqleng;
 
-    pushEntry();
-  }
+    void pushFcomp(int itd, int exd, int val, int seqleng, mvC* bestseq) {
+        v[RPY_LOC_OPCODE] = RPY_OPCODE_FCOMP;
+        v[RPY_LOC_ITD   ] = itd;
+        v[RPY_LOC_EXD   ] = exd;
+        v[RPY_LOC_VAL   ] = val;
+        v[RPY_LOC_SEQLENG_FIRST] = seqleng;
 
-  void pushFcomp(int itd, int exd, int val, int seqleng, mvC* bestseq) {
-    v[RPY_LOC_OPCODE] = RPY_OPCODE_FCOMP;
-    v[RPY_LOC_ITD   ] = itd;
-    v[RPY_LOC_EXD   ] = exd;
-    v[RPY_LOC_VAL   ] = val;
-    v[RPY_LOC_SEQLENG_FIRST] = seqleng;
-    if (DBG_DUMP_COMM)
-           SLTOut("%8d>$$$$ rpy fcomp  itd %d exd %d val %d seqleng %d  bestseq:\n",
-                  worldTime(), itd, exd, val, seqleng);
-    forr(i,0,seqleng-1) {
-      v[RPY_LOC_BESTSEQ_OFS_FIRST + i] = bestseq[i].v;
-      if (DBG_DUMP_COMM)
-           SLTOut(" %07x", readable(bestseq[i]));
+        if (DBG_DUMP_COMM) {
+            SLTOut("%8d>$$$$ rpy fcomp  itd %d exd %d val %d seqleng %d  bestseq:\n",
+                   worldTime(), itd, exd, val, seqleng);
+        }
+
+        forr (i, 0, seqleng-1) {
+            v[RPY_LOC_BESTSEQ_OFS_FIRST + i] = bestseq[i].v;
+            if (DBG_DUMP_COMM) {
+                SLTOut(" %07x", readable(bestseq[i]));
+            }
+        }
+
+        if (DBG_DUMP_COMM) SLTOut("\n");
+        v[RPY_LOC_SIZE] = RPY_LOC_BESTSEQ_OFS_FIRST + seqleng;
+        pushEntry();
     }
-    if (DBG_DUMP_COMM) SLTOut("\n");
-    v[RPY_LOC_SIZE] = RPY_LOC_BESTSEQ_OFS_FIRST + seqleng;
 
-    pushEntry();
-  }
+    void pushPvs(int itd, int exd, int val, mvC mv, int ule, int numnode,
+                 int seqleng, mvC* bestseq)
+    {
+        v[RPY_LOC_OPCODE] = RPY_OPCODE_PVS;
+        v[RPY_LOC_ITD   ] = itd;
+        v[RPY_LOC_EXD   ] = exd;
+        v[RPY_LOC_VAL   ] = val;
+        v[RPY_LOC_PVSMV ] = mv.v;
+        v[RPY_LOC_ULE   ] = ule;
+        v[RPY_LOC_NUMNODE]= numnode;
+        v[RPY_LOC_SEQLENG_PVS] = seqleng;
 
-  void pushPvs(int itd, int exd, int val, mvC mv, int ule, int numnode,
-               int seqleng, mvC* bestseq)    {
-    v[RPY_LOC_OPCODE] = RPY_OPCODE_PVS;
-    v[RPY_LOC_ITD   ] = itd;
-    v[RPY_LOC_EXD   ] = exd;
-    v[RPY_LOC_VAL   ] = val;
-    v[RPY_LOC_PVSMV ] = mv.v;
-    v[RPY_LOC_ULE   ] = ule;
-    v[RPY_LOC_NUMNODE] = numnode;
-    v[RPY_LOC_SEQLENG_PVS] = seqleng;
-    if (DBG_DUMP_COMM)
-      SLTOut("%8d>$$$$ rpy pvs itd %d exd %d val %d mv %07x ule %d seqleng %d  bestseq:\n",
-                  worldTime(),  itd, exd, val, readable(mv), ule, seqleng);
-    forr(i,0,seqleng-1) {
-      v[RPY_LOC_BESTSEQ_OFS_PVS + i] = bestseq[i].v;
-      if (DBG_DUMP_COMM)
-           SLTOut(" %07x", readable(bestseq[i]));
+        if (DBG_DUMP_COMM) {
+            SLTOut("%8d>$$$$ rpy pvs itd %d exd %d val %d mv %07x ule %d seqleng %d  bestseq:\n",
+                   worldTime(),  itd, exd, val, readable(mv), ule, seqleng);
+        }
+
+        forr (i, 0, seqleng-1) {
+            v[RPY_LOC_BESTSEQ_OFS_PVS + i] = bestseq[i].v;
+            if (DBG_DUMP_COMM) {
+                SLTOut(" %07x", readable(bestseq[i]));
+            }
+        }
+
+        if (DBG_DUMP_COMM) SLTOut("\n");
+        v[RPY_LOC_SIZE] = RPY_LOC_BESTSEQ_OFS_PVS + seqleng;
+        pushEntry();
     }
-    if (DBG_DUMP_COMM) SLTOut("\n");
-    v[RPY_LOC_SIZE] = RPY_LOC_BESTSEQ_OFS_PVS + seqleng;
 
-    pushEntry();
-  }
+    void pushRetrying(int itd, int exd, mvC mv)
+    {
+        v[RPY_LOC_OPCODE] = RPY_OPCODE_RETRYING;
+        v[RPY_LOC_ITD   ] = itd;
+        v[RPY_LOC_EXD   ] = exd;
+        v[RPY_LOC_RETRYMV]= mv.v;
+        v[RPY_LOC_SIZE]   = RPY_LOC_RETRYMV+1;
 
-  void pushRetrying(int itd, int exd, mvC mv) {
-    v[RPY_LOC_OPCODE] = RPY_OPCODE_RETRYING;
-    v[RPY_LOC_ITD   ] = itd;
-    v[RPY_LOC_EXD   ] = exd;
-    v[RPY_LOC_RETRYMV] = mv.v;
-    v[RPY_LOC_SIZE] = RPY_LOC_RETRYMV+1;
-    if (DBG_DUMP_COMM)
-      SLTOut("%8d>$$$$ rpy retry itd %d exd %d mv %07x\n",
-                  worldTime(),  itd, exd, readable(mv));
+        if (DBG_DUMP_COMM) {
+            SLTOut("%8d>$$$$ rpy retry itd %d exd %d mv %07x\n",
+                   worldTime(),  itd, exd, readable(mv));
+        }
+        
+        pushEntry();
+    }
 
-    pushEntry();
-  }
+    void pushRoot(int itd, int val, mvC mv, mvC mv2)
+    {
+        v[RPY_LOC_OPCODE] = RPY_OPCODE_ROOT;
+        v[RPY_LOC_ITD   ] = itd;
+        v[RPY_LOC_ROOTMV] = mv.v;
+        v[RPY_LOC_SECONDMV] = mv2.v;
+        v[RPY_LOC_VAL   ] = val;
+        v[RPY_LOC_SIZE]   = RPY_LOC_SECONDMV+1;
 
-  void pushRoot(int itd, int val, mvC mv, mvC mv2) {
-    v[RPY_LOC_OPCODE] = RPY_OPCODE_ROOT;
-    v[RPY_LOC_ITD   ] = itd;
-    v[RPY_LOC_ROOTMV] = mv.v;
-    v[RPY_LOC_SECONDMV] = mv2.v;
-    v[RPY_LOC_VAL   ] = val;
-    v[RPY_LOC_SIZE] = RPY_LOC_SECONDMV+1;
-    if (DBG_DUMP_COMM)
-      SLTOut("%8d>$$$$ rpy root itd %d val %d mv %07x %07x\n",
-                  worldTime(),  itd, val, readable(mv), readable(mv2));
+        if (DBG_DUMP_COMM) {
+            SLTOut("%8d>$$$$ rpy root itd %d val %d mv %07x %07x\n",
+                   worldTime(),  itd, val, readable(mv), readable(mv2));
+        }
 
-    pushEntry();
-  }
+        pushEntry();
+    }
 
-  void pushStopack() {
-    v[RPY_LOC_OPCODE] = RPY_OPCODE_STOPACK;
-    v[RPY_LOC_SIZE] = RPY_LOC_OPCODE+1;
-    if (DBG_DUMP_COMM)
-      SLTOut("%8d>$$$$ rpy stopack\n",
-                  worldTime());
+    void pushStopack()
+    {
+        v[RPY_LOC_OPCODE] = RPY_OPCODE_STOPACK;
+        v[RPY_LOC_SIZE] = RPY_LOC_OPCODE+1;
 
-    pushEntry();
-  }
-
-#if 0
-  void pushFcomp(int itd, int val, mvC mv, mvC mv2) { // FIXME? mv,mv2 right?
-    v[RPY_LOC_OPCODE] = RPY_OPCODE_FCOMP;
-    v[RPY_LOC_ITD   ] = itd;
-    v[RPY_LOC_ROOTMV] = mv.v;        // FIXME? use ROOTMV?
-    v[RPY_LOC_SECONDMV] = mv2.v;
-    v[RPY_LOC_VAL   ] = val;
-    v[RPY_LOC_SIZE] = RPY_LOC_SECONDMV+1;
-    if (DBG_DUMP_COMM)
-      SLTOut("%8d>$$$$ rpy fcomp itd %d val %d mv %07x %07x\n",
-                  worldTime(),  itd, val, readable(mv), readable(mv2));
-
-    pushEntry();
-  }
-#endif
+        if (DBG_DUMP_COMM) {
+            SLTOut("%8d>$$$$ rpy stopack\n",
+                   worldTime());
+        }
+        
+        pushEntry();
+    }
 
     // methods for master using/reading
 
-  int opcode() { return v[RPY_LOC_OPCODE]; }
-  int itd()    { return v[RPY_LOC_ITD]; }
-  int exd()    { return v[RPY_LOC_EXD]; }
-  int val()    { return v[RPY_LOC_VAL]; }
-  mvC pvsmv()  { return mvC(v[RPY_LOC_PVSMV]); }
-  int ule()    { return v[RPY_LOC_ULE]; }
-  int numnode()      { return v[RPY_LOC_NUMNODE]; }
-  int seqleng_pvs()      { return v[RPY_LOC_SEQLENG_PVS]; }
-  mvC bestseq_pvs(int i) { return mvC(v[RPY_LOC_BESTSEQ_OFS_PVS+i]); }
-  int pvleng()  { return v[RPY_LOC_PVLENG]; }
-  mvC pv(int i) { return mvC(v[RPY_LOC_PV_OFS+i]); }
-  int mvcnt()   { return v[RPY_LOC_MVCNT]; }
-  mvC mv(int i) { return mvC(v[RPY_LOC_MVOFS+i]); }
-  int seqleng_first()      { return v[RPY_LOC_SEQLENG_FIRST]; }
-  mvC bestseq_first(int i) { return mvC(v[RPY_LOC_BESTSEQ_OFS_FIRST+i]); }
-  mvC retrymv()     { return mvC(v[RPY_LOC_RETRYMV]); }
-                       // 12/11/2010 #21 was LOC_ITD
-  mvC rootmv()     { return mvC(v[RPY_LOC_ROOTMV]); }
-  mvC secondmv()     { return mvC(v[RPY_LOC_SECONDMV]); }
+    int opcode() { return v[RPY_LOC_OPCODE]; }
+    int itd()    { return v[RPY_LOC_ITD]; }
+    int exd()    { return v[RPY_LOC_EXD]; }
+    int val()    { return v[RPY_LOC_VAL]; }
+    mvC pvsmv()  { return mvC(v[RPY_LOC_PVSMV]); }
+    int ule()    { return v[RPY_LOC_ULE]; }
+    int numnode()      { return v[RPY_LOC_NUMNODE]; }
+    int seqleng_pvs()      { return v[RPY_LOC_SEQLENG_PVS]; }
+    mvC bestseq_pvs(int i) { return mvC(v[RPY_LOC_BESTSEQ_OFS_PVS+i]); }
+    int pvleng()  { return v[RPY_LOC_PVLENG]; }
+    mvC pv(int i) { return mvC(v[RPY_LOC_PV_OFS+i]); }
+    int mvcnt()   { return v[RPY_LOC_MVCNT]; }
+    mvC mv(int i) { return mvC(v[RPY_LOC_MVOFS+i]); }
+    int seqleng_first()      { return v[RPY_LOC_SEQLENG_FIRST]; }
+    mvC bestseq_first(int i) { return mvC(v[RPY_LOC_BESTSEQ_OFS_FIRST+i]); }
+    mvC retrymv()  { return mvC(v[RPY_LOC_RETRYMV]); }
+    // 12/11/2010 #21 was LOC_ITD
+    mvC rootmv()   { return mvC(v[RPY_LOC_ROOTMV]); }
+    mvC secondmv() { return mvC(v[RPY_LOC_SECONDMV]); }
 
-  void getReply();  // defined after rpyPacketC
+    void getReply();  // defined after rpyPacketC
 };
 
 
@@ -663,96 +692,114 @@ class replyEntryC {
 
 #define GMX_RPY_MAXENT MAX_EXPDEP
 
-enum { RPYPKT_LOC_MAGIC    = 0,
-       RPYPKT_LOC_CNT      = 1,
-       RPYPKT_LOC_PTR_OFS  = 2,
-       RPYPKT_LOC_DATA_OFS = RPYPKT_LOC_PTR_OFS + GMX_RPY_MAXENT // 2+8=10
+enum
+{
+    RPYPKT_LOC_MAGIC    = 0,
+    RPYPKT_LOC_CNT      = 1,
+    RPYPKT_LOC_PTR_OFS  = 2,
+    RPYPKT_LOC_DATA_OFS = RPYPKT_LOC_PTR_OFS + GMX_RPY_MAXENT // 2+8=10
 };
 
 #define GMX_MAX_RPY_PACKET  19200
 
 
-class replyPacketC {
- public:
-  static const int GMX_MAGIC_RPY = 0x0ddbeefc;
-  int poptop;
-  int rank;
-  int v[GMX_MAX_RPY_PACKET];
+class replyPacketC
+{
+public:
+    static const int GMX_MAGIC_RPY = 0x0ddbeefc;
+    int poptop;
+    int rank;
+    int v[GMX_MAX_RPY_PACKET];
 
-  int& magic()    { return v[RPYPKT_LOC_MAGIC]; }
-  int& cnt()      { return v[RPYPKT_LOC_CNT]; }
-  int& ptr(int i) { return v[RPYPKT_LOC_PTR_OFS + i]; }
-  int size() {
-    assert(0 <= cnt() && cnt() < GMX_RPY_MAXENT);
-    return (cnt()==0 ? RPYPKT_LOC_DATA_OFS
-                     : (ptr(cnt()-1) + v[ptr(cnt()-1) + RPY_LOC_SIZE]));
-  }
-  void erase() { int sz=size(); forr(i,1,sz-1) v[i] = 0; }
-  void init();
+    int& magic()    { return v[RPYPKT_LOC_MAGIC]; }
+    int& cnt()      { return v[RPYPKT_LOC_CNT]; }
+    int& ptr(int i) { return v[RPYPKT_LOC_PTR_OFS + i]; }
+    int size()
+    {
+        assert(0 <= cnt() && cnt() < GMX_RPY_MAXENT);
+        return (cnt()==0 ? RPYPKT_LOC_DATA_OFS
+                : (ptr(cnt()-1) + v[ptr(cnt()-1) + RPY_LOC_SIZE]));
+    }
+
+    void init();
+    void erase()
+    {
+        int sz = size();
+        forr (i, 1, sz-1) v[i] = 0;
+    }
 
     // methods for slave setting
 
-  void send() { sendPacket(MASTERRANK, v, size());
-                if (DBG_DUMP_COMM) SLTOut("$$$$ send rpy\n");
-                erase(); }   // 12/11/2010 #22 erase was missing
+    void send()
+    {
+        sendPacket(MASTERRANK, v, size());
+        if (DBG_DUMP_COMM) SLTOut("$$$$ send rpy\n");
+        erase();
+    }
 
-  void pushEntry(replyEntryC* entp) {
-    assert(cnt() < GMX_RPY_MAXENT);
-    int ofs = ptr(cnt()) = size();
-    int entsz = entp->size();
-    forr(i, 0, entsz-1)
-      v[ofs+i] = entp->v[i];
-    cnt()++;
-  }
+    void pushEntry(replyEntryC* entp)
+    {
+        assert(cnt() < GMX_RPY_MAXENT);
+        int ofs = ptr(cnt()) = size();
+        int entsz = entp->size();
+
+        forr (i, 0, entsz-1) {
+            v[ofs+i] = entp->v[i];
+        }
+        cnt()++;
+    }
 
     // methods for master using/reading
 
-  void getReply(int i, replyEntryC* entp) {
-    int sz = v[ptr(i) + RPY_LOC_SIZE];
-    forr(j, 0, sz-1)
-      entp->v[j] = v[ptr(i) + j];
-    entp->v[RPY_LOC_SIZE] |= rank << RPY_RANK_BITPOS;
-  }
-
+    void getReply(int i, replyEntryC* entp)
+    {
+        int sz = v[ptr(i) + RPY_LOC_SIZE];
+        forr (j, 0, sz-1) {
+            entp->v[j] = v[ptr(i) + j];
+        }
+        entp->v[RPY_LOC_SIZE] |= rank << RPY_RANK_BITPOS;
+    }
 };
 
 #ifndef MASTER_CC
-void replyPacketC::init() {
- memset(this, 0, sizeof(replyPacketC));
- v[RPYPKT_LOC_MAGIC] = GMX_MAGIC_RPY;
+void replyPacketC::init()
+{
+    memset(this, 0, sizeof(replyPacketC));
+    v[RPYPKT_LOC_MAGIC] = GMX_MAGIC_RPY;
 }
 
 //*************
 
-  void replyEntryC::pushEntry() {
+void replyEntryC::pushEntry()
+{
     assert(pktp != NULL);
     pktp->pushEntry(this);
-  }
+}
 
-  void replyEntryC::getReply() {
-      // if reply already exists, do nothing
+void replyEntryC::getReply()
+{
+    // if reply already exists, do nothing
     if (havereply()) return;
 
-      // now we have no reply in this entry
-      // if one exists in packet, use it
+    // now we have no reply in this entry
+    // if one exists in packet, use it
     if (pktp->poptop < pktp->cnt()) {
-      pktp->getReply(pktp->poptop++, this);
-      return;
+        pktp->getReply(pktp->poptop++, this);
+        return;
     }
 
-      // no reply in ent/pkt.  get new pkt; if none exists, can't help
-    int rk;
-    if ((rk = probeProcessor()) != NO_PENDING_REQUEST) { //#3 12/10/2010 was
-        pktp->rank = rk;                                 // if(rk=probPr())
+    // no reply in ent/pkt.  get new pkt; if none exists, can't help
+    int rk = probeProcessor();
+    if (rk != NO_PENDING_REQUEST) { //#3 12/10/2010 was
+        pktp->rank = rk;
         recvPacket(rk, pktp->v);
         assert(pktp->cnt() > 0);
         pktp->getReply(0, this);
         pktp->poptop = 1;
         return;
     }
-
-      // no reply in ent/pkt, no pkt has come.  no reply
+    
+    // no reply in ent/pkt, no pkt has come. no reply
     return;
-  }
+}
 #endif
-

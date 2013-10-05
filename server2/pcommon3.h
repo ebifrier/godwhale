@@ -12,19 +12,18 @@ extern "C" {
 
 #define BNS_COMPAT    0
 
-//#define MAX_SRCH_DEP     10
 #define MAX_SRCH_DEP_FIGHT     30
 #define MAX_SRCH_DEP_PROB       9
 extern int MAX_SRCH_DEP;
 
 #define DBG_INTERVAL_CHK  0
 
-#define areaclr(x) memset(&x, 0, sizeof(x))
-#define forr(i,m,n) for(int i=(m); i<=(n); i++)
-#define forv(i,m,n) for(int i=(m); i>=(n); i--)
-#define max(m,n) ((m)>(n) ? (m) : (n))
-#define min(m,n) ((m)<(n) ? (m) : (n))
-#define NULLMV mvC((int)(0))
+#define areaclr(x)  memset(&x, 0, sizeof(x))
+#define forr(i,m,n) for (int i=(m); i<=(n); i++)
+#define forv(i,m,n) for (int i=(m); i>=(n); i--)
+#define max(m,n)    ((m)>(n) ? (m) : (n))
+#define min(m,n)    ((m)<(n) ? (m) : (n))
+#define NULLMV      mvC((int)(0))
 
 #define TBC  assert(0)
 #define NTBR assert(0)
@@ -32,7 +31,6 @@ extern int MAX_SRCH_DEP;
 #define DBG_SL_TRACE 1
 #define DBG_MS_TRACE 1
 #define DBG_SL       0
-//#define DBG_MS       1
 #define SLTOut(...) \
     do {if (DBG_SL_TRACE) out_file(slavelogfp, __VA_ARGS__); } while(0)
 #define MSTOut(...) \
@@ -49,7 +47,6 @@ extern int master_proc_offset;
 extern FILE* slavelogfp;
 extern FILE* masterlogfp;
 
-//extern tree_t* g_ptree;
 extern int Mproc, Nproc, Ncomm;
 extern int x_dmy_for_calcinc, INCS_PER_USEC;
 
@@ -63,6 +60,7 @@ void quitHook();
 int detectSignalSlave();
 
  // for slave()
+void ei_clock_gettime(struct timespec* tsp);
 int worldTime();
 int64_t worldTimeLl();
 void microsleep(int);
@@ -70,7 +68,6 @@ int readable_c(int mv);
 
  // for invokempi
 void sendQuit(int pr);
-
 
 #ifndef SHOGI_H
  // copied from shogi.h
