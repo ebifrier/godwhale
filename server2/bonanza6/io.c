@@ -681,7 +681,7 @@ read_command( char ** pstr_line_end )
 #endif
 
 #if defined(USI)
-  if ( usi_mode != usi_off ) { Out( "IN: %s[END]\n", str_end );}
+  if ( usi_mode != usi_off ) { Out( "IN: %s[END]\n", str_end ); }
 #endif
 
   *pstr_line_end = strchr( str_buffer_cmdline, '\n' );

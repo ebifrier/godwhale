@@ -23,6 +23,7 @@ SOURCES = comm3.h makefile master3.cpp pcommon3.h \
       time.h cmpsrc.csh regrunit.sh \
       pgo.sh initact.h entsort.h
 
+U2B_SRCS = u2b.c
 
 #OPT =-DNDEBUG -DMINIMUM -DHAVE_SSE2 -msse2 -DDFPN -DTLP -DDFPN_CLIENT -DINANIWA_SHIFT -DCSA_LAN $(AFFINOPT) $(CLUSTOPT)
 BNSOPT = -DMINIMUM -DHAVE_SSE2 -msse2 -DDFPN -DTLP -DDFPN_CLIENT -DINANIWA_SHIFT -DCSA_LAN $(AVXOPT)
@@ -33,15 +34,18 @@ BN = bonanza6
 ########
 
 IPOOPT = 
-#IPOOPT = -g
 PGOOPT = 
 PGO1OPT = -fprofile-generate
 PGO2OPT = -fprofile-use
+G_CC  = mpicc -Wall
+G_CXX = mpicxx -Wall
 
 ifdef USE_ICC
 IPOOPT = -ipo
 PGO1OPT = -prof_gen -prof_dir ./profdir
 PGO2OPT = -prof_use -prof_dir ./profdir
+G_CC  = mpiicc -Wall
+G_CXX = mpiicpc -Wall
 endif
 
 ifeq ($(PGOPHASE),1)
@@ -55,8 +59,7 @@ BN = .
 endif
 endif
 
-G_CC  = mpicc -Wall
-G_CXX = mpicxx -Wall
+CC    = cc -Wall
 G_MPICCOPT  = $(IPOOPT) $(PGOOPT) -g
 G_MPICXXOPT = $(IPOOPT) $(PGOOPT) -g -DTLP
 G_MPILDOPT  = -lrt $(IPOOPT) $(PGOOPT) -g
@@ -76,9 +79,18 @@ G_OBJS = $(BN)/data.o $(BN)/main.o $(BN)/io.o $(BN)/proce.o $(BN)/utility.o \
       $(BN)/genchk.o $(BN)/phash.o $(BN)/dfpn.o $(BN)/dfpnhash.o $(BN)/bbini.o
 
 BIN = gmx
+U2B = u2b
 
-$(BIN):	all
+all: $(BIN) $(U2B)
+
+$(BIN): gobjs invokempi.o putils.o slave3.o master3.o
 	$(G_CXX) $(G_OBJS) invokempi.o putils.o slave3.o master3.o -o $@ $(G_MPILDOPT) $(DBGLDOPT)
+
+$(U2B): u2b.o
+	$(CC) u2b.o -o $@
+
+u2b.o: u2b.c
+	$(CC) -c u2b.c -o u2b.o
 
 pgotgt:
 	$(G_CXX) $(G_OBJS) invokempi.o putils.o slave3.o master3.o -o gmx $(G_MPILDOPT) $(DBGLDOPT)
@@ -115,7 +127,6 @@ save:
 
 
 clean:
-	rm -fr *.o *.exe *.stackdump logslave* logmaster* libbonkras.a*
+	rm -fr gmx u2b *.o *.exe *.stackdump logslave* logmaster* libbonkras.a*
 	make -C conv clean
 	make -C bonanza6 clean
-

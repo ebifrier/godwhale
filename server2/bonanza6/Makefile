@@ -56,7 +56,7 @@ PROBFILE=~/synced/probbnz/gihou/d1.dpp
 
 #OPT =-DNDEBUG -DMINIMUM -DHAVE_SSE4 -msse4.1 -DDFPN -DTLP -DDFPN_CLIENT -DINANIWA_SHIFT -DMNJ_LAN -DCSA_LAN
 OPT = -DNDEBUG -DMINIMUM $(SSEOPT) -DDFPN -DTLP -DDFPN_CLIENT \
-      -DINANIWA_SHIFT -DCSA_LAN $(AFFINOPT) $(CLUSTOPT) $(AVXOPT)
+      -DINANIWA_SHIFT -DUSI $(AFFINOPT) $(CLUSTOPT) $(AVXOPT)
 
 help:
 	@echo "try targets as:"
@@ -129,8 +129,8 @@ mate3.o: mate3.c shogi.h bitop.h param.h mate3.h
 
 ini.o: ini.c shogi.h bitop.h param.h mate3.h
 
-.c.o :
-	$(CC) -c $(CFLAGS) $*.c
+#.c.o :
+#	$(CC) $(OPT) -c $(CFLAGS) $*.c
 
 clean :
 	rm -f *.o *.il *.da *.gcda *.gcno *.bb *.bbg *.dyn

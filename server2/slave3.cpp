@@ -255,7 +255,7 @@ static int setMoves(int* lengp, mvC* mvp, mvC excludeMv, bool stopAt2 = false)
            gen_next_move(ptree, ply, turn)) {
         // FIXMEEEE!!!!  should not occur?  investigate!
         if (!is_move_valid(g_ptree, MOVE_CURR, turn)) continue; 
-        if (MOVE_CURR == excludeMv.v) continue; //dont gen firstmv
+        if ((int)MOVE_CURR == excludeMv.v) continue; //dont gen firstmv
         mvp[i++] = MOVE_CURR;
         if (stopAt2 && i >= 2) break; // if stopAt2, set firstmv to NULLMV
     }
@@ -337,17 +337,17 @@ int proce(int nested)
             SLTOut("======== proce start: opc=%d ========\n", pcOpc);
         }
 
-        if (nested && (  // pc is either setroot/fwd/rwd/quit/first
-                pcOpc == CMD_OPCODE_SETROOT ||
-                pcOpc == CMD_OPCODE_FWD     ||
-                pcOpc == CMD_OPCODE_RWD     ||
-                pcOpc == CMD_OPCODE_QUIT    ||
-                pcOpc == CMD_OPCODE_STOP    ||
-                pcOpc == CMD_OPCODE_LIST && running.job.onSingle() &&
+        if (nested &&  // pc is either setroot/fwd/rwd/quit/first
+            ( pcOpc == CMD_OPCODE_SETROOT ||
+              pcOpc == CMD_OPCODE_FWD     ||
+              pcOpc == CMD_OPCODE_RWD     ||
+              pcOpc == CMD_OPCODE_QUIT    ||
+              pcOpc == CMD_OPCODE_STOP    ||
+              ( pcOpc == CMD_OPCODE_LIST && running.job.onSingle() &&
                 // running.valid must be on, if nested
-                ( (ROOT_PARALLEL && (singleCmd.opcode == CMD_OPCODE_ROOT)) ||
-                  (singleCmd.opcode == CMD_OPCODE_WARM) ) ||
-                ABORT_ON_1ST && pcOpc == CMD_OPCODE_FIRST )) {
+                ( (ROOT_PARALLEL && singleCmd.opcode == CMD_OPCODE_ROOT) ||
+                  (singleCmd.opcode == CMD_OPCODE_WARM) )) ||
+              ( ABORT_ON_1ST && pcOpc == CMD_OPCODE_FIRST) )) {
 
             // for these cases, the cmd will be executed after abort and
             // re-execution of proce(0), so pendingCmd must remain.
@@ -428,7 +428,7 @@ int proce(int nested)
                 int i, ply;
                 const int HISTORY_DIVIDE = 256;   // FIXME tune
 
-                for ( i = 0; i < HIST_SIZE ; i++ ) {
+                for ( i = 0; i < (int)HIST_SIZE; i++ ) {
 #if BNS_COMPAT
                     hist_goodary[i]  = 0;
                     hist_tried[i] = 0;
@@ -727,13 +727,14 @@ int proce(int nested)
 int detectSignalSlave()
 {
     // 11/26/2011 %5 inRoot/inFirst chk s/b in detSigSlv, not for master
-    if ( inRoot && (preNodeCount + MAX_ROOT_NODES <= g_ptree->node_searched) ) {
+    if ( inRoot &&
+         ((unsigned int)(preNodeCount + MAX_ROOT_NODES) <= g_ptree->node_searched) ) {
         rootExceeded = 1;
         return 1;
     }
 
     if ( inFirst && !firstReplied &&
-         preNodeCount + MAX_FIRST_NODES <= g_ptree->node_searched ) {
+         (unsigned int)(preNodeCount + MAX_FIRST_NODES) <= g_ptree->node_searched ) {
         firstReplied = 1;
         replyFirst();
     }

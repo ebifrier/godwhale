@@ -755,7 +755,7 @@ static void doFirst()
         int newleng = ptree->pv[ply].length - ply;
         if (newleng == 1 && ply < singleCmd.pvleng &&
             singleCmd.bestseqLeng > 0 &&
-            ptree->pv[ply].a[ply+1] == singleCmd.bestseq[0].v) {
+            (int)ptree->pv[ply].a[ply+1] == singleCmd.bestseq[0].v) {
             newleng = min(GMX_MAX_BESTSEQ-2, singleCmd.bestseqLeng);
             for (int i = newleng-1; i>=0; i--) {
                 singleCmd.bestseq[i+1] = singleCmd.bestseq[i];
@@ -898,7 +898,7 @@ static void doList(jobDtorC srchJob)
     int reduc = 0;
     if (!chk && curPosPathLeng>0 &&
         !(UToCap(mv.v) || (I2IsPromote(mv.v) && I2PieceMove(mv.v) != silver)) &&
-        mv.v != ptree->amove_hash[ply+1] &&
+        mv.v != (int)ptree->amove_hash[ply+1] &&
         mv.v != (int)ptree->killers[ply+1].no1 &&
         mv.v != (int)ptree->killers[ply+1].no2    ) {
         int depth_reduced = 0;

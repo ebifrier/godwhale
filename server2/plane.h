@@ -1496,11 +1496,12 @@ void planeC::next1stIfNeeded()
     if (deepItd > i) return;  // 9/22/2011 only two streams allowed FIXME relax?
     if (deepItd >= MAX_SRCH_DEP) return; // 12/5/2011 %37 was missing
     // 12/25/2011 %55 needed inhFirst while Root/First is running
-    if (inhFirst || shallowItd == 0 || shallowItd > lastDoneItd &&
-        shallowItd == deepItd && (stream[shallowItd].tailExd == -1 
-                                  && stream[shallowItd].row[0].alpha == -score_bound
-                                  || stream[shallowItd].row[0].procmvs[1].mvcnt == -1
-                                  || stream[shallowItd].row[stream[shallowItd].tailExd].alpha == -score_bound))
+    if (inhFirst || shallowItd == 0 ||
+        (shallowItd > lastDoneItd && shallowItd == deepItd &&
+         ((stream[shallowItd].tailExd == -1 &&
+           stream[shallowItd].row[0].alpha == -score_bound) ||
+          stream[shallowItd].row[0].procmvs[1].mvcnt == -1 ||
+          stream[shallowItd].row[stream[shallowItd].tailExd].alpha == -score_bound)))
         return; // dont do anything at very first  11/27/2011 %6 was missing
 
 #if 0

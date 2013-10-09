@@ -10,7 +10,6 @@
 #ifdef CLUSTER_PARALLEL
 #include "../pcommon3.h"
 tree_t* g_ptree;
-
 #endif
 
 static int main_child( tree_t * restrict ptree );
@@ -48,14 +47,18 @@ main()
 #endif
 
 #if defined(USI)
-  if ( argc == 2 && ! strcmp( argv[1], "usi" ) ) { usi_mode = usi_on; }
-  else                                           { usi_mode = usi_off; }
+  if ( Mproc == 0 ) {
+      if ( argc >= 1 && ! strcmp( argv[1], "usi" ) ) { usi_mode = usi_on; }
+      else                                           { usi_mode = usi_off; }
+  }
 #endif
 
 #ifdef CLUSTER_PARALLEL
   mpi_init(argc, argv, &Nproc, &Mproc); // both master&slave
   Out("pid=%d: my rank is %d out of %d\n", getpid(), Mproc, Nproc);
 #endif
+
+  Out( "%s, %s, %s\n", argv[1], argv[2], argv[3] );
 
   if ( ini( ptree ) < 0 )
     {
