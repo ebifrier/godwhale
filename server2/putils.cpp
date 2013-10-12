@@ -16,7 +16,7 @@
  // set X if a single pause() takes X ns.
 #define PAUSE_DURATION_NS 1
 
-extern "C" void ei_clock_gettime(struct timespec* tsp) {
+void ei_clock_gettime(struct timespec* tsp) {
 #ifdef __MACH__
     clock_serv_t cclock;
     mach_timespec_t mts;
@@ -33,7 +33,7 @@ extern "C" void ei_clock_gettime(struct timespec* tsp) {
 extern FILE* slavelogfp;
 
 // bonanza mv format - cap:4 pc:4 prom:1 src:7 dst:7  -> convert to 4,4,4,8,8
-extern "C" int readable_c(int mv) {
+int readable_c(int mv) {
     //if (mv == NULLMV.v) return 0;
     if (mv == 0) return 0;
 
@@ -64,7 +64,7 @@ static int timespec2int(int sec, int nsec) {
     return ((sec - origin_sec) * 100000 + (nsec - origin_nsec) / 10000);
 }
 
-extern "C" int worldTime() {
+int worldTime() {
     struct timespec ts;
     ei_clock_gettime(&ts);
 
@@ -72,7 +72,7 @@ extern "C" int worldTime() {
     // NOTE before offset is set, this is equal to master's time
 }
 
-extern "C" int64_t worldTimeLl() {
+int64_t worldTimeLl() {
     struct timespec ts;
     int64_t x;
 
@@ -85,7 +85,7 @@ extern "C" int64_t worldTimeLl() {
 
  // called by mpi_init(), just once.  after that, worldTime() will
  // return the 10us unit since start
-extern "C" void initTime() {
+void initTime() {
     struct timespec ts;
 
     ei_clock_gettime(&ts);

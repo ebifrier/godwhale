@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include <unistd.h>
 #if defined(_WIN32)
 #  include <fcntl.h>
@@ -8,7 +9,7 @@
 #include "shogi.h"
 
 #ifdef CLUSTER_PARALLEL
-#include "../pcommon3.h"
+#include "../if_bonanza.h"
 tree_t* g_ptree;
 #endif
 

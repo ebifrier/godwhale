@@ -50,7 +50,7 @@ int MAX_FIRST_NODE     = MAX_FIRST_NODE_UP;
 extern int inRoot, rootExceeded, inFirst, firstReplied;
 extern int preNodeCount;
  // FIXME need not be "C"
-extern "C" void replyFirst();
+void replyFirst();
 
 int displayPerf( tree_t * restrict ptree );  // defined in perfsl.h
 int initPerf( tree_t * restrict ptree );  // defined in perfsl.h

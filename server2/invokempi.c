@@ -1,21 +1,10 @@
 // $Id: invokempi.c,v 1.5 2012-04-20 07:32:31 eikii Exp $
 
-  // FIXME bogus
-int INCS_PER_USEC, THINK_TIME, BYOYOMI_TIME, PROBE_INTERVAL, PROBE_INTERVAL_INITIAL;
-int DBG_MASTER, DBG_MS_TRACE, SLV_NUM_THREAD, VMMODE, tlp_max_arg;
-//#define MSTOut(...)  do {} while(0)
-//#define SLTOut(...)  do {} while(0)
-#define MAXPACKETSIZE 19200
-//#define NO_PENDING_REQUEST 4100
-
-
-//#define ENB_SIGHANDLE
-
-//#define DBG_NO_MPI
-
 // all MPI funcs should be called in this file
 // master : proc# = 0
 // slave : proc# =1,2...
+
+//#define DBG_NO_MPI
 
 #ifndef DBG_NO_MPI
 #include <mpi.h>
@@ -27,36 +16,37 @@ int DBG_MASTER, DBG_MS_TRACE, SLV_NUM_THREAD, VMMODE, tlp_max_arg;
 
 #include "pcommon3.h"
 
+#define MAXPACKETSIZE 19200
+//#define NO_PENDING_REQUEST 4100
+//#define ENB_SIGHANDLE
 #define DBG_MPI 0
 
+ // FIXME bogus
+int INCS_PER_USEC, THINK_TIME, BYOYOMI_TIME;
+int DBG_MASTER, VMMODE, tlp_max_arg;
 int Mproc, Nproc, Ncomm;
-extern int use_cpu_affinity;
-int threadGroupB = 0;
 
 #define HASH_DEFAULT_SIZE 20
-extern int log2_ntrans_table;  // in shogi.h 
 
 extern int MAX_ROOT_SRCH_NODE; 
-extern int MAX_FIRST_NODE ;
+extern int MAX_FIRST_NODE;
 
  // FIXME TBC set these
 int master_proc_offset = 0;
 int slave_proc_offset = 0;
 
- // FIXME decl here?  defined in thread.c
-void attachCpu(int);
-
-int quickFight = 0;
-
 FILE* slavelogfp = NULL;
 FILE* masterlogfp = NULL;
 
-void initTime(); // defined in putils.cc
-
 #define OURTAG 0
 
+static int calcIncsPerUsec();   // defined below 
+static void adjustTimeSlave();  // defined below 
+static void adjustTimeMaster();  // defined below 
+
 #ifdef ENB_SIGHANDLE
-static void sigHandler(int signo) {
+static void sigHandler(int signo)
+{
     char s[100];
     sprintf(s, "!!!! ERROR Signal %s !!!!\n",
             signo==SIGSEGV ? "segv" : signo==SIGINT ? "ctrl-c" : "unknown");
@@ -66,13 +56,9 @@ static void sigHandler(int signo) {
 }
 #endif
 
-static int calcIncsPerUsec();   // defined below 
-
-void adjustTimeSlave();  // defined below 
-void adjustTimeMaster();  // defined below 
-
 // MPI initialize
-void mpi_init(int argc, char **argv, int *nproc, int *mproc) {
+void mpi_init(int argc, char **argv, int *nproc, int *mproc)
+{
 #ifndef DBG_NO_MPI
     int i, pre_10us, post_10us;
     char tmpbuf[100];
@@ -124,12 +110,10 @@ void mpi_init(int argc, char **argv, int *nproc, int *mproc) {
         THINK_TIME = 900;
         BYOYOMI_TIME = 0;
         use_cpu_affinity = 0;
-        PROBE_INTERVAL = PROBE_INTERVAL_INITIAL;
         for (i=1; i<argc; i++) {    // i=0 is for command itself
             MSTOut("argv[%d]:%s:", i, argv[i]);
             if (!strcmp(argv[i], "-v")) {
                 DBG_MASTER = 1;
-                PROBE_INTERVAL = 200;
                 MSTOut("master log on. longer probe cycle\n");
             }
             if (!strcmp(argv[i], "-q")) {
@@ -226,7 +210,7 @@ void mpi_init(int argc, char **argv, int *nproc, int *mproc) {
             }
         }
         if (!strcmp(argv[i], "-b")) {
-            threadGroupB = 1;
+            /* threadGroupB = 1; */
             MSTOut("thread group B selected\n");
         }
     }
@@ -249,7 +233,8 @@ void mpi_init(int argc, char **argv, int *nproc, int *mproc) {
 }
 
 // MPI termination
-void mpi_close(void) {
+void mpi_close(void)
+{
 #ifndef DBG_NO_MPI
     int proc;
 
@@ -280,7 +265,8 @@ void mpi_close(void) {
 }
 
 //******************* 
-void sendPacket(int dst, int* buf, int count) {
+void sendPacket(int dst, int* buf, int count)
+{
 #ifndef DBG_NO_MPI
     //assert(dst != Mproc);
 
@@ -301,7 +287,8 @@ void sendPacket(int dst, int* buf, int count) {
 }
 
 //******************* 
-int recvPacket(int src, int* buf) {
+int recvPacket(int src, int* buf)
+{
 #ifndef DBG_NO_MPI
     MPI_Status status;
 
@@ -325,7 +312,8 @@ int recvPacket(int src, int* buf) {
 }
 
 //******************* 
-int probeProcessor() {
+int probeProcessor()
+{
 #ifndef DBG_NO_MPI
     MPI_Status status;
     int flag;
@@ -342,7 +330,8 @@ int probeProcessor() {
 }
 
 //******************* 
-int probePacketSlave() {
+int probePacketSlave()
+{
 #ifndef DBG_NO_MPI
     MPI_Status status;
     int flag;
@@ -355,10 +344,10 @@ int probePacketSlave() {
 }
 
 int x_dmy_for_calcinc = 0;
-int INCS_PER_USEC;
 #define CALCINC_CONST  1000000000
 
-static int calcIncsPerUsec() {
+static int calcIncsPerUsec()
+{
     int i, pre, post;
 
     pre = worldTime();
@@ -384,7 +373,8 @@ extern int time_offset;
 int keyOffset, nodeLeader;
 #define KEYOFFSET_BITPOS 2
 
-void adjustTimeMaster() {
+static void adjustTimeMaster()
+{
     int v[100];
     struct timespec ts;
     int proc;
@@ -419,7 +409,8 @@ void adjustTimeMaster() {
   M   ...1--->.....2.
   S   .......1'--->..
  */
-void adjustTimeSlave() {
+static void adjustTimeSlave()
+{
     int buf[100];
     struct timespec ts;
     int pre, mid, post;

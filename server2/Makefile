@@ -25,44 +25,28 @@ SOURCES = comm3.h makefile master3.cpp pcommon3.h \
 
 U2B_SRCS = u2b.c
 
-#OPT =-DNDEBUG -DMINIMUM -DHAVE_SSE2 -msse2 -DDFPN -DTLP -DDFPN_CLIENT -DINANIWA_SHIFT -DCSA_LAN $(AFFINOPT) $(CLUSTOPT)
-BNSOPT = -DMINIMUM -DHAVE_SSE2 -msse2 -DDFPN -DTLP -DDFPN_CLIENT -DINANIWA_SHIFT -DCSA_LAN $(AVXOPT)
+BNSOPT = -DMINIMUM -DHAVE_SSE2 -msse2 -DDFPN -DTLP -DDFPN_CLIENT \
+         -DINANIWA_SHIFT -DCSA_LAN $(AVXOPT)
 
 BN = bonanza6
-
 
 ########
 
 IPOOPT = 
-PGOOPT = 
-PGO1OPT = -fprofile-generate
-PGO2OPT = -fprofile-use
-G_CC  = mpicc -Wall
-G_CXX = mpicxx -Wall
+G_CC  = mpicc -Wall -Wextra
+G_CXX = mpicxx -Wall -Wextra
+BN_OBJTYPE = gcc-bonk
 
 ifdef USE_ICC
 IPOOPT = -ipo
-PGO1OPT = -prof_gen -prof_dir ./profdir
-PGO2OPT = -prof_use -prof_dir ./profdir
 G_CC  = mpiicc -Wall
 G_CXX = mpiicpc -Wall
+BN_OBJTYPE = icc-bonk
 endif
 
-ifeq ($(PGOPHASE),1)
-PGOOPT = $(PGO1OPT)
-BN = .
-IPOOPT = 
-else
-ifeq ($(PGOPHASE),2)
-PGOOPT = $(PGO2OPT)
-BN = .
-endif
-endif
-
-CC    = cc -Wall
-G_MPICCOPT  = $(IPOOPT) $(PGOOPT) -g
-G_MPICXXOPT = $(IPOOPT) $(PGOOPT) -g -DTLP
-G_MPILDOPT  = -lrt $(IPOOPT) $(PGOOPT) -g
+CC          = cc -Wall
+G_MPICXXOPT = $(IPOOPT) -g -DTLP
+G_MPILDOPT  = -lrt $(IPOOPT) -g
 
 ########
 
@@ -83,8 +67,11 @@ U2B = u2b
 
 all: $(BIN) $(U2B)
 
-$(BIN): gobjs invokempi.o putils.o slave3.o master3.o
+$(BIN): bn_objs invokempi.o putils.o slave3.o master3.o
 	$(G_CXX) $(G_OBJS) invokempi.o putils.o slave3.o master3.o -o $@ $(G_MPILDOPT) $(DBGLDOPT)
+
+bn_objs:
+	make -C $(BN) CLUSTOPT=-DCLUSTER_PARALLEL $(BN_OBJTYPE)
 
 $(U2B): u2b.o
 	$(CC) u2b.o -o $@
@@ -92,26 +79,8 @@ $(U2B): u2b.o
 u2b.o: u2b.c
 	$(CC) -c u2b.c -o u2b.o
 
-pgotgt:
-	$(G_CXX) $(G_OBJS) invokempi.o putils.o slave3.o master3.o -o gmx $(G_MPILDOPT) $(DBGLDOPT)
-
-
-gobjs:
-	make -C $(BN) CLUSTOPT=-DCLUSTER_PARALLEL gcc-bonk
-
-iobjs:
-	make -C $(BN) CLUSTOPT=-DCLUSTER_PARALLEL icc-bonk
-
-ifdef USE_ICC
-all: iobjs invokempi.o putils.o slave3.o master3.o
-else
-all: gobjs invokempi.o putils.o slave3.o master3.o
-endif
-
-bonkobjs: invokempi.o putils.o slave3.o master3.o
-
 invokempi.o: pcommon3.h invokempi.c
-	$(G_CC) $(G_MPICCOPT) -c invokempi.c -o invokempi.o
+	$(G_CXX) $(G_MPICXXOPT) -c invokempi.c -o invokempi.o
 
 slave3.o: pcommon3.h comm3.h perfsl.h sbody3.h splane.h slave3.cpp
 	$(G_CXX) $(G_MPICXXOPT) $(BNSOPT) -c slave3.cpp -o slave3.o

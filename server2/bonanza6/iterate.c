@@ -6,7 +6,7 @@
 #include "handjoseki.h"
 
 #ifdef CLUSTER_PARALLEL
-int master(unsigned int*);
+#include "../if_bonanza.h"
 #endif
 
 #ifndef CLUSTER_PARALLEL

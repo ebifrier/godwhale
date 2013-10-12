@@ -86,11 +86,11 @@ extern int THINK_TIME, BYOYOMI_TIME;
   // FIXME tune
 
 //extern int root_nrep, time_turn_start, time_start, game_status,
-extern int time_turn_start, time_start, game_status,
-           sec_w_total, sec_b_total;
-enum { flag_problem = 0x100, flag_pondering = 0x40 };
+/*extern int time_turn_start, time_start, game_status,
+  sec_w_total, sec_b_total;*/
+//enum { flag_problem = 0x100, flag_pondering = 0x40 };
 
-extern "C" void get_elapsed(unsigned int* tnow);
+//void get_elapsed(unsigned int* tnow);
 
  // copied from shogi.h end
 
@@ -146,4 +146,3 @@ static int timeCheck()
 
     return 0;
 }
-

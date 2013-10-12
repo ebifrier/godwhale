@@ -17,6 +17,7 @@
 #  include <sched.h>
 #endif
 #include "shogi.h"
+#include "../if_bonanza.h"
 
 //#define ENABLE_AFFINITY
 
@@ -24,9 +25,10 @@ extern int Mproc, slave_proc_offset;
 
 #if defined(TLP) || defined(DFPN_CLIENT)
 
-void attachCpu(int cpu) {
-//#ifndef __CYGWIN__
-#if !defined( __MACH__ ) && !defined( __CYGWIN__ ) && !defined( _MSC_VER ) && defined( ENABLE_AFFINITY )
+void attachCpu(int cpu)
+{
+#if !defined( __MACH__ ) && !defined( __CYGWIN__ ) && \
+    !defined( _MSC_VER ) && defined( ENABLE_AFFINITY )
   cpu_set_t cpuset;
   CPU_ZERO(&cpuset);
   CPU_SET(cpu, &cpuset);

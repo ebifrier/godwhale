@@ -6,8 +6,7 @@
 #include "shogi.h"
 
 #ifdef CLUSTER_PARALLEL
- // this must be after shogi.h (SHOGI_H defined)
-#include "../pcommon3.h"
+#include "../if_bonanza.h"
 #endif
 
 #define DropB( PIECE, piece )  Xor( to, BB_B ## PIECE );                    \

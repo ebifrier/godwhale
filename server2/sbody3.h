@@ -29,7 +29,7 @@ int inRoot, rootExceeded, inFirst, firstReplied;
 int preNodeCount;
 mvC firstMoves[MAX_EXPDEP][GMX_MAX_LEGAL_MVS];
 int firstMvcnt[MAX_EXPDEP];
-extern "C" void replyFirst();  // defined below
+void replyFirst();  // defined below
 
 extern int tlp_max_arg;
 
@@ -509,7 +509,7 @@ static void doRoot()
 
 //**************** FIRST  ***************
 
-extern "C" void replyFirst()
+void replyFirst()
 {
     if (singleCmd.fromRoot) {  // 11/28/2011 %10 'exd' was 'pvleng'
         rpyent.pushSetpv(singleCmd.itd, singleCmd.exd, singleCmd.pv);
@@ -1147,6 +1147,4 @@ static void doList(jobDtorC srchJob)
                            srow.bestseqLeng ,
                            srow.bestseq);
         }
-
-        //}
     }

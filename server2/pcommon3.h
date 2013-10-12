@@ -6,11 +6,10 @@
 #include <string.h>
 #include <assert.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "if_bonanza.h"
 
 #define BNS_COMPAT    0
+#define MASTERRANK    0
 
 #define MAX_SRCH_DEP_FIGHT     30
 #define MAX_SRCH_DEP_PROB       9
@@ -41,60 +40,6 @@ extern int MAX_SRCH_DEP;
     do {if (DBG_MASTER  ) out_file(masterlogfp, __VA_ARGS__); } while(0)
 void out_file( FILE *pf, const char *format, ... );
 
-extern int DBG_MASTER, VMMODE;
-extern int slave_proc_offset;
-extern int master_proc_offset;
-extern FILE* slavelogfp;
-extern FILE* masterlogfp;
-
-extern int Mproc, Nproc, Ncomm;
-extern int x_dmy_for_calcinc, INCS_PER_USEC;
-
- // for main()
-void mpi_init(int argc, char **argv, int *nproc, int *mproc);
-void slave();
-void mpi_close();
-void quitHook();
-
- // for search()
-int detectSignalSlave();
-
- // for slave()
-void ei_clock_gettime(struct timespec* tsp);
-int worldTime();
-int64_t worldTimeLl();
-void microsleep(int);
-int readable_c(int mv);
-
- // for invokempi
-void sendQuit(int pr);
-
-#ifndef SHOGI_H
- // copied from shogi.h
-#define nsquare 81
-typedef struct
-{
-    unsigned int hand_black, hand_white;
-    char turn_to_move;
-    signed char asquare[nsquare];
-} min_posi_t;
-#endif
-
- // for bonanza6
-void iniGameHook(const min_posi_t*);
-void makeMoveRootHook(int move);
-void unmakeMoveRootHook();
-int  master(unsigned int*);
-
- // s/b declared in callmpi.c
-void sendPacket(int dst, int* buf, int count); //FIXME old callmpi uses unsigned
-int recvPacket(int rank, int* v); // ditto
-int probePacketSlave();
-#define MASTERRANK 0
-int iammaster();  // true if Mproc==0
-//int maxslavesuffix();  // Nproc-1
-int probeProcessor();
-
 #define NO_PENDING_REQUEST (-1)
 
 enum
@@ -105,11 +50,6 @@ enum
     ULE_EXACT = 3,
 };
 
-#ifdef __cplusplus
-}  //  extern "C"
-
- //******** C++ only part ********
-
 // copied from comm2.cc
 class mvC {
 public:
@@ -119,4 +59,20 @@ public:
     bool operator !=(mvC x) { return (v!=x.v); }
 };
 
-#endif
+ // defined in putils.cpp
+void ei_clock_gettime(struct timespec* tsp);
+int worldTime();
+int64_t worldTimeLl();
+void initTime();
+void microsleep(int);
+int readable_c(int mv);
+int readable(mvC);
+
+ // for invokempi
+void sendQuit(int pr);
+
+ // for 
+void sendPacket(int dst, int* buf, int count); //FIXME old callmpi uses unsigned
+int recvPacket(int rank, int* v); // ditto
+int probePacketSlave();
+int probeProcessor();

@@ -12,7 +12,7 @@
 #include "mate3.h"
 
 #ifdef CLUSTER_PARALLEL
-#include "../pcommon3.h"
+#include "../if_bonanza.h"
 #endif
 
 #ifdef BITBRD64

@@ -14,9 +14,6 @@
 #define MAX_ITD    32
 #define MAX_XFER_MVS  20
 
- // defined in putils.cc
-int readable(mvC);
-
 #define HVLST_MVONLY  (1 << 29)
 
 struct tripleC { int alpha, beta, gamma; };

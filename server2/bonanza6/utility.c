@@ -9,7 +9,7 @@
 #include "shogi.h"
 
 #ifdef CLUSTER_PARALLEL
-#include "../pcommon3.h"
+#include "../if_bonanza.h"
 #endif
 
  // set mklist data
