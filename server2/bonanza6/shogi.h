@@ -64,6 +64,8 @@ extern occupiedC ao_bitmask[81];
 #define HASH_ENTRY_WIDTH 3
 #endif
 
+#define CONSOLE_DEV "/dev/pts/1"
+
 #if defined(_WIN32)
 
 #  include <Winsock2.h>

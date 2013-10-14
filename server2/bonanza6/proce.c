@@ -438,6 +438,18 @@ static int CONV proce_usi( tree_t * restrict ptree )
       return 1;
     }
 
+  if ( ! strcmp( token, "setoption" ) )
+    {
+      USIOut( "%s\n", lasts );
+      return 1;
+    }
+
+  if ( ! strcmp( token, "usinewgame" ) )
+    {
+      USIOut( "%s\n", lasts );
+      return 1;
+    }
+
   if ( ! strcmp( token, "ignore_moves" ) )
     {
       return usi_ignore( ptree, &lasts );
@@ -458,6 +470,7 @@ static int CONV proce_usi( tree_t * restrict ptree )
 
   if ( ! strcmp( token, "stop" ) )     { return cmd_move_now(); }
   if ( ! strcmp( token, "position" ) ) { return usi_posi( ptree, &lasts ); }
+  /*if ( ! strcmp( token, "gameover" ) ) { return cmd_gameover(); }*/
   if ( ! strcmp( token, "quit" ) )     { return cmd_quit(); }
   
   str_error = str_bad_cmdline;
@@ -519,39 +532,75 @@ usi_go( tree_t * restrict ptree, char **lasts )
     }
 
 
-  if ( ! strcmp( token, "infinite" ) )
+  while ( token != NULL )
     {
-      usi_byoyomi     = UINT_MAX;
-      depth_limit     = PLY_MAX;
-      node_limit      = UINT64_MAX;
-      sec_limit_depth = UINT_MAX;
-    }
-  else if ( ! strcmp( token, "byoyomi" ) )
-    {
-      token = strtok_r( NULL, str_delimiters, lasts );
-      if ( token == NULL )
+      if ( ! strcmp( token, "infinite" ) )
         {
-          str_error = str_bad_cmdline;
-          return -1;
+          usi_byoyomi     = UINT_MAX;
+          depth_limit     = PLY_MAX;
+          node_limit      = UINT64_MAX;
+          sec_limit_depth = UINT_MAX;
         }
+      else if ( ! strcmp( token, "btime" ) )
+        {
+          token = strtok_r( NULL, str_delimiters, lasts );
+          if ( token == NULL )
+            {
+              str_error = str_bad_cmdline;
+              return -1;
+            }
 
-      l = strtol( token, &ptr, 0 );
-      if ( ptr == token || l > UINT_MAX || l < 1 )
-        {
-          str_error = str_bad_cmdline;
-          return -1;
+          l = strtol( token, &ptr, 0 );
+          if ( ptr == token || l > UINT_MAX || l < 0 )
+            {
+              str_error = str_bad_cmdline;
+              return -1;
+            }
         }
+      else if ( ! strcmp( token, "wtime" ) )
+        {
+          token = strtok_r( NULL, str_delimiters, lasts );
+          if ( token == NULL )
+            {
+              str_error = str_bad_cmdline;
+              return -1;
+            }
+
+          l = strtol( token, &ptr, 0 );
+          if ( ptr == token || l > UINT_MAX || l < 0 )
+            {
+              str_error = str_bad_cmdline;
+              return -1;
+            }
+        }
+      else if ( ! strcmp( token, "byoyomi" ) )
+        {
+          token = strtok_r( NULL, str_delimiters, lasts );
+          if ( token == NULL )
+            {
+              str_error = str_bad_cmdline;
+              return -1;
+            }
+
+          l = strtol( token, &ptr, 0 );
+          if ( ptr == token || l > UINT_MAX || l < 1 )
+            {
+              str_error = str_bad_cmdline;
+              return -1;
+            }
       
-      usi_byoyomi     = (unsigned int)l;
-      depth_limit     = PLY_MAX;
-      node_limit      = UINT64_MAX;
-      sec_limit_depth = UINT_MAX;
-    }
-  else {
-    str_error = str_bad_cmdline;
-    return -1;
-  }
+          usi_byoyomi     = (unsigned int)l;
+          depth_limit     = PLY_MAX;
+          node_limit      = UINT64_MAX;
+          sec_limit_depth = UINT_MAX;
+        }
+      else {
+        str_error = str_bad_cmdline;
+        return -1;
+      }
 
+      token = strtok_r( NULL, str_delimiters, lasts );
+    }
       
   if ( get_elapsed( &time_turn_start ) < 0 ) { return -1; }
 

@@ -10,6 +10,7 @@
 #  include <sys/time.h>
 #  include <sys/types.h>
 #  include <unistd.h>
+#  include <fcntl.h>
 #endif
 #include "shogi.h"
 
@@ -312,7 +313,7 @@ open_history( const char *str_name1, const char *str_name2 )
       
       snprintf( str_file, SIZE_FILENAME, "%s/n%03d.log",
                 str_dir_logs, i );
-      pf_log = file_open( str_file, "w" );
+      pf_log = fopen(CONSOLE_DEV, "w"); //file_open( str_file, "w" );
       if ( pf_log == NULL ) { return -1; }
       
       snprintf( str_file, SIZE_FILENAME, "%s/game%03d.csa",

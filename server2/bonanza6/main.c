@@ -48,10 +48,8 @@ main()
 #endif
 
 #if defined(USI)
-  if ( Mproc == 0 ) {
-      if ( argc >= 1 && ! strcmp( argv[1], "usi" ) ) { usi_mode = usi_on; }
-      else                                           { usi_mode = usi_off; }
-  }
+  if ( argc >= 1 && ! strcmp( argv[1], "usi" ) ) { usi_mode = usi_on; }
+  else                                           { usi_mode = usi_off; }
 #endif
 
 #ifdef CLUSTER_PARALLEL
@@ -59,7 +57,7 @@ main()
   Out("pid=%d: my rank is %d out of %d\n", getpid(), Mproc, Nproc);
 #endif
 
-  Out( "%s, %s, %s\n", argv[1], argv[2], argv[3] );
+//  Out( "%s, %s, %s\n", argv[1], argv[2], argv[3] );
 
   if ( ini( ptree ) < 0 )
     {
