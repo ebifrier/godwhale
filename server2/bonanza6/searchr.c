@@ -377,7 +377,7 @@ out_pv( tree_t * restrict ptree, int value, int turn, unsigned int time )
           Out( "%2d.%c%-7s", ply, ach_turn[tt], str );
 
 #if defined(USI)
-          if ( usi_mode != usi_off && ply <= 4 )
+          if ( usi_mode != usi_off )
             {
               char str_usi[6];
               csa2usi( ptree, str_CSA_move(ptree->pv[0].a[ply]), str_usi );

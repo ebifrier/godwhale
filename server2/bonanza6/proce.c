@@ -50,6 +50,7 @@ static int CONV cmd_mnjmove( tree_t * restrict ptree, char **lasts,
 
 #if defined(USI)
 static int CONV proce_usi( tree_t * restrict ptree );
+static int CONV usi_option( tree_t * restrict ptree, char **lasts );
 static int CONV usi_posi( tree_t * restrict ptree, char **lasts );
 static int CONV usi_go( tree_t * restrict ptree, char **lasts );
 static int CONV usi_ignore( tree_t * restrict ptree, char **lasts );
@@ -426,25 +427,24 @@ static int CONV proce_usi( tree_t * restrict ptree )
       return 1;
     }
 
+  if ( ! strcmp( token, "setoption" ) )
+    {
+      return usi_option( ptree, &lasts );
+    }
+
   if ( ! strcmp( token, "isready" ) )
     {
       USIOut( "readyok\n", str_myname );
       return 1;
     }
 
-  if ( ! strcmp( token, "echo" ) )
-    {
-      USIOut( "%s\n", lasts );
-      return 1;
-    }
-
-  if ( ! strcmp( token, "setoption" ) )
-    {
-      USIOut( "%s\n", lasts );
-      return 1;
-    }
-
   if ( ! strcmp( token, "usinewgame" ) )
+    {
+      Out( "%s\n", lasts );
+      return 1;
+    }
+
+  if ( ! strcmp( token, "echo" ) )
     {
       USIOut( "%s\n", lasts );
       return 1;
@@ -468,11 +468,16 @@ static int CONV proce_usi( tree_t * restrict ptree )
       return iret;
     }
 
+  if ( ! strcmp( token, "gameover" ) )
+    {
+      /* no operation */
+      return 1;
+    }
+
   if ( ! strcmp( token, "stop" ) )     { return cmd_move_now(); }
   if ( ! strcmp( token, "position" ) ) { return usi_posi( ptree, &lasts ); }
-  /*if ( ! strcmp( token, "gameover" ) ) { return cmd_gameover(); }*/
   if ( ! strcmp( token, "quit" ) )     { return cmd_quit(); }
-  
+
   str_error = str_bad_cmdline;
   return -1;
 }
@@ -501,6 +506,44 @@ usi_ignore( tree_t * restrict ptree, char **lasts )
 
   moves_ignore[i] = MOVE_NA;
 
+  return 1;
+}
+
+
+static int CONV
+usi_option( tree_t * restrict ptree, char **lasts )
+{
+  const char *name, *name_str, *value, *value_str;
+
+  name = strtok_r( NULL, str_delimiters, lasts );
+  if ( name == NULL || strcmp( name, "name" ) )
+    {
+      str_error = str_bad_cmdline;
+      return -1;
+    }
+
+  name_str = strtok_r( NULL, str_delimiters, lasts );
+  if ( name_str == NULL )
+    {
+      str_error = str_bad_cmdline;
+      return -1;
+    }
+
+  value = strtok_r( NULL, str_delimiters, lasts );
+  if ( value == NULL || strcmp( value, "value" ) )
+    {
+      str_error = str_bad_cmdline;
+      return -1;
+    }
+
+  value_str = strtok_r( NULL, str_delimiters, lasts );
+  if ( value_str == NULL )
+    {
+      str_error = str_bad_cmdline;
+      return -1;
+    }
+
+  /*set_usi_option( ptreee, name_str, value_str, 0 );*/
   return 1;
 }
 
@@ -593,6 +636,10 @@ usi_go( tree_t * restrict ptree, char **lasts )
           depth_limit     = PLY_MAX;
           node_limit      = UINT64_MAX;
           sec_limit_depth = UINT_MAX;
+        }
+      else if ( ! strcmp( token, "mate" ) )
+        {
+          /* not implemented */
         }
       else {
         str_error = str_bad_cmdline;
