@@ -373,11 +373,7 @@ extern int time_offset;
 int keyOffset, nodeLeader;
 #define KEYOFFSET_BITPOS 2
 
-<<<<<<< local
 static void adjustTimeMaster()
-=======
-void adjustTimeMaster()
->>>>>>> other
 {
     int v[100];
     struct timespec ts;
