@@ -16,7 +16,8 @@
  // set X if a single pause() takes X ns.
 #define PAUSE_DURATION_NS 1
 
-extern "C" void ei_clock_gettime(struct timespec* tsp) {
+extern "C" void ei_clock_gettime(struct timespec* tsp)
+{
 #ifdef __MACH__
     clock_serv_t cclock;
     mach_timespec_t mts;
@@ -33,7 +34,8 @@ extern "C" void ei_clock_gettime(struct timespec* tsp) {
 extern FILE* slavelogfp;
 
 // bonanza mv format - cap:4 pc:4 prom:1 src:7 dst:7  -> convert to 4,4,4,8,8
-extern "C" int readable_c(int mv) {
+extern "C" int readable_c(int mv)
+{
     //if (mv == NULLMV.v) return 0;
     if (mv == 0) return 0;
 
@@ -49,7 +51,8 @@ extern "C" int readable_c(int mv) {
     return (cappc | prom | (sx << 12) | (sy << 8) | (dx << 4) | dy);
 }
  
-int readable(mvC mv) {
+int readable(mvC mv)
+{
     return readable_c(mv.v);
 }
 
@@ -58,13 +61,15 @@ int readable(mvC mv) {
 static int origin_sec = 0, origin_nsec = 0;
 int time_offset = 0;
 
-static int timespec2int(int sec, int nsec) {
+static int timespec2int(int sec, int nsec)
+{
     // 1/14/2010 changed from us to 10us
     //return ((sec - origin_sec) * 1000000 + (nsec - origin_nsec) / 1000);
     return ((sec - origin_sec) * 100000 + (nsec - origin_nsec) / 10000);
 }
 
-extern "C" int worldTime() {
+extern "C" int worldTime()
+{
     struct timespec ts;
     ei_clock_gettime(&ts);
 
@@ -72,7 +77,8 @@ extern "C" int worldTime() {
     // NOTE before offset is set, this is equal to master's time
 }
 
-extern "C" int64_t worldTimeLl() {
+extern "C" int64_t worldTimeLl()
+{
     struct timespec ts;
     int64_t x;
 
@@ -85,7 +91,8 @@ extern "C" int64_t worldTimeLl() {
 
  // called by mpi_init(), just once.  after that, worldTime() will
  // return the 10us unit since start
-extern "C" void initTime() {
+extern "C" void initTime()
+{
     struct timespec ts;
 
     ei_clock_gettime(&ts);
@@ -94,7 +101,8 @@ extern "C" void initTime() {
 }
 
 #if USE_PAUSE
-static void micropauseCore(int t) {
+static void micropauseCore(int t)
+{
     // single call of pause() pauses 10ns on i7 860.
     // if you want to pause 40us, call pause 40us/10ns = 4000 times
     int n = (1000 * t / PAUSE_DURATION_NS);
@@ -104,7 +112,8 @@ static void micropauseCore(int t) {
 }
 #endif
 
-static void microsleepCore(int t) {
+static void microsleepCore(int t)
+{
     struct timespec ts, tsrem;
 
     ts.tv_sec = 0;
@@ -112,7 +121,8 @@ static void microsleepCore(int t) {
     nanosleep(&ts, &tsrem);
 }
 
-static void microspinCore(int t) {
+static void microspinCore(int t)
+{
     int64_t n = t * INCS_PER_USEC;
 
     int x = t;
@@ -122,7 +132,8 @@ static void microspinCore(int t) {
     x_dmy_for_calcinc &= x;
 }
 
-void microsleep(int t) {
+void microsleep(int t)
+{
 #if 0
 #if (USE_SPIN)
     microspinCore(t);
@@ -141,7 +152,8 @@ else
 #endif
 }
 
-void microsleepMaster(int t) {
+void microsleepMaster(int t)
+{
 #if 0
 #if (USE_SPIN)
     microspinCore(t);
