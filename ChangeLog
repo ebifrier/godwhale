@@ -1,3 +1,7 @@
+2013-10-19  - Ver 1.1.1
+
+	* ディレクトリ名を変更しserver→server.old, server2→serverとしました。
+
 2013-10-05  - Ver 1.1.0
 
 	* server2: puella αのソースを追加し、インデントなどの調整を行いまし
