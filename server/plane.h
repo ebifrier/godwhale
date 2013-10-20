@@ -40,10 +40,6 @@ struct timeRecordUnitC
     int64_t starttime;
     int64_t accum; ///< 経過時間
 
-    timeRecordUnitC()
-    {
-    }
-
     void clr() {
         memset(this, 0, sizeof(timeRecordUnitC));
     }
@@ -110,7 +106,8 @@ struct timeRecordC
         return x;
     }
     
-    bool retryingAny() {
+    bool retryingAny()
+    {
         forr (i, 1, Nproc-1) {
             if (timerecu[i].starttime != 0LL && timerecu[i].exd == 0) {
                 return true;
@@ -175,7 +172,8 @@ public:
         return (depth >= dep && upper == lower);
     }
 
-    void pushNewmv(mvC m) {
+    void pushNewmv(mvC m)
+    {
         clear();
         mv = m;
     }
@@ -315,9 +313,8 @@ public:
     int firstproc;
     procmvsC procmvs[MAXPROC];
     
-    rowC() {}
-
-    void summary() {
+    void summary()
+    {
         MSTOut("==== rsum st%d rw%d A %d B %d G %d bv %d bul %d bL %d fmv %07x bsq",
                itd(), exd(), alpha, beta, gamma, bestval, bestule, bestseqLeng,
                readable(firstmv.mv));
@@ -359,7 +356,8 @@ public:
     // donecnt is just reference for xfer/nxt1st only.
     // COMMIT will use compmvs    FIXME is this a right thing to do?
 
-    void setDonecntAll() {
+    void setDonecntAll()
+    {
         int srd = itdexd2srd(itd(), exd());
         forr (i, 1, Nproc-1) {
             procmvs[i].setDonecnt(srd, effalpha(alpha, gamma), beta);
@@ -555,8 +553,8 @@ int rowC::setupReorder(int newdep, int pvleng, mvC* pv)
         preferredMv = bestseq[0];
     } // block B
 
-    beta  =   score_bound;
-    gamma = - score_bound;  // FIXME?  not needed?  set in setlist?
+    beta  =  score_bound;
+    gamma = -score_bound;  // FIXME?  not needed?  set in setlist?
 
     // put BESTSEQ[0] to the first of its proc
 
@@ -612,9 +610,9 @@ void rowC::refCreate(int exd, int pvleng, mvC *pv, mvC mv2rt)
     assert(exd < pvleng);
     clear();
 
-    bestval = - score_bound;
-    alpha   = - score_bound;
-    beta    =   score_bound;
+    bestval = -score_bound;
+    alpha   = -score_bound;
+    beta    =  score_bound;
     
     firstmv.mv = pv[exd];
 }
@@ -1333,40 +1331,41 @@ bool planeC::terminating()
 
 void planeC::finalAnswer(int *valp, mvC *mvp)
 {
-    int beststr, i;
-    mvC bestmv;
+    rowC *bestrow;
+    int i;
 
     // find last committed stream 
     i = lastDoneItd;
-    beststr = i;
-    bestmv  = stream[i].row[0].bestseq[0];
-    assert(stream[i].row[0].bestule == ULE_EXACT);
-    MSTOut(".... finalAnswer: lastItd %d len %d val %d mv0 %07x\n", lastDoneItd,
-           stream[i].row[0].bestseqLeng, stream[i].row[0].bestval,
-           readable(bestmv));
+    bestrow = &stream[i].row[0];
+    assert(bestrow->bestule == ULE_EXACT);
+    MSTOut(".... finalAnswer: lastItd %d len %d val %d mv0 %07x\n",
+           lastDoneItd, bestrow->bestseqLeng, bestrow->bestval,
+           readable(bestrow->bestseq[0]));
 
     //assert(i>0);   // this func must be called after one stream is done
     // 3/9/2012 %?? oppn plays unexpected mv immediately, RWD may come
     if (i == 0) {  // assuming RWD, val/mv not to be used
-        *valp = - score_bound;
-        mvp[0] = mvp[1] = NULLMV;
+        *valp = -score_bound;
+        forr (k, 0, GMX_MAX_PV-1) mvp[k] = NULLMV;
+        //mvp[0] = mvp[1] = NULLMV;
         return;
     }
 
     // current stream result can be used only if previous str's mv has been done
     forr (j, i+1, deepItd) {
-        if (stream[j].row[0].procmvs[1].mvcnt > -1 &&  // 12/13/2011 %47 was missing
+        rowC *row = &stream[j].row[0];
+
+        if (row->procmvs[1].mvcnt > -1 &&  // 12/13/2011 %47 was missing
             stream[j].seqFromPrev[0] == mv2root &&
-            stream[j].row[0].bestseqLeng > 0 &&
-            stream[j].row[0].bestule == ULE_EXACT &&
-            stream[j].row[0].bestval > - score_max_eval &&
-            stream[j].row[0].mvdone(itdexd2srd(j,0), bestmv,
-                                    stream[j].row[0].alpha, stream[j].row[0].beta)) {
-            beststr = j;
-            bestmv  = stream[j].row[0].bestseq[0];
-            MSTOut(".... finalAnswer: newItd %d len %d val %d mv %07x %07x\n", j,
-                   stream[j].row[0].bestseqLeng, stream[j].row[0].bestval,
-                   readable(bestmv), readable(stream[j].row[0].bestseq[1]));
+            row->bestseqLeng > 0 &&
+            row->bestule == ULE_EXACT &&
+            row->bestval > -score_max_eval &&
+            row->mvdone(itdexd2srd(j,0), bestrow->bestseq[0],
+                        row->alpha, row->beta)) {
+            bestrow = row;
+            MSTOut(".... finalAnswer: newItd %d len %d val %d mv %07x %07x\n",
+                   j, row->bestseqLeng, row->bestval,
+                   readable(row->bestseq[0]), readable(row->bestseq[1]));
         }
         else {
             break;
@@ -1374,9 +1373,10 @@ void planeC::finalAnswer(int *valp, mvC *mvp)
     }
 
     // return results
-    *valp = stream[beststr].row[0].bestval;
-    mvp[0]  = bestmv;
-    mvp[1]  = stream[beststr].row[0].bestseq[1];
+    *valp = bestrow->bestval;
+    forr (k, 0, GMX_MAX_PV-1) {
+        mvp[k] = bestrow->bestseq[k];
+    }
 }
 
 //********
@@ -1525,7 +1525,7 @@ void planeC::next1stIfNeeded()
         i++;   // (FIXME) assumes deepItd <= shallowItd+1
 
     int len = stream[i].row[0].bestseqLeng;
-    mvC seq[GMX_MAX_PV];            // during rpySetpv (copying row by copyFrom)
+    mvC seq[GMX_MAX_PV];    // during rpySetpv (copying row by copyFrom)
     forr (k, 0, GMX_MAX_PV-1) {
         seq[k] = stream[i].row[0].bestseq[k];
     }
@@ -1602,7 +1602,7 @@ void planeC::catchupCommits()
                     rup.firstmv.bestmv = re.bestseq[0];
                 }
 
-                rup.gamma = - score_bound; // 12/5/2011 %38 was missing
+                rup.gamma = -score_bound; // 12/5/2011 %38 was missing
 
                 if (- re.bestval > rup.alpha) {
                     rup.bestval = rup.alpha = - re.bestval;
@@ -1648,7 +1648,7 @@ void planeC::catchupCommits()
             lastDoneItd = i;
             shallowItd++;
         }
-    } // forr i
+    }
 }
 
 //********

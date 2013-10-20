@@ -19,9 +19,8 @@ BN_SRCS = $(BN)/data.c $(BN)/main.c $(BN)/io.c $(BN)/proce.c $(BN)/utility.c \
       $(BN)/cmpsrc.csh $(BN)/handjoseki.h $(BN)/bbini.c $(BN)/mate3.h \
 
 SOURCES = comm3.h makefile master3.cpp pcommon3.h \
-      plane.h slave3.cpp sbody3.h perfsl.h putils.cpp invokempi.c splane.h \
-      time.h cmpsrc.csh regrunit.sh \
-      pgo.sh initact.h entsort.h
+          plane.h slave3.cpp sbody3.h putils.cpp invokempi.c splane.h \
+          perfsl.h time.h pgo.sh initact.h entsort.h
 
 U2B_SRCS = u2b.c
 
@@ -62,8 +61,8 @@ G_OBJS = $(BN)/data.o $(BN)/main.o $(BN)/io.o $(BN)/proce.o $(BN)/utility.o \
       $(BN)/thread.o $(BN)/sckt.o $(BN)/debug.o $(BN)/mate3.o \
       $(BN)/genchk.o $(BN)/phash.o $(BN)/dfpn.o $(BN)/dfpnhash.o $(BN)/bbini.o
 
-BIN = gmx
-U2B = u2b
+BIN = ./bin/gmx
+U2B = ./bin/u2b
 
 all: $(BIN) $(U2B)
 
@@ -82,7 +81,7 @@ u2b.o: u2b.c
 invokempi.o: pcommon3.h invokempi.c
 	$(G_CXX) $(G_MPICXXOPT) -c invokempi.c -o invokempi.o
 
-slave3.o: pcommon3.h comm3.h perfsl.h sbody3.h splane.h slave3.cpp
+slave3.o: pcommon3.h comm3.h sbody3.h splane.h perfsl.h slave3.cpp
 	$(G_CXX) $(G_MPICXXOPT) $(BNSOPT) -c slave3.cpp -o slave3.o
 
 putils.o: pcommon3.h putils.cpp

@@ -31,8 +31,6 @@ void ei_clock_gettime(struct timespec* tsp)
 #endif
 }
 
-extern FILE* slavelogfp;
-
 // bonanza mv format - cap:4 pc:4 prom:1 src:7 dst:7  -> convert to 4,4,4,8,8
 int readable_c(int mv)
 {

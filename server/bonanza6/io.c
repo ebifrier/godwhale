@@ -624,8 +624,8 @@ out_hand0( FILE *pf, int n, const char *str_prefix, const char *str )
 
   if ( n > 0 )
     {
-      fprintf( pf, str_prefix );
-      for ( i = 0; i < n; i++ ) { fprintf( pf, str ); }
+      fprintf( pf, "%s", str_prefix );
+      for ( i = 0; i < n; i++ ) { fprintf( pf, "%s", str ); }
       fprintf( pf, "\n" );
     }
 }

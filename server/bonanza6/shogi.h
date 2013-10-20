@@ -1276,6 +1276,7 @@ bitboard_t CONV w_attacks_to_piece( const tree_t * restrict ptree, int sq );
 const char * CONV str_time( unsigned int time );
 const char * CONV str_time_symple( unsigned int time );
 const char *str_CSA_move( unsigned int move );
+void CONV adjust_fmg( void );
 
 #if defined(MPV)
 int root_mpv;
@@ -1457,6 +1458,7 @@ extern unsigned int easy_move;
 
 #if defined(INANIWA_SHIFT)
 extern int inaniwa_flag;
+extern int CONV detect_inaniwa(tree_t* ptree);
 #endif
 
 #if defined(MINIMUM)

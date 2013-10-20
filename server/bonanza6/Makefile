@@ -1,13 +1,14 @@
 
 #### disable this if compilation fails due to 'pthread_setaffinity_np'
-AFFINOPT = -DENABLE_AFFINITY
+AFFINOPT =
+#-DENABLE_AFFINITY
 
 #### enable on sandy-bridge
 #AVXOPT = -mavx -DHAVE_AVX
 
 #### choose either
-#SSEOPT = -DHAVE_SSE4 -msse4.1
-SSEOPT = -DHAVE_SSE2 -msse2
+SSEOPT = -DHAVE_SSE4 -msse4.1
+#SSEOPT = -DHAVE_SSE2 -msse2
 
 ######## No need to change below (probably) ########
 
@@ -54,7 +55,7 @@ PROBFILE=~/synced/probbnz/gihou/d1.dpp
 #CLUSTOPT = -DCLUSTER_PARALLEL  ==> this should be MAKE argument for bonkras
 
 #OPT =-DNDEBUG -DMINIMUM -DHAVE_SSE4 -msse4.1 -DDFPN -DTLP -DDFPN_CLIENT -DINANIWA_SHIFT -DMNJ_LAN -DCSA_LAN
-OPT = -DNDEBUG -DMINIMUM $(SSEOPT) -DDFPN -DTLP -DDFPN_CLIENT \
+OPT = -DNDEBUG -DMINIMUM $(SSEOPT) -DDFPN -DTLP -DDFPN_CLIENT -DNO_LOGGING \
       -DINANIWA_SHIFT -DCSA_LAN $(AFFINOPT) $(CLUSTOPT) $(AVXOPT)
 
 help:

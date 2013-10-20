@@ -705,7 +705,7 @@ com_turn_start( tree_t * restrict ptree, int flag )
                          last_root_value );
         
         turn = root_turn;
-        for( i = 2; i <= last_pv.length && i < 5; i++ )
+        for( i = 2; i <= last_pv.length; i++ )
           {
             turn = Flip(turn);
             byte += snprintf( buf+byte, 256-byte, " %c%s",

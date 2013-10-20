@@ -60,19 +60,23 @@ public:
 };
 
  // defined in putils.cpp
-void ei_clock_gettime(struct timespec* tsp);
-int worldTime();
-int64_t worldTimeLl();
-void initTime();
-void microsleep(int);
-int readable_c(int mv);
-int readable(mvC);
+extern void ei_clock_gettime(struct timespec* tsp);
+extern int worldTime();
+extern int64_t worldTimeLl();
+extern void initTime();
+extern void microsleep(int);
+extern int readable_c(int mv);
+extern int readable(mvC);
 
  // for invokempi
-void sendQuit(int pr);
+extern void sendQuit(int pr);
 
  // for 
-void sendPacket(int dst, int* buf, int count); //FIXME old callmpi uses unsigned
-int recvPacket(int rank, int* v); // ditto
-int probePacketSlave();
-int probeProcessor();
+extern void sendPacket(int dst, int* buf, int count); //FIXME unsigned
+extern int recvPacket(int rank, int* v); // ditto
+extern int probePacketSlave();
+extern int probeProcessor();
+
+ // for perfsl.h
+extern int initPerf(tree_t * restrict ptree);
+extern int displayPerf(tree_t * restrict ptree);

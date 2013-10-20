@@ -10,7 +10,6 @@
 
 #ifdef CLUSTER_PARALLEL
 #include "../if_bonanza.h"
-tree_t* g_ptree;
 #endif
 
 static int main_child( tree_t * restrict ptree );
@@ -57,11 +56,11 @@ main()
   Out("pid=%d: my rank is %d out of %d\n", getpid(), Mproc, Nproc);
 #endif
 
-//  Out( "%s, %s, %s\n", argv[1], argv[2], argv[3] );
+  //Out( "%s, %s, %s\n", argv[1], argv[2], argv[3] );
 
   if ( ini( ptree ) < 0 )
     {
-      out_error( "%s", str_error );
+      out_error( "ini: %s", str_error );
       return EXIT_SUCCESS;
     }
 

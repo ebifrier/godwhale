@@ -12,9 +12,6 @@
 
 extern "C" {
 #include "bonanza6/shogi.h"
-extern tree_t* g_ptree;
-extern void adjust_fmg();
-extern void detect_inaniwa(tree_t*);
 };
 
 #include "pcommon3.h"
@@ -52,8 +49,7 @@ extern int preNodeCount;
  // FIXME need not be "C"
 void replyFirst();
 
-int displayPerf( tree_t * restrict ptree );  // defined in perfsl.h
-int initPerf( tree_t * restrict ptree );  // defined in perfsl.h
+tree_t *g_ptree;
 
 // utility func for master
 signed char* boardhead()
@@ -145,10 +141,6 @@ static int detected, expired, rwdLatch = 0;
 
  //**************** data decl end ****************
 
-int readable(mvC mv); 
-void microsleep(int usec); 
-
-void mpi_close();
 static void dumpSlState() ;  // defined below
 
   // in usec  FIXME tune - 50us ok?

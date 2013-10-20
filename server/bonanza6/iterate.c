@@ -9,10 +9,6 @@
 #include "../if_bonanza.h"
 #endif
 
-#ifndef CLUSTER_PARALLEL
-static
-#endif
- void CONV adjust_fmg( void );
 extern int m3call, m3mvs, m3easy, m3hit, m3mate;
 
 static int CONV set_root_alpha( int nfail_low, int root_alpha_old );
@@ -21,7 +17,8 @@ static int CONV is_answer_right( unsigned int move );
 static int CONV rep_book_prob( tree_t * restrict ptree );
 static const char * CONV str_fail_high( int turn, int nfail_high );
 
-int detect_inaniwa(tree_t* ptree) {
+int CONV detect_inaniwa(tree_t* ptree)
+{
   if ( ! inaniwa_flag && 19 < ptree->nrep )
     {
       if ( root_turn == white
@@ -129,24 +126,24 @@ iterate( tree_t * restrict ptree )
     }
 
 #ifdef CLUSTER_PARALLEL
-     game_status  &= ~( flag_move_now | flag_suspend  // copied from below
-                                    | flag_quit_ponder | flag_search_error );
-    //ptree->pv[0].a[1] = last_pv.a[1] = master();
+    game_status  &= ~( flag_move_now | flag_suspend  // copied from below
+                       | flag_quit_ponder | flag_search_error );
     last_pv.length = master(last_pv.a);
     ptree->pv[0].length = last_pv.length;
-    ptree->pv[0].a[1] = last_pv.a[1];
-    ptree->pv[0].a[2] = last_pv.a[2];
+    forr (i, 1, last_pv.length) {
+        ptree->pv[0].a[i] = last_pv.a[i];
+    }
     last_root_value = (last_pv.a[1] != MOVE_NA) ? last_root_value :
-                      !root_turn ? -score_bound : score_bound;
+                      (!root_turn ? -score_bound : score_bound);
 
-        right_answer_made = 0;
-        //if ( ( game_status & flag_problem ) && depth_limit == PLY_MAX )
-        if ( ( game_status & flag_problem ) )
-          {
-            if ( is_answer_right( ptree->pv[0].a[1] ) )
-                right_answer_made = 1;
-            else { right_answer_made = 0; }
-          }
+    right_answer_made = 0;
+    //if ( ( game_status & flag_problem ) && depth_limit == PLY_MAX )
+    if ( ( game_status & flag_problem ) )
+      {
+        if ( is_answer_right( ptree->pv[0].a[1] ) )
+            right_answer_made = 1;
+        else { right_answer_made = 0; }
+      }
 
   if ( ( game_status & flag_problem ) && ! right_answer_made ) { iret = 0; }
   else                                                         { iret = 1; }
@@ -157,42 +154,8 @@ iterate( tree_t * restrict ptree )
 
   /* detect inaniwa tactics */
 #if defined(INANIWA_SHIFT)
-#if 0
-  if ( ! inaniwa_flag && 19 < ptree->nrep )
-    {
-      if ( root_turn == white
-           && ( BOARD[A7]==-pawn || BOARD[A6]==-pawn || BOARD[A5]==-pawn )
-           && BOARD[B7] == -pawn && BOARD[C7] == -pawn
-           && BOARD[D7] == -pawn && BOARD[E7] == -pawn
-           && BOARD[F7] == -pawn && BOARD[G7] == -pawn
-           && BOARD[H7] == -pawn
-           && ( BOARD[I7]==-pawn || BOARD[I6]==-pawn || BOARD[I5]==-pawn ) )
-        {
-          Out( "\nINANIWA SHIFT TURNED ON (BLACK)\n\n" );
-            inaniwa_flag = 1;
-          ehash_clear();
-          if ( ini_trans_table() < 0 ) { return -1; }
-        }
-
-      if ( root_turn == black
-           && ( BOARD[A3]==pawn || BOARD[A4]==pawn || BOARD[A5] == pawn )
-           && BOARD[B3] == pawn && BOARD[C3] == pawn
-           && BOARD[D3] == pawn && BOARD[E3] == pawn
-           && BOARD[F3] == pawn && BOARD[G3] == pawn
-           && BOARD[H3] == pawn
-           && ( BOARD[I3]==pawn || BOARD[I4]==pawn || BOARD[I5]==pawn ) )
-        {
-          Out( "\nINANIWA SHIFT TURNED ON (WHITE)\n\n" );
-          inaniwa_flag = 2;
-          ehash_clear();
-          if ( ini_trans_table() < 0 ) { return -1; }
-        }
-    }
-#else
    detect_inaniwa(ptree);
 #endif
-#endif
-  
 
   /* initialize variables */
   if ( get_cputime( &cpu_start ) < 0 ) { return -1; }
@@ -1126,10 +1089,7 @@ static int CONV rep_book_prob( tree_t * restrict ptree )
 }
 
 
-#ifndef CLUSTER_PARALLEL
-static
-#endif
- void CONV adjust_fmg( void )
+void CONV adjust_fmg( void )
 {
   int misc, cap, drop, mt, misc_king, cap_king;
 

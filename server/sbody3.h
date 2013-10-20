@@ -32,13 +32,16 @@ int firstMvcnt[MAX_EXPDEP];
 void replyFirst();  // defined below
 
 extern int tlp_max_arg;
-
 extern int slaveStartPly;
-int problemMode() { return (game_status & flag_problem); }
 
 int MAX_SRCH_DEP = MAX_SRCH_DEP_FIGHT;  // FIXME? here? shared w/ someone else?
 
 //****
+
+int problemMode()
+{
+    return (game_status & flag_problem);
+}
 
 static void histGoodPv(tree_t * restrict ptree, unsigned int mv,
                        int ply, int dep, int turn)

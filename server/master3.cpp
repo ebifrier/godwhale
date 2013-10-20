@@ -171,14 +171,19 @@ int master(unsigned int* retmvseq)
         // if ending (terminate or exitAck), return
 
         if (exitAcked /* || srched deep enuf */) {
+            mvC mvs[GMX_MAX_PV];
             int val;
-            mvC mvs[2];
             plane.finalAnswer(&val, mvs);
             last_root_value = root_turn ? -val : val;  // flip by turn - v from black
-            forr (j, 0, 1) {
-                retmvseq[j+1] = mvs[j].v;  // 12/3/2011 %28 was [j] = [j]
+            forr (j, 0, GMX_MAX_PV-1) {
+                retmvseq[j+1] = mvs[j].v;
+                if (mvs[j] == NULLMV) {
+                    MSTOut("Answer len %d.\n", j);
+                    return j;
+                }
             }
-            return (mvs[0]==NULLMV ? 0 : mvs[1]==NULLMV ? 1 : 2);  // FIXME? right?
+
+            return GMX_MAX_PV;
         }
 
         if (!touched || exitPending) {
@@ -214,7 +219,7 @@ static void handleReplyMaster()
     MSDOut("++++++ handleRpy entered opc %d exd %d\n", opc, exd);
 
     if (exitPending && (opc != RPY_OPCODE_STOPACK)) {
-        // waiting to exit.  do nothing, just ignore reply except ack
+        // waiting to exit. do nothing, just ignore reply except ack
     }
     //******** RPY_SETPV **
     else if (opc==RPY_OPCODE_SETPV) {
@@ -256,8 +261,9 @@ static void handleReplyMaster()
     //******** RPY_ROOT  **
     else if (opc==RPY_OPCODE_ROOT) {
         dumpRpyRoot();
-        plane.rpyRoot(rpyent.itd(), rpyent.val(),  // 12/25/2011 %57 was exd instead
-                      rpyent.rootmv(), rpyent.secondmv());    // of val
+        // 12/25/2011 %57 was exd instead
+        plane.rpyRoot(rpyent.itd(), rpyent.val(), 
+                      rpyent.rootmv(), rpyent.secondmv()); // of val
     }
 
     //******** RPY_FCOMP **
@@ -371,7 +377,7 @@ static void dumpRpyPvs()
     if (DBG_DUMP_COMM) {
         MSTOut(
             "%8d>&&&&RPY_PVS %d: itd %d exd %d val %d mv %07x ule %d num %d seqlen %d\nbestseq: ",
-            worldTime(),   rpyent.rank(), rpyent.itd(), rpyent.exd(), rpyent.val(),
+            worldTime(), rpyent.rank(), rpyent.itd(), rpyent.exd(), rpyent.val(),
             readable(rpyent.pvsmv()),rpyent.ule(),
             rpyent.numnode(), rpyent.seqleng_pvs());
         forr (i, 0, rpyent.seqleng_pvs()-1) {
