@@ -225,11 +225,7 @@ namespace Bonako.ViewModel
 
         #region variation
         private static readonly Regex VariationRegex = new Regex(
-#if PUBLISHED
-            @"^info\s*((\+|\-)?([\d.]+))",
-#else
             @"^info\s*((\+|\-)?([\d.]+))([\+\-\d\w* ]+)( n=(\d+))?$",
-#endif
             RegexOptions.IgnoreCase);
 
         private static bool ParseVariation(string command)
