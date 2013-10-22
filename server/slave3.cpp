@@ -141,7 +141,7 @@ static int detected, expired, rwdLatch = 0;
 
  //**************** data decl end ****************
 
-static void dumpSlState() ;  // defined below
+static void dumpSlState();  // defined below
 
   // in usec  FIXME tune - 50us ok?
 #define SLAVE_INTERVAL 50

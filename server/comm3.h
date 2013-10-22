@@ -8,7 +8,7 @@
 #define MAX_EXTEND_MOVES 10
 
  // for [s]plane
-#define MAX_EXPDEP  12
+#define MAX_EXPDEP  16
 #define MAX_SEQPREV MAX_EXPDEP
 #define MAXPROC    16
 #define MAX_ITD    32

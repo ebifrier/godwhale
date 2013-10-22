@@ -855,7 +855,7 @@ void streamC::rpyFirst(int exd, int valAtExd)
             forr (j, 0, prm.mvcnt-1) {
                 tuples[j].mv = prm.mvs[j].mv;
                 tuples[j].bestmv = prm.mvs[j].inherited ?
-                    prm.mvs[j].bestmv : NULLMV;
+                                   prm.mvs[j].bestmv : NULLMV;
                 tuples[j].depth = prm.mvs[j].depth;
                 tuples[j].upper = prm.mvs[j].upper;
                 tuples[j].lower = prm.mvs[j].lower;
@@ -867,7 +867,7 @@ void streamC::rpyFirst(int exd, int valAtExd)
             cmd2send.send(pr);
         }
 
-        val = - val;  // flip for negamax
+        val = -val;  // flip for negamax
     }
 
     if (mvonly) {
@@ -909,7 +909,7 @@ void streamC::rpyFcomp(int exd, int val, int pvleng, mvC* pv)
     assert(pv[0] == r.firstmv.mv);
 
     r.firstmv.upper =
-    r.firstmv.lower = - val;
+    r.firstmv.lower = -val;
     r.firstmv.depth = itdexd2srd(itd(), exd);
     //if (pvleng>1)
     //  r.firstmv.bestmv = pv[1];  // 12/8/2011 %40 was using pv[0]
@@ -919,7 +919,7 @@ void streamC::rpyFcomp(int exd, int val, int pvleng, mvC* pv)
     r.firstmv.inherited =
     r.firstmv.retrying = 0;
 
-    r.gamma = - score_bound; // 12/3/2011 %30 setting gamma was missing
+    r.gamma = -score_bound; // 12/3/2011 %30 setting gamma was missing
 
     if (val > r.alpha) {
         r.updateValue(val, VALTYPE_ALPHA);
@@ -969,7 +969,8 @@ void streamC::rpyPvs(int rank, int exd, int valChild,mvC mv,int ule,int numnode,
     // 12/25/2011 %52 mvgen chk missing. rpy may come after mv is shrunk off
     // 3/12/2012  %xx exd chkd missing. rpy may come after bcut in upper row
 
-    r.procmvs[rank].mvs[mvsuf].update(itdexd2srd(itd(), exd), valChild,ule,numnode,
+    r.procmvs[rank].mvs[mvsuf].update(itdexd2srd(itd(), exd),
+                                      valChild, ule, numnode,
                                       (seqleng ? bestseq[0] : NULLMV));
     int val = -valChild; // 12/1/2011 %23 val inversion was missing
 
@@ -1034,7 +1035,7 @@ void streamC::rpyPvs(int rank, int exd, int valChild,mvC mv,int ule,int numnode,
 
         if (DBG_DO_VERIFY) {//send A/B/G of this stream to each slv, let them compare
             tripleC tr[12];
-            forr(i,0,11) {
+            forr(i, 0, 11) {
                 tr[i].alpha = row[i].alpha;
                 tr[i].beta  = row[i].beta ;
                 tr[i].gamma = row[i].gamma;
@@ -1055,7 +1056,8 @@ void streamC::propagateUp(int exd, int val)
         rowC& r = row[d];
         if (val == r.gamma)
             break;   // FIXME need this break?  or go upto d=0?
-        MSTOut("jjjj propUp i %d e %d oldG %d newG %d\n", itd(), d, r.gamma, val);
+        MSTOut("jjjj propUp i %d e %d oldG %d newG %d\n",
+               itd(), d, r.gamma, val);
         r.updateValue(val, VALTYPE_GAMMA);
         val = -max(r.alpha, val);
     }
@@ -1263,7 +1265,8 @@ int planeC::rpySetpv(int itd, int pvleng, mvC* pv) // set up row[pvleng-1:0]
         }
 
         if (copyFrom == -1) {  // mvlist not found
-            MSTOut("%%%%%%%% i%d e%d refcre mv2r %07x\n", itd, e, readable(mv2root));
+            MSTOut("%%%%%%%% i%d e%d refcre mv2r %07x\n",
+                   itd, e, readable(mv2root));
             stream[itd].row[e].refCreate(e, pvleng, pv, mv2root);
 
         }
