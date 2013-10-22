@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
@@ -8,83 +8,83 @@
 
 /*
   Opening Book Data Structure: Index BookData
-	��Ճf�[�^�\���́A Index BookData�ō\�������B
+	定跡データ構造は、 Index BookDataで構成される。
 
     Index:         IndexEntry.. (NUM_SECTION times)
-		Index�́AIndexEntry��NUM_SECTION�񂠂�B
+		Indexは、IndexEntryがNUM_SECTION回ある。
 
       IndexEntry:  SectionPointer SectionSize
-			IndexEntry�́ASectionPointer��SectionSize����\�������B
-			����SectionSize�Ԃ񂾂��ǂݍ��ށB
+			IndexEntryは、SectionPointerとSectionSizeから構成される。
+			このSectionSizeぶんだけ読み込む。
 
     BookData:      Section.. (NUM_SECTION times)
-    BookData�́ASection��NUM_SECTION�񂠂�B������1�̃Z�N�V�����͉ϒ��ł���B
+    BookDataは、SectionがNUM_SECTION回ある。ただし1つのセクションは可変長である。
 
       Section:     [DataEntry]..
-			1��Section�́A������DataEntry�ō\�������B
+			1つのSectionは、複数のDataEntryで構成される。
 
         DataEntry: Header Move...
-				1��DataEntry�́A1�̋ǖʂɂ������Ղ̎w����(�������肤��)��\������B
-				�܂�DataEntry��Header�ƕ����̎w���肩��\�������B
-				�w����͂��̋ǖʂ̒�Վ�B�������肦��B�ő�32�B
+				1つのDataEntryは、1つの局面における定跡の指し手(複数ありうる)を表現する。
+				つまりDataEntryはHeaderと複数の指し手から構成される。
+				指し手はその局面の定跡手。複数ありえる。最大32個。
 
-				�܂�DataEntry�͉ϒ��ł���A�����ւ̃|�C���^�[��
-				�K�v�ɂȂ�B���ꂪIndex�ɂ���B
+				つまりDataEntryは可変長であり、ここへのポインターが
+				必要になる。それがIndexにある。
 
 
 - SectionPointer
   4 byte:  position of the section in character
-  �Z�N�V�����|�C���^�[��4�o�C�g�B����͒�Ճt�@�C����fseek�Ŏw�肳���|�W�V�����B
-  ���Ȃ킿�A�t�@�C���̐擪����̃o�C�g���B�t�@�C���̂��̈ʒu���Q�Ƃ��ɂ����B
+  セクションポインターは4バイト。これは定跡ファイルのfseekで指定されるポジション。
+  すなわち、ファイルの先頭からのバイト数。ファイルのその位置を参照しにいく。
 
 - SectionSize
   2 byte:  size of the section in character
-	�Z�N�V�����T�C�Y��2�o�C�g�B
+	セクションサイズは2バイト。
 
- �� IndexEntry = SectionPointer + SectionSize �Ȃ̂� 4 + 2 = 6�o�C�g�B
+ ※ IndexEntry = SectionPointer + SectionSize なので 4 + 2 = 6バイト。
 
-- Header (9�o�C�g)
+- Header (9バイト)
 
   1 byte:  number of bytes for the DataEntry
-  ������DateEntry�̃T�C�Y�B���̂Ԃ�����Z����Ύ���DataEntry�ɍs���B
+  ↑このDateEntryのサイズ。このぶんを加算すれば次のDataEntryに行く。
 
-  for the DataEntry��"the"�́A����DataEntry
+  for the DataEntryの"the"は、このDataEntry
   8 byte:  hash key
-  ��������hash key������̂ł���Ŗ{���ɋǖʂƂ҂������v���邩���ׂ�B
+  ↑ここにhash keyがあるのでこれで本当に局面とぴったり一致するか調べる。
 
-- Move (4�o�C�g)
+- Move (4バイト)
 
   2 byte:  a book move
-		1�̎w�����2�o�C�g(from,to)�ƁA���̎肪�I�΂��p�x����Ȃ�B
+		1つの指し手は2バイト(from,to)と、その手が選ばれる頻度からなる。
 
   2 byte:  frequency
-		�p�x��u16�ŕ\������Ă���A���̋ǖʂ̒�Վw����̍��v�� u16.MAX�ɂȂ�悤��
-		���K������Ă���B�܂��A�w����͕p�x���Ƀ\�[�g����Ă���B
+		頻度はu16で表現されており、その局面の定跡指し手の合計は u16.MAXになるように
+		正規化されている。また、指し手は頻度順にソートされている。
  */
 
-// ��Ճt�@�C���̃C���f�b�N�X��1�̃G���g���[�̑傫��
+// 定跡ファイルのインデックスの1つのエントリーの大きさ
 #define BK_SIZE_INDEX     (2 + 4)
-// ��Ճt�@�C���̃f�[�^�G���g���[�ɂ���w�b�_�[�̃T�C�Y
+// 定跡ファイルのデータエントリーにあるヘッダーのサイズ
 #define BK_SIZE_HEADER    (1 + 8)
-// ��Ճt�@�C���̎w����̃T�C�Y
+// 定跡ファイルの指し手のサイズ
 #define BK_SIZE_MOVE      (2 + 2)
-// ��Ճt�@�C����1�ǖʂɂ������Վ�̍ő吔�B
+// 定跡ファイルの1局面における定跡手の最大数。
 #define BK_MAX_MOVE       32
 
 #if ( BK_SIZE_HEADER + BK_SIZE_MOVE * BK_MAX_MOVE > UCHAR_MAX )
 #  error "Maximum size of DataEntry is larger than UCHAR_MAX"
 #endif
 
-// ��Ճt�@�C���ɂ����邠���Ջǖʂ̒�Վw������
+// 定跡ファイルにおけるある定跡局面の定跡指し手情報
 typedef struct
 {
-  unsigned short smove; // �w����B���̎w����́A�ړ����ƈړ����\�����Ă���B
-  unsigned short freq;  // ���̎w���肪�I�΂��p�x
+  unsigned short smove; // 指し手。この指し手は、移動元と移動先を表現している。
+  unsigned short freq;  // この指し手が選ばれる頻度
 } book_move_t;
 
-// ��Ճt�@�C���Ŏg���Ă���w����smove����from��to�����o�������́B
-// ��������̏����A�ߊl�����̏����Ȃ��B
-// ����͈̂ړ����ƈړ���̂݁B
+// 定跡ファイルで使われている指し手smoveからfromとtoを取り出したもの。
+// 動かす駒の情報も、捕獲する駒の情報もない。
+// あるのは移動元と移動先のみ。
 typedef struct
 {
   int from;
@@ -102,8 +102,8 @@ static int CONV normalize_book_move( book_move_t * restrict pbook_move,
                                      int moves );
 
 
-// ��Ղ�ǂݍ��݃��[�h�ŊJ���B
-// ��Ղ�L���ɂ���Bbook_off���Ăяo���܂ŗL���B
+// 定跡を読み込みモードで開く。
+// 定跡を有効にする。book_offを呼び出すまで有効。
 int CONV
 book_on( void )
 {
@@ -117,8 +117,8 @@ book_on( void )
 }
 
 
-// ��Ճt�@�C�������B
-// ��Ղ𖳌��ɂ���Bbook_on������܂ŗL���B
+// 定跡ファイルを閉じる。
+// 定跡を無効にする。book_onをするまで有効。
 int CONV
 book_off( void )
 {
@@ -131,9 +131,9 @@ book_off( void )
 }
 
 
-// ��Ճf�[�^�x�[�X�𒲂ׂ�B
-// ���݂̋ǖʂ���Ճt�@�C����Ɍ�����ΐ��B
-// ���̂Ƃ��̒�Վ�́������ɕԂ����B
+// 定跡データベースを調べる。
+// 現在の局面が定跡ファイル上に見つかれば正。
+// そのときの定跡手は↓ここに返される。
 //   ptree->current_move[1] = move;
 int CONV
 book_probe( tree_t * restrict ptree )
@@ -223,10 +223,10 @@ book_probe( tree_t * restrict ptree )
 }
 
 
-// ��Ճt�@�C���𒲂ׂ�B
-// key        = �ǖʂ̃n�b�V���l
-// pbook_move = ��Ճf�[�^�x�[�X�Ō������w����
-// �Ԃ��l�́A���Ɋi�[�������B3�i�[�����Ȃ�pbook_move[0..2]�Ɋi�[�����B
+// 定跡ファイルを調べる。
+// key        = 局面のハッシュ値
+// pbook_move = 定跡データベースで見つけた指し手
+// 返し値は、↑に格納した数。3つ格納したならpbook_move[0..2]に格納される。
 static int CONV
 book_read( uint64_t key, book_move_t *pbook_move, unsigned int *pposition )
 {
@@ -297,10 +297,10 @@ book_read( uint64_t key, book_move_t *pbook_move, unsigned int *pposition )
 }
 
 
-// �����Ŏ󂯎����ft_t�����H���ĕԂ��B
-// ft_t.from,ft_t.to �����̏����ňړ�������B
-// �@turn�����ԂȂ�Ղ�180�x���]�������ꏊ�Ɉړ��B
-// �@is_flip��true�Ȃ獶�E�Ղ𔽓]�����ꏊ�Ɉړ��B
+// 引数で受け取ったft_tを加工して返す。
+// ft_t.from,ft_t.to を次の条件で移動させる。
+// 　turnが後手番なら盤を180度反転させた場所に移動。
+// 　is_flipがtrueなら左右盤を反転した場所に移動。
 static ft_t CONV
 flip_ft( ft_t ft, int turn, int is_flip )
 {
@@ -339,10 +339,10 @@ flip_ft( ft_t ft, int turn, int is_flip )
 }
 
 
-// �w����book move�`������Move�`���ɕϊ�����Bbook move�`���́A
-// �w����̂����ߊl������A��������ɂ��Ă̏�񂪌������Ă���̂�
-// ������ǖʏ�񂩂����Ă��K�v������B
-// is_flip�͎�Ԃ𔽓]������̂��̃t���O�B
+// 指し手book move形式からMove形式に変換する。book move形式は、
+// 指し手のうち捕獲する駒や、動かす駒についての情報が欠落しているので
+// それを局面情報から補ってやる必要がある。
+// is_flipは手番を反転させるのかのフラグ。
 static Move CONV
 bm2move( const tree_t * restrict ptree, Move bmove, int is_flip )
 {
@@ -372,13 +372,13 @@ bm2move( const tree_t * restrict ptree, Move bmove, int is_flip )
 }
 
 
-// ���݂̋ǖʂ�hash�l�����߂�
-// ��ԑ�����Ƃ��Čv�Z����B�܂��������hash�l�ɎZ�肷��B
-// ����ȊO�͕��i�T���Ŏg���Ă���hash�l�Ƃ������������B
-// ���ƔՖʂ����E���]�������n�b�V�����������āA
-// �������l�̂ق��̃n�b�V���l�����̋ǖʂ̃n�b�V���l�Ƃ���B
-// �������Ă����΁A���E���]���Ă���ǖʂ���Ճf�[�^�x�[�X�Ƀq�b�g����B
-// �܂����̏ꍇ�ɂ́A*pis_flip = 1��Ԃ��B
+// 現在の局面のhash値を求める
+// 手番側を先手として計算する。また持ち駒もhash値に算定する。
+// それ以外は普段探索で使っているhash値とだいたい同じ。
+// あと盤面を左右反転させたハッシュも生成して、
+// 小さい値のほうのハッシュ値をその局面のハッシュ値とする。
+// こうしておけば、左右反転している局面も定跡データベースにヒットする。
+// またその場合には、*pis_flip = 1を返す。
 static uint64_t CONV
 book_hash_func( const tree_t * restrict ptree, int *pis_flip )
 {
@@ -469,10 +469,10 @@ book_hash_func( const tree_t * restrict ptree, int *pis_flip )
 }
 
 
-// ���̋ǖʂ̎w����𐳋K������B���Ȃ킿�A0..moves-1�̂Ȃ��̎�̕p�x��S��������
-// �p�x100%(u16.Max)�ɂȂ�悤�ɒ�������B
-// pbook_move = ��Ղ�1DataEntry
-// moves      = ���̂Ȃ��Ő��K���̑ΏۂƂ���w����̐�
+// この局面の指し手を正規化する。すなわち、0..moves-1のなかの手の頻度を全部足すと
+// 頻度100%(u16.Max)になるように調整する。
+// pbook_move = 定跡の1DataEntry
+// moves      = そのなかで正規化の対象とする指し手の数
 static int CONV
 normalize_book_move( book_move_t * restrict pbook_move, int moves )
 {

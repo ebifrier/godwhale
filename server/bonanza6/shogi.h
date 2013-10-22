@@ -1,4 +1,4 @@
-// $Id: shogi.h,v 1.5 2012-04-22 21:31:42 eiki Exp $
+﻿// $Id: shogi.h,v 1.5 2012-04-22 21:31:42 eiki Exp $
 
 #ifndef SHOGI_H
 #define SHOGI_H
@@ -567,22 +567,22 @@ enum { flag_from_ponder     = b0001 };
 
 enum
 {
-  // CSA�t�@�C���ǂݍ��ݎ��ɁA�l�����Ԃ�
-  // sec_w_total(��葤�̍l������)
-  // sec_b_total(��葤�̍l������)
-  // �ɔ��f������B
+  // CSAファイル読み込み時に、考慮時間を
+  // sec_w_total(先手側の考慮時間)
+  // sec_b_total(後手側の考慮時間)
+  // に反映させる。
   flag_time            = b0001,
-  // make_move_root�Ƃ����A�΋ǔՖ�(�T���̂Ƃ��̊J�n�ǖ�)�����̋ǖʂɂ���֐�������A
-  // ���̂Ȃ���make_move���Ăяo���̂����A���̂Ƃ��ɂ��̃t���O�������Ă����
-  // out_CSA���Ăяo���Ďw������t�@�C���ɏ��������Ă����B
+  // make_move_rootという、対局盤面(探索のときの開始局面)を次の局面にする関数があり、
+  // そのなかでmake_moveを呼び出すのだが、そのときにこのフラグが立っていると
+  // out_CSAを呼び出して指し手をファイルに書きだしていく。
   flag_history         = b0010,
-  // �����`�F�b�N�p�̃t���O�B���̃t���O�������Ă���Ɛ����̃`�F�b�N���s�Ȃ��B
+  // 千日手チェック用のフラグ。このフラグが立っていると千日手のチェックを行なう。
   flag_rep             = b0100,
-  // ���l�����ꂽ���ǂ����̃`�F�b�N���s�Ȃ����ǂ����B
+  // 王様が取られたかどうかのチェックを行なうかどうか。
   flag_detect_hang     = b1000,
-  // �w���肪���@���ǂ��������`�F�b�N���āA���ۂɂ͋ǖʂ�i�߂����Ȃ��Ƃ��Ɏg���t���O
+  // 指し手が合法かどうかだけチェックして、実際には局面を進めたくないときに使うフラグ
   flag_nomake_move     = b0010 << 4,
-  // ��������̊w�K�̎��Ɏg���t���O�B
+  // 棋譜からの学習の時に使うフラグ。
   flag_nofmargin       = b0100 << 4
 };
 
@@ -711,16 +711,16 @@ typedef struct {
 typedef struct { unsigned int no1, no2; } killer_t;
 
 typedef struct {
-  // CSA�t�@�C����� $ANSWER�Ƃ����\�L�ŋǖʐ}�ɑ΂���𓚂̎w���肪������Ă����Ƃ���
-  // �����ǂݍ���ŕێ����Ă������߂̃o�b�t�@�B
+  // CSAファイル上に $ANSWERという表記で局面図に対する解答の指し手が書かれていたときに
+  // それを読み込んで保持しておくためのバッファ。
   union { char str_move[ MAX_ANSWER ][ 8 ]; } info;
 
-  char str_name1[ SIZE_PLAYERNAME ]; // ���̖��O
-  char str_name2[ SIZE_PLAYERNAME ]; // ���̖��O
-  FILE *pf;  // �ǂݍ���ł���CSA�t�@�C���̃t�@�C���|�C���^
-  unsigned int games; // �Q�[���̏��(�������Ă��邩���Ƃ�)
-  unsigned int moves; // �J�n�ǖʂ���̎萔
-  unsigned int lines; // �ǂݍ��ݒ���CSA�t�@�C���̌��݉�͂��Ă���s�i���o�[
+  char str_name1[ SIZE_PLAYERNAME ]; // 先手の名前
+  char str_name2[ SIZE_PLAYERNAME ]; // 後手の名前
+  FILE *pf;  // 読み込んでいるCSAファイルのファイルポインタ
+  unsigned int games; // ゲームの状態(投了しているかだとか)
+  unsigned int moves; // 開始局面からの手数
+  unsigned int lines; // 読み込み中のCSAファイルの現在解析している行ナンバー
 } record_t;
 
 typedef struct {
