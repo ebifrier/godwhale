@@ -5,8 +5,8 @@
 static void CONV add_behind_attacks( bitboard_t * restrict pbb, int idirec,
                                      int ik );
 
-unsigned int * CONV
-b_gen_checks( tree_t * restrict __ptree__, unsigned int * restrict pmove )
+Move * CONV
+b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
 {
   bitboard_t bb_piece, bb_rook_chk, bb_bishop_chk, bb_chk, bb_move_to;
   bitboard_t bb_diag1_chk, bb_diag2_chk, bb_file_chk, bb_drop_to, bb_desti;
@@ -730,13 +730,12 @@ b_gen_checks( tree_t * restrict __ptree__, unsigned int * restrict pmove )
         }
     }
 
-
   return pmove;
 }
 
 
-unsigned int * CONV
-w_gen_checks( tree_t * restrict __ptree__, unsigned int * restrict pmove )
+Move * CONV
+w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
 {
   bitboard_t bb_piece, bb_rook_chk, bb_bishop_chk, bb_chk, bb_move_to;
   bitboard_t bb_diag1_chk, bb_diag2_chk, bb_file_chk, bb_drop_to, bb_desti;

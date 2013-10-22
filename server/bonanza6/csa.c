@@ -23,11 +23,14 @@ read_record( tree_t * restrict ptree, const char *str_file,
   record_t record;
   int iret;
 
+  // CSAファイルのopen
   iret = record_open( &record, str_file, mode_read, NULL, NULL );
   if ( iret < 0 ) { return iret; }
 
+  // movesは初期盤面からの手数。0が指定されていれば初期盤面
   if ( ! moves )
     {
+      // 初期盤面のみを読み込むときはin_CSA_header一発で終わり。
       iret = in_CSA_header( ptree, &record, flag );
       if ( iret < 0 )
         {
@@ -36,12 +39,18 @@ read_record( tree_t * restrict ptree, const char *str_file,
         }
     }
   else do {
+    // 初期盤面からの手数が指定されているなら、その回数だけin_CSAを呼び出す。
     iret = in_CSA( ptree, &record, NULL, flag );
     if ( iret < 0 )
       {
         record_close( &record );
         return iret;
       }
+
+    // record_next : 次の棋譜が始まっている(?)の意味
+    // (指し手が続くときはrecord_miscが返ってくる)
+    // record_eof  : ファイルが終端まで達した　の意味
+    // record.moves : 現在の初期盤面からの手数
   } while ( iret != record_next
             && iret != record_eof
             && moves > record.moves );
@@ -212,6 +221,11 @@ record_setpos( record_t *pr, const rpos_t *prpos )
 #endif /* no MINIMUM */
 
 
+// CSAファイル形式の局面を読み込みます。
+// 初回呼び出しのときは開始局面を読み込みます。
+// そのあとの呼び出しにおいては、CSAファイルから指し手を1手ずつ読みこみます。
+// *pmoveにはそのときの指し手が1手入ります。
+// flagに関してはin_CSA_headerのflagと同じ意味です。
 int
 in_CSA( tree_t * restrict ptree, record_t *pr, unsigned int *pmove, int flag )
 {
@@ -321,15 +335,19 @@ in_CSA( tree_t * restrict ptree, record_t *pr, unsigned int *pmove, int flag )
 }
 
 
+// strの指す文字列がCSA形式の指し手の表現だと仮定して、それを解釈して、
+// *pmove にその指し手を返します。このとき返される指し手はBonanzaの内部で使われている
+// 指し手の表現です。(32bit無符号整数)
+// 返し値は、成功すれば1。指し手が非合法手であるか解釈上のエラーであれば-2。
 int
-interpret_CSA_move( tree_t * restrict ptree, unsigned int *pmove,
+interpret_CSA_move( tree_t * restrict ptree, Move *pmove,
                     const char *str )
 {
   int ifrom_file, ifrom_rank, ito_file, ito_rank, ipiece;
   int ifrom, ito;
-  unsigned int move;
-  unsigned int *pmove_last;
-  unsigned int *p;
+  Move move;
+  Move *pmove_last;
+  Move *p;
 
   ifrom_file = str[0]-'0';
   ifrom_rank = str[1]-'0';
@@ -696,6 +714,10 @@ out_CSA_header( const tree_t * restrict ptree, record_t *pr )
 }
 
 
+// CSAファイル形式の開始局面を読み込みます。
+// この引数のflagというのは、CSAファイルの考慮時間をBonanzaの
+// 思考ルーチンで保持している考慮時間に反映させるのかだとか、
+// そういったフラグ類で、shogi.hの次の定義が使われているようです。
 static int
 in_CSA_header( tree_t * restrict ptree, record_t *pr, int flag )
 {
@@ -812,6 +834,12 @@ in_CSA_header( tree_t * restrict ptree, record_t *pr, int flag )
 }
 
 
+// CSAファイルの「駒別単独表現」(CSAフォーマットの仕様書を見るべし) or 持ち駒のparse。
+// '+','-'のあとをparseします。
+// 持ち駒の表現が次の行でも継続している可能性があるときは0を返します。
+// また、"00AL"(残りの駒すべて手駒の意味)が書かれていたなら
+// (このとき次の行に持ち駒の表現が継続している可能性はない)1を返します。
+// エラーのときは負の値を返します。
 static int
 read_board_rep3( const char *str_line, min_posi_t *pmin_posi )
 {
@@ -863,8 +891,8 @@ read_board_rep3( const char *str_line, min_posi_t *pmin_posi )
       handv += flag_hand_gold   * ( ngold_max   -ngold );
       handv += flag_hand_bishop * ( nbishop_max -nbishop );
       handv += flag_hand_rook   * ( nrook_max   -nrook );
-      if ( color ) { pmin_posi->hand_white += handv; }
-      else         { pmin_posi->hand_black += handv; }
+      if ( color == white ) { pmin_posi->hand_white += handv; }
+      else                  { pmin_posi->hand_black += handv; }
       is_all_done = 1;
       continue;
     }
@@ -876,7 +904,7 @@ read_board_rep3( const char *str_line, min_posi_t *pmin_posi )
     piece        = str2piece( str_piece );
     
     /* hand */
-    if ( ifile == 0 && ifile == 0 )
+    if ( ifile == 0 && irank == 0 )
       {
         switch ( piece )
           {
@@ -891,8 +919,8 @@ read_board_rep3( const char *str_line, min_posi_t *pmin_posi )
             str_error = str_bad_board;
             return -2;
           }
-        if ( color ) { pmin_posi->hand_white += handv; }
-        else         { pmin_posi->hand_black += handv; }
+        if ( color == white ) { pmin_posi->hand_white += handv; }
+        else                  { pmin_posi->hand_black += handv; }
       }
     /* board */
     else {
@@ -905,7 +933,7 @@ read_board_rep3( const char *str_line, min_posi_t *pmin_posi )
           str_error = str_bad_board;
           return -2;
         }
-      pmin_posi->asquare[isquare] = (signed char)( color ? -piece : piece );
+      pmin_posi->asquare[isquare] = (signed char)( color == white ? -piece : piece );
     }
   }
   
@@ -913,6 +941,10 @@ read_board_rep3( const char *str_line, min_posi_t *pmin_posi )
 }
 
 
+// CSAファイルから1段読み込みます。1段とは
+// "P3-FU-FU-FU-FU-FU-FU-FU-FU-FU"
+// のようなデータです。
+// 先頭2文字が段を意味して、そのあとに27文字が続きます。
 static int
 read_board_rep2( const char * str_line, min_posi_t *pmin_posi )
 {
@@ -943,6 +975,12 @@ read_board_rep2( const char * str_line, min_posi_t *pmin_posi )
 }
 
 
+// CSAの駒を意味する文字列(2文字)に対応する駒の値を求めます。
+// 不正な文字列の場合-2が返ります。
+// また駒の値は以下のenumにあります。
+// enum { promote = 8, empty = 0,
+//       pawn, lance, knight, silver, gold, bishop, rook, king, pro_pawn,
+//       pro_lance, pro_knight, pro_silver, piece_null, horse, dragon };
 static int
 str2piece( const char *str )
 {
@@ -964,6 +1002,11 @@ str2piece( const char *str )
  *   1  a csa line is read in str
  *  -2  buffer overflow
  */
+// ファイルから一行読み込みます。下請けにskip_commentを呼び出すので
+// コメント以降は無視されます。また処理の最後で末尾の空白はtrimする(切り詰める)ので
+// '\0'の直前は有効な文字であることが保証されます。
+// strの指す文字列バッファに読み込んだ内容が返ります。
+// 返し値は 0 ならEOF、1なら正常終了、-2なら読み込みバッファがあふれたことを意味します。
 static int
 read_CSA_line( record_t *pr, char *str )
 {
@@ -1000,6 +1043,7 @@ read_CSA_line( record_t *pr, char *str )
 }
 
 
+// コメント(アポストロフィ"'")以降を読み飛ばしながら1文字読み込みます。
 static int
 skip_comment( record_t *pr )
 {
@@ -1020,6 +1064,9 @@ skip_comment( record_t *pr )
 }
 
 
+// ファイルから一文字読み込んでそれを返します。
+// record_tは、CSA読み込みをクラス化すれば内部状態としてメンバに持つべき内容で、
+// ファイルポインタやら読み込み中の行数などが入っています。
 static int
 read_char( record_t *pr )
 {

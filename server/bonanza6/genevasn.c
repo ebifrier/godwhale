@@ -3,8 +3,8 @@
 #include "shogi.h"
 
 
-unsigned int * CONV
-b_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
+Move * CONV
+b_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
 {
   bitboard_t bb_desti, bb_checker, bb_inter, bb_target, bb_piece;
   unsigned int hand, ubb_target0a, ubb_target0b, ubb_pawn_cmp, utemp;
@@ -327,8 +327,8 @@ b_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
 }
 
 
-unsigned int * CONV
-w_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
+Move * CONV
+w_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
 {
   bitboard_t bb_desti, bb_checker, bb_inter, bb_target, bb_piece;
   unsigned int hand, ubb_target2a, ubb_target2b, ubb_pawn_cmp, utemp;

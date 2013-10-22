@@ -1,7 +1,7 @@
 #include "shogi.h"
 
-unsigned int * CONV
-b_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
+Move * CONV
+b_gen_captures( const tree_t * restrict ptree, Move * restrict pmove )
 {
   bitboard_t bb_movable, bb_capture, bb_piece, bb_desti;
   unsigned int utemp;
@@ -230,8 +230,8 @@ b_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
 }
 
 
-unsigned int * CONV
-w_gen_captures( const tree_t * restrict ptree, unsigned int * restrict pmove )
+Move * CONV
+w_gen_captures( const tree_t * restrict ptree, Move * restrict pmove )
 {
   bitboard_t bb_movable, bb_capture, bb_piece, bb_desti;
   unsigned int utemp;

@@ -565,12 +565,26 @@ enum { value_null           = b0000,
 
 enum { flag_from_ponder     = b0001 };
 
-enum { flag_time            = b0001,
-       flag_history         = b0010,
-       flag_rep             = b0100,
-       flag_detect_hang     = b1000,
-       flag_nomake_move     = b0010 << 4,
-       flag_nofmargin       = b0100 << 4 };
+enum
+{
+  // CSAファイル読み込み時に、考慮時間を
+  // sec_w_total(先手側の考慮時間)
+  // sec_b_total(後手側の考慮時間)
+  // に反映させる。
+  flag_time            = b0001,
+  // make_move_rootという、対局盤面(探索のときの開始局面)を次の局面にする関数があり、
+  // そのなかでmake_moveを呼び出すのだが、そのときにこのフラグが立っていると
+  // out_CSAを呼び出して指し手をファイルに書きだしていく。
+  flag_history         = b0010,
+  // 千日手チェック用のフラグ。このフラグが立っていると千日手のチェックを行なう。
+  flag_rep             = b0100,
+  // 王様が取られたかどうかのチェックを行なうかどうか。
+  flag_detect_hang     = b1000,
+  // 指し手が合法かどうかだけチェックして、実際には局面を進めたくないときに使うフラグ
+  flag_nomake_move     = b0010 << 4,
+  // 棋譜からの学習の時に使うフラグ。
+  flag_nofmargin       = b0100 << 4
+};
 
 /* flags represent status of root move */
 enum { flag_searched        = b0001,
@@ -669,6 +683,8 @@ enum { f_hand_pawn   =    0,
 
 enum { pos_n = fe_end * ( fe_end + 1 ) / 2 };
 
+typedef unsigned int Move;
+
 typedef struct { bitboard_t gold, silver, knight, lance; } check_table_t;
 
 #if ! defined(MINIMUM)
@@ -695,15 +711,20 @@ typedef struct {
 typedef struct { unsigned int no1, no2; } killer_t;
 
 typedef struct {
+  // CSAファイル上に $ANSWERという表記で局面図に対する解答の指し手が書かれていたときに
+  // それを読み込んで保持しておくためのバッファ。
   union { char str_move[ MAX_ANSWER ][ 8 ]; } info;
-  char str_name1[ SIZE_PLAYERNAME ];
-  char str_name2[ SIZE_PLAYERNAME ];
-  FILE *pf;
-  unsigned int games, moves, lines;
+
+  char str_name1[ SIZE_PLAYERNAME ]; // 先手の名前
+  char str_name2[ SIZE_PLAYERNAME ]; // 後手の名前
+  FILE *pf;  // 読み込んでいるCSAファイルのファイルポインタ
+  unsigned int games; // ゲームの状態(投了しているかだとか)
+  unsigned int moves; // 開始局面からの手数
+  unsigned int lines; // 読み込み中のCSAファイルの現在解析している行ナンバー
 } record_t;
 
 typedef struct {
-  unsigned int a[PLY_MAX];
+  Move a[PLY_MAX];
   unsigned char type;
   unsigned char length;
   unsigned char depth;
@@ -758,14 +779,15 @@ typedef struct {
 
 typedef struct {
   uint64_t nodes;
-  unsigned int move, status;
+  Move move;
+  unsigned int status;
 #if defined(DFPN_CLIENT)
   volatile int dfpn_cresult;
 #endif
 } root_move_t;
 
 typedef struct {
-  unsigned int *move_last;
+  Move *move_last;
   unsigned int move_cap1;
   unsigned int move_cap2;
   int phase_done, next_phase, remaining, value_cap1, value_cap2;
@@ -786,7 +808,7 @@ struct tree {
   posi_t posi;
   uint64_t rep_board_list[ REP_HIST_LEN ];
   uint64_t node_searched;
-  unsigned int *move_last[ PLY_MAX ];
+  Move *move_last[ PLY_MAX ];
   next_move_t anext_move[ PLY_MAX ];
   pv_t pv[ PLY_MAX ];
   move_killer_t amove_killer[ PLY_MAX ];
@@ -813,11 +835,11 @@ struct tree {
   unsigned int fail_high_first;
   unsigned int rep_hand_list[ REP_HIST_LEN ];
   unsigned int amove_hash[ PLY_MAX ];
-  unsigned int amove[ MOVE_LIST_LEN ];
-  unsigned int current_move[ PLY_MAX ];
+  Move amove[ MOVE_LIST_LEN ];
+  Move current_move[ PLY_MAX ];
   killer_t killers[ PLY_MAX ];
   unsigned int hist_nmove[ PLY_MAX ];
-  unsigned int hist_move[ PLY_MAX ][ MAX_LEGAL_MOVES ];
+  Move hist_move[ PLY_MAX ][ MAX_LEGAL_MOVES ];
   int sort_value[ MAX_LEGAL_MOVES ];
 #ifndef SHARED_HIST
   unsigned short hist_tried[ HIST_SIZE ];
@@ -1233,40 +1255,40 @@ unsigned int CONV is_pinned_on_black_king( const tree_t * restrict ptree,
                                      int isquare, int idirec );
 unsigned int CONV is_pinned_on_white_king( const tree_t * restrict ptree,
                                      int isquare, int idirec );
-unsigned int * CONV b_gen_captures( const tree_t * restrict ptree,
-                                    unsigned int * restrict pmove );
-unsigned int * CONV b_gen_nocaptures( const tree_t * restrict ptree,
-                                      unsigned int * restrict pmove );
-unsigned int * CONV b_gen_drop( tree_t * restrict ptree,
-                          unsigned int * restrict pmove );
-unsigned int * CONV b_gen_evasion( tree_t *restrict ptree,
-                                   unsigned int * restrict pmove );
-unsigned int * CONV b_gen_checks( tree_t * restrict __ptree__,
-                                  unsigned int * restrict pmove );
-unsigned int * CONV b_gen_cap_nopro_ex2( const tree_t * restrict ptree,
-                                         unsigned int * restrict pmove );
-unsigned int * CONV b_gen_nocap_nopro_ex2( const tree_t * restrict ptree,
-                                     unsigned int * restrict pmove );
-unsigned int * CONV w_gen_captures( const tree_t * restrict ptree,
-                                    unsigned int * restrict pmove );
-unsigned int * CONV w_gen_nocaptures( const tree_t * restrict ptree,
-                                      unsigned int * restrict pmove );
-unsigned int * CONV w_gen_drop( tree_t * restrict ptree,
-                                unsigned int * restrict pmove );
-unsigned int * CONV w_gen_evasion( tree_t * restrict ptree,
-                                   unsigned int * restrict pmove );
-unsigned int * CONV w_gen_checks( tree_t * restrict __ptree__,
-                                  unsigned int * restrict pmove );
-unsigned int * CONV w_gen_cap_nopro_ex2( const tree_t * restrict ptree,
-                                         unsigned int * restrict pmove );
-unsigned int * CONV w_gen_nocap_nopro_ex2( const tree_t * restrict ptree,
-                                           unsigned int * restrict pmove );
+Move * CONV b_gen_captures( const tree_t * restrict ptree,
+                            Move * restrict pmove );
+Move * CONV b_gen_nocaptures( const tree_t * restrict ptree,
+                              Move * restrict pmove );
+Move * CONV b_gen_drop( tree_t * restrict ptree,
+                        Move * restrict pmove );
+Move * CONV b_gen_evasion( tree_t *restrict ptree,
+                           Move * restrict pmove );
+Move * CONV b_gen_checks( tree_t * restrict __ptree__,
+                          Move * restrict pmove );
+Move * CONV b_gen_cap_nopro_ex2( const tree_t * restrict ptree,
+                                 Move * restrict pmove );
+Move * CONV b_gen_nocap_nopro_ex2( const tree_t * restrict ptree,
+                                   Move * restrict pmove );
+Move * CONV w_gen_captures( const tree_t * restrict ptree,
+                            Move * restrict pmove );
+Move * CONV w_gen_nocaptures( const tree_t * restrict ptree,
+                              Move * restrict pmove );
+Move * CONV w_gen_drop( tree_t * restrict ptree,
+                        Move * restrict pmove );
+Move * CONV w_gen_evasion( tree_t * restrict ptree,
+                           Move * restrict pmove );
+Move * CONV w_gen_checks( tree_t * restrict __ptree__,
+                          Move * restrict pmove );
+Move * CONV w_gen_cap_nopro_ex2( const tree_t * restrict ptree,
+                                 Move * restrict pmove );
+Move * CONV w_gen_nocap_nopro_ex2( const tree_t * restrict ptree,
+                                   Move * restrict pmove );
 int CONV b_have_checks( tree_t * restrict ptree );
 int CONV w_have_checks( tree_t * restrict ptree );
 int CONV b_have_evasion( tree_t * restrict ptree );
 int CONV w_have_evasion( tree_t * restrict ptree );
-int CONV is_move_check_b( const tree_t * restrict ptree, unsigned int move );
-int CONV is_move_check_w( const tree_t * restrict ptree, unsigned int move );
+int CONV is_move_check_b( const tree_t * restrict ptree, Move move );
+int CONV is_move_check_w( const tree_t * restrict ptree, Move move );
 uint64_t CONV hash_func( const tree_t * restrict ptree );
 uint64_t rand64( void );
 FILE *file_open( const char *str_file, const char *str_mode );

@@ -319,6 +319,7 @@ static void dumpRpySetlist()
         MSTOut("\n");
     }
 }
+
 static void dumpRpyFirst()
 {
     if (DBG_DUMP_COMM) {

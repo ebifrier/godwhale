@@ -1,8 +1,8 @@
 #include "shogi.h"
 
-unsigned int * CONV
+Move * CONV
 b_gen_nocaptures( const tree_t * restrict ptree,
-                  unsigned int * restrict pmove )
+                  Move * restrict pmove )
 {
   bitboard_t bb_empty, bb_piece, bb_desti;
   unsigned int utemp;
@@ -185,9 +185,9 @@ b_gen_nocaptures( const tree_t * restrict ptree,
 }
 
 
-unsigned int * CONV
+Move * CONV
 w_gen_nocaptures( const tree_t * restrict ptree,
-                  unsigned int * restrict pmove )
+                  Move * restrict pmove )
 {
   bitboard_t bb_empty, bb_piece, bb_desti;
   unsigned int utemp;

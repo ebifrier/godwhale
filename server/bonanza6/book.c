@@ -8,48 +8,91 @@
 
 /*
   Opening Book Data Structure: Index BookData
+	定跡データ構造は、 Index BookDataで構成される。
 
     Index:         IndexEntry.. (NUM_SECTION times)
+		Indexは、IndexEntryがNUM_SECTION回ある。
 
       IndexEntry:  SectionPointer SectionSize
+			IndexEntryは、SectionPointerとSectionSizeから構成される。
+			このSectionSizeぶんだけ読み込む。
 
     BookData:      Section.. (NUM_SECTION times)
+    BookDataは、SectionがNUM_SECTION回ある。ただし1つのセクションは可変長である。
 
       Section:     [DataEntry]..
+			1つのSectionは、複数のDataEntryで構成される。
 
         DataEntry: Header Move...
+				1つのDataEntryは、1つの局面における定跡の指し手(複数ありうる)を表現する。
+				つまりDataEntryはHeaderと複数の指し手から構成される。
+				指し手はその局面の定跡手。複数ありえる。最大32個。
+
+				つまりDataEntryは可変長であり、ここへのポインターが
+				必要になる。それがIndexにある。
 
 
 - SectionPointer
   4 byte:  position of the section in character
+  セクションポインターは4バイト。これは定跡ファイルのfseekで指定されるポジション。
+  すなわち、ファイルの先頭からのバイト数。ファイルのその位置を参照しにいく。
 
 - SectionSize
   2 byte:  size of the section in character
- 
-- Header
+	セクションサイズは2バイト。
+
+ ※ IndexEntry = SectionPointer + SectionSize なので 4 + 2 = 6バイト。
+
+- Header (9バイト)
+
   1 byte:  number of bytes for the DataEntry
+  ↑このDateEntryのサイズ。このぶんを加算すれば次のDataEntryに行く。
+
+  for the DataEntryの"the"は、このDataEntry
   8 byte:  hash key
-  
-- Move
+  ↑ここにhash keyがあるのでこれで本当に局面とぴったり一致するか調べる。
+
+- Move (4バイト)
+
   2 byte:  a book move
+		1つの指し手は2バイト(from,to)と、その手が選ばれる頻度からなる。
+
   2 byte:  frequency
+		頻度はu16で表現されており、その局面の定跡指し手の合計は u16.MAXになるように
+		正規化されている。また、指し手は頻度順にソートされている。
  */
 
-#define BK_SIZE_INDEX     6
-#define BK_SIZE_HEADER    9
-#define BK_SIZE_MOVE      4
+// 定跡ファイルのインデックスの1つのエントリーの大きさ
+#define BK_SIZE_INDEX     (2 + 4)
+// 定跡ファイルのデータエントリーにあるヘッダーのサイズ
+#define BK_SIZE_HEADER    (1 + 8)
+// 定跡ファイルの指し手のサイズ
+#define BK_SIZE_MOVE      (2 + 2)
+// 定跡ファイルの1局面における定跡手の最大数。
 #define BK_MAX_MOVE       32
 
 #if ( BK_SIZE_HEADER + BK_SIZE_MOVE * BK_MAX_MOVE > UCHAR_MAX )
 #  error "Maximum size of DataEntry is larger than UCHAR_MAX"
 #endif
 
-typedef struct { unsigned short smove, freq; } book_move_t;
+// 定跡ファイルにおけるある定跡局面の定跡指し手情報
+typedef struct
+{
+  unsigned short smove; // 指し手。この指し手は、移動元と移動先を表現している。
+  unsigned short freq;  // この指し手が選ばれる頻度
+} book_move_t;
 
-typedef struct { int from, to; } ft_t;
+// 定跡ファイルで使われている指し手smoveからfromとtoを取り出したもの。
+// 動かす駒の情報も、捕獲する駒の情報もない。
+// あるのは移動元と移動先のみ。
+typedef struct
+{
+  int from;
+  int to;
+} ft_t;
 
 static int CONV book_read( uint64_t key, book_move_t *pbook_move,
-                      unsigned int *pposition );
+                           unsigned int *pposition );
 static uint64_t CONV book_hash_func( const tree_t * restrict ptree,
                                      int *pis_flip );
 static unsigned int CONV bm2move( const tree_t * restrict ptree,
@@ -59,6 +102,8 @@ static int CONV normalize_book_move( book_move_t * restrict pbook_move,
                                      int moves );
 
 
+// 定跡を読み込みモードで開く。
+// 定跡を有効にする。book_offを呼び出すまで有効。
 int CONV
 book_on( void )
 {
@@ -72,6 +117,8 @@ book_on( void )
 }
 
 
+// 定跡ファイルを閉じる。
+// 定跡を無効にする。book_onをするまで有効。
 int CONV
 book_off( void )
 {
@@ -84,6 +131,10 @@ book_off( void )
 }
 
 
+// 定跡データベースを調べる。
+// 現在の局面が定跡ファイル上に見つかれば正。
+// そのときの定跡手は↓ここに返される。
+//   ptree->current_move[1] = move;
 int CONV
 book_probe( tree_t * restrict ptree )
 {
@@ -172,6 +223,10 @@ book_probe( tree_t * restrict ptree )
 }
 
 
+// 定跡ファイルを調べる。
+// key        = 局面のハッシュ値
+// pbook_move = 定跡データベースで見つけた指し手
+// 返し値は、↑に格納した数。3つ格納したならpbook_move[0..2]に格納される。
 static int CONV
 book_read( uint64_t key, book_move_t *pbook_move, unsigned int *pposition )
 {
@@ -242,6 +297,10 @@ book_read( uint64_t key, book_move_t *pbook_move, unsigned int *pposition )
 }
 
 
+// 引数で受け取ったft_tを加工して返す。
+// ft_t.from,ft_t.to を次の条件で移動させる。
+// 　turnが後手番なら盤を180度反転させた場所に移動。
+// 　is_flipがtrueなら左右盤を反転した場所に移動。
 static ft_t CONV
 flip_ft( ft_t ft, int turn, int is_flip )
 {
@@ -280,11 +339,15 @@ flip_ft( ft_t ft, int turn, int is_flip )
 }
 
 
-static unsigned int CONV
-bm2move( const tree_t * restrict ptree, unsigned int bmove, int is_flip )
+// 指し手book move形式からMove形式に変換する。book move形式は、
+// 指し手のうち捕獲する駒や、動かす駒についての情報が欠落しているので
+// それを局面情報から補ってやる必要がある。
+// is_flipは手番を反転させるのかのフラグ。
+static Move CONV
+bm2move( const tree_t * restrict ptree, Move bmove, int is_flip )
 {
   ft_t ft;
-  unsigned int move;
+  Move move;
   int is_promote;
 
   ft.to      = I2To(bmove);
@@ -309,6 +372,13 @@ bm2move( const tree_t * restrict ptree, unsigned int bmove, int is_flip )
 }
 
 
+// 現在の局面のhash値を求める
+// 手番側を先手として計算する。また持ち駒もhash値に算定する。
+// それ以外は普段探索で使っているhash値とだいたい同じ。
+// あと盤面を左右反転させたハッシュも生成して、
+// 小さい値のほうのハッシュ値をその局面のハッシュ値とする。
+// こうしておけば、左右反転している局面も定跡データベースにヒットする。
+// またその場合には、*pis_flip = 1を返す。
 static uint64_t CONV
 book_hash_func( const tree_t * restrict ptree, int *pis_flip )
 {
@@ -399,6 +469,10 @@ book_hash_func( const tree_t * restrict ptree, int *pis_flip )
 }
 
 
+// この局面の指し手を正規化する。すなわち、0..moves-1のなかの手の頻度を全部足すと
+// 頻度100%(u16.Max)になるように調整する。
+// pbook_move = 定跡の1DataEntry
+// moves      = そのなかで正規化の対象とする指し手の数
 static int CONV
 normalize_book_move( book_move_t * restrict pbook_move, int moves )
 {
@@ -491,7 +565,7 @@ book_create( tree_t * restrict ptree )
 
   num_tmpfile = 0;
 
-  pcell = memory_alloc( sizeof(cell_t) * MaxNumCell );
+  pcell = (cell_t *)memory_alloc( sizeof(cell_t) * MaxNumCell );
   if ( pcell == NULL ) { return -2; }
 
   Out("\n  [book.csa]\n");
@@ -534,7 +608,7 @@ book_create( tree_t * restrict ptree )
   pf_book = file_open( str_book, "wb" );
   if ( pf_book == NULL ) { return -2; }
 
-  precord_move = memory_alloc( sizeof(record_move_t) * (MAX_LEGAL_MOVES+1) );
+  precord_move = (record_move_t *)memory_alloc( sizeof(record_move_t) * (MAX_LEGAL_MOVES+1) );
   if ( precord_move == NULL ) { return -2; }
   
   for ( i = 0; i < num_tmpfile; i++ )
@@ -564,7 +638,7 @@ book_create( tree_t * restrict ptree )
   iret = book_on();
   if ( iret < 0 ) { return iret; }
 
-#if 1
+#if 0
   iret = record_open( &record, "book_anti.csa", mode_read, NULL, NULL );
   if ( iret < 0 ) { return iret; }
 
@@ -1183,8 +1257,8 @@ dump_cell( cell_t *pcell, int ncell, int num_tmpfile )
 
 static int compare( const void * p1, const void * p2 )
 {
-  const cell_t * pcell1 = p1;
-  const cell_t * pcell2 = p2;
+  const cell_t * pcell1 = (const cell_t *)p1;
+  const cell_t * pcell2 = (const cell_t *)p2;
   unsigned int u1, u2;
 
   u1 = (unsigned int)pcell1->key & (unsigned int)(NUM_SECTION-1);

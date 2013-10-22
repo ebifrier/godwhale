@@ -17,6 +17,7 @@ static int CONV is_answer_right( unsigned int move );
 static int CONV rep_book_prob( tree_t * restrict ptree );
 static const char * CONV str_fail_high( int turn, int nfail_high );
 
+#if defined(INANIWA_SHIFT)
 int CONV detect_inaniwa(tree_t* ptree)
 {
   if ( ! inaniwa_flag && 19 < ptree->nrep )
@@ -49,8 +50,10 @@ int CONV detect_inaniwa(tree_t* ptree)
           if ( ini_trans_table() < 0 ) { return -1; }
         }
     }
-    return 0;
- }
+
+  return 0;
+}
+#endif
 
 int CONV
 iterate( tree_t * restrict ptree )
@@ -929,8 +932,8 @@ iterate( tree_t * restrict ptree )
   if ( ( game_status & flag_problem ) && ! right_answer_made ) { iret = 0; }
   else                                                         { iret = 1; }
 
-Out("==== m3cl %d mvs %d easy %d hit %d mate %d\n",
-    m3call, m3mvs, m3easy, m3hit, m3mate);
+  Out( "==== m3cl %d mvs %d easy %d hit %d mate %d\n",
+       m3call, m3mvs, m3easy, m3hit, m3mate );
   return iret;
 }
 
