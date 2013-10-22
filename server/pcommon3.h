@@ -17,7 +17,7 @@ extern int MAX_SRCH_DEP;
 
 #define DBG_INTERVAL_CHK  0
 
-#define areaclr(x)  memset(&x, 0, sizeof(x))
+#define areaclr(x)  memset(&(x), 0, sizeof(x))
 #define forr(i,m,n) for (int i=(m); i<=(n); i++)
 #define forv(i,m,n) for (int i=(m); i>=(n); i--)
 #define max(m,n)    ((m)>(n) ? (m) : (n))

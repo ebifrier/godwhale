@@ -87,184 +87,181 @@ void planeC::initialAction() {
         }
     }
 
- if (i >= MIN_ITD) {
-   firstseqLeng = stream[i].row[0].bestseqLeng;
-   forr(k, 0, firstseqLeng-1)
-     firstseq[k] = stream[i].row[0].bestseq[k];
-   MSTOut("== iact: firstseqLeng=%d\n", firstseqLeng);
- }
+    if (i >= MIN_ITD) {
+        firstseqLeng = stream[i].row[0].bestseqLeng;
+        forr(k, 0, firstseqLeng-1)
+            firstseq[k] = stream[i].row[0].bestseq[k];
+        MSTOut("== iact: firstseqLeng=%d\n", firstseqLeng);
+    }
 
- do {  // dummy loop to allow cont/brk
-   if (i < MIN_ITD)
-     break;  // ROOT
+    do {  // dummy loop to allow cont/brk
+        if (i < MIN_ITD) break; // ROOT
 
-   shallowItd = deepItd = lastDoneItd+1;
-   streamC& st = stream[shallowItd];
-   usefirst = firstseqLeng;
+        shallowItd = deepItd = lastDoneItd+1;
+        streamC& st = stream[shallowItd];
+        usefirst = firstseqLeng;
 
-   if (mv2root != st.seqFromPrev[0]) {
-      // str[shal] not useable.  use FIRST w/ lastItd
-     //usefirst = lastleng;
-     break;
-   }
+        if (mv2root != st.seqFromPrev[0]) {
+            // str[shal] not useable.  use FIRST w/ lastItd
+            //usefirst = lastleng;
+            break;
+        }
 
-   forr (e, 0, st.seqprevLeng-2) {
-      // check if last Itd's bestseq and shallow's seqPrev matches.
-      // if not, use FIRST
+        forr (e, 0, st.seqprevLeng-2) {
+            // check if last Itd's bestseq and shallow's seqPrev matches.
+            // if not, use FIRST
 
-     if (e < firstseqLeng && e>0 &&
-         st.seqFromPrev[e] != firstseq[e-1]) {
-       MSTOut(")))) initact seq mismch: e %d\n", e);
-       break;
-     }
+            if (e < firstseqLeng && e>0 &&
+                st.seqFromPrev[e] != firstseq[e-1]) {
+                MSTOut(")))) initact seq mismch: e %d\n", e);
+                break;
+            }
 
-     rowC& r = st.row[e];
-     if (r.procmvs[1].mvcnt < 0) { // not mvgened - stream unuseable, use FIRST
-       //usefirst = lastleng;
-       MSTOut(")))) initact mv nogen  : e %d\n", e);
-       break;
-     }
+            rowC& r = st.row[e];
+            if (r.procmvs[1].mvcnt < 0) { // not mvgened - stream unuseable, use FIRST
+                //usefirst = lastleng;
+                MSTOut(")))) initact mv nogen  : e %d\n", e);
+                break;
+            }
 
-     if (r.bestule != ULE_EXACT) {
-       MSTOut(")))) initact result not exact : e %d\n", e);
-       break;
-     }
+            if (r.bestule != ULE_EXACT) {
+                MSTOut(")))) initact result not exact : e %d\n", e);
+                break;
+            }
 
-     if (r.bestval == -score_bound)
-       continue;  // firstmv not done yet, go one EXD deep
+            if (r.bestval == -score_bound)
+                continue;  // firstmv not done yet, go one EXD deep
 
-      // now bestval > -INF
+            // now bestval > -INF
 
-      // bring bestmv to first if needed
-     assert(r.bestseq[0] != NULLMV);
-     if (r.bestseq[0] != r.firstmv.mv) {
-       int pr = -1, suf = -1;
-       r.findmv(r.bestseq[0], &pr, &suf);
-       assert(pr != -1 && suf != -1);
-       mvEntryC& me = r.procmvs[pr].mvs[suf];
-       if (me.depth >= itdexd2srd(shallowItd, e) &&
-           me.upper == - r.bestval       &&
-           me.upper == me.lower) {
-         r.replaceFirst(r.bestseq[0]);
-         MSTOut(")))) initact repl1st   : e %d mv %07x\n",
-                  e, readable(r.bestseq[0]));
-       }
-     }
+            // bring bestmv to first if needed
+            assert(r.bestseq[0] != NULLMV);
+            if (r.bestseq[0] != r.firstmv.mv) {
+                int pr = -1, suf = -1;
+                r.findmv(r.bestseq[0], &pr, &suf);
+                assert(pr != -1 && suf != -1);
+                mvEntryC& me = r.procmvs[pr].mvs[suf];
+                if (me.depth >= itdexd2srd(shallowItd, e) &&
+                    me.upper == -r.bestval &&
+                    me.upper == me.lower) {
+                    r.replaceFirst(r.bestseq[0]);
+                    MSTOut(")))) initact repl1st   : e %d mv %07x\n",
+                           e, readable(r.bestseq[0]));
+                }
+            }
 
-      // the fact that bestval>-INF must indicate bestmv (now firstmv) has
-      // been srched and gives an exact value  (FIXME true?)
+            // the fact that bestval>-INF must indicate bestmv (now firstmv) has
+            // been srched and gives an exact value  (FIXME true?)
 
-     if (!(r.firstmv.depth >= itdexd2srd(shallowItd, e) &&
-            r.firstmv.upper == - r.bestval       &&
-            r.firstmv.upper == r.firstmv.lower)) {
-       //usefirst = lastleng;
-       MSTOut(")))) initact 1st no val: e %d\n", e);
-       break;
-     }
+            if (!(r.firstmv.depth >= itdexd2srd(shallowItd, e) &&
+                  r.firstmv.upper == - r.bestval       &&
+                  r.firstmv.upper == r.firstmv.lower)) {
+                //usefirst = lastleng;
+                MSTOut(")))) initact 1st no val: e %d\n", e);
+                break;
+            }
 
-      // now some completed mv is found.  use it as the FIRST result,
-      // start srch from LIST
+            // now some completed mv is found.  use it as the FIRST result,
+            // start srch from LIST
 
-     MSTOut(")))) initact use list  : e %d\n", e);
-     uselist = e;
-     usefirst = -1;
-     break;
+            MSTOut(")))) initact use list  : e %d\n", e);
+            uselist = e;
+            usefirst = -1;
+            break;
+        }
+    } while(0);
 
-   } // forr e
+    // now we know whether the initial action should be ROOT, FIRST or LIST.
+    // do whatever is needed
 
- } while(0); // end dummy loop
+    if (usefirst < 0 && uselist < 0) { // ROOT
+        cmd2send.setCmdRoot();
+        cmd2send.send(PR1);   // FIXME primitive version for now.  tune later
 
-  // now we know whether the initial action should be ROOT, FIRST or LIST.
-  // do whatever is needed
+        cmd2send.setCmdPicked(); // send Root to all proc, pick one w/ deepest result
+        cmd2send.send(PR1);
+        inhFirst = 1;
+        waitRoot = 1;
+        MSTOut(":::: useRoot\n");
+        pfGame.incRoot();
+    }
+    else if (usefirst >= 0) {
+        assert(usefirst > 0);
 
- if (usefirst < 0 && uselist < 0) { // ROOT
-   cmd2send.setCmdRoot();
-   cmd2send.send(PR1);     // FIXME primitive version for now.  tune later
+        int havelist = rpySetpv(shallowItd, firstseqLeng, firstseq );
 
-   cmd2send.setCmdPicked(); // send Root to all proc, pick one w/ deepest result
-   cmd2send.send(PR1);
-   inhFirst = 1;
-   waitRoot = 1;
-   MSTOut(":::: useRoot\n");
-   pfGame.incRoot();
- } else
- if (usefirst >= 0) {
-   assert(usefirst > 0);
+        if (firstseqLeng > stream[shallowItd].seqprevLeng - 1)
+            firstseqLeng = stream[shallowItd].seqprevLeng - 1;
 
-   int havelist = rpySetpv(shallowItd, firstseqLeng, firstseq );
+        cmd2send.setCmdFirst(shallowItd, havelist, firstseqLeng, firstseq );
+        cmd2send.send(1);  // FIXME PR1?
+        inhFirst = 1;
+        MSTOut(":::: useFirst haveList %d\n", havelist);
+        pfGame.incFirst();
+    }
+    else {
+        // set up tables, issue SETLIST.  assumes mvlists are already there
 
-   if (firstseqLeng > stream[shallowItd].seqprevLeng - 1)
-       firstseqLeng = stream[shallowItd].seqprevLeng - 1;
+        streamC& st = stream[shallowItd];
+        int val = st.row[uselist].bestval;
+        st.tailExd = uselist;
+        st.seqprevLeng = uselist + 1;
+        forr(e, uselist+1, MAX_EXPDEP-1) {
+            st.row[e].clear();
+        }
 
-   cmd2send.setCmdFirst(shallowItd, havelist, firstseqLeng, firstseq );
-   cmd2send.send(1);  // FIXME PR1?
-   inhFirst = 1;
-   MSTOut(":::: useFirst haveList %d\n", havelist);
-   pfGame.incFirst();
+        forv (e, uselist, 0) {
+            rowC& r = st.row[e];
+            r.beta = score_bound;
+            if (e == uselist) {
+                r.gamma = -score_bound;
+                r.alpha = val;
+                assert(-r.bestval == r.firstmv.lower &&
+                       -r.bestval == r.firstmv.upper &&
+                       r.bestule == ULE_EXACT         );
+            }
+            else {
+                r.alpha = -score_bound;
+                r.gamma = val;
+                //assert(-score_bound == r.firstmv.lower &&
+                //       - r.bestval == r.firstmv.lower   );
+                r.bestval = -score_bound;
+                r.bestseqLeng = 0;
+                r.bestule = ULE_NA;
+            }
 
- } else { // uselist >= 0
+            assert(r.procmvs[1].mvcnt >= 0);
+            forr (pr, 1, Nproc-1) {
+                mvtupleC tuples[600];
+                procmvsC& prm = r.procmvs[pr];
+                forr (j, 0, prm.mvcnt-1) {
+                    tuples[j].mv = prm.mvs[j].mv;
+                    // FIXME?  line below copied from serupReorder().  should not copy?
+                    tuples[j].bestmv = prm.mvs[j].inherited
+                        ? prm.mvs[j].bestmv
+                        : NULLMV;
+                    tuples[j].depth = prm.mvs[j].depth;
+                    tuples[j].upper = prm.mvs[j].upper;
+                    tuples[j].lower = prm.mvs[j].lower;
 
-    // set up tables, issue SETLIST.  assumes mvlists are already there
+                    prm.mvs[j].numnode =    // FIXME? numnode?
+                    prm.mvs[j].inherited =
+                    prm.mvs[j].retrying = 0;
+                }
 
-   streamC& st = stream[shallowItd];
-   int val = st.row[uselist].bestval;
-   st.tailExd = uselist;
-   st.seqprevLeng = uselist + 1;
-   forr(e, uselist+1, MAX_EXPDEP-1)
-     st.row[e].clear();
+                prm.donecnt = 0;
 
-   forv(e, uselist, 0) {
-     rowC& r = st.row[e];
-     r.beta = score_bound;
-     if (e == uselist) {
-       r.gamma = -score_bound;
-       r.alpha = val;
-       assert(- r.bestval == r.firstmv.lower &&
-              - r.bestval == r.firstmv.upper &&
-                r.bestule == ULE_EXACT         );
-     } else {
-       r.alpha = -score_bound;
-       r.gamma = val;
-       //assert(-score_bound == r.firstmv.lower &&
-       //       - r.bestval == r.firstmv.lower   );
-       r.bestval = -score_bound;
-       r.bestseqLeng = 0;
-       r.bestule = ULE_NA;
-     }
+                cmd2send.setCmdList(shallowItd, e, r.procmvs[pr].mvcnt,
+                                    val, r.beta, r.firstmv.mv, e,
+                                    st.seqFromPrev+1, tuples);
+                cmd2send.send(pr);
+            }
 
-     assert(r.procmvs[1].mvcnt >= 0);
-     forr(pr, 1, Nproc-1) {
-      mvtupleC tuples[600];
-      procmvsC& prm = r.procmvs[pr];
-      forr(j, 0, prm.mvcnt-1) {
-        tuples[j].mv = prm.mvs[j].mv;
-          // FIXME?  line below copied from serupReorder().  should not copy?
-        tuples[j].bestmv = prm.mvs[j].inherited ? prm.mvs[j].bestmv
-                                                     : NULLMV;
-        tuples[j].depth = prm.mvs[j].depth;
-        tuples[j].upper = prm.mvs[j].upper;
-        tuples[j].lower = prm.mvs[j].lower;
+            val = -val;
+        }
 
-        prm.mvs[j].numnode =    // FIXME? numnode?
-        prm.mvs[j].inherited =
-        prm.mvs[j].retrying = 0;
-      }
-
-      prm.donecnt = 0;
-
-      cmd2send.setCmdList(shallowItd, e, r.procmvs[pr].mvcnt, val, r.beta,
-          r.firstmv.mv , e,
-          st.seqFromPrev+1, tuples);
-      cmd2send.send(pr);
-     } // forr pr
-
-     val = -val;
-
-   } // forv e
-
-   inhFirst = 0;
-   MSTOut(":::: useList e %d\n", uselist);
-   pfGame.incList();
- } // if .. else  uselist >= 0
+        inhFirst = 0;
+        MSTOut(":::: useList e %d\n", uselist);
+        pfGame.incList();
+    }
 }
-

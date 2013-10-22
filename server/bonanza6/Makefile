@@ -27,7 +27,7 @@ SRCS =data.c main.c io.c proce.c utility.c ini.c attack.c book.c makemove.c \
       genchk.c phash.c dfpn.c dfpnhash.c    shogi.h bitop.h param.h dfpn.h  \
       handjoseki.h Makefile hand.jos bbini.c mate3.h
 
-PROBFILE=~/synced/probbnz/gihou/d1.dpp
+PROBFILE=../d1.dpp
 
 # Compile Options
 #
@@ -54,7 +54,6 @@ PROBFILE=~/synced/probbnz/gihou/d1.dpp
 # bonk makefile should call like this: make CLUSTOPT=-DCLUSTER_PARALLEL gcc-bonk
 #CLUSTOPT = -DCLUSTER_PARALLEL  ==> this should be MAKE argument for bonkras
 
-#OPT =-DNDEBUG -DMINIMUM -DHAVE_SSE4 -msse4.1 -DDFPN -DTLP -DDFPN_CLIENT -DINANIWA_SHIFT -DMNJ_LAN -DCSA_LAN
 OPT = -DNDEBUG -DMINIMUM $(SSEOPT) -DDFPN -DTLP -DDFPN_CLIENT -DNO_LOGGING \
       -DINANIWA_SHIFT -DCSA_LAN $(AFFINOPT) $(CLUSTOPT) $(AVXOPT)
 
@@ -96,24 +95,23 @@ icc-bonk:
 	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -O2 -ipo' LDFLAG1='-static -ipo -pthread' bonkras
 
 ipgo1:
-	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -O2   -prof_gen -prof_dir ./profdir' LDFLAG1='    -static  -pthread' bonkras
+	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -O2-prof_gen -prof_dir ./profdir' LDFLAG1='-static  -pthread' bonkras
 
 ipgo2:
-	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -O3 -ipo  -prof_use -prof_dir ./profdir' LDFLAG1='-static -ipo -pthread' bonkras
+	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -O3 -ipo -prof_use -prof_dir ./profdir' LDFLAG1='-static -ipo -pthread' bonkras
 
 icc-pgo:
 	$(MAKE) clean
 	mkdir profdir
-	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -O2 -prof_gen -prof_dir ./profdir' LDFLAG1='        -pthread' bonanza
+	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -O2 -prof_gen -prof_dir ./profdir' LDFLAG1='-pthread' bonanza
 	$(MAKE) run-prof
-	#touch *.[ch]
 	rm *.o
-	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -O3 -ipo -prof_use -prof_dir ./profdir' LDFLAG1='        -ipo -pthread' bonanza
+	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -O3 -ipo -prof_use -prof_dir ./profdir' LDFLAG1='-ipo -pthread' bonanza
 
 bonkras : $(OBJS)
 
 bonanza : $(OBJS)
-	$(CC) $(LDFLAG1) -o bonanza $(OBJS) $(LDFLAG2)
+	$(CC) -o bonanza $(OBJS) $(LDFLAG2) $(LDFLAG1)
 
 $(OBJS) : shogi.h param.h bitop.h
 dfpn.o dfpnhash.o: dfpn.h
@@ -122,7 +120,6 @@ iterate.o: handjoseki.h
 # 3/22/2012 w/ icc 12.0, compile w/ -O3 fails.  avoid CFLAG due to this
 bbini.o: bbini.c
 	$(CC) -c $(AVXOPT) -msse2 bbini.c
-
 #	$(CC) -c $(CFLAGS) -msse2 bbatk.cpp
 
 mate3.o: mate3.c shogi.h bitop.h param.h mate3.h
@@ -137,11 +134,9 @@ clean :
 	rm -f  bonanza gmon.out runprof
 	rm -fr profdir
 
-save:
-	tar cf - $(SRCS) | gzip  > sav/t`date '+%m%d%y'`.tgz
 
 run-prof:
-	rm -rf  probcmd
+	rm -rf probcmd
 	echo "limit depth 9" >  probcmd
 	echo "problem      " >> probcmd
 	echo "quit         " >> probcmd

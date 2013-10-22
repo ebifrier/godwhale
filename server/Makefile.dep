@@ -1,0 +1,41 @@
+slave3.o: slave3.cpp bonanza6/shogi.h bonanza6/bitop.h bonanza6/param.h \
+ pcommon3.h if_bonanza.h comm3.h splane.h perfsl.h sbody3.h
+putils.o: putils.cpp pcommon3.h if_bonanza.h bonanza6/shogi.h \
+ bonanza6/bitop.h bonanza6/param.h
+invokempi.o: invokempi.cpp /usr/lib/openmpi/include/mpi.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/mpicxx.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/constants.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/functions.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/datatype.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/exception.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/op.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/status.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/request.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/group.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/comm.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/win.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/file.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/errhandler.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/intracomm.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/topology.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/intercomm.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/info.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/datatype_inln.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/functions_inln.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/request_inln.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/comm_inln.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/intracomm_inln.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/topology_inln.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/intercomm_inln.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/group_inln.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/op_inln.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/errhandler_inln.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/status_inln.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/info_inln.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/win_inln.h \
+ /usr/lib/openmpi/include/openmpi/ompi/mpi/cxx/file_inln.h pcommon3.h \
+ if_bonanza.h bonanza6/shogi.h bonanza6/bitop.h bonanza6/param.h
+master3.o: master3.cpp pcommon3.h if_bonanza.h bonanza6/shogi.h \
+ bonanza6/bitop.h bonanza6/param.h comm3.h plane.h entsort.h initact.h \
+ time.h
+u2b.o: u2b.c
