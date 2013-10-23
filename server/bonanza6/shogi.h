@@ -4,16 +4,12 @@
 #define SHOGI_H
 
 #include <stdio.h>
+#include <inttypes.h>
 #include "bitop.h"
 #include "param.h"
 
  // 3/22/2012 0 is faster
 #define USE_BBSUFMASK 0
-
- //**** new BB stuff
-
-#  include <inttypes.h>
-//typedef unsigned long long uint64_t;
 
 #ifdef BITBRD64
 #ifdef HAVE_AVX
@@ -31,22 +27,11 @@ typedef struct {
 } occupiedC;
 
 extern bitboard_t abb_attacks[4][128/*81*/][128];
-//void initNewBB();
-extern int ai_shift[4][81];
-extern int ai_sufmask[4][81];
+extern const int ai_shift[4][81];
+extern const int ai_sufmask[4][81];
 extern occupiedC ao_bitmask[81];
 
-#define AttackRankE(occ,sq) abb_attacks[0][sq][ \
-          (occ.x[0] >>ai_shift[0][sq]) & 0x7f]
-#define AttackFileE(occ,sq) abb_attacks[1][sq][ \
-          (occ.x[1] >>ai_shift[1][sq]) & 0x7f]
-#define AttackDiag1E(occ,sq) abb_attacks[2][sq][ \
-   (occ.x[2] >> ai_shift[2][sq]) & (!USE_BBSUFMASK ? 0x7f : ai_sufmask[2][sq])]
-#define AttackDiag2E(occ,sq) abb_attacks[3][sq][ \
-   (occ.x[3] >> ai_shift[3][sq]) & (!USE_BBSUFMASK ? 0x7f : ai_sufmask[3][sq])]
-
 #endif // BITBRD64
- //**** new BB stuff end
 
 #ifdef MINIMUM
 #  define FVBIN_MMAP
@@ -63,8 +48,6 @@ extern occupiedC ao_bitmask[81];
 #else
 #define HASH_ENTRY_WIDTH 3
 #endif
-
-#define CONSOLE_DEV "/dev/pts/1"
 
 #if defined(_WIN32)
 
@@ -223,14 +206,6 @@ extern unsigned char ailast_one[512];
 #  define SIZE_CMDBUFFER        512
 #endif
 
-#define IsMove(move)           ( (move) & 0xffffffU )
-#define MOVE_NA                 0x00000000U
-#define MOVE_PASS               0x01000000U
-#define MOVE_PONDER_FAILED      0xfe000000U
-#define MOVE_RESIGN             0xff000000U
-#define MOVE_CHK_SET            0x80000000U
-#define MOVE_CHK_CLEAR          0x40000000U
-
 #define MAX_LEGAL_MOVES         700
 #define MAX_LEGAL_EVASION       256
 #define MOVE_LIST_LEN           16384
@@ -351,13 +326,33 @@ extern unsigned char ailast_one[512];
 #define IsHandBishop(hand)     ((hand) & 0x0060000)
 #define IsHandRook(hand)       ((hand) & 0x0180000)
 #define IsHandSGBR(hand)       ((hand) & 0x01ff800)
+
 /*
+  移動先
   xxxxxxxx xxxxxxxx x1111111  destination
+
+  移動元（駒を打つ場合は81-1を加算したもの）
   xxxxxxxx xx111111 1xxxxxxx  starting square or drop piece+nsquare-1
+
+  成りフラグ
   xxxxxxxx x1xxxxxx xxxxxxxx  flag for promotion
+
+  移動させる駒の種類
   xxxxx111 1xxxxxxx xxxxxxxx  piece to move
+
+  捕獲した駒の種類
   x1111xxx xxxxxxxx xxxxxxxx  captured piece
  */
+typedef unsigned int Move;
+
+#define IsMove(move)           ( (move) & 0xffffffU )
+#define MOVE_NA                 0x00000000U
+#define MOVE_PASS               0x01000000U
+#define MOVE_PONDER_FAILED      0xfe000000U
+#define MOVE_RESIGN             0xff000000U
+#define MOVE_CHK_SET            0x80000000U
+#define MOVE_CHK_CLEAR          0x40000000U
+
 #define To2Move(to)             ((unsigned int)(to)   <<  0)
 #define From2Move(from)         ((unsigned int)(from) <<  7)
 #define Drop2Move(piece)        ((nsquare-1+(piece))  <<  7)
@@ -376,10 +371,20 @@ extern unsigned char ailast_one[512];
 
 
 #ifndef BITBRD64
+// iの筋の利き (上下の端が駒にぶつかるまで)
+// 香などの縦の利きを求めるのに使う。
+// 香が9段目にいるとして、1段目に利きが到達できるかどうかを調べるには、
+// 1段目の駒の状態は関係なく、2～8段目に駒があるかだけが問題なので結局、
+// その7bitを調べるだけで済む。要するに、
+// abb_file_attacksは[nsquare][7bit = 128個]でこと足りるという仕組み。
+// occupied_rl90は先後両方の駒が含まれる盤面を90度回転させたbitboard
 #define AttackFile(i)  (abb_file_attacks[i]                               \
                          [((ptree->posi.occupied_rl90.p[aslide[i].irl90]) \
                             >> aslide[i].srl90) & 0x7f])
 
+// iの段の利き。左右の端が駒にぶつかるまで。
+// 先後の両方の駒と判定する必要があるのでb_occupiedとw_occupiedと
+// bitwise ORをとる必要がある。
 #define AttackRank(i)  (abb_rank_attacks[i]                               \
                          [((ptree->posi.b_occupied.p[aslide[i].ir0]       \
                             |ptree->posi.w_occupied.p[aslide[i].ir0])     \
@@ -395,10 +400,19 @@ extern unsigned char ailast_one[512];
             [((ptree->posi.occupied_rl45.p[aslide[i].irl45]) \
                >> aslide[i].srl45) & 0x7f])
 #else
-#define AttackRank(i)  AttackRankE(ptree->posi.occ,i)
+/*#define AttackRank(i)  AttackRankE(ptree->posi.occ,i)
 #define AttackFile(i)  AttackFileE(ptree->posi.occ,i)
 #define AttackDiag1(i) AttackDiag1E(ptree->posi.occ,i)
-#define AttackDiag2(i) AttackDiag2E(ptree->posi.occ,i)
+#define AttackDiag2(i) AttackDiag2E(ptree->posi.occ,i)*/
+
+#define AttackRank(sq) abb_attacks[0][sq][           \
+  (ptree->posi.occ.x[0] >> ai_shift[0][sq]) & 0x7f]
+#define AttackFile(sq) abb_attacks[1][sq][           \
+  (ptree->posi.occ.x[1] >> ai_shift[1][sq]) & 0x7f]
+#define AttackDiag1(sq) abb_attacks[2][sq][          \
+  (ptree->posi.occ.x[2] >> ai_shift[2][sq]) & 0x7f]
+#define AttackDiag2(sq) abb_attacks[3][sq][          \
+  (ptree->posi.occ.x[3] >> ai_shift[3][sq]) & 0x7f]
 #endif
 
 #define BishopAttack0(i) ( AttackDiag1(i).p[0] | AttackDiag2(i).p[0] )
@@ -457,11 +471,23 @@ extern unsigned char ailast_one[512];
                 ( (turn) ? is_w_mate_in_1ply( ptree )         \
                          : is_b_mate_in_1ply( ptree ) )
 
+// 先手のfromに存在している駒をtoの地点に移動させたとき、
+// その駒がpinされていて先手の王を取られてしまうかどうか
+//
+// 1) 先手玉とfromへの地点が縦横斜めの関係になければidrec == direc_miscで、
+// その場合はその駒がpinされていることはあり得ないので
+// IsDiscoverBKはfalse。
+// 2) また、fromの駒をpinされている方向に移動させる場合も
+// これが空き王手になることはあり得ないのでfalse。
+// 3) そのいずれにも属さない場合は
+// きちんとidirec方向(の延長上)にfromにある駒がpinされているのかどうかを
+// テストする必要がある。
 #define IsDiscoverBK(from,to)                                  \
           idirec = (int)adirec[SQ_BKING][from],               \
           ( idirec && ( idirec!=(int)adirec[SQ_BKING][to] )   \
             && is_pinned_on_black_king( ptree, from, idirec ) )
 
+// 後手版
 #define IsDiscoverWK(from,to)                                  \
           idirec = (int)adirec[SQ_WKING][from],               \
           ( idirec && ( idirec!=(int)adirec[SQ_WKING][to] )   \
@@ -472,18 +498,28 @@ extern unsigned char ailast_one[512];
 #define IsMateBPawnDrop(ptree,to) ( BOARD[(to)-9] == -king                \
                                      && is_mate_b_pawn_drop( ptree, to ) )
 
-enum { b0000, b0001, b0010, b0011, b0100, b0101, b0110, b0111,
-       b1000, b1001, b1010, b1011, b1100, b1101, b1110, b1111 };
+enum
+{
+  b0000, b0001, b0010, b0011, b0100, b0101, b0110, b0111,
+  b1000, b1001, b1010, b1011, b1100, b1101, b1110, b1111
+};
 
-enum { A9 = 0, B9, C9, D9, E9, F9, G9, H9, I9,
-           A8, B8, C8, D8, E8, F8, G8, H8, I8,
-           A7, B7, C7, D7, E7, F7, G7, H7, I7,
-           A6, B6, C6, D6, E6, F6, G6, H6, I6,
-           A5, B5, C5, D5, E5, F5, G5, H5, I5,
-           A4, B4, C4, D4, E4, F4, G4, H4, I4,
-           A3, B3, C3, D3, E3, F3, G3, H3, I3,
-           A2, B2, C2, D2, E2, F2, G2, H2, I2,
-           A1, B1, C1, D1, E1, F1, G1, H1, I1 };
+// 各マスに対する文字列。符号はチェスと同じなので将棋とはちょっと違う
+// 上が後手側(A9 = 9一 , I1 = 1九)
+// FirstOneは小さな値から探すので、この盤面で言えば左上からのスキャンになる。
+// LastOneは大きな値から探すので、この盤面で言えば右下からのスキャンになる。
+typedef enum
+{
+  A9 = 0, B9, C9, D9, E9, F9, G9, H9, I9,
+  A8, B8, C8, D8, E8, F8, G8, H8, I8,
+  A7, B7, C7, D7, E7, F7, G7, H7, I7,
+  A6, B6, C6, D6, E6, F6, G6, H6, I6,
+  A5, B5, C5, D5, E5, F5, G5, H5, I5,
+  A4, B4, C4, D4, E4, F4, G4, H4, I4,
+  A3, B3, C3, D3, E3, F3, G3, H3, I3,
+  A2, B2, C2, D2, E2, F2, G2, H2, I2,
+  A1, B1, C1, D1, E1, F1, G1, H1, I1
+} BoardPos;
 
 enum { promote = 8, empty = 0,
        pawn, lance, knight, silver, gold, bishop, rook, king, pro_pawn,
@@ -539,13 +575,24 @@ enum { record_misc, record_eof, record_next, record_resign, record_drawn,
 
 enum { black = 0, white = 1 };
 
-enum { direc_misc           = b0000,
-       direc_file           = b0010, /* | */
-       direc_rank           = b0011, /* - */
-       direc_diag1          = b0100, /* / */
-       direc_diag2          = b0101, /* \ */
-       flag_cross           = b0010,
-       flag_diag            = b0100 };
+// 方向を意味するbit
+typedef enum
+{
+  // 方向が縦横斜めの関係にない
+  direc_misc           = b0000,
+  // 方向が縦方向の関係にある場合
+  direc_file           = b0010, /* | */
+  // 方向が横方向の関係にある場合
+  direc_rank           = b0011, /* - */
+  // 方向が右上から左下方向の斜め関係にある場合
+  direc_diag1          = b0100, /* / */
+  // 方向が左上から右下方向の斜め関係にある場合
+  direc_diag2          = b0101, /* \ */
+  // 縦と横ならば持っているbitmask
+  flag_cross           = b0010,
+  // 斜め方向ならば持っているbitmask
+  flag_diag            = b0100
+} direc_t;
 
 enum { value_null           = b0000,
        value_upper          = b0001,
@@ -627,63 +674,74 @@ enum { flag_hand_pawn       = 1 <<  0,
        flag_hand_bishop     = 1 << 17,
        flag_hand_rook       = 1 << 19 };
 
-enum { f_hand_pawn   =    0,
-       e_hand_pawn   =   19,
-       f_hand_lance  =   38,
-       e_hand_lance  =   43,
-       f_hand_knight =   48,
-       e_hand_knight =   53,
-       f_hand_silver =   58,
-       e_hand_silver =   63,
-       f_hand_gold   =   68,
-       e_hand_gold   =   73,
-       f_hand_bishop =   78,
-       e_hand_bishop =   81,
-       f_hand_rook   =   84,
-       e_hand_rook   =   87,
-       fe_hand_end   =   90,
-       f_pawn        =   81,
-       e_pawn        =  162,
-       f_lance       =  225,
-       e_lance       =  306,
-       f_knight      =  360,
-       e_knight      =  441,
-       f_silver      =  504,
-       e_silver      =  585,
-       f_gold        =  666,
-       e_gold        =  747,
-       f_bishop      =  828,
-       e_bishop      =  909,
-       f_horse       =  990,
-       e_horse       = 1071,
-       f_rook        = 1152,
-       e_rook        = 1233,
-       f_dragon      = 1314,
-       e_dragon      = 1395,
-       fe_end        = 1476,
+// 評価計算用 (pc_on_sqで使うためのテーブル)
+// f_XXX : first, e_XXX : end
+enum
+{
+  // 持ち駒の部分は、最大持ち駒数＋１（持ち駒無しの場合があるので）
+  f_hand_pawn   =    0, // 0
+  e_hand_pawn   =   19, // = ↑+18+1
+  f_hand_lance  =   38, // = ↑+18+1
+  e_hand_lance  =   43, // = ↑+ 4+1
+  f_hand_knight =   48,
+  e_hand_knight =   53,
+  f_hand_silver =   58,
+  e_hand_silver =   63,
+  f_hand_gold   =   68,
+  e_hand_gold   =   73,
+  f_hand_bishop =   78,
+  e_hand_bishop =   81, // = ↑+ 2+1
+  f_hand_rook   =   84,
+  e_hand_rook   =   87,
+  fe_hand_end   =   90, // = ↑+ 2+1,  手駒の終端
 
-       kkp_hand_pawn   =   0,
-       kkp_hand_lance  =  19,
-       kkp_hand_knight =  24,
-       kkp_hand_silver =  29,
-       kkp_hand_gold   =  34,
-       kkp_hand_bishop =  39,
-       kkp_hand_rook   =  42,
-       kkp_hand_end    =  45,
-       kkp_pawn        =  36,
-       kkp_lance       = 108,
-       kkp_knight      = 171,
-       kkp_silver      = 252,
-       kkp_gold        = 333,
-       kkp_bishop      = 414,
-       kkp_horse       = 495,
-       kkp_rook        = 576,
-       kkp_dragon      = 657,
-       kkp_end         = 738 };
+  f_pawn        =   81, // = ↑ - 9 (歩は一番目には存在しないのでそれを除外)
+  e_pawn        =  162, // = ↑+9*9 
+  f_lance       =  225, // = ↑+9*9-2*9 (香は１段目には存在しないため)
+  e_lance       =  306, // = + 9*9
+  f_knight      =  360,
+  e_knight      =  441, // = + 9*9
+  f_silver      =  504,
+  e_silver      =  585, // = + 9*9
+  f_gold        =  666, // = + 9*9
+  e_gold        =  747, // = + 9*9
+  f_bishop      =  828, // = + 9*9
+  e_bishop      =  909, // = + 9*9
+  f_horse       =  990, // = + 9*9
+  e_horse       = 1071, // = + 9*9
+  f_rook        = 1152, // = + 9*9
+  e_rook        = 1233, // = + 9*9
+  f_dragon      = 1314, // = + 9*9
+  e_dragon      = 1395, // = + 9*9
+  fe_end        = 1476, // = + 9*9, これが最後のデータ
+
+  // 持ち駒の部分は、最大持ち駒数＋１ (持ち駒無しの場合があるので)
+  kkp_hand_pawn   =   0, // 0
+  kkp_hand_lance  =  19, // +16+1
+  kkp_hand_knight =  24, // + 4+1
+  kkp_hand_silver =  29, // + 4+1
+  kkp_hand_gold   =  34, // + 4+1
+  kkp_hand_bishop =  39, // + 4+1
+  kkp_hand_rook   =  42, // + 2+1
+  kkp_hand_end    =  45, // + 2+1
+
+  // 盤上の駒の部分は、先手の歩は１段目には存在し得ない、
+  // 先手の桂香は１段目、２段目には存在しない
+  //（香車は２段目に行ったら必ず成ることにしているため）
+  // ので、歩、香、桂馬の部分は + 9*9 とはなっていない
+  kkp_pawn        =  36, // - 9
+  kkp_lance       = 108, // + 8*9
+  kkp_knight      = 171, // + 7*9
+  kkp_silver      = 252, // + 9*9
+  kkp_gold        = 333, // + 9*9
+  kkp_bishop      = 414, // + 9*9
+  kkp_horse       = 495, // + 9*9
+  kkp_rook        = 576, // + 9*9
+  kkp_dragon      = 657, // + 9*9
+  kkp_end         = 738  // + 9*9
+};
 
 enum { pos_n = fe_end * ( fe_end + 1 ) / 2 };
-
-typedef unsigned int Move;
 
 typedef struct { bitboard_t gold, silver, knight, lance; } check_table_t;
 
@@ -730,6 +788,9 @@ typedef struct {
   unsigned char depth;
 } pv_t;
 
+// スライドテーブルのentry
+// 斜めの利きなどを計算するのに使う。
+// 詳しい意味はini.cppのini_attack_tablesを参照のこと。
 typedef struct {
   unsigned char ir0,   sr0;
   unsigned char irl90, srl90;
@@ -738,19 +799,32 @@ typedef struct {
 } slide_tbl_t;
 
 
+// 局面情報
 typedef struct {
+  // 局面のhash値
   uint64_t hash_key;
+  // 先手/後手の駒の有無(駒があれば1)
+  // このmaskには王も含まれる。
   bitboard_t b_occupied,     w_occupied;
 #ifndef BITBRD64
+  // ↑の駒の存在する位置を示すビットマップを90度、45度回転させたもの。
+  // 飛車角香による利きを計算するときに用いる
   bitboard_t occupied_rl90,  occupied_rl45, occupied_rr45;
 #else
   occupiedC  occ;
 #endif
+  // 馬龍王のビットマップの論理和(horse,dragon,king)
   bitboard_t b_hdk,          w_hdk;
+  // 金および金と同様の利きをもつ成駒の位置を示すビットマップ(tgold = と金)
   bitboard_t b_tgold,        w_tgold;
+  // 角馬の存在するビットマップの論理和(bishop,horse)
   bitboard_t b_bh,           w_bh;
+  // 飛龍の利きビットマップの論理和(rook,dragon)
   bitboard_t b_rd,           w_rd;
+  // 歩の利き
   bitboard_t b_pawn_attacks, w_pawn_attacks;
+
+  // 各駒の存在するところが1であるビットマップ
   bitboard_t b_lance,        w_lance;
   bitboard_t b_knight,       w_knight;
   bitboard_t b_silver,       w_silver;
@@ -764,9 +838,16 @@ typedef struct {
   bitboard_t b_pro_lance,    w_pro_lance;
   bitboard_t b_pro_knight,   w_pro_knight;
   bitboard_t b_pro_silver,   w_pro_silver;
+
+  // 手駒
   unsigned int hand_black, hand_white;
+  // 駒割り
   int material;
+  // 盤81マス。そこに存在する駒の値が入っている。
+  // 駒の移動に際しては、bitboardの他にこの配列の値も更新される。
   signed char asquare[nsquare];
+  // 玉の位置、先手・後手
+  // この数値が盤上のどこの位置を意味するかは、bitboardのFirstOneを参考にすること。
   unsigned char isquare_b_king, isquare_w_king;
 } posi_t;
 
@@ -803,8 +884,10 @@ typedef struct {
   unsigned int move_played, move_responsible, move_probed, data;
 } history_book_learn_t;
 
+// 探索木
 typedef struct tree tree_t;
 struct tree {
+  // 局面
   posi_t posi;
   uint64_t rep_board_list[ REP_HIST_LEN ];
   uint64_t node_searched;
@@ -975,24 +1058,38 @@ extern kkpAry *kkp;
 extern uint64_t ehash_tbl[ EHASH_MASK + 1 ];
 extern rand_work_t rand_work;
 extern slide_tbl_t aslide[ nsquare ];
-extern bitboard_t abb_b_knight_attacks[ nsquare ];
-extern bitboard_t abb_b_silver_attacks[ nsquare ];
-extern bitboard_t abb_b_gold_attacks[ nsquare ];
-extern bitboard_t abb_w_knight_attacks[ nsquare ];
-extern bitboard_t abb_w_silver_attacks[ nsquare ];
-extern bitboard_t abb_w_gold_attacks[ nsquare ];
-extern bitboard_t abb_king_attacks[ nsquare ];
+
+// abb_X_XXX_attacks[ifrom]は、ifromに先手駒があるときに
+// 利きのある場所を表現するbitmap
+// ini_attack_tablesで初期化される。
+extern bitboard_t abb_b_knight_attacks[ nsquare ]; // 先手の桂
+extern bitboard_t abb_b_silver_attacks[ nsquare ]; // 先手の銀
+extern bitboard_t abb_b_gold_attacks[ nsquare ];   // 先手の金
+extern bitboard_t abb_w_knight_attacks[ nsquare ]; // 後手の桂
+extern bitboard_t abb_w_silver_attacks[ nsquare ]; // 後手の銀
+extern bitboard_t abb_w_gold_attacks[ nsquare ];   // 後手の金
+extern bitboard_t abb_king_attacks[ nsquare ];     // 玉
+
+// ifromとitoの間にある空間を示すbitmap
+// (ifrom, ito自身は含まない)
+// 二つの位置が縦横斜めの関係にない場合は空
 extern bitboard_t abb_obstacle[ nsquare ][ nsquare ];
 extern bitboard_t abb_bishop_attacks_rl45[ nsquare ][ 128 ];
 extern bitboard_t abb_bishop_attacks_rr45[ nsquare ][ 128 ];
 extern bitboard_t abb_rank_attacks[ nsquare ][ 128 ];
 extern bitboard_t abb_file_attacks[ nsquare ][ 128 ];
+
+// ifrom自体を表現するbitmap
 extern bitboard_t abb_mask[ nsquare ];
 extern bitboard_t abb_mask_rl90[ nsquare ];
 extern bitboard_t abb_mask_rl45[ nsquare ];
 extern bitboard_t abb_mask_rr45[ nsquare ];
+
+// plusはifromより右、右下、下、左下の升を
+// minusはifromより左、左上、上、右上の升を示す
 extern bitboard_t abb_plus_rays[ nsquare ];
 extern bitboard_t abb_minus_rays[ nsquare ];
+
 extern uint64_t b_pawn_rand[ nsquare ];
 extern uint64_t b_lance_rand[ nsquare ];
 extern uint64_t b_knight_rand[ nsquare ];
@@ -1035,6 +1132,7 @@ extern uint64_t w_hand_silver_rand[ nsilver_max ];
 extern uint64_t w_hand_gold_rand[ ngold_max ];
 extern uint64_t w_hand_bishop_rand[ nbishop_max ];
 extern uint64_t w_hand_rook_rand[ nrook_max ];
+
 extern unsigned int move_evasion_pchk;
 extern int easy_abs;
 extern int easy_min;
@@ -1048,7 +1146,7 @@ extern SHARE int fmg_misc_king;
 extern SHARE int fmg_cap_king;
 extern int iteration_depth;
 extern unsigned char book_section[ MAX_SIZE_SECTION+1 ];
-extern unsigned char adirec[nsquare][128];
+extern direc_t adirec[nsquare][128];
 extern unsigned char is_same[16][16];
 extern char str_message[ SIZE_MESSAGE ];
 extern char str_cmdline[ SIZE_CMDLINE ];
@@ -1122,8 +1220,11 @@ void CONV dfpn_client_check_results( void );
 int CONV dfpn_client_out( const char *fmt, ... );
 #endif
 
-void listswap( tree_t * restrict ptree, int a, int b );
+#ifdef BITBRD64
+void CONV initNewBB( void );
+#endif
 
+void CONV listswap( tree_t * restrict ptree, int a, int b );
 void CONV pv_close( tree_t * restrict ptree, int ply, int type );
 void CONV pv_copy( tree_t * restrict ptree, int ply );
 void set_derivative_param( void );
@@ -1233,7 +1334,8 @@ int CONV search( tree_t * restrict ptree, int alpha, int beta, int turn,
                  int depth, int ply, unsigned int state_node );
 int CONV searchr( tree_t * restrict ptree, int alpha, int beta, int turn,
              int depth );
-int CONV evaluate( tree_t * restrict ptree, int ply, int turn );
+//int CONV evaluate( tree_t * restrict ptree, int ply, int turn );
+int CONV evaluate_body( tree_t * restrict ptree, int ply, int turn );
 int CONV swap( const tree_t * restrict ptree, unsigned int move, int alpha,
                int beta, int turn );
 int file_close( FILE *pf );
@@ -1252,9 +1354,9 @@ unsigned int rand32( void );
 unsigned int CONV is_black_attacked( const tree_t * restrict ptree, int sq );
 unsigned int CONV is_white_attacked( const tree_t * restrict ptree, int sq );
 unsigned int CONV is_pinned_on_black_king( const tree_t * restrict ptree,
-                                     int isquare, int idirec );
+                                           int isquare, direc_t idirec );
 unsigned int CONV is_pinned_on_white_king( const tree_t * restrict ptree,
-                                     int isquare, int idirec );
+                                           int isquare, direc_t idirec );
 Move * CONV b_gen_captures( const tree_t * restrict ptree,
                             Move * restrict pmove );
 Move * CONV b_gen_nocaptures( const tree_t * restrict ptree,
@@ -1557,3 +1659,5 @@ double calc_penalty( void );
 #endif
 
 #endif /* SHOGI_H */
+
+#include "inline.h"

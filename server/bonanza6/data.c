@@ -157,7 +157,7 @@ kkpAry* kkp;
 
 unsigned char ansuc_check_save[NUM_UNMAKE];
 unsigned char book_section[ MAX_SIZE_SECTION+1 ];
-unsigned char adirec[ nsquare ][ 128 ];
+direc_t adirec[ nsquare ][ 128 ];
 unsigned char is_same[ 16 ][ 16 ];
 char str_cmdline[ SIZE_CMDLINE ];
 char str_message[ SIZE_MESSAGE ];

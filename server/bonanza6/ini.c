@@ -8,15 +8,10 @@
 #endif
 
 #include "shogi.h"
-
 #include "mate3.h"
 
 #ifdef CLUSTER_PARALLEL
 #include "../if_bonanza.h"
-#endif
-
-#ifdef BITBRD64
-void initNewBB();
 #endif
 
 #ifdef FVBIN_MMAP
@@ -523,14 +518,14 @@ ini_tables( void )
                                       C2, C1, C9, C8, C7, C6, C5, C4, C3,
                                       B1, B9, B8, B7, B6, B5, B4, B3, B2,
                                       A9, A8, A7, A6, A5, A4, A3, A2, A1 };
-  bitboard_t abb_plus1dir[ nsquare ];
-  bitboard_t abb_plus8dir[ nsquare ];
-  bitboard_t abb_plus9dir[ nsquare ];
-  bitboard_t abb_plus10dir[ nsquare ];
-  bitboard_t abb_minus1dir[ nsquare ];
-  bitboard_t abb_minus8dir[ nsquare ];
-  bitboard_t abb_minus9dir[ nsquare ];
-  bitboard_t abb_minus10dir[ nsquare ];
+  bitboard_t abb_plus1dir[ nsquare ];   // 右
+  bitboard_t abb_plus8dir[ nsquare ];   // 左下
+  bitboard_t abb_plus9dir[ nsquare ];   // 下
+  bitboard_t abb_plus10dir[ nsquare ];  // 右下
+  bitboard_t abb_minus1dir[ nsquare ];  // 左
+  bitboard_t abb_minus8dir[ nsquare ];  // 右上
+  bitboard_t abb_minus9dir[ nsquare ];  // 上
+  bitboard_t abb_minus10dir[ nsquare ]; // 左上
   bitboard_t bb;
   int isquare, i, ito, ifrom, irank, ifile;
   int isquare_rl90, isquare_rl45, isquare_rr45;
@@ -589,6 +584,9 @@ ini_tables( void )
     }
 
 
+  // adirecはifromとitoの位置関係を設定する
+  // 横移動であればdirec_rank、
+  // 縦移動であればdirect_fileが設定される
   for ( ifrom = 0; ifrom < nsquare; ifrom++ )
     {
       for ( ito = 0; ito < 128; ito++ )
@@ -615,7 +613,7 @@ ini_tables( void )
         {
           ito = FirstOne( bb );
           adirec[ifrom][ito]  = (unsigned char)direc_file;
-          Xor(ito,bb);
+          Xor( ito, bb );
         }
       BBOr( bb, abb_plus10dir[ifrom], abb_minus10dir[ifrom] );
       while ( BBTest(bb) )
@@ -626,45 +624,50 @@ ini_tables( void )
         }
     }
 
+  // abb_obstacleは、ifromからitoへの障害物を設定する
+  // ifromとitoが縦、横、斜めの関係になければゼロ
+  // さもなくば、その間のマス目が1であるようなbitboard
+  // (ただしそのbitboardでifrom,itoに相当する箇所は0)
   for ( ifrom = 0; ifrom < nsquare; ifrom++ )
     for ( ito = 0; ito < nsquare; ito++ )
       {
         BBIni( abb_obstacle[ifrom][ito] );
 
-        if ( ifrom-ito > 0 ) switch ( adirec[ifrom][ito] )
+        // ifromから見て
+        if ( ifrom > ito ) switch ( adirec[ifrom][ito] )
           {
-          case direc_rank:
+          case direc_rank: // 左
             BBXor( abb_obstacle[ifrom][ito],
                    abb_minus1dir[ito+1], abb_minus1dir[ifrom] );
             break;
-          case direc_file:
+          case direc_file: // 上
             BBXor( abb_obstacle[ifrom][ito],
                    abb_minus9dir[ito+9], abb_minus9dir[ifrom] );
             break;
-          case direc_diag1:
+          case direc_diag1: // 右上
             BBXor( abb_obstacle[ifrom][ito],
                    abb_minus8dir[ito+8], abb_minus8dir[ifrom] );
             break;
-          case direc_diag2:
+          case direc_diag2: // 左上
             BBXor( abb_obstacle[ifrom][ito],
                    abb_minus10dir[ito+10], abb_minus10dir[ifrom] );
             break;
           }
         else switch ( adirec[ifrom][ito] )
           {
-          case direc_rank:
+          case direc_rank: // 右
             BBXor( abb_obstacle[ifrom][ito],
                    abb_plus1dir[ito-1], abb_plus1dir[ifrom] );
             break;
-          case direc_file:
+          case direc_file: // 下
             BBXor( abb_obstacle[ifrom][ito],
                    abb_plus9dir[ito-9], abb_plus9dir[ifrom] );
             break;
-          case direc_diag1:
+          case direc_diag1: // 左下
             BBXor( abb_obstacle[ifrom][ito],
                    abb_plus8dir[ito-8], abb_plus8dir[ifrom] );
             break;
-          case direc_diag2:
+          case direc_diag2: // 右下
             BBXor( abb_obstacle[ifrom][ito],
                    abb_plus10dir[ito-10], abb_plus10dir[ifrom] );
             break;
@@ -744,164 +747,178 @@ ini_attack_tables( void )
   int irank, ifile, pcs, i;
   bitboard_t bb;
 
-  for ( i = 0; i < nsquare; i++ ) {
-
+  for ( i = 0; i < nsquare; i++ )
+    {
       aslide[i].ir0   = (unsigned char)(i/27);
       aslide[i].sr0   = (unsigned char)((2-(i/9)%3)*9+1);
       aslide[i].irl90 = (unsigned char)(2-(i%9)/3);
       aslide[i].srl90 = (unsigned char)(((i%9)%3)*9+1);
-  }
+    }
   
   for ( irank = 0; irank < nrank; irank++ )
-    for ( ifile = 0; ifile < nfile; ifile++ ) {
-
-      BBIni(bb);
-      set_attacks( irank-1, ifile-1, &bb );
-      set_attacks( irank-1, ifile+1, &bb );
-      set_attacks( irank+1, ifile-1, &bb );
-      set_attacks( irank+1, ifile+1, &bb );
-      set_attacks( irank-1, ifile, &bb );
-      abb_b_silver_attacks[ irank*nfile + ifile ] = bb;
-      
-      BBIni(bb);
-      set_attacks( irank-1, ifile-1, &bb );
-      set_attacks( irank-1, ifile+1, &bb );
-      set_attacks( irank+1, ifile-1, &bb );
-      set_attacks( irank+1, ifile+1, &bb );
-      set_attacks( irank+1, ifile,   &bb );
-      abb_w_silver_attacks[ irank*nfile + ifile ] = bb;
-      
-      BBIni(bb);
-      set_attacks( irank-1, ifile-1, &bb );
-      set_attacks( irank-1, ifile+1, &bb );
-      set_attacks( irank-1, ifile,   &bb );
-      set_attacks( irank+1, ifile,   &bb );
-      set_attacks( irank,   ifile-1, &bb );
-      set_attacks( irank,   ifile+1, &bb );
-      abb_b_gold_attacks[ irank*nfile + ifile ] = bb;
-      
-      BBIni(bb);
-      set_attacks( irank+1, ifile-1, &bb );
-      set_attacks( irank+1, ifile+1, &bb );
-      set_attacks( irank+1, ifile,   &bb );
-      set_attacks( irank-1, ifile,   &bb );
-      set_attacks( irank,   ifile-1, &bb );
-      set_attacks( irank,   ifile+1, &bb );
-      abb_w_gold_attacks[ irank*nfile + ifile ] = bb;
-      
-      BBIni(bb);
-      set_attacks( irank+1, ifile-1, &bb );
-      set_attacks( irank+1, ifile+1, &bb );
-      set_attacks( irank+1, ifile,   &bb );
-      set_attacks( irank-1, ifile-1, &bb );
-      set_attacks( irank-1, ifile+1, &bb );
-      set_attacks( irank-1, ifile,   &bb );
-      set_attacks( irank,   ifile-1, &bb );
-      set_attacks( irank,   ifile+1, &bb );
-      abb_king_attacks[ irank*nfile + ifile ] = bb;
-      
-      BBIni(bb);
-      set_attacks( irank-2, ifile-1, &bb );
-      set_attacks( irank-2, ifile+1, &bb );
-      abb_b_knight_attacks[ irank*nfile + ifile ] = bb;
-      
-      BBIni(bb);
-      set_attacks( irank+2, ifile-1, &bb );
-      set_attacks( irank+2, ifile+1, &bb );
-      abb_w_knight_attacks[ irank*nfile + ifile ] = bb;
-      
-
-      for ( pcs = 0; pcs < 128; pcs++ )        {
-        
+    for ( ifile = 0; ifile < nfile; ifile++ )
+      {
         BBIni(bb);
-        for ( i = -1; irank+i >= 0; i-- ) {
-          set_attacks( irank+i, ifile, &bb );
-          if ( (pcs<<1) & (1 << (8-irank-i)) ) { break; }
-        }
-        for ( i = 1; irank+i <= 8; i++ ) {
-          set_attacks( irank+i, ifile, &bb );
-          if ( (pcs<<1) & (1 << (8-irank-i)) ) { break; }
-        }
-        abb_file_attacks[irank*nfile+ifile][pcs] = bb; 
-        
+        set_attacks( irank-1, ifile-1, &bb );
+        set_attacks( irank-1, ifile+1, &bb );
+        set_attacks( irank+1, ifile-1, &bb );
+        set_attacks( irank+1, ifile+1, &bb );
+        set_attacks( irank-1, ifile, &bb );
+        abb_b_silver_attacks[ irank*nfile + ifile ] = bb;
+      
         BBIni(bb);
-        for ( i = -1; ifile+i >= 0; i-- ) {
-          set_attacks( irank, ifile+i, &bb );
-          if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
-        }
-        for ( i = 1; ifile+i <= 8; i++ ) {
-          set_attacks( irank, ifile+i, &bb );
-          if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
-        }
-        abb_rank_attacks[irank*nfile+ifile][pcs] = bb;
-        
+        set_attacks( irank-1, ifile-1, &bb );
+        set_attacks( irank-1, ifile+1, &bb );
+        set_attacks( irank+1, ifile-1, &bb );
+        set_attacks( irank+1, ifile+1, &bb );
+        set_attacks( irank+1, ifile,   &bb );
+        abb_w_silver_attacks[ irank*nfile + ifile ] = bb;
+
         BBIni(bb);
-        if ( ifile <= irank ) {
+        set_attacks( irank-1, ifile-1, &bb );
+        set_attacks( irank-1, ifile+1, &bb );
+        set_attacks( irank-1, ifile,   &bb );
+        set_attacks( irank+1, ifile,   &bb );
+        set_attacks( irank,   ifile-1, &bb );
+        set_attacks( irank,   ifile+1, &bb );
+        abb_b_gold_attacks[ irank*nfile + ifile ] = bb;
+      
+        BBIni(bb);
+        set_attacks( irank+1, ifile-1, &bb );
+        set_attacks( irank+1, ifile+1, &bb );
+        set_attacks( irank+1, ifile,   &bb );
+        set_attacks( irank-1, ifile,   &bb );
+        set_attacks( irank,   ifile-1, &bb );
+        set_attacks( irank,   ifile+1, &bb );
+        abb_w_gold_attacks[ irank*nfile + ifile ] = bb;
+      
+        BBIni(bb);
+        set_attacks( irank+1, ifile-1, &bb );
+        set_attacks( irank+1, ifile+1, &bb );
+        set_attacks( irank+1, ifile,   &bb );
+        set_attacks( irank-1, ifile-1, &bb );
+        set_attacks( irank-1, ifile+1, &bb );
+        set_attacks( irank-1, ifile,   &bb );
+        set_attacks( irank,   ifile-1, &bb );
+        set_attacks( irank,   ifile+1, &bb );
+        abb_king_attacks[ irank*nfile + ifile ] = bb;
+      
+        BBIni(bb);
+        set_attacks( irank-2, ifile-1, &bb );
+        set_attacks( irank-2, ifile+1, &bb );
+        abb_b_knight_attacks[ irank*nfile + ifile ] = bb;
+      
+        BBIni(bb);
+        set_attacks( irank+2, ifile-1, &bb );
+        set_attacks( irank+2, ifile+1, &bb );
+        abb_w_knight_attacks[ irank*nfile + ifile ] = bb;
+      
 
-          for ( i = -1; ifile+i >= 0; i-- ) {
-            set_attacks( irank+i, ifile+i, &bb );
-            if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
-          }
-          for ( i = 1; irank+i <= 8; i++ ) {
-            set_attacks( irank+i, ifile+i, &bb );
-            if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
-          }
-
-        } else {
-
-          for ( i = -1; irank+i >= 0; i-- ) {
-              set_attacks( irank+i, ifile+i, &bb );
+      for ( pcs = 0; pcs < 128; pcs++ )
+        {
+          BBIni(bb);
+          for ( i = -1; irank+i >= 0; i-- )
+            {
+              set_attacks( irank+i, ifile, &bb );
+              if ( (pcs<<1) & (1 << (8-irank-i)) ) { break; }
+            }
+          for ( i = 1; irank+i <= 8; i++ )
+            {
+              set_attacks( irank+i, ifile, &bb );
+              if ( (pcs<<1) & (1 << (8-irank-i)) ) { break; }
+            }
+          abb_file_attacks[irank*nfile+ifile][pcs] = bb; 
+        
+          BBIni(bb);
+          for ( i = -1; ifile+i >= 0; i-- )
+            {
+              set_attacks( irank, ifile+i, &bb );
               if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
-          }
-          for ( i = 1; ifile+i <= 8; i++ ) {
-            set_attacks( irank+i, ifile+i, &bb );
-            if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
-          }
-        }
-
-        abb_bishop_attacks_rl45[irank*nfile+ifile][pcs] = bb; 
+            }
+          for ( i = 1; ifile+i <= 8; i++ )
+            {
+              set_attacks( irank, ifile+i, &bb );
+              if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
+            }
+          abb_rank_attacks[irank*nfile+ifile][pcs] = bb;
         
-        BBIni(bb);
-        if ( ifile+irank >= 8 ) {
+          BBIni(bb);
+          if ( ifile <= irank )
+            {
+              for ( i = -1; ifile+i >= 0; i-- )
+                {
+                  set_attacks( irank+i, ifile+i, &bb );
+                  if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
+                }
+              for ( i = 1; irank+i <= 8; i++ )
+                {
+                  set_attacks( irank+i, ifile+i, &bb );
+                  if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
+                }
+            }
+          else {
+            for ( i = -1; irank+i >= 0; i-- )
+              {
+                set_attacks( irank+i, ifile+i, &bb );
+                if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
+              }
+            for ( i = 1; ifile+i <= 8; i++ )
+              {
+                set_attacks( irank+i, ifile+i, &bb );
+                if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
+              }
+          }
 
-            for ( i = -1; irank-i <= 8; i-- ) {
+          abb_bishop_attacks_rl45[irank*nfile+ifile][pcs] = bb; 
+        
+          BBIni(bb);
+          if ( ifile+irank >= 8 )
+            {
+              for ( i = -1; irank-i <= 8; i-- )
+                {
+                  set_attacks( irank-i, ifile+i, &bb );
+                  if ( (pcs<<1) & (1 << (irank-i)) ) { break; }
+                }
+              for ( i = 1; ifile+i <= 8; i++ )
+                {
+                  set_attacks( irank-i, ifile+i, &bb );
+                  if ( (pcs<<1) & (1 << (irank-i)) ) { break; }
+                }
+            }
+          else {
+            for ( i = -1; ifile+i >= 0; i-- )
+              {
                 set_attacks( irank-i, ifile+i, &bb );
                 if ( (pcs<<1) & (1 << (irank-i)) ) { break; }
-            }
-            for ( i = 1; ifile+i <= 8; i++ ) {
-              set_attacks( irank-i, ifile+i, &bb );
-              if ( (pcs<<1) & (1 << (irank-i)) ) { break; }
-            }
-
-        } else {
-
-          for ( i = -1; ifile+i >= 0; i-- ) {
-              set_attacks( irank-i, ifile+i, &bb );
-              if ( (pcs<<1) & (1 << (irank-i)) ) { break; }
+              }
+            for ( i = 1; irank-i >= 0; i++ )
+              {
+                set_attacks( irank-i, ifile+i, &bb );
+                if ( (pcs<<1) & (1 << (irank-i)) ) { break; }
+              }
           }
-          for ( i = 1; irank-i >= 0; i++ ) {
-            set_attacks( irank-i, ifile+i, &bb );
-            if ( (pcs<<1) & (1 << (irank-i)) ) { break; }
-          }
+          abb_bishop_attacks_rr45[irank*nfile+ifile][pcs] = bb; 
         }
-        abb_bishop_attacks_rr45[irank*nfile+ifile][pcs] = bb; 
-      }
       
-      if ( irank >= ifile ) {
+      if ( irank >= ifile )
+        {
           aslide[irank*nfile+ifile].irl45 = (unsigned char)((irank-ifile)/3);
           aslide[irank*nfile+ifile].srl45
             = (unsigned char)((2-((irank-ifile)%3))*9+1);
-      } else {
+        }
+      else {
         aslide[irank*nfile+ifile].irl45 = (unsigned char)((9+irank-ifile)/3);
         aslide[irank*nfile+ifile].srl45
           = (unsigned char)((2-((9+irank-ifile)%3))*9+1);
       }
       
-      if ( ifile+irank >= 8 ) {
-        aslide[irank*nfile+ifile].irr45 = (unsigned char)((irank+ifile-8)/3);
-        aslide[irank*nfile+ifile].srr45
-          = (unsigned char)((2-((irank+ifile-8)%3))*9+1);
-      } else {
+      if ( ifile+irank >= 8 )
+        {
+          aslide[irank*nfile+ifile].irr45 = (unsigned char)((irank+ifile-8)/3);
+          aslide[irank*nfile+ifile].srr45
+            = (unsigned char)((2-((irank+ifile-8)%3))*9+1);
+        }
+      else {
         aslide[irank*nfile+ifile].irr45 = (unsigned char)((irank+ifile+1)/3);
         aslide[irank*nfile+ifile].srr45
           = (unsigned char)((2-((irank+ifile+1)%3))*9+1);
@@ -977,8 +994,7 @@ ini_check_table( void )
     while ( bb_check.p[1] )
       {
         sq_chk = last_one1( bb_check.p[1] );
-        b_chk_tbl[iking].silver.p[0]
-          |= abb_w_silver_attacks[sq_chk].p[0];
+        b_chk_tbl[iking].silver.p[0] |= abb_w_silver_attacks[sq_chk].p[0];
         bb_check.p[1] ^= abb_mask[sq_chk].p[1];
       }
     BBOr( bb, abb_mask[iking], abb_w_silver_attacks[iking] );

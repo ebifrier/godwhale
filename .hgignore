@@ -2,7 +2,7 @@ syntax: regexp
 server/[0-9]+
 server/parallel_[0-9]+
 server/restart_[0-9]+
-[.]user$
+.]user$
 [.]suo$
 [.]sdf$
 [.]o
@@ -23,6 +23,8 @@ Bonako/Bonako.DFPN/dist/Bonako.DFPN_1_1_0/
 Bonako/Bonako/dist/Bonako_2_2_0/
 Bonako/Bonako/dist/Bonako_2_2_1/
 dist/GodWhale_20130512/
+server/bin/log
+server/bonanza6/log
 server2/log
 server2/book.bin
 server2/fv3.bin

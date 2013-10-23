@@ -23,9 +23,9 @@ b_gen_nocaptures( const tree_t * restrict ptree,
     }
 
   bb_piece = BB_BSILVER;
-  while( BBTest( bb_piece ) )
+  while ( BBTest( bb_piece ) )
     {
-      from   = LastOne( bb_piece );
+      from = LastOne( bb_piece );
       Xor( from, bb_piece );
 
       BBAnd( bb_desti, bb_empty, abb_b_silver_attacks[from] );
@@ -41,7 +41,7 @@ b_gen_nocaptures( const tree_t * restrict ptree,
     }
 
   bb_piece = BB_BTGOLD;
-  while( BBTest( bb_piece ) )
+  while ( BBTest( bb_piece ) )
     {
       from = LastOne( bb_piece );
       Xor( from, bb_piece );

@@ -7,40 +7,25 @@
 
 #define USE_M3CUT
 //#define DBG_M3CUT
-
-#ifdef DBG_M3CUT
-int readable_c(int mv) {
-  // bnz mv format - cap:4 pc:4 prom:1 src:7 dst:7  -> convert to 4,4,4,8,8
- //if (mv == NULLMV.v) return 0;
- if (mv == 0) return 0;
- int x = mv;
- int dst  = x & 0x7f;
- int src  = (x >>  7) & 0x7f;
- int prom = (x <<  2) & 0x10000;
- int cappc = (x <<  5) & 0x0ff00000;
- int dx = 9 - (dst % 9);
- int dy = 1 + (dst / 9);
- int sx = (src >= nsquare ?   0     : 9 - (src % 9));
- int sy = (src >= nsquare ? src % 9 : 1 + (src / 9));
- return (cappc | prom | (sx << 12) | (sy << 8) | (dx << 4) | dy);
-}
-#endif
-
 #define MATE3_C
+
 #include "mate3.h"
 
-
-enum { mate_king_cap_checker = 0,
-       mate_cap_checker_gen,
-       mate_cap_checker,
-       mate_king_cap_gen,
-       mate_king_cap,
-       mate_king_move_gen,
-       mate_king_move,
-       mate_intercept_move_gen,
-       mate_intercept_move,
-       mate_intercept_weak_move,
-       mate_intercept_drop_sup };
+// gen_next_evasion_mate(coroutine)で使うphaseを表わすenum。
+// 詰み回避の検査のためのphase。
+typedef enum {
+  mate_king_cap_checker = 0, // 王手している駒を王で取る手を生成
+  mate_cap_checker_gen,      // 王手している駒を移動して取る手を生成
+  mate_cap_checker,
+  mate_king_cap_gen,
+  mate_king_cap,
+  mate_king_move_gen,
+  mate_king_move,
+  mate_intercept_move_gen,
+  mate_intercept_move,
+  mate_intercept_weak_move,
+  mate_intercept_drop_sup
+} mate_flag_t;
 
 static int CONV mate3_and( tree_t * restrict ptree, int turn, int ply,
                            int flag );
@@ -67,6 +52,29 @@ static int CONV gen_next_evasion_mate( tree_t * restrict ptree,
                                        int flag );
 
 static uint64_t mate3_hash_tbl[ MATE3_MASK + 1 ] = {0};
+
+
+#ifdef DBG_M3CUT
+static int CONV
+readable_c(int mv)
+{
+  // bnz mv format - cap:4 pc:4 prom:1 src:7 dst:7  -> convert to 4,4,4,8,8
+  //if (mv == NULLMV.v) return 0;
+  if (mv == 0) return 0;
+  int x = mv;
+  int dst  = x & 0x7f;
+  int src  = (x >>  7) & 0x7f;
+  int prom = (x <<  2) & 0x10000;
+  int cappc = (x <<  5) & 0x0ff00000;
+  int dx = 9 - (dst % 9);
+  int dy = 1 + (dst / 9);
+  int sx = (src >= nsquare ?   0     : 9 - (src % 9));
+  int sy = (src >= nsquare ? src % 9 : 1 + (src / 9));
+
+  return (cappc | prom | (sx << 12) | (sy << 8) | (dx << 4) | dy);
+}
+#endif
+
 
 static int CONV
 mhash_probe( tree_t * restrict ptree, int turn, int ply )
@@ -315,14 +323,17 @@ gen_next_evasion_mate( tree_t * restrict ptree, const char *psq, int ply,
 {
   switch ( ptree->anext_move[ply].next_phase )
     {
+    // まず王手している駒を王で取る手を生成
     case mate_king_cap_checker:
       ptree->anext_move[ply].next_phase = mate_cap_checker_gen;
       MOVE_CURR = gen_king_cap_checker( ptree, psq[0], turn );
+      // その手があったのならいったん返ってその手を評価する。
       if ( MOVE_CURR ) { return 1; }
 
+    // 王手している駒を移動して捕獲する手の生成
     case mate_cap_checker_gen:
       ptree->anext_move[ply].next_phase = mate_cap_checker;
-      ptree->anext_move[ply].move_last        = ptree->move_last[ply-1];
+      ptree->anext_move[ply].move_last  = ptree->move_last[ply-1];
       ptree->move_last[ply]             = ptree->move_last[ply-1];
       if ( psq[1] == nsquare )
         {
@@ -337,6 +348,8 @@ gen_next_evasion_mate( tree_t * restrict ptree, const char *psq, int ply,
           return 1;
         }
 
+    // 王を移動して逃げる手を生成。駒の捕獲あり。
+    // ただし、王手している駒を捕獲する手は除外。
     case mate_king_cap_gen:
       ptree->anext_move[ply].next_phase = mate_king_cap;
       ptree->anext_move[ply].move_last  = ptree->move_last[ply-1];
@@ -350,6 +363,7 @@ gen_next_evasion_mate( tree_t * restrict ptree, const char *psq, int ply,
           return 1;
         }
 
+    // 王を移動して逃げる手の生成。駒の捕獲無し。
     case mate_king_move_gen:
       ptree->anext_move[ply].next_phase = mate_king_move;
       ptree->anext_move[ply].move_last  = ptree->move_last[ply-1];
@@ -363,6 +377,7 @@ gen_next_evasion_mate( tree_t * restrict ptree, const char *psq, int ply,
           return 1;
         }
 
+    // 合駒して受ける手の生成。利きのある場所に合駒(移動合い)するのが優先。
     case mate_intercept_move_gen:
       ptree->anext_move[ply].remaining  = 0;
       ptree->anext_move[ply].next_phase = mate_intercept_move;
@@ -393,6 +408,7 @@ gen_next_evasion_mate( tree_t * restrict ptree, const char *psq, int ply,
         }
       ptree->anext_move[ply].next_phase = mate_intercept_weak_move;
 
+    // 弱移動合い (利きのない場所への移動中合い)
     case mate_intercept_weak_move:
       if ( ptree->anext_move[ply].move_last != ptree->move_last[ply] )
         {
@@ -410,7 +426,7 @@ gen_next_evasion_mate( tree_t * restrict ptree, const char *psq, int ply,
 
 
 static void CONV
-checker( const tree_t * restrict ptree, char *psq, int turn, unsigned int lastmv )
+checker( const tree_t * restrict ptree, char *psq, int turn, Move lastmv )
 {
   bitboard_t bb;
   int n, sq0, sq1, sq_king, adir, from, to;
@@ -419,11 +435,12 @@ checker( const tree_t * restrict ptree, char *psq, int turn, unsigned int lastmv
   from = I2From(lastmv);
   to   = I2To(lastmv);
   adir = adirec[turn ? SQ_WKING : SQ_BKING][from];  // Note drop case covered
-  if (!adir) {
-    psq[0] = to;
-    psq[1] = 81;
-    return;
-  }
+  if ( ! adir )
+    {
+      psq[0] = to;
+      psq[1] = 81;
+      return;
+    }
 #endif
 
   if ( turn )
@@ -458,24 +475,24 @@ checker( const tree_t * restrict ptree, char *psq, int turn, unsigned int lastmv
 }
 
 
-static unsigned int CONV
+static Move CONV
 gen_king_cap_checker( const tree_t * restrict ptree, int to, int turn )
 {
-  unsigned int move;
+  Move move;
   int from;
 
-  if ( turn )
+  if ( turn == white )
     {
       from = SQ_WKING;
       if ( ! BBContract( abb_king_attacks[from],
-                         abb_mask[to] ) )   { return 0;}
+                         abb_mask[to] ) )   { return 0; }
       if ( is_white_attacked( ptree, to ) ) { return 0; }
       move = Cap2Move(BOARD[to]);
     }
   else {
     from = SQ_BKING;
     if ( ! BBContract( abb_king_attacks[from],
-                       abb_mask[to] ) )   { return 0;}
+                       abb_mask[to] ) )   { return 0; }
     if ( is_black_attacked( ptree, to ) ) { return 0; }
     move = Cap2Move(-BOARD[to]);
   }
@@ -485,17 +502,17 @@ gen_king_cap_checker( const tree_t * restrict ptree, int to, int turn )
 }
 
 
-static unsigned int * CONV
+static Move * CONV
 gen_move_to( const tree_t * restrict ptree, int to, int turn,
-             unsigned int * restrict pmove )
+             Move * restrict pmove )
 {
   bitboard_t bb;
   int direc, from, pc, flag_promo, flag_unpromo;
 
-  if ( turn )
+  if ( turn == white )
     {
       bb = w_attacks_to_piece( ptree, to );
-      BBNotAnd( bb, bb, abb_mask[SQ_WKING] );
+      BBNotAnd( bb, bb, abb_mask[SQ_WKING] ); // 玉では取らない
       while ( BBTest(bb) )
         {
           from = LastOne( bb );
@@ -516,7 +533,7 @@ gen_move_to( const tree_t * restrict ptree, int to, int turn,
               if ( to > I4 ) { flag_promo = 1;  flag_unpromo = 0; }
               break;
 
-            case lance:         case knight:
+            case lance:   case knight:
               if      ( to > I3 ) { flag_promo = 1;  flag_unpromo = 0; }
               else if ( to > I4 ) { flag_promo = 1; }
               break;
@@ -604,9 +621,9 @@ gen_move_to( const tree_t * restrict ptree, int to, int turn,
 }
 
 
-static unsigned int * CONV
+static Move * CONV
 gen_king_move( const tree_t * restrict ptree, const char *psq, int turn,
-               int is_capture, unsigned int * restrict pmove )
+               int is_capture, Move * restrict pmove )
 {
   bitboard_t bb;
   int to, from;
@@ -676,9 +693,9 @@ gen_king_move( const tree_t * restrict ptree, const char *psq, int turn,
 }
 
 
-static unsigned int * CONV
+static Move * CONV
 gen_intercept( tree_t * restrict __ptree__, int sq_checker, int ply, int turn,
-               int * restrict premaining, unsigned int * restrict pmove,
+               int * restrict premaining, Move * restrict pmove,
                int flag )
 {
 #define Drop(pc) ( To2Move(to) | Drop2Move(pc) )
@@ -725,6 +742,7 @@ gen_intercept( tree_t * restrict __ptree__, int sq_checker, int ply, int turn,
       assert( (int)adirec[sq_k][sq_checker] == direc_diag2 );
       min_chuai = 3;
       inc       = 10;
+      break;
     }
   if ( sq_k > sq_checker ) { inc = -inc; }
   

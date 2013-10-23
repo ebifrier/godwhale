@@ -14,6 +14,9 @@
 #endif
 #include "shogi.h"
 
+/*#define CONSOLE_DEV "/dev/pts/1"*/
+#define CONSOLE_DEV str_file
+
 #if defined(_MSC_VER)
 #  include <Share.h>
 #  define fopen( file, mode ) _fsopen( file, mode, _SH_DENYNO )
@@ -311,9 +314,11 @@ open_history( const char *str_name1, const char *str_name2 )
         }
       record_num = i;
       
-      snprintf( str_file, SIZE_FILENAME, "%s/n%03d.log",
-                str_dir_logs, i );
-      pf_log = fopen(CONSOLE_DEV, "w"); //file_open( str_file, "w" );
+      /*snprintf( str_file, SIZE_FILENAME, "%s/n%03d.log",
+                  str_dir_logs, i );*/
+      snprintf( str_file, SIZE_FILENAME, "%s/out.log",
+                str_dir_logs );
+      pf_log = file_open( str_file, "w+" );
       if ( pf_log == NULL ) { return -1; }
       
       snprintf( str_file, SIZE_FILENAME, "%s/game%03d.csa",

@@ -22,7 +22,7 @@ typedef enum
 {
     VALTYPE_ALPHA,
     VALTYPE_BETA,
-    VALTYPE_GAMMA,
+    VALTYPE_GAMMA
 } valtypeE; 
 
 cmdPacketC cmd2send;
@@ -741,7 +741,7 @@ void rowC::updateBest(int val, mvC mv, int seqleng, mvC* seq)
 class streamC
 {
 public:
-    char tailExd;
+    int tailExd;
     rowC row[MAX_EXPDEP];
     int seqprevLeng;
     mvC seqFromPrev[MAX_SEQPREV];
@@ -959,8 +959,8 @@ void streamC::rpyFcomp(int exd, int val, int pvleng, mvC* pv)
 
   //****
 
-void streamC::rpyPvs(int rank, int exd, int valChild,mvC mv,int ule,int numnode,
-                     int seqleng, mvC* bestseq)
+void streamC::rpyPvs(int rank, int exd, int valChild, mvC mv, int ule,
+                     int numnode, int seqleng, mvC* bestseq)
 {
     rowC& r = row[exd];
     int mvsuf = r.procmvs[rank].findsuf(mv);

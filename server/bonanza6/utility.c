@@ -14,7 +14,8 @@
 
  // set mklist data
 
-void setEvalList(tree_t * restrict ptree) {
+void setEvalList(tree_t * restrict ptree)
+{
   int sq;
   ptree->nlist = 14;
 
@@ -63,16 +64,16 @@ void setEvalList(tree_t * restrict ptree) {
   ptree->curhand[12] = I2HandRook(HAND_B);
   ptree->curhand[13] = I2HandRook(HAND_W);
 
-  for(sq=0; sq<=80; sq++) {
-   int pc = BOARD[sq];
-   if (pc&7) {  // omit kings and empty
-     int pcsufb = pc2suf[15+pc] + sq;
-     int pcsufw = pc2suf[15-pc] + Inv(sq);
-     ptree->sq4listsuf[ptree->nlist  ] = sq;
-     ptree->listsuf4sq[sq] = ptree->nlist;
-     ptree->list0[ptree->nlist  ] = pcsufb;
-     ptree->list1[ptree->nlist++] = pcsufw;
-   }
+  for (sq=0; sq<=80; sq++) {
+    int pc = BOARD[sq];
+    if (pc & 7) {  // omit kings and empty
+      int pcsufb = pc2suf[15+pc] + sq;
+      int pcsufw = pc2suf[15-pc] + Inv(sq);
+      ptree->sq4listsuf[ptree->nlist  ] = sq;
+      ptree->listsuf4sq[sq] = ptree->nlist;
+      ptree->list0[ptree->nlist  ] = pcsufb;
+      ptree->list1[ptree->nlist++] = pcsufw;
+    }
   }
 }
 
@@ -504,13 +505,35 @@ is_hand_eq_supe( unsigned int u, unsigned int uref )
  *   pawn  <= lance, silver, gold, rook
  *   lance <= rook.
  */
+  unsigned int a, b;
   int nsupe;
 
-  if ( IsHandKnight(u) < IsHandKnight(uref)
+  /*if ( IsHandKnight(u) < IsHandKnight(uref)
        || IsHandSilver(u) < IsHandSilver(uref)
        || IsHandGold(u)   < IsHandGold(uref)
        || IsHandBishop(u) < IsHandBishop(uref)
-       || IsHandRook(u)   < IsHandRook(uref) ) { return 0; }
+       || IsHandRook(u)   < IsHandRook(uref) ) { return 0; }*/
+  /*
+    xxxxxxxx xxxxxxxx xxx11111  pawn
+    xxxxxxxx xxxxxxxx 111xxxxx  lance
+    xxxxxxxx xxxxx111 xxxxxxxx  knight
+    xxxxxxxx xx111xxx xxxxxxxx  silver
+    xxxxxxx1 11xxxxxx xxxxxxxx  gold
+    xxxxx11x xxxxxxxx xxxxxxxx  bishop
+    xxx11xxx xxxxxxxx xxxxxxxx  rook
+  */
+
+  // 0x19c700 = 桂、金、飛だけ残すマスク
+  // 0x220800 = 桂、金、飛のfieldのひとつ上のbit
+  a = ((u & 0x19c700) - (uref & 0x19c700)) & 0x220800;
+  // 0x063800 = 角、銀だけ残すマスク
+  // 0x084000 = 角、銀のfieldのひとつ上のbit
+  b = ((u & 0x063800) - (uref & 0x063800)) & 0x084000;
+  
+  // a,bの各bitfieldのMSBがどこか1になっていれば
+  // それはborrowが発生したということで、
+  // そのfieldは u < urefであったことがわかる。
+  if ( (a | b) != 0 ) { return 0; }
 
   nsupe  = (int)I2HandRook(u)  - (int)I2HandRook(uref);
   nsupe += (int)I2HandLance(u) - (int)I2HandLance(uref);

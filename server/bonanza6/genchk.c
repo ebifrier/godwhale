@@ -8,10 +8,10 @@ static void CONV add_behind_attacks( bitboard_t * restrict pbb, int idirec,
 Move * CONV
 b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
 {
+  const tree_t * restrict ptree = __ptree__;
   bitboard_t bb_piece, bb_rook_chk, bb_bishop_chk, bb_chk, bb_move_to;
   bitboard_t bb_diag1_chk, bb_diag2_chk, bb_file_chk, bb_drop_to, bb_desti;
   bitboard_t bb_rank_chk;
-  const tree_t * restrict ptree = __ptree__;
   unsigned int u0, u1, u2;
   int from, to, sq_wk, idirec;
 

@@ -168,7 +168,8 @@ public:
   void setCmdStop() { v[CMD_LOC_OPCODE] = CMD_OPCODE_STOP; v[CMD_LOC_SIZE] = 3;
                       if (DBG_DUMP_COMM)  MSTOut("######## CMD_STOP\n");       }
 
-  void setCmdFwd(mvC move) {
+  void setCmdFwd(mvC move)
+  {
     if (DBG_DUMP_COMM)
       MSTOut("%8d>######## CMD_FWD: mv %07x\n", worldTime(), readable(move));
     v[CMD_LOC_OPCODE] = CMD_OPCODE_FWD;
@@ -176,13 +177,14 @@ public:
     v[CMD_LOC_SIZE] = CMD_LOC_FWDMV+1;
   }
 
-  void setCmdSetroot(const min_posi_t* posp)   {
+  void setCmdSetroot(const min_posi_t* posp)
+  {
     if (DBG_DUMP_COMM)  MSTOut("######## CMD_SETROOT\n"); // FIXME pos dump?
     v[CMD_LOC_OPCODE] = CMD_OPCODE_SETROOT;
     v[CMD_LOC_HANDB] = (int)posp->hand_black;
     v[CMD_LOC_HANDW] = (int)posp->hand_white;
     v[CMD_LOC_TURN ] = (int)posp->turn_to_move;
-    forr(i,0,80)
+    forr(i, 0, 80)
       v[CMD_LOC_ASQ_OFS + i] = (int)posp->asquare[i];
     v[CMD_LOC_SIZE] = CMD_LOC_ASQ_OFS + 81;
   }

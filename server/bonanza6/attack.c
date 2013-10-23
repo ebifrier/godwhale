@@ -2,14 +2,17 @@
 #include <stdlib.h>
 #include "shogi.h"
 
+// isquareにある先手の駒が idirec方向にpinされているのか。
+// この駒を動かすと先手玉を取られてしまうときは非0
 unsigned int CONV
 is_pinned_on_white_king( const tree_t * restrict ptree, int isquare,
-                        int idirec )
+                         direc_t idirec )
 {
   bitboard_t bb_attacks, bb_attacker;
 
   switch ( idirec )
     {
+    // 横方向にpinされているなら飛車によってしかpinされている可能性がない
     case direc_rank:
       bb_attacks = AttackRank( isquare );
       if ( BBContract( bb_attacks, BB_WKING ) )
@@ -18,6 +21,7 @@ is_pinned_on_white_king( const tree_t * restrict ptree, int isquare,
         }
       break;
 
+    // 縦方向にpinされているなら飛車か香
     case direc_file:
       bb_attacks = AttackFile( isquare );
       if ( BBContract( bb_attacks, BB_WKING ) )
@@ -28,6 +32,7 @@ is_pinned_on_white_king( const tree_t * restrict ptree, int isquare,
         }
       break;
 
+    // 斜め方向にpinされているなら角か馬
     case direc_diag1:
       bb_attacks = AttackDiag1( isquare );
       if ( BBContract( bb_attacks, BB_WKING ) )
@@ -52,7 +57,7 @@ is_pinned_on_white_king( const tree_t * restrict ptree, int isquare,
 
 unsigned int CONV
 is_pinned_on_black_king( const tree_t * restrict ptree, int isquare,
-                        int idirec )
+                         direc_t idirec )
 {
   bitboard_t bb_attacks, bb_attacker;
 
@@ -454,7 +459,7 @@ is_white_attacked( const tree_t * restrict ptree, int sq )
   BBAndOr( bb, bb1, AttackFile( sq ) );
   BBAndOr( bb, BB_B_RD, AttackRank( sq ) );
 
-  return BBToU(bb);
+  return BBTest(bb);
 }
 
 

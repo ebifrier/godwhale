@@ -174,29 +174,30 @@ typedef struct { unsigned int p[3]; } bitboard_t;
 
 #if defined(HAVE_SSE2)
 #define IniOccupied()  do {                                   \
- ptree->posi.occ.m[0] = ptree->posi.occ.m[1] = _mm_setzero_si128(); \
- } while (0)
+    ptree->posi.occ.m[0] = ptree->posi.occ.m[1] = _mm_setzero_si128(); \
+  } while (0)
 
-#define XorOccupied(sq)  do {                                   \
+#define XorOccupied(sq)  do {                                     \
     ptree->posi.occ.m[0] =  \
       _mm_xor_si128( ptree->posi.occ.m[0], ao_bitmask[sq].m[0]);  \
     ptree->posi.occ.m[1] =  \
       _mm_xor_si128( ptree->posi.occ.m[1], ao_bitmask[sq].m[1]);  \
   } while (0)
 
-#define SetClearOccupied(sq1,sq2)  do {                                   \
-    ptree->posi.occ.m[0] =  _mm_xor_si128( ptree->posi.occ.m[0],   \
-      _mm_or_si128( ao_bitmask[sq1].m[0], ao_bitmask[sq2].m[0]));  \
-    ptree->posi.occ.m[1] =  _mm_xor_si128( ptree->posi.occ.m[1],   \
-      _mm_or_si128( ao_bitmask[sq1].m[1], ao_bitmask[sq2].m[1]));  \
+#define SetClearOccupied(sq1,sq2)  do {                           \
+    ptree->posi.occ.m[0] = _mm_xor_si128( ptree->posi.occ.m[0],   \
+      _mm_or_si128( ao_bitmask[sq1].m[0], ao_bitmask[sq2].m[0])); \
+    ptree->posi.occ.m[1] = _mm_xor_si128( ptree->posi.occ.m[1],   \
+      _mm_or_si128( ao_bitmask[sq1].m[1], ao_bitmask[sq2].m[1])); \
   } while (0)
-#else
-#define IniOccupied()  do {                                   \
- ptree->posi.occ.x[0] = ptree->posi.occ.x[1] =  \
- ptree->posi.occ.x[2] = ptree->posi.occ.x[3] = 0UL; \
- } while (0)
 
-#define XorOccupied(sq)  do {                                   \
+#else /* HAVE_SSE2 */
+#define IniOccupied()  do {                            \
+    ptree->posi.occ.x[0] = ptree->posi.occ.x[1] =      \
+    ptree->posi.occ.x[2] = ptree->posi.occ.x[3] = 0UL; \
+  } while (0)
+
+#define XorOccupied(sq)  do {                    \
     ptree->posi.occ.x[0] ^= ao_bitmask[sq].x[0]; \
     ptree->posi.occ.x[1] ^= ao_bitmask[sq].x[1]; \
     ptree->posi.occ.x[2] ^= ao_bitmask[sq].x[2]; \
@@ -211,13 +212,20 @@ typedef struct { unsigned int p[3]; } bitboard_t;
   } while (0)
 #endif /* !HAVE_SSE2  */
 
-#else
-#define IniOccupied() do { ptree->posi.occ.m = _mm256_setzero_ps(); } while(0)
-#define XorOccupied(sq)  do {   ptree->posi.occ.m =  \
-         _mm256_xor_ps(ptree->posi.occ.m, ao_bitmask[sq].m); } while (0)
-#define SetClearOccupied(sq1,sq2)  do {   ptree->posi.occ.m =  \
-         _mm256_xor_ps(ptree->posi.occ.m,  \
-            _mm256_xor_ps(ao_bitmask[sq1].m, ao_bitmask[sq2].m)); } while (0)
+#else /* !HAVE_AVX  */
+#define IniOccupied()  do {                  \
+    ptree->posi.occ.m = _mm256_setzero_ps(); \
+  } while(0)
+
+#define XorOccupied(sq)  do {                             \
+    ptree->posi.occ.m =                                   \
+      _mm256_xor_ps(ptree->posi.occ.m, ao_bitmask[sq].m); \
+  } while (0)
+
+#define SetClearOccupied(sq1,sq2)  do {                     \
+    ptree->posi.occ.m = _mm256_xor_ps(ptree->posi.occ.m,    \
+      _mm256_xor_ps(ao_bitmask[sq1].m, ao_bitmask[sq2].m)); \
+  } while (0)
 #endif /* HAVE_AVX  */
 
 #endif /* BITBRD64  */

@@ -7,25 +7,25 @@ AFFINOPT =
 #AVXOPT = -mavx -DHAVE_AVX
 
 #### choose either
-SSEOPT = -DHAVE_SSE4 -msse4.1
+SSEOPT = -DHAVE_SSE4 -msse4.1 -DHAVE_SSE2 -msse2
 #SSEOPT = -DHAVE_SSE2 -msse2
 
 ######## No need to change below (probably) ########
 
-OBJS =data.o main.o io.o proce.o utility.o ini.o attack.o book.o makemove.o \
-      unmake.o time.o csa.o valid.o bitop.o iterate.o searchr.o search.o \
-      quiesrch.o evaluate.o swap.o  hash.o root.o next.o movgenex.o \
-      genevasn.o gencap.o gennocap.o gendrop.o mate1ply.o rand.o learn1.o \
-      learn2.o evaldiff.o problem.o ponder.o thread.o sckt.o debug.o mate3.o \
-      genchk.o phash.o dfpn.o dfpnhash.o bbini.o
+OBJS = data.o main.o io.o proce.o utility.o ini.o attack.o book.o makemove.o \
+       unmake.o time.o csa.o valid.o bitop.o iterate.o searchr.o search.o \
+       quiesrch.o evaluate.o swap.o  hash.o root.o next.o movgenex.o \
+       genevasn.o gencap.o gennocap.o gendrop.o mate1ply.o rand.o learn1.o \
+       learn2.o evaldiff.o problem.o ponder.o thread.o sckt.o debug.o mate3.o \
+       genchk.o phash.o dfpn.o dfpnhash.o bbini.o
 
-SRCS =data.c main.c io.c proce.c utility.c ini.c attack.c book.c makemove.c \
-      unmake.c time.c csa.c valid.c bitop.c iterate.c searchr.c search.c \
-      quiesrch.c evaluate.c swap.c  hash.c root.c next.c movgenex.c \
-      genevasn.c gencap.c gennocap.c gendrop.c mate1ply.c rand.c learn1.c \
-      learn2.c evaldiff.c problem.c ponder.c thread.c sckt.c debug.c mate3.c \
-      genchk.c phash.c dfpn.c dfpnhash.c    shogi.h bitop.h param.h dfpn.h  \
-      handjoseki.h Makefile hand.jos bbini.c mate3.h
+SRCS = data.c main.c io.c proce.c utility.c ini.c attack.c book.c makemove.c \
+       unmake.c time.c csa.c valid.c bitop.c iterate.c searchr.c search.c \
+       quiesrch.c evaluate.c swap.c  hash.c root.c next.c movgenex.c \
+       genevasn.c gencap.c gennocap.c gendrop.c mate1ply.c rand.c learn1.c \
+       learn2.c evaldiff.c problem.c ponder.c thread.c sckt.c debug.c mate3.c \
+       genchk.c phash.c dfpn.c dfpnhash.c    shogi.h bitop.h param.h dfpn.h  \
+       handjoseki.h Makefile hand.jos bbini.c mate3.h
 
 PROBFILE=../d1.dpp
 
@@ -54,8 +54,10 @@ PROBFILE=../d1.dpp
 # bonk makefile should call like this: make CLUSTOPT=-DCLUSTER_PARALLEL gcc-bonk
 #CLUSTOPT = -DCLUSTER_PARALLEL  ==> this should be MAKE argument for bonkras
 
-OPT = -DNDEBUG -DMINIMUM $(SSEOPT) -DDFPN -DTLP -DDFPN_CLIENT -DNO_LOGGING \
+OPT = -DNDEBUG -DMINIMUM $(SSEOPT) -DDFPN -DTLP -DDFPN_CLIENT \
       -DINANIWA_SHIFT -DCSA_LAN $(AFFINOPT) $(CLUSTOPT) $(AVXOPT)
+
+all: gcc
 
 help:
 	@echo "try targets as:"
@@ -118,9 +120,8 @@ dfpn.o dfpnhash.o: dfpn.h
 iterate.o: handjoseki.h
 
 # 3/22/2012 w/ icc 12.0, compile w/ -O3 fails.  avoid CFLAG due to this
-bbini.o: bbini.c
-	$(CC) -c $(AVXOPT) -msse2 bbini.c
-#	$(CC) -c $(CFLAGS) -msse2 bbatk.cpp
+#bbini.o: bbini.c
+#	$(CC) -c $(AVXOPT) -msse2 bbini.c
 
 mate3.o: mate3.c shogi.h bitop.h param.h mate3.h
 

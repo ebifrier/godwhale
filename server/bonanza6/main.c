@@ -56,8 +56,6 @@ main()
   Out("pid=%d: my rank is %d out of %d\n", getpid(), Mproc, Nproc);
 #endif
 
-  //Out( "%s, %s, %s\n", argv[1], argv[2], argv[3] );
-
   if ( ini( ptree ) < 0 )
     {
       out_error( "ini: %s", str_error );
