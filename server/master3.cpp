@@ -15,19 +15,16 @@ int exitPending, exitAcked;
 
 #define NOSIDE (-1)
 int compTurn = NOSIDE;
-extern int root_turn, depth_limit;
-#define Flip(turn)        ((turn)^1)
 
 #define PR1 1
 
-  // FIXME bogus
+ // FIXME bogus
 #define CMDCHK_INTERVAL_MS 1000
 #define MASTER_INTERVAL 1000
 
 int cmdchkTick, detected, expired, touched, inhFirst, waitRoot;
 extern "C" int detect_signals_master(void);
 extern int last_root_value;
-int microsleepMaster(int);
 
  // need compTurn
 #include "plane.h"
@@ -226,7 +223,7 @@ static void handleReplyMaster()
         dumpRpySetpv();
         mvC pv[GMX_MAX_PV];
         forr (i, 0, rpyent.pvleng()-1)
-            pv[i] =  rpyent.pv(i);
+            pv[i] = rpyent.pv(i);
         plane.rpySetpv(rpyent.itd(), rpyent.pvleng(), pv);
     }
     //******** RPY_SETLIST **
@@ -234,15 +231,12 @@ static void handleReplyMaster()
         dumpRpySetlist();
         mvC mvs[GMX_MAX_LEGAL_MVS];  // 11/29/2011 %11 was GMX_MAX_PV
         forr (i, 0, rpyent.mvcnt()-1)
-            mvs[i] =  rpyent.mv(i);
+            mvs[i] = rpyent.mv(i);
         plane.rpySetlist(rpyent.itd(), rpyent.exd(), rpyent.mvcnt(), mvs);
     }
     //******** RPY_FIRST **
     else if (opc==RPY_OPCODE_FIRST) {
         dumpRpyFirst();
-        mvC bestseq[GMX_MAX_BESTSEQ];
-        forr (i, 0, rpyent.seqleng_first()-1)
-            bestseq[i] =  rpyent.bestseq_first(i);
         plane.rpyFirst(rpyent.itd(), rpyent.exd(), rpyent.val());
     }
     //******** RPY_RETRYING **

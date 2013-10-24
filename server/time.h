@@ -7,10 +7,6 @@
 #define STABLE_THRESH      250
 #define UNSTABLE_EXTEND_COEFF 3
 
- // from shogi.h
-extern int inaniwa_flag;
-extern int rootNrep();
-
 extern int THINK_TIME, BYOYOMI_TIME;
 #define RESPONSE_TIME 200
 
@@ -69,7 +65,6 @@ extern int THINK_TIME, BYOYOMI_TIME;
 #define maxtimeAll_ms()    (355000)
 #define maxtimeTurn_ms()   (420000)
 #define maxtimePonder_ms() (420000)
-#define TOTALTIME (THINK_TIME)
 
 #define MINTIME4EXTEND_SEC ( \
    (THINK_TIME==  0                    )?   1 : \
@@ -82,30 +77,18 @@ extern int THINK_TIME, BYOYOMI_TIME;
    (THINK_TIME==10800&&BYOYOMI_TIME==60)?1165 :\
                      1    )
 
- // copied from shogi.h
-  // FIXME tune
-
-//extern int root_nrep, time_turn_start, time_start, game_status,
-/*extern int time_turn_start, time_start, game_status,
-  sec_w_total, sec_b_total;*/
-//enum { flag_problem = 0x100, flag_pondering = 0x40 };
-
-//void get_elapsed(unsigned int* tnow);
-
- // copied from shogi.h end
-
  // FIXME tune
 #define ADD_RWD_BONUS(x) ((x) * 3 / 8)
 
 static int timeCheck()
 {
     unsigned int tnow, tMaxSpent, tMaxPonder;
-    int timeleft = TOTALTIME - (compTurn ? sec_w_total : sec_b_total);
+    int timeleft = THINK_TIME - (compTurn ? sec_w_total : sec_b_total);
 
     //make sure at least one loop is done (even at the risk of timeup)
     if (plane.lastDoneItd == 0) return 0;
 
-    tMaxSpent = maxtime_ms(timeleft, rootNrep());
+    tMaxSpent = maxtime_ms(timeleft, g_ptree->nrep);
     tMaxPonder = maxtimePonder_ms();
 
     int rwdBonusTime = ADD_RWD_BONUS(tMaxSpent);
@@ -113,10 +96,6 @@ static int timeCheck()
     
     // T if extending time
     bool unstable = TREAT_RETRY_UNSTABLE && timerec.retryingAny();
-    
-    //bool unstable = (tailExd == 0 || nextValid) &&
-    //                (TREAT_RETRY_UNSTABLE && curi[0].retryingAny() ||
-    //                 curi[0].bestval < bestvalAtPrev - STABLE_THRESH );
     
     if (timeleft > MINTIME4EXTEND_SEC) {
         if (unstable) {

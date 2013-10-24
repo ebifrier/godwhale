@@ -899,7 +899,7 @@ void streamC::rpyFcomp(int exd, int val, int pvleng, mvC* pv)
     rowC& r = row[exd];
     MSTOut("**** rpyFcomp d %d l %d ln %d pv %07x %07x frstmv %07x bestmv %07x\n",
            exd, val, pvleng, readable(pv[0]), readable(pv[1]),
-           readable(r.firstmv.mv),  readable(r.firstmv.bestmv));
+           readable(r.firstmv.mv), readable(r.firstmv.bestmv));
 
     if (exd > tailExd) {
         // Note bcut by upper row may occur
@@ -911,10 +911,7 @@ void streamC::rpyFcomp(int exd, int val, int pvleng, mvC* pv)
     r.firstmv.upper =
     r.firstmv.lower = -val;
     r.firstmv.depth = itdexd2srd(itd(), exd);
-    //if (pvleng>1)
-    //  r.firstmv.bestmv = pv[1];  // 12/8/2011 %40 was using pv[0]
-    r.firstmv.bestmv = pvleng>1 ? pv[1] : NULLMV;
-
+    r.firstmv.bestmv= pvleng>1 ? pv[1] : NULLMV;
     r.firstmv.numnode = 0; // ?? FIXME? what's the right thing to do?
     r.firstmv.inherited =
     r.firstmv.retrying = 0;
@@ -923,7 +920,6 @@ void streamC::rpyFcomp(int exd, int val, int pvleng, mvC* pv)
 
     if (val > r.alpha) {
         r.updateValue(val, VALTYPE_ALPHA);
-        //r.updateBest(val, r.firstmv.bestmv, pvleng-1, pv+1);
         r.updateBest(val, r.firstmv.mv, pvleng-1, pv+1);
     }
 

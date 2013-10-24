@@ -65,6 +65,7 @@ extern int worldTime();
 extern int64_t worldTimeLl();
 extern void initTime();
 extern void microsleep(int);
+extern void microsleepMaster(int);
 extern int readable_c(int mv);
 extern int readable(mvC);
 
@@ -80,3 +81,9 @@ extern int probeProcessor();
  // for perfsl.h
 extern int initPerf(tree_t * restrict ptree);
 extern int displayPerf(tree_t * restrict ptree);
+
+ // for slave
+extern int inRoot, rootExceeded, inFirst, firstReplied;
+extern int preNodeCount;
+
+extern void replyFirst();

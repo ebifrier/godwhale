@@ -29,10 +29,8 @@ int inRoot, rootExceeded, inFirst, firstReplied;
 int preNodeCount;
 mvC firstMoves[MAX_EXPDEP][GMX_MAX_LEGAL_MVS];
 int firstMvcnt[MAX_EXPDEP];
-void replyFirst();  // defined below
 
 extern int tlp_max_arg;
-extern int slaveStartPly;
 
 int MAX_SRCH_DEP = MAX_SRCH_DEP_FIGHT;  // FIXME? here? shared w/ someone else?
 

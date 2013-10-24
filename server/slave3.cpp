@@ -44,23 +44,8 @@ int MAX_FIRST_NODE     = MAX_FIRST_NODE_UP;
  // for inRoot/inFirst checks -  FIXME bogus
 #define MAX_ROOT_NODES  40000
 #define MAX_FIRST_NODES 40000
-extern int inRoot, rootExceeded, inFirst, firstReplied;
-extern int preNodeCount;
- // FIXME need not be "C"
-void replyFirst();
 
 tree_t *g_ptree;
-
-// utility func for master
-signed char* boardhead()
-{
-    return &g_ptree->posi.asquare[0];
-}
-
-int rootNrep()
-{
-    return g_ptree->nrep;
-}
 
 class singleCmdC
 {
@@ -132,7 +117,7 @@ cmdPacketC pendingCmd;
 
 mvC mpLastMove;
 
-#define MAX_ROOT_PATH 16    // FIXME?
+#define MAX_ROOT_PATH 32    // FIXME?
 static int curPosPathLeng;
 static mvC curPosPath[MAX_ROOT_PATH];
 static int curPosPathChecks;
@@ -184,7 +169,9 @@ static void rewindToRoot()
 
 static void bringPosTo(int leng, mvC* pv, bool setchks = true)
 {
-    tree_t* restrict ptree = g_ptree; 
+    tree_t* restrict ptree = g_ptree;
+
+    assert(leng < MAX_ROOT_PATH);
 
     if (leng > 0 && leng == curPosPathLeng) {
         bool mch = true;
