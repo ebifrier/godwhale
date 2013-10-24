@@ -1,4 +1,4 @@
-// $Id: ini.c,v 1.6 2012-04-11 06:35:48 eikii Exp $
+﻿// $Id: ini.c,v 1.6 2012-04-11 06:35:48 eikii Exp $
 
 #include <limits.h>
 #include <stdio.h>
@@ -40,10 +40,9 @@ static void ini_random_table( void );
 
 int readHandJoseki();
 
-
 int CONV load_fv( void )
 {
-#ifndef FVBIN_MMAP
+#if 0
   FILE *pf;
   size_t size;
   int iret;
@@ -67,10 +66,38 @@ int CONV load_fv( void )
 
   iret = file_close( pf );
   if ( iret < 0 ) { return iret; }
+#elif ! defined(FVBIN_MMAP)
+  FILE *pf;
+  size_t size;
+  int iret;
+
+  pf = file_open( "fv3.bin", "rb" );
+  if ( pf == NULL ) { return -2; }
+
+  size = nsquare * fe_end * fe_end;
+  pc_on_sq = (pconsqAry *)memory_alloc( sizeof(short) * size );
+  if ( fread( pc_on_sq, sizeof(short), size, pf ) != size )
+    {
+      str_error = str_io_error;
+      return -2;
+    }
+
+  size = nsquare * nsquare * kkp_end;
+  kkp = (kkpAry *)memory_alloc( sizeof(short) * size );
+  if ( fread( kkp, sizeof(short), size, pf ) != size )
+    {
+      free(pc_on_sq);
+      str_error = str_io_error;
+      return -2;
+    }
+
+  iret = file_close( pf );
+  if ( iret < 0 ) { return iret; }
 #else
   int fd;
   size_t sz1, sz2;
   void* mapbase;
+
 #ifndef USE_FV3
   fd = open(str_fv, O_RDONLY);
   sz1 = nsquare * pos_n;
@@ -79,6 +106,7 @@ int CONV load_fv( void )
   sz1 = nsquare * fe_end * fe_end;
 #endif
   sz2 = nsquare * nsquare * kkp_end;
+
    //          hint_adr                                   offset
   mapbase = mmap(NULL, (sz1+sz2)*sizeof(short), PROT_READ, MAP_SHARED, fd, 0);
   if (mapbase == MAP_FAILED) return -2;
@@ -352,6 +380,19 @@ fin( void )
 
   memory_free( (void *)ptrans_table_orig );
 
+#if ! defined(FVBIN_MMAP)
+  if ( pc_on_sq != NULL )
+     {
+       memory_free( pc_on_sq );
+       pc_on_sq = NULL;
+     }
+  if ( kkp != NULL )
+     {
+       memory_free( kkp );
+       kkp = NULL;
+     }
+#endif
+
 #if defined(TLP) || defined(DFPN_CLIENT)
   if ( lock_free( &io_lock ) < 0 ) { return -1; }
 #endif
@@ -591,35 +632,35 @@ ini_tables( void )
     {
       for ( ito = 0; ito < 128; ito++ )
         {
-          adirec[ifrom][ito] = (unsigned char)direc_misc;
+          adirec[ifrom][ito] = direc_misc;
         }
 
       BBOr( bb, abb_plus1dir[ifrom], abb_minus1dir[ifrom] );
       while ( BBTest(bb) )
         {
           ito = FirstOne( bb );
-          adirec[ifrom][ito]  = (unsigned char)direc_rank;
+          adirec[ifrom][ito]  = direc_rank;
           Xor( ito, bb );
         }
       BBOr( bb, abb_plus8dir[ifrom], abb_minus8dir[ifrom] );
       while ( BBTest(bb) )
         {
           ito = FirstOne( bb );
-          adirec[ifrom][ito]  = (unsigned char)direc_diag1;
+          adirec[ifrom][ito]  = direc_diag1;
           Xor( ito, bb );
         }
       BBOr( bb, abb_plus9dir[ifrom], abb_minus9dir[ifrom] );
       while ( BBTest(bb) )
         {
           ito = FirstOne( bb );
-          adirec[ifrom][ito]  = (unsigned char)direc_file;
+          adirec[ifrom][ito]  = direc_file;
           Xor( ito, bb );
         }
       BBOr( bb, abb_plus10dir[ifrom], abb_minus10dir[ifrom] );
       while ( BBTest(bb) )
         {
           ito = FirstOne( bb );
-          adirec[ifrom][ito]  = (unsigned char)direc_diag2;
+          adirec[ifrom][ito]  = direc_diag2;
           Xor( ito, bb );
         }
     }

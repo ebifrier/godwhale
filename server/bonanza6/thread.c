@@ -89,7 +89,7 @@ void CONV
 lock( lock_t *plock )
 {
 #  if defined(_MSC_VER)
-  while ( _InterlockedExchange( (void *)plock, 1 ) )
+  while ( InterlockedExchange( plock, 1 ) )
     {
       while ( *plock ) { tlp_yield();}
     }

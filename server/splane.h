@@ -1,4 +1,4 @@
-/* $Id: splane.h,v 1.72 2012-04-19 22:25:07 eiki Exp $ */
+﻿/* $Id: splane.h,v 1.72 2012-04-19 22:25:07 eiki Exp $ */
 
 //******** FIXME duplicated? ********
 
@@ -53,7 +53,8 @@ class smvEntryC
 public:
     mvC mv;
     mvC bestmv;
-    int depth, numnode;
+    int depth;
+    uint64_t numnode;
     short upper, lower;
     int perfTrycnt;
 
@@ -81,11 +82,11 @@ public:
         bestmv = bm;
     }
 
-    void update(int dep, int val, int A, int B, int numnod, mvC bestmove);
+    void update(int dep, int val, int A, int B, uint64_t numnod, mvC bestmove);
 };
 
 void smvEntryC::update(int dep, int val, int A, int B,
-                       int numnod, mvC bestmove)
+                       uint64_t numnod, mvC bestmove)
 {
     if (A < val && val < B) {
         upper = lower = val;
@@ -510,7 +511,7 @@ extern splaneC splane;
 
 int sstreamC::itd()
 {
-    return (this - &splane.stream[0]);
+    return (int)(this - &splane.stream[0]);
 }
 
 int srowC::itd() {
@@ -533,5 +534,5 @@ int srowC::itd() {
 
 int srowC::exd()
 {
-    return (this - &splane.stream[itd()].row[0]);
+    return (int)(this - &splane.stream[itd()].row[0]);
 }

@@ -578,7 +578,7 @@ make_move_root( tree_t * restrict ptree, unsigned int move, int flag )
 
 int CONV unmake_move_root( tree_t * restrict ptree )
 {
-  unsigned int move;
+  Move move;
   int i;
 
   if ( ptree->nrep == 0 || amove_save[NUM_UNMAKE-1] == MOVE_NA )
@@ -596,7 +596,7 @@ int CONV unmake_move_root( tree_t * restrict ptree )
 
 #ifdef CLUSTER_PARALLEL
   if (!Mproc)
-    unmakeMoveRootHook(move);
+    unmakeMoveRootHook();
 #endif
 
   ptree->nrep -= 1;

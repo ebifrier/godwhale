@@ -1,4 +1,4 @@
-// $Id: mate3.c,v 1.7 2012-04-11 06:38:30 eikii Exp $
+﻿// $Id: mate3.c,v 1.7 2012-04-11 06:38:30 eikii Exp $
 
 #include <stdlib.h>
 #include <limits.h>
@@ -13,7 +13,8 @@
 
 // gen_next_evasion_mate(coroutine)で使うphaseを表わすenum。
 // 詰み回避の検査のためのphase。
-typedef enum {
+typedef enum
+{
   mate_king_cap_checker = 0, // 王手している駒を王で取る手を生成
   mate_cap_checker_gen,      // 王手している駒を移動して取る手を生成
   mate_cap_checker,
@@ -180,7 +181,7 @@ is_mate_in3ply( tree_t * restrict ptree, int turn, int ply )
         bitboard_t bb = (turn ? BB_BOCCUPY : BB_WOCCUPY);
         Xor(kloc,bb); // assume capture by king, kloc empty (new kloc no matter)
         m3easy++;
-        if (m3ptn(to, allAtks, bb)) {
+        if (m3ptn(to, &allAtks, &bb)) {
           m3hit++;
 #ifdef DBG_M3CUT
           hit=1;
@@ -267,7 +268,8 @@ static int CONV
 mate_weak_or( tree_t * restrict ptree, int turn, int ply, int from,
               int to )
 {
-  int idirec, pc, pc_cap, value, flag;
+  int pc, pc_cap, value, flag;
+  direc_t idirec;
 
   if ( ply >= PLY_MAX-2 ) { return 0; }
   
@@ -507,7 +509,8 @@ gen_move_to( const tree_t * restrict ptree, int to, int turn,
              Move * restrict pmove )
 {
   bitboard_t bb;
-  int direc, from, pc, flag_promo, flag_unpromo;
+  int from, pc, flag_promo, flag_unpromo;
+  direc_t direc;
 
   if ( turn == white )
     {
@@ -518,7 +521,7 @@ gen_move_to( const tree_t * restrict ptree, int to, int turn,
           from = LastOne( bb );
           Xor( from, bb );
 
-          direc = (int)adirec[SQ_WKING][from];
+          direc = adirec[SQ_WKING][from];
           if ( direc && is_pinned_on_white_king( ptree, from, direc ) )
             {
               continue;
@@ -571,7 +574,7 @@ gen_move_to( const tree_t * restrict ptree, int to, int turn,
         from = FirstOne( bb );
         Xor( from, bb );
         
-        direc = (int)adirec[SQ_BKING][from];
+        direc = adirec[SQ_BKING][from];
         if ( direc && is_pinned_on_black_king( ptree, from, direc ) )
           {
             continue;
@@ -704,8 +707,9 @@ gen_intercept( tree_t * restrict __ptree__, int sq_checker, int ply, int turn,
   bitboard_t bb_atk, bb_defender, bb;
   unsigned int amove[16];
   unsigned int hand;
-  int n0, n1, inc, pc, sq_k, to, from, direc, nmove, nsup, i, min_chuai, itemp;
+  int n0, n1, inc, pc, sq_k, to, from, nmove, nsup, i, min_chuai, itemp;
   int dist, flag_promo, flag_unpromo;
+  direc_t direc;
 
   n0 = n1 = 0;
   if ( turn )
@@ -760,7 +764,7 @@ gen_intercept( tree_t * restrict __ptree__, int sq_checker, int ply, int turn,
         from = LastOne( bb );
         Xor( from, bb );
         
-        direc        = (int)adirec[sq_k][from];
+        direc        = adirec[sq_k][from];
         flag_promo   = 0;
         flag_unpromo = 1;
         if ( turn )

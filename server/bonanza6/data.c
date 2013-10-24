@@ -85,7 +85,7 @@ uint64_t w_hand_bishop_rand[ nbishop_max ];
 uint64_t w_hand_rook_rand[ nrook_max ];
 uint64_t node_limit;
 SHARE unsigned int game_status;
-unsigned int amove_save[NUM_UNMAKE];
+Move amove_save[NUM_UNMAKE];
 unsigned int move_evasion_pchk;
 unsigned int node_per_second;
 unsigned int node_next_signal;
@@ -147,7 +147,7 @@ int p_value_ex[31];
 int p_value_pm[15];
 int p_value[31];
 
-#ifndef FVBIN_MMAP
+#if 0
 short pc_on_sq[nsquare][pos_n];
 short kkp[nsquare][nsquare][kkp_end];
 #else

@@ -1,4 +1,4 @@
-/* $Id: plane.h,v 1.202 2012-04-20 02:33:05 eikii Exp $ */
+﻿/* $Id: plane.h,v 1.202 2012-04-20 02:33:05 eikii Exp $ */
 
 /** TODO 2/28/2012
    - in cmdFirst, the value s.t. "if value is below this, stop"
@@ -1563,7 +1563,7 @@ void planeC::catchupCommits()
             continue;   // 12/3/2011 %32 was missing
 
         // first, see if betacut occured on any depth
-        for (e=0; e<=tail; e++) {
+        for (e = 0; e <= tail; e++) {
             if (stream[i].row[e].betacut()) break;
         }
 
@@ -1577,13 +1577,13 @@ void planeC::catchupCommits()
         assert(e == tail+1);
 
         // now, check for completion from bottom(tail) up
-        for (e=tail; e>=0; e--) {
+        for (e = tail; e >= 0; e--) {
             if (!stream[i].row[e].nonfirstCompleted())
                 break;    // make sure all non-first moves are done
 
-            if ((e == stream[i].seqprevLeng - 1) &&
-                (stream[i].row[e].bestval == -score_bound) &&
-                (stream[i].row[e].gamma > stream[i].row[e].alpha))
+            if (e == stream[i].seqprevLeng - 1 &&
+                stream[i].row[e].bestval == -score_bound &&
+                stream[i].row[e].gamma > stream[i].row[e].alpha)
                 break;    // need to wait for FCOMP
 
             cmd2send.setCmdCommit(i, e);
@@ -1626,7 +1626,7 @@ void planeC::catchupCommits()
                 // FIXME?  always exact?  say a sibling above updates A,
                 //         Bcut here ... is it possible?
                 rup.firstmv.upper =
-                rup.firstmv.lower =   re.bestval;
+                rup.firstmv.lower = re.bestval;
                 rup.firstmv.depth = itdexd2srd(i, e-1);
                 rup.firstmv.numnode =  // FIXME right?
                 rup.firstmv.retrying =
@@ -1656,7 +1656,7 @@ extern planeC plane;
 
 int streamC::itd()
 {
-    return (this - &(plane.stream[0]));
+    return (int)(this - &(plane.stream[0]));
 }
 
 int rowC::itd()
@@ -1664,9 +1664,9 @@ int rowC::itd()
     char* here = (char*)this;
     int it = -1;
 
-    assert(here >= (char*)&(plane.stream[0]));
+    assert(here >= (char*)&plane.stream[0]);
     forr (i, 1, MAX_ITD) {  // 11/29/2011 %12 was MAX_EXPDEP
-        if (here < (char*)&(plane.stream[i])) {
+        if (here < (char*)&plane.stream[i]) {
             it = i-1; break;
         }
     }
@@ -1676,5 +1676,6 @@ int rowC::itd()
 
 int rowC::exd()
 {
-    return (this - &(plane.stream[itd()].row[0]));
+    return (int)(this - &(plane.stream[itd()].row[0]));
 }
+

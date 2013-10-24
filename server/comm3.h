@@ -586,7 +586,7 @@ public:
         pushEntry();
     }
 
-    void pushPvs(int itd, int exd, int val, mvC mv, int ule, int numnode,
+    void pushPvs(int itd, int exd, int val, mvC mv, int ule, uint64_t numnode,
                  int seqleng, mvC* bestseq)
     {
         v[RPY_LOC_OPCODE] = RPY_OPCODE_PVS;
@@ -595,7 +595,7 @@ public:
         v[RPY_LOC_VAL   ] = val;
         v[RPY_LOC_PVSMV ] = mv.v;
         v[RPY_LOC_ULE   ] = ule;
-        v[RPY_LOC_NUMNODE]= numnode;
+        v[RPY_LOC_NUMNODE]= (int)numnode;
         v[RPY_LOC_SEQLENG_PVS] = seqleng;
 
         if (DBG_DUMP_COMM) {

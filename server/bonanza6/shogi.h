@@ -3,10 +3,18 @@
 #ifndef SHOGI_H
 #define SHOGI_H
 
-#include <stdio.h>
+#ifndef _WIN32
 #include <inttypes.h>
+#endif
+
+#include <stdio.h>
+#include <stdint.h>
 #include "bitop.h"
 #include "param.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
  // 3/22/2012 0 is faster
 #define USE_BBSUFMASK 0
@@ -34,7 +42,9 @@ extern occupiedC ao_bitmask[81];
 #endif // BITBRD64
 
 #ifdef MINIMUM
-#  define FVBIN_MMAP
+#  ifndef _WIN32
+#    define FVBIN_MMAP
+#  endif
 #  define USE_FV3
 #endif
 
@@ -51,7 +61,7 @@ extern occupiedC ao_bitmask[81];
 
 #if defined(_WIN32)
 
-#  include <Winsock2.h>
+#  include <winsock2.h>
 #  define CONV              __fastcall
 #  define SCKT_NULL         INVALID_SOCKET
 typedef SOCKET sckt_t;
@@ -69,16 +79,18 @@ typedef int sckt_t;
 
 /* Microsoft C/C++ on x86 and x86-64 */
 #if defined(_MSC_VER)
+#  include <process.h>
 
 #  define _CRT_DISABLE_PERFCRIT_LOCKS
-#  define UINT64_MAX    ULLONG_MAX
+//#  define UINT64_MAX    ULLONG_MAX
 #  define PRIu64        "I64u"
 #  define PRIx64        "I64x"
-#  define UINT64_C(u)  ( u )
+//#  define UINT64_C(u)  ( u )
 
 #  define restrict      __restrict
 #  define strtok_r      strtok_s
 #  define read          _read
+#  define getpid        _getpid
 #  define strncpy( dst, src, len ) strncpy_s( dst, len, src, _TRUNCATE )
 #  define snprintf( buf, size, fmt, ... )   \
           _snprintf_s( buf, size, _TRUNCATE, fmt, __VA_ARGS__ )
@@ -483,14 +495,14 @@ typedef unsigned int Move;
 // きちんとidirec方向(の延長上)にfromにある駒がpinされているのかどうかを
 // テストする必要がある。
 #define IsDiscoverBK(from,to)                                  \
-          idirec = (int)adirec[SQ_BKING][from],               \
-          ( idirec && ( idirec!=(int)adirec[SQ_BKING][to] )   \
+          idirec = adirec[SQ_BKING][from],               \
+          ( idirec && ( idirec!=adirec[SQ_BKING][to] )   \
             && is_pinned_on_black_king( ptree, from, idirec ) )
 
 // 後手版
 #define IsDiscoverWK(from,to)                                  \
-          idirec = (int)adirec[SQ_WKING][from],               \
-          ( idirec && ( idirec!=(int)adirec[SQ_WKING][to] )   \
+          idirec = adirec[SQ_WKING][from],               \
+          ( idirec && ( idirec!=adirec[SQ_WKING][to] )   \
             && is_pinned_on_white_king( ptree, from, idirec ) )
 #define IsMateWPawnDrop(ptree,to) ( BOARD[(to)+9] == king                 \
                                      && is_mate_w_pawn_drop( ptree, to ) )
@@ -1041,9 +1053,14 @@ extern int p_value_ex[31];
 extern int p_value_pm[15];
 extern int p_value[31];
 
-#ifndef FVBIN_MMAP
+#if 0
 extern short pc_on_sq[nsquare][fe_end*(fe_end+1)/2];
 extern short kkp[nsquare][nsquare][kkp_end];
+#elif ! defined(FVBIN_MMAP)
+typedef short pconsqAry[fe_end][fe_end];
+typedef short kkpAry[nsquare][kkp_end];
+extern pconsqAry *pc_on_sq;
+extern kkpAry *kkp;
 #else
 #ifndef USE_FV3
 typedef short pconsqAry[fe_end*(fe_end+1)/2];
@@ -1453,6 +1470,8 @@ extern tree_t tree;
 
 #if ! defined(_WIN32)
 extern clock_t clk_tck;
+#else
+//extern int CONV getpid( void );
 #endif
 
 #if ! defined(NDEBUG)
@@ -1492,8 +1511,8 @@ void CONV shutdown_all( void );
 #endif
 
 #if defined(CSA_LAN)||defined(MNJ_LAN)||defined(DFPN_CLIENT)||defined(DFPN)
-int client_next_game( tree_t * restrict ptree, const char *str_addr,
-                      int iport );
+int CONV client_next_game( tree_t * restrict ptree, const char *str_addr,
+                           int iport );
 sckt_t CONV sckt_connect( const char *str_addr, int iport );
 int CONV sckt_recv_all( sckt_t sd );
 int CONV sckt_shutdown( sckt_t sd );
@@ -1658,6 +1677,10 @@ double calc_penalty( void );
 #  error "'\n' is not the ASCII code of LF (0x0a)."
 #endif
 
-#endif /* SHOGI_H */
-
 #include "inline.h"
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* SHOGI_H */

@@ -18,7 +18,8 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
 {
   bitboard_t bb, bb_temp, bb_check, bb_check_pro, bb_attacks, bb_drop, bb_move;
   unsigned int ubb;
-  int to, from, idirec;
+  int to, from;
+  direc_t idirec;
 
   assert( ! is_black_attacked( ptree, SQ_BKING ) );
 
@@ -1032,7 +1033,8 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
 {
   bitboard_t bb, bb_temp, bb_check, bb_check_pro, bb_attacks, bb_drop, bb_move;
   unsigned int ubb;
-  int to, from, idirec;
+  int to, from;
+  direc_t idirec;
 
   assert( ! is_white_attacked( ptree, SQ_WKING ) );
 
@@ -2046,7 +2048,8 @@ static int CONV
 can_w_piece_capture( const tree_t * restrict ptree, int to )
 {
   bitboard_t bb_sum, bb, bb_attacks;
-  int idirec, from;
+  direc_t idirec;
+  int from;
   
   from = to-nfile;
   if ( to >= A8 && BOARD[from] == -pawn )
@@ -2089,7 +2092,8 @@ static int CONV
 can_b_piece_capture( const tree_t * restrict ptree, int to )
 {
   bitboard_t bb_sum, bb;
-  int idirec, from;
+  direc_t idirec;
+  int from;
 
   from = to+nfile;
   if ( to <= I2 && BOARD[from] == pawn )

@@ -31,14 +31,14 @@ ini_trans_table( void )
 
   ntrans_table = 1U << log2_ntrans_table;
   size         = sizeof( trans_table_t ) * ntrans_table + 63U;
-  ptrans_table_orig = memory_alloc( size );
+  ptrans_table_orig = (trans_table_t *)memory_alloc( size );
   if ( ptrans_table_orig == NULL ) { return -1; }
   ptrans_table = (trans_table_t *)( ((ptrdiff_t)ptrans_table_orig+63)
                                     & ~(ptrdiff_t)63U );
   hash_mask    = ntrans_table - 1;
   Out( "Trans. Table Entries = %dK (%dMB)\n",
        ( ntrans_table * HASH_ENTRY_WIDTH ) / 1024U, size / (1024U * 1024U ) );
-
+  
   return clear_trans_table();
 }
 

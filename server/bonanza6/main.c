@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <unistd.h>
 #if defined(_WIN32)
 #  include <fcntl.h>
+#else
+#  include <unistd.h>
 #endif
 #include "shogi.h"
 
@@ -55,7 +56,7 @@ main()
   mpi_init(argc, argv, &Nproc, &Mproc); // both master&slave
   Out("pid=%d: my rank is %d out of %d\n", getpid(), Mproc, Nproc);
 #endif
-
+  
   if ( ini( ptree ) < 0 )
     {
       out_error( "ini: %s", str_error );

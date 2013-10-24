@@ -12,7 +12,10 @@
 
 #include <signal.h>
 #include <stdlib.h>
+
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 #include "pcommon3.h"
 
@@ -73,7 +76,7 @@ void mpi_init(int argc, char **argv, int *nproc, int *mproc)
     microsleep(100000);  // 100ms - must be >15ms due to f!&$#n windows
     post_10us = worldTime();
     sprintf(tmpbuf, "I, pid %d, report %d as 100000us.  incs/us=%d\n",
-                 getpid(), (post_10us - pre_10us)*10, INCS_PER_USEC);
+            getpid(), (post_10us - pre_10us)*10, INCS_PER_USEC);
     
     // set time offset
     initTime();

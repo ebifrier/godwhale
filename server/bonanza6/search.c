@@ -12,8 +12,6 @@
 #define CMDCHK_INTERVAL  50
 int node_next_cmdchk = CMDCHK_INTERVAL;
 int slaveStartPly = 0;
-extern tree_t* g_ptree;
-int detect_signals_master() { return detect_signals(g_ptree); }
 #endif
 
 #define PREFCH_EHASH

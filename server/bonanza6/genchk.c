@@ -13,7 +13,8 @@ b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
   bitboard_t bb_diag1_chk, bb_diag2_chk, bb_file_chk, bb_drop_to, bb_desti;
   bitboard_t bb_rank_chk;
   unsigned int u0, u1, u2;
-  int from, to, sq_wk, idirec;
+  int from, to, sq_wk;
+  direc_t idirec;
 
   sq_wk = SQ_WKING;
   bb_file_chk = AttackFile( sq_wk );
@@ -28,7 +29,7 @@ b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
   BBNot( bb_drop_to, bb_drop_to );
 
   from  = SQ_BKING;
-  idirec = (int)adirec[sq_wk][from];
+  idirec = adirec[sq_wk][from];
   if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
     {
       BBIni( bb_chk );
@@ -53,7 +54,7 @@ b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       Xor( from, bb_piece );
 
       BBOr( bb_chk, bb_rook_chk, abb_king_attacks[sq_wk] );
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -79,7 +80,7 @@ b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       Xor( from, bb_piece );
 
       BBOr( bb_chk, bb_bishop_chk, abb_king_attacks[sq_wk] );
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -108,7 +109,7 @@ b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
 
       AttackRook( bb_desti, from );
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           BBAnd( bb_chk, bb_desti, bb_move_to );
@@ -146,7 +147,7 @@ b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       
       AttackRook( bb_desti, from );
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           BBAnd( bb_chk, bb_desti, bb_move_to );
@@ -176,7 +177,7 @@ b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
 
       AttackBishop( bb_desti, from );
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           BBAnd( bb_chk, bb_desti, bb_move_to );
@@ -214,7 +215,7 @@ b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       
       AttackBishop( bb_desti, from );
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           BBAnd( bb_chk, bb_desti, bb_move_to );
@@ -243,7 +244,7 @@ b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
 
       bb_chk = abb_w_gold_attacks[sq_wk];
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -273,7 +274,7 @@ b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       bb_chk.p[1] = abb_w_gold_attacks[sq_wk].p[1];
       bb_chk.p[2] = 0;
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -302,7 +303,7 @@ b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       bb_chk.p[0] = abb_w_gold_attacks[sq_wk].p[0];
       bb_chk.p[1] = bb_chk.p[2] = 0;
       
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -327,7 +328,7 @@ b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
 
       bb_chk = abb_w_silver_attacks[sq_wk];
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -357,7 +358,7 @@ b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       bb_chk.p[0] = abb_w_gold_attacks[sq_wk].p[0];
       bb_chk.p[1] = bb_chk.p[2] = 0;
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -385,7 +386,7 @@ b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
 
       bb_chk = abb_w_knight_attacks[sq_wk];
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -413,7 +414,7 @@ b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       bb_chk.p[0] = abb_w_gold_attacks[sq_wk].p[0];
       bb_chk.p[1] = bb_chk.p[2] = 0;
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -442,7 +443,7 @@ b_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       u2   ^= abb_mask[from].p[2];
 
       bb_chk = bb_file_chk;
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -742,7 +743,8 @@ w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
   bitboard_t bb_rank_chk;
   const tree_t * restrict ptree = __ptree__;
   unsigned int u0, u1, u2;
-  int from, to, sq_bk, idirec;
+  int from, to, sq_bk;
+  direc_t idirec;
 
   sq_bk = SQ_BKING;
   bb_file_chk = AttackFile( sq_bk );
@@ -758,7 +760,7 @@ w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
 
 
   from  = SQ_WKING;
-  idirec = (int)adirec[sq_bk][from];
+  idirec = adirec[sq_bk][from];
   if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
     {
       BBIni( bb_chk );
@@ -783,7 +785,7 @@ w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       Xor( from, bb_piece );
 
       BBOr( bb_chk, bb_rook_chk, abb_king_attacks[sq_bk] );
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -810,7 +812,7 @@ w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       Xor( from, bb_piece );
 
       BBOr( bb_chk, bb_bishop_chk, abb_king_attacks[sq_bk] );
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -839,7 +841,7 @@ w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
 
       AttackRook( bb_desti, from );
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           BBAnd( bb_chk, bb_desti, bb_move_to );
@@ -877,7 +879,7 @@ w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       
       AttackRook( bb_desti, from );
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           BBAnd( bb_chk, bb_desti, bb_move_to );
@@ -907,7 +909,7 @@ w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
 
       AttackBishop( bb_desti, from );
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           BBAnd( bb_chk, bb_desti, bb_move_to );
@@ -945,7 +947,7 @@ w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       
       AttackBishop( bb_desti, from );
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           BBAnd( bb_chk, bb_desti, bb_move_to );
@@ -974,7 +976,7 @@ w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
 
       bb_chk = abb_b_gold_attacks[sq_bk];
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -1004,7 +1006,7 @@ w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       bb_chk.p[1] = abb_b_gold_attacks[sq_bk].p[1];
       bb_chk.p[0] = 0;
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -1033,7 +1035,7 @@ w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       bb_chk.p[2] = abb_b_gold_attacks[sq_bk].p[2];
       bb_chk.p[1] = bb_chk.p[0] = 0;
       
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -1058,7 +1060,7 @@ w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
 
       bb_chk = abb_b_silver_attacks[sq_bk];
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -1088,7 +1090,7 @@ w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       bb_chk.p[2] = abb_b_gold_attacks[sq_bk].p[2];
       bb_chk.p[1] = bb_chk.p[0] = 0;
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -1116,7 +1118,7 @@ w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
 
       bb_chk = abb_b_knight_attacks[sq_bk];
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -1144,7 +1146,7 @@ w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       bb_chk.p[2] = abb_b_gold_attacks[sq_bk].p[2];
       bb_chk.p[1] = bb_chk.p[0] = 0;
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -1173,7 +1175,7 @@ w_gen_checks( tree_t * restrict __ptree__, Move * restrict pmove )
       u1   ^= abb_mask[from].p[1];
 
       bb_chk = bb_file_chk;
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -1474,7 +1476,8 @@ int CONV b_have_checks( tree_t * restrict __ptree__ )
   bitboard_t bb_rank_chk;
   const tree_t * restrict ptree = __ptree__;
   unsigned int u0, u1, u2;
-  int from, to, sq_wk, idirec;
+  int from, to, sq_wk;
+  direc_t idirec;
 
   sq_wk = SQ_WKING;
   BBOr( bb_drop_to, BB_BOCCUPY, BB_WOCCUPY );
@@ -1559,7 +1562,7 @@ int CONV b_have_checks( tree_t * restrict __ptree__ )
   BBNot( bb_move_to, BB_BOCCUPY );
 
   from  = SQ_BKING;
-  idirec = (int)adirec[sq_wk][from];
+  idirec = adirec[sq_wk][from];
   if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
     {
       BBIni( bb_chk );
@@ -1578,7 +1581,7 @@ int CONV b_have_checks( tree_t * restrict __ptree__ )
       Xor( from, bb_piece );
 
       BBOr( bb_chk, bb_rook_chk, abb_king_attacks[sq_wk] );
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -1598,7 +1601,7 @@ int CONV b_have_checks( tree_t * restrict __ptree__ )
       Xor( from, bb_piece );
 
       BBOr( bb_chk, bb_bishop_chk, abb_king_attacks[sq_wk] );
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -1621,7 +1624,7 @@ int CONV b_have_checks( tree_t * restrict __ptree__ )
 
       AttackRook( bb_desti, from );
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           BBAnd( bb_chk, bb_desti, bb_move_to );
@@ -1644,7 +1647,7 @@ int CONV b_have_checks( tree_t * restrict __ptree__ )
       
       AttackRook( bb_desti, from );
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           BBAnd( bb_chk, bb_desti, bb_move_to );
@@ -1668,7 +1671,7 @@ int CONV b_have_checks( tree_t * restrict __ptree__ )
 
       AttackBishop( bb_desti, from );
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           BBAnd( bb_chk, bb_desti, bb_move_to );
@@ -1691,7 +1694,7 @@ int CONV b_have_checks( tree_t * restrict __ptree__ )
       
       AttackBishop( bb_desti, from );
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           BBAnd( bb_chk, bb_desti, bb_move_to );
@@ -1714,7 +1717,7 @@ int CONV b_have_checks( tree_t * restrict __ptree__ )
 
       bb_chk = abb_w_gold_attacks[sq_wk];
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -1737,7 +1740,7 @@ int CONV b_have_checks( tree_t * restrict __ptree__ )
       bb_chk.p[1] = abb_w_gold_attacks[sq_wk].p[1];
       bb_chk.p[2] = 0;
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -1759,7 +1762,7 @@ int CONV b_have_checks( tree_t * restrict __ptree__ )
       bb_chk.p[0] = abb_w_gold_attacks[sq_wk].p[0];
       bb_chk.p[1] = bb_chk.p[2] = 0;
       
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -1779,7 +1782,7 @@ int CONV b_have_checks( tree_t * restrict __ptree__ )
 
       bb_chk = abb_w_silver_attacks[sq_wk];
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -1803,7 +1806,7 @@ int CONV b_have_checks( tree_t * restrict __ptree__ )
       bb_chk.p[0] = abb_w_gold_attacks[sq_wk].p[0];
       bb_chk.p[1] = bb_chk.p[2] = 0;
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -1825,7 +1828,7 @@ int CONV b_have_checks( tree_t * restrict __ptree__ )
 
       bb_chk = abb_w_knight_attacks[sq_wk];
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -1847,7 +1850,7 @@ int CONV b_have_checks( tree_t * restrict __ptree__ )
       bb_chk.p[0] = abb_w_gold_attacks[sq_wk].p[0];
       bb_chk.p[1] = bb_chk.p[2] = 0;
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -1870,7 +1873,7 @@ int CONV b_have_checks( tree_t * restrict __ptree__ )
       u2   ^= abb_mask[from].p[2];
 
       bb_chk = bb_file_chk;
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( idirec && is_pinned_on_white_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_wk );
@@ -1944,7 +1947,8 @@ int CONV w_have_checks( tree_t * restrict __ptree__ )
   bitboard_t bb_rank_chk;
   const tree_t * restrict ptree = __ptree__;
   unsigned int u0, u1, u2;
-  int from, to, sq_bk, idirec;
+  int from, to, sq_bk;
+  direc_t idirec;
 
   sq_bk = SQ_BKING;
   BBOr( bb_drop_to, BB_BOCCUPY, BB_WOCCUPY );
@@ -2030,7 +2034,7 @@ int CONV w_have_checks( tree_t * restrict __ptree__ )
 
 
   from  = SQ_WKING;
-  idirec = (int)adirec[sq_bk][from];
+  idirec = adirec[sq_bk][from];
   if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
     {
       BBIni( bb_chk );
@@ -2049,7 +2053,7 @@ int CONV w_have_checks( tree_t * restrict __ptree__ )
       Xor( from, bb_piece );
 
       BBOr( bb_chk, bb_rook_chk, abb_king_attacks[sq_bk] );
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -2070,7 +2074,7 @@ int CONV w_have_checks( tree_t * restrict __ptree__ )
       Xor( from, bb_piece );
 
       BBOr( bb_chk, bb_bishop_chk, abb_king_attacks[sq_bk] );
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -2093,7 +2097,7 @@ int CONV w_have_checks( tree_t * restrict __ptree__ )
 
       AttackRook( bb_desti, from );
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           BBAnd( bb_chk, bb_desti, bb_move_to );
@@ -2116,7 +2120,7 @@ int CONV w_have_checks( tree_t * restrict __ptree__ )
       
       AttackRook( bb_desti, from );
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           BBAnd( bb_chk, bb_desti, bb_move_to );
@@ -2140,7 +2144,7 @@ int CONV w_have_checks( tree_t * restrict __ptree__ )
 
       AttackBishop( bb_desti, from );
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           BBAnd( bb_chk, bb_desti, bb_move_to );
@@ -2163,7 +2167,7 @@ int CONV w_have_checks( tree_t * restrict __ptree__ )
       
       AttackBishop( bb_desti, from );
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           BBAnd( bb_chk, bb_desti, bb_move_to );
@@ -2186,7 +2190,7 @@ int CONV w_have_checks( tree_t * restrict __ptree__ )
 
       bb_chk = abb_b_gold_attacks[sq_bk];
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -2209,7 +2213,7 @@ int CONV w_have_checks( tree_t * restrict __ptree__ )
       bb_chk.p[1] = abb_b_gold_attacks[sq_bk].p[1];
       bb_chk.p[0] = 0;
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -2231,7 +2235,7 @@ int CONV w_have_checks( tree_t * restrict __ptree__ )
       bb_chk.p[2] = abb_b_gold_attacks[sq_bk].p[2];
       bb_chk.p[1] = bb_chk.p[0] = 0;
       
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -2251,7 +2255,7 @@ int CONV w_have_checks( tree_t * restrict __ptree__ )
 
       bb_chk = abb_b_silver_attacks[sq_bk];
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -2275,7 +2279,7 @@ int CONV w_have_checks( tree_t * restrict __ptree__ )
       bb_chk.p[2] = abb_b_gold_attacks[sq_bk].p[2];
       bb_chk.p[1] = bb_chk.p[0] = 0;
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -2297,7 +2301,7 @@ int CONV w_have_checks( tree_t * restrict __ptree__ )
 
       bb_chk = abb_b_knight_attacks[sq_bk];
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -2319,7 +2323,7 @@ int CONV w_have_checks( tree_t * restrict __ptree__ )
       bb_chk.p[2] = abb_b_gold_attacks[sq_bk].p[2];
       bb_chk.p[1] = bb_chk.p[0] = 0;
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );
@@ -2342,7 +2346,7 @@ int CONV w_have_checks( tree_t * restrict __ptree__ )
       u1   ^= abb_mask[from].p[1];
 
       bb_chk = bb_file_chk;
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( idirec && is_pinned_on_black_king( ptree, from, idirec ) )
         {
           add_behind_attacks( &bb_chk, idirec, sq_bk );

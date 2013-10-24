@@ -1,4 +1,4 @@
-
+﻿
 // compile w/ : g++ bbatk.cpp -c -msse2
 
 #include <stdio.h>
@@ -222,7 +222,7 @@ initNewBB( void )
   foro (d, 0, 3)
   foro (sq, 0, 80)
     if (ai_bitpos[d][sq] >= 0)
-      ao_bitmask[sq].x[d] = 1UL << ai_bitpos[d][sq];
+      ao_bitmask[sq].x[d] = (uint64_t)(1UL << ai_bitpos[d][sq]);
 
   iniAtkData();
 }

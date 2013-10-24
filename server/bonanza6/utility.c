@@ -1,4 +1,4 @@
-// $Id: utility.c,v 1.3 2012/03/22 06:09:30 eiki Exp $
+﻿// $Id: utility.c,v 1.3 2012/03/22 06:09:30 eiki Exp $
 
 #include <assert.h>
 #include <stdio.h>

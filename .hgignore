@@ -30,3 +30,6 @@ server2/book.bin
 server2/fv3.bin
 server2/hand.jos
 Bonako/Bonako/dist/Bonako_*/
+server/visualc10/GodWhale/Debug/
+server/visualc10/GodWhale/x64/
+server/visualc10/x64/

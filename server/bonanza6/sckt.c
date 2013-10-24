@@ -59,6 +59,8 @@ client_next_game( tree_t * restrict ptree, const char *str_addr, int iport )
   min_posi_t min_posi;
 
   for ( ;; ) {
+    char gamename[200];
+    char trip[200];
 
     str_buffer_cmdline[0] = '\0';
     sckt_csa = sckt_connect( str_addr, iport );
@@ -66,8 +68,6 @@ client_next_game( tree_t * restrict ptree, const char *str_addr, int iport )
       
     str_name1 = str_name2 = NULL;
 
-    char gamename[200];
-    char trip[200];
     if (!restart_mode) {
       iret = sckt_out( sckt_csa, "LOGIN %s %s\n",
                      client_str_id, client_str_pwd );
@@ -76,7 +76,7 @@ client_next_game( tree_t * restrict ptree, const char *str_addr, int iport )
       int n;   // split gamename and pwd
       char* p = strchr(client_str_pwd, ',');  // P at the end of gamename
       if ( p == NULL ) { Out("pwd not comma-separated\n"); return -2; }
-      n = p - client_str_pwd;
+      n = (int)(p - client_str_pwd);
       strncpy(gamename, client_str_pwd, n);
       gamename[n] = '\0';
       strcpy(trip, p+1);  // after the comma

@@ -1,4 +1,4 @@
-#include <assert.h>
+﻿#include <assert.h>
 #include <stdlib.h>
 #include "shogi.h"
 
@@ -107,7 +107,8 @@ int CONV
 is_mate_b_pawn_drop( tree_t * restrict ptree, int sq_drop )
 {
   bitboard_t bb, bb_sum, bb_move;
-  int iwk, ito, iret, ifrom, idirec;
+  int iwk, ito, iret, ifrom;
+  direc_t idirec;
 
   BBAnd( bb_sum, BB_WKNIGHT, abb_b_knight_attacks[sq_drop] );
 
@@ -166,7 +167,8 @@ int CONV
 is_mate_w_pawn_drop( tree_t * restrict ptree, int sq_drop )
 {
   bitboard_t bb, bb_sum, bb_move;
-  int ibk, ito, ifrom, iret, idirec;
+  int ibk, ito, ifrom, iret;
+  direc_t idirec;
 
   BBAnd( bb_sum, BB_BKNIGHT, abb_w_knight_attacks[sq_drop] );
 
@@ -226,16 +228,17 @@ is_move_check_b( const tree_t * restrict ptree, unsigned int move )
 {
   const int from = (int)I2From(move);
   const int to   = (int)I2To(move);
-  int ipiece_move, idirec;
+  int ipiece_move;
   bitboard_t bb;
+  direc_t idirec;
 
   if ( from >= nsquare ) { ipiece_move = From2Drop(from); }
   else {
     ipiece_move = (int)I2PieceMove(move);
     if ( I2IsPromote(move) ) { ipiece_move += promote; }
     
-    idirec = (int)adirec[SQ_WKING][from];
-    if ( idirec && idirec != (int)adirec[SQ_WKING][to]
+    idirec = adirec[SQ_WKING][from];
+    if ( idirec && idirec != adirec[SQ_WKING][to]
          && is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
   }
   
@@ -288,16 +291,17 @@ is_move_check_w( const tree_t * restrict ptree, unsigned int move )
 {
   const int from = (int)I2From(move);
   const int to   = (int)I2To(move);
-  int ipiece_move, idirec;
+  int ipiece_move;
   bitboard_t bb;
+  direc_t idirec;
 
   if ( from >= nsquare ) { ipiece_move = From2Drop(from); }
   else {
     ipiece_move = (int)I2PieceMove(move);
     if ( I2IsPromote(move) ) { ipiece_move += promote; }
     
-    idirec = (int)adirec[SQ_BKING][from];
-    if ( idirec && idirec != (int)adirec[SQ_BKING][to]
+    idirec = adirec[SQ_BKING][from];
+    if ( idirec && idirec != adirec[SQ_BKING][to]
          && is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
   }
   

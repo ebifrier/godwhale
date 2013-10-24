@@ -555,8 +555,8 @@ stdout_normal( void )
   wAttributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
   if ( ! SetConsoleTextAttribute( hStdout, wAttributes ) )
     {
-      str_error = "SetConsoleTextAttribute() faild";
-      return -1;
+      //str_error = "SetConsoleTextAttribute() faild";
+      //return -1;
     }
 
 #  else
@@ -594,8 +594,8 @@ stdout_stress( int is_promote, int ifrom )
   }
   if ( ! SetConsoleTextAttribute( hStdout, wAttributes ) )
     {
-      str_error = "SetConsoleTextAttribute() faild";
-      return -1;
+      //str_error = "SetConsoleTextAttribute() faild";
+      //return -1;
     }
 #  else
   if      ( is_promote )       { printf( "\033[7;31m" ); }

@@ -40,7 +40,7 @@ int CONV dfpn_ini_hash( void )
   n2 = 1U << dfpn_hash_log2;
   size = sizeof( dfpn_hash_entry_t ) * ( n2 + 1 + DFPN_NUM_REHASH );
 
-  dfpn_hash_tbl = memory_alloc( size );
+  dfpn_hash_tbl = (dfpn_hash_entry_t *)memory_alloc( size );
   if ( dfpn_hash_tbl == NULL ) { return -1; }
 
   dfpn_hash_mask = n2 -1;

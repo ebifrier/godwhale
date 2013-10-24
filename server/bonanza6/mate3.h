@@ -310,14 +310,16 @@ static void ini_mate3()
 
 #ifdef MATE3_C
 
-static int m3ptn(int sq, bitboard_t bbAtk, bitboard_t bbOcc)
+// bitboard_t を値渡しするとVC10ではalignment関係のエラーが発生するため、
+// ここではポインタ渡しにしている。
+static int m3ptn(int sq, bitboard_t *bbAtk, bitboard_t *bbOcc)
 {
     int i, at = 0, oc = 0;
 
     for (i=0; i<=2; i++) {
-        at |= (((((int64_t)bbAtk.p[mate3pattern[sq][i].word]) << 7)
+        at |= (((((int64_t)bbAtk->p[mate3pattern[sq][i].word]) << 7)
                 >> mate3pattern[sq][i].shift) & mate3pattern[sq][i].and);
-        oc |= (((((int64_t)bbOcc.p[mate3pattern[sq][i].word]) << 7)
+        oc |= (((((int64_t)bbOcc->p[mate3pattern[sq][i].word]) << 7)
                 >> mate3pattern[sq][i].shift) & mate3pattern[sq][i].and)
             | mate3pattern[sq][i].or;
     }

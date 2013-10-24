@@ -26,6 +26,10 @@ void ei_clock_gettime(struct timespec* tsp)
     mach_port_deallocate(mach_task_self(), cclock);
     tsp->tv_sec = mts.tv_sec;
     tsp->tv_nsec = mts.tv_nsec;
+#elif _WIN32
+    ULONGLONG tick = GetTickCount64();
+    tsp->tv_sec  = (int)(tick / 1000);
+    tsp->tv_nsec = (int)((tick % 1000) * 1000 * 1000); // msec -> nanosec
 #else
     clock_gettime(CLOCK_REALTIME, tsp);
 #endif
@@ -110,6 +114,7 @@ static void micropauseCore(int t)
 }
 #endif
 
+#ifndef _WIN32
 static void microsleepCore(int t)
 {
     struct timespec ts, tsrem;
@@ -118,6 +123,7 @@ static void microsleepCore(int t)
     ts.tv_nsec = t * 1000;
     nanosleep(&ts, &tsrem);
 }
+#endif
 
 static void microspinCore(int t)
 {
@@ -166,6 +172,10 @@ void microsleepMaster(int t)
 if (VMMODE)
     microspinCore(t);
 else
+#ifdef _WIN32
+    microspinCore(t);
+#else
     microsleepCore(t);
+#endif
 #endif
 }

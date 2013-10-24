@@ -9,9 +9,10 @@ b_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
   bitboard_t bb_desti, bb_checker, bb_inter, bb_target, bb_piece;
   unsigned int hand, ubb_target0a, ubb_target0b, ubb_pawn_cmp, utemp;
   unsigned ais_pawn[nfile];
-  int nchecker, sq_bk, to, sq_check, idirec;
+  int nchecker, sq_bk, to, sq_check;
   int nhand, i, nolance, noknight, from;
   int ahand[6];
+  direc_t idirec;
   
   /* move the king */
   sq_bk = SQ_BKING;
@@ -57,7 +58,7 @@ b_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       Xor( to, bb_desti );
 
       from = to + 9;
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
         {
           utemp = ( To2Move(to) | From2Move(from) | Piece2Move(pawn)
@@ -78,7 +79,7 @@ b_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
         {
           to = LastOne( bb_desti );
@@ -99,7 +100,7 @@ b_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       BBAnd( bb_desti, bb_target, abb_b_knight_attacks[from] );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
         do {
           to = LastOne( bb_desti );
@@ -122,7 +123,7 @@ b_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       BBAnd( bb_desti, bb_target, abb_b_silver_attacks[from] );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
         do {
           to = LastOne( bb_desti );
@@ -143,7 +144,7 @@ b_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       BBAnd( bb_desti, bb_target, abb_b_gold_attacks[from] );
       if ( ! BBTest(bb_desti) ) { continue; }
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
         do {
           to = LastOne( bb_desti );
@@ -163,7 +164,7 @@ b_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       AttackBishop( bb_desti, from );
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest( bb_desti ) ) { continue; }
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
         do {
           to = LastOne( bb_desti );
@@ -185,7 +186,7 @@ b_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       AttackRook( bb_desti, from );
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest( bb_desti ) ) { continue; }
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
         do {
           to = LastOne( bb_desti );
@@ -208,7 +209,7 @@ b_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest(bb_desti) ) { continue; }
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
         do {
           to = LastOne( bb_desti );
@@ -228,7 +229,7 @@ b_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest(bb_desti) ) { continue; }
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec || ! is_pinned_on_black_king( ptree, from, idirec ) )
         do {
           to = LastOne( bb_desti );
@@ -333,9 +334,10 @@ w_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
   bitboard_t bb_desti, bb_checker, bb_inter, bb_target, bb_piece;
   unsigned int hand, ubb_target2a, ubb_target2b, ubb_pawn_cmp, utemp;
   unsigned int ais_pawn[nfile];
-  int nchecker, sq_wk, to, sq_check, idirec;
+  int nchecker, sq_wk, to, sq_check;
   int nhand, i, nolance, noknight, from;
   int ahand[6];
+  direc_t idirec;
 
   /* move the king */
   sq_wk = SQ_WKING;
@@ -381,7 +383,7 @@ w_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       Xor( to, bb_desti );
 
       from = to - 9;
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
         {
           utemp = ( To2Move(to) | From2Move(from) | Piece2Move(pawn)
@@ -402,7 +404,7 @@ w_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
         {
           to = FirstOne( bb_desti );
@@ -423,7 +425,7 @@ w_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       BBAnd( bb_desti, bb_target, abb_w_knight_attacks[from] );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
         do {
           to = FirstOne( bb_desti );
@@ -445,7 +447,7 @@ w_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       BBAnd( bb_desti, bb_target, abb_w_silver_attacks[from] );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
         do {
           to = FirstOne( bb_desti );
@@ -466,7 +468,7 @@ w_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       BBAnd( bb_desti, bb_target, abb_w_gold_attacks[from] );
       if ( ! BBTest(bb_desti) ) { continue; }
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
         do {
           to = FirstOne( bb_desti );
@@ -487,7 +489,7 @@ w_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
         do {
           to = FirstOne( bb_desti );
@@ -509,7 +511,7 @@ w_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       AttackRook( bb_desti, from );
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest( bb_desti ) ) { continue; }
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
         do {
           to = FirstOne( bb_desti );
@@ -532,7 +534,7 @@ w_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest(bb_desti) ) { continue; }
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
         do {
           to = FirstOne( bb_desti );
@@ -552,7 +554,7 @@ w_gen_evasion( tree_t * restrict ptree, Move * restrict pmove )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest(bb_desti) ) { continue; }
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec || ! is_pinned_on_white_king( ptree, from, idirec ) )
         do {
           to = FirstOne( bb_desti );
@@ -656,7 +658,8 @@ int CONV b_have_evasion( tree_t * restrict ptree )
   bitboard_t bb_desti, bb_checker, bb_inter, bb_target, bb_piece;
   unsigned int ubb_pawn_cmp;
   unsigned int ais_pawn[nfile];
-  int nchecker, sq_bk, to, sq_check, idirec, flag, from;
+  int nchecker, sq_bk, to, sq_check, flag, from;
+  direc_t idirec;
   
   /* move the king */
   flag  = 0;
@@ -708,7 +711,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
       Xor( to, bb_desti );
 
       from = to + 9;
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec
            || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -724,7 +727,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec
            || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -738,7 +741,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
       BBAnd( bb_desti, bb_target, abb_b_knight_attacks[from] );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec
            || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -752,7 +755,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
       BBAnd( bb_desti, bb_target, abb_b_silver_attacks[from] );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec
            || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -766,7 +769,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
       BBAnd( bb_desti, bb_target, abb_b_gold_attacks[from] );
       if ( ! BBTest(bb_desti) ) { continue; }
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec
            || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -781,7 +784,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec
            || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -796,7 +799,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec
            || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -811,7 +814,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest(bb_desti) ) { continue; }
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec
            || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -826,7 +829,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest(bb_desti) ) { continue; }
 
-      idirec = (int)adirec[sq_bk][from];
+      idirec = adirec[sq_bk][from];
       if ( ! idirec
            || ! is_pinned_on_black_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -881,7 +884,8 @@ int CONV w_have_evasion( tree_t * restrict ptree )
   bitboard_t bb_desti, bb_checker, bb_inter, bb_target, bb_piece;
   unsigned int ubb_pawn_cmp;
   unsigned int ais_pawn[nfile];
-  int nchecker, sq_wk, to, sq_check, idirec, flag, from;
+  int nchecker, sq_wk, to, sq_check, flag, from;
+  direc_t idirec;
 
   /* move the king */
   flag  = 0;
@@ -932,7 +936,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
       Xor( to, bb_desti );
 
       from = to - 9;
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec
            || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -948,7 +952,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec
            || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -962,7 +966,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
       BBAnd( bb_desti, bb_target, abb_w_knight_attacks[from] );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec
            || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -976,7 +980,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
       BBAnd( bb_desti, bb_target, abb_w_silver_attacks[from] );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec
            || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -990,7 +994,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
       BBAnd( bb_desti, bb_target, abb_w_gold_attacks[from] );
       if ( ! BBTest(bb_desti) ) { continue; }
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec
            || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -1005,7 +1009,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec
            || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -1020,7 +1024,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest( bb_desti ) ) { continue; }
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec
            || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -1035,7 +1039,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest(bb_desti) ) { continue; }
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec
            || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }
@@ -1050,7 +1054,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
       BBAnd( bb_desti, bb_desti, bb_target );
       if ( ! BBTest(bb_desti) ) { continue; }
 
-      idirec = (int)adirec[sq_wk][from];
+      idirec = adirec[sq_wk][from];
       if ( ! idirec
            || ! is_pinned_on_white_king( ptree, from, idirec ) ) { return 1; }
     }

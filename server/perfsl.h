@@ -331,7 +331,8 @@ struct perfRecordC
     perfTimeNodeC perfAccumRetry[MAX_EXPDEP];
     perfTimeNodeC perfAccumList[MAX_EXPDEP];
     perfTimeNodeC perfAccumList2[MAXTRYCNT];
-    int64_t pren, pre, lastThinkTime;
+    int64_t pre, lastThinkTime;
+    uint64_t pren;
 
     int64_t listsum()
     {

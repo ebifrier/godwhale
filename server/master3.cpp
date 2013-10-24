@@ -23,8 +23,6 @@ int compTurn = NOSIDE;
 #define MASTER_INTERVAL 1000
 
 int cmdchkTick, detected, expired, touched, inhFirst, waitRoot;
-extern "C" int detect_signals_master(void);
-extern int last_root_value;
 
  // need compTurn
 #include "plane.h"
@@ -121,7 +119,7 @@ int master(unsigned int* retmvseq)
             cmdchkTick = 0;
 
             if (!detected && !expired) {
-                detected = detect_signals_master();
+                detected = detect_signals(g_ptree);
                 if (!detected)
                     expired = timeCheck();
 

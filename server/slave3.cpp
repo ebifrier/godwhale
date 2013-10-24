@@ -606,7 +606,7 @@ int proce(int nested)
             int itd = pendingCmd.itd();
             int exd = pendingCmd.exd();
             bool doAbort = nested &&
-                ((itd == RUNNING_SINGLE && running.job.onSingle())||
+                ((itd == RUNNING_SINGLE && running.job.onSingle()) ||
                  (running.job.onList() && running.dropByCommit(itd, exd)));
 
             if (DBG_DUMP_COMM) {
@@ -707,13 +707,13 @@ int detectSignalSlave()
 {
     // 11/26/2011 %5 inRoot/inFirst chk s/b in detSigSlv, not for master
     if ( inRoot &&
-         ((unsigned int)(preNodeCount + MAX_ROOT_NODES) <= g_ptree->node_searched) ) {
+         (preNodeCount + MAX_ROOT_NODES <= g_ptree->node_searched) ) {
         rootExceeded = 1;
         return 1;
     }
 
     if ( inFirst && !firstReplied &&
-         (unsigned int)(preNodeCount + MAX_FIRST_NODES) <= g_ptree->node_searched ) {
+         preNodeCount + MAX_FIRST_NODES <= g_ptree->node_searched ) {
         firstReplied = 1;
         replyFirst();
     }

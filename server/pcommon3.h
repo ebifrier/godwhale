@@ -17,6 +17,9 @@ extern int MAX_SRCH_DEP;
 
 #define DBG_INTERVAL_CHK  0
 
+#undef max
+#undef min
+
 #define areaclr(x)  memset(&(x), 0, sizeof(x))
 #define forr(i,m,n) for (int i=(m); i<=(n); i++)
 #define forv(i,m,n) for (int i=(m); i>=(n); i--)
@@ -59,6 +62,14 @@ public:
     bool operator !=(mvC x) { return (v!=x.v); }
 };
 
+#if defined(_WIN32)
+struct timespec
+{
+    int tv_sec;
+    int tv_nsec;
+};
+#endif
+
  // defined in putils.cpp
 extern void ei_clock_gettime(struct timespec* tsp);
 extern int worldTime();
@@ -84,6 +95,6 @@ extern int displayPerf(tree_t * restrict ptree);
 
  // for slave
 extern int inRoot, rootExceeded, inFirst, firstReplied;
-extern int preNodeCount;
+extern uint64_t preNodeCount;
 
 extern void replyFirst();

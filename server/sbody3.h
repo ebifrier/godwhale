@@ -26,7 +26,7 @@
 #define DECISIVE_DEPTH (88)
 
 int inRoot, rootExceeded, inFirst, firstReplied;
-int preNodeCount;
+uint64_t preNodeCount;
 mvC firstMoves[MAX_EXPDEP][GMX_MAX_LEGAL_MVS];
 int firstMvcnt[MAX_EXPDEP];
 
@@ -635,7 +635,8 @@ static void doFirst()
     int B =  score_bound;
     int val = INITIAL_ASP_VAL;
     int turn = countFlip(root_turn, singleCmd.pvleng);
-    int n, pren;
+    int n;
+    uint64_t pren;
 
     //inFirst = firstReplied = 0;
     firstReplied = 0;
@@ -1126,7 +1127,7 @@ static void doList(jobDtorC srchJob)
         {
             //if not (cur srch invalid due to Alpha change),
             // cancel @ NOTIFY.  if pvsretry & fail lo, will come here
-            int numnode = postn - pren;
+            int64_t numnode = postn - pren;
             //int mvloc = sprmv.top;
             int ule = (B<=val) ? ULE_UPPER : (running.alpha < val) ? ULE_EXACT : ULE_LOWER;
 
