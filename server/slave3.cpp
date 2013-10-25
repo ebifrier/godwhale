@@ -697,23 +697,23 @@ int proce(int nested)
 
         pendingCmd.erase();        // clear pc
         pendingCmd.getCmd();      // read in next cmd, if any
-    } // while(pc)
+    }
 
     return PROCE_OK;
-} // proce()
+}
 
 //**----------------------------
 int detectSignalSlave()
 {
     // 11/26/2011 %5 inRoot/inFirst chk s/b in detSigSlv, not for master
-    if ( inRoot &&
-         (preNodeCount + MAX_ROOT_NODES <= g_ptree->node_searched) ) {
+    if (inRoot &&
+        preNodeCount + MAX_ROOT_NODES <= g_ptree->node_searched) {
         rootExceeded = 1;
         return 1;
     }
 
-    if ( inFirst && !firstReplied &&
-         preNodeCount + MAX_FIRST_NODES <= g_ptree->node_searched ) {
+    if (inFirst && !firstReplied &&
+        preNodeCount + MAX_FIRST_NODES <= g_ptree->node_searched) {
         firstReplied = 1;
         replyFirst();
     }

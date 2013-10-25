@@ -189,7 +189,8 @@ public:
     v[CMD_LOC_SIZE] = CMD_LOC_ASQ_OFS + 81;
   }
 
-  void setCmdFirst(int itd, int havelist, int pvleng, mvC* pv) {
+  void setCmdFirst(int itd, int havelist, int pvleng, mvC* pv)
+  {
     if (DBG_DUMP_COMM) {
       MSTOut("%8d>######## CMD_FIRST: itd %d havelist %04x pvleng %d\npv: ",
              worldTime(), itd, havelist, pvleng);

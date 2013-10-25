@@ -78,6 +78,7 @@ int CONV load_fv( void )
   pc_on_sq = (pconsqAry *)memory_alloc( sizeof(short) * size );
   if ( fread( pc_on_sq, sizeof(short), size, pf ) != size )
     {
+      memory_free(pc_on_sq);
       str_error = str_io_error;
       return -2;
     }
@@ -86,7 +87,8 @@ int CONV load_fv( void )
   kkp = (kkpAry *)memory_alloc( sizeof(short) * size );
   if ( fread( kkp, sizeof(short), size, pf ) != size )
     {
-      free(pc_on_sq);
+      memory_free(kkp);
+      memory_free(pc_on_sq);
       str_error = str_io_error;
       return -2;
     }

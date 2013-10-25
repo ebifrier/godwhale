@@ -154,7 +154,7 @@ void planeC::initialAction() {
             // been srched and gives an exact value  (FIXME true?)
 
             if (!(r.firstmv.depth >= itdexd2srd(shallowItd, e) &&
-                  r.firstmv.upper == - r.bestval       &&
+                  r.firstmv.upper == -r.bestval &&
                   r.firstmv.upper == r.firstmv.lower)) {
                 //usefirst = lastleng;
                 MSTOut(")))) initact 1st no val: e %d\n", e);

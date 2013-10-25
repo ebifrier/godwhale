@@ -189,7 +189,7 @@ void mvEntryC::update(int dep, int val, int ule, int numnod, mvC bestmove)
     else if (ule == ULE_UPPER) {
         if (depth < dep) {
             upper = val;
-            lower = - score_bound;
+            lower = -score_bound;
         }
         else {
             upper = val;
@@ -215,7 +215,7 @@ void mvEntryC::update(int dep, int val, int ule, int numnod, mvC bestmove)
     inherited = retrying = 0;
     MSDOut(">>>> ent_upd new: dep %d up %d lo %d bstmv %07x\n",
            depth, upper, lower, readable(bestmv));
-  }
+}
 
 //******** procmvsC ********
 
@@ -1551,8 +1551,9 @@ void planeC::next1stIfNeeded()
 // issue cmdCommit for finished rows if any
 void planeC::catchupCommits()
 {
-    if (shallowItd == deepItd && stream[shallowItd].tailExd == -1
-        && stream[shallowItd].row[0].alpha == -score_bound) {
+    if (shallowItd == deepItd &&
+        stream[shallowItd].tailExd == -1 &&
+        stream[shallowItd].row[0].alpha == -score_bound) {
         return; // dont do anything at very first
     }
 

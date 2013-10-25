@@ -66,7 +66,7 @@ static int str2piece( const char *str ) {
 
 static int
 interpret_CSA_move2( min_posi_t* posp, unsigned int *pmove,
-                    const char *str )
+                     const char *str )
 {
   int ifrom_file, ifrom_rank, ito_file, ito_rank, ipiece;
   int ifrom, ito;

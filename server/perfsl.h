@@ -66,12 +66,6 @@ static void dumpSlState()
 }
 
 
-// copied from iterate.c
-
-#ifndef PRIu64
-#define PRIu64 "llu"
-#endif
-
 static unsigned int cpu_start;
 
 int initPerf(tree_t * restrict ptree)

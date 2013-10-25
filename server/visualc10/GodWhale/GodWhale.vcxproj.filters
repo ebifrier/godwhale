@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\invokempi.cpp" />
+    <ClCompile Include="..\..\slave3.cpp" />
+    <ClCompile Include="..\..\bonanza6\attack.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\book.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\bbini.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\bitop.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\csa.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\dfpnhash.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\data.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\debug.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\dfpn.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\evaldiff.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\hash.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\evaluate.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\gencap.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\genchk.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\gendrop.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\genevasn.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\gennocap.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\ini.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\io.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\iterate.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\learn1.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\learn2.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\main.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\makemove.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\mate1ply.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\mate3.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\movgenex.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\next.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\phash.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\ponder.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\root.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\problem.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\proce.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\putils.cpp">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\quiesrch.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\rand.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\sckt.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\search.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\searchr.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\swap.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\time.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\thread.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\unmake.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\utility.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\bonanza6\valid.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\master3.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\comm3.h" />
+    <ClInclude Include="..\..\entsort.h" />
+    <ClInclude Include="..\..\if_bonanza.h" />
+    <ClInclude Include="..\..\initact.h" />
+    <ClInclude Include="..\..\pcommon3.h" />
+    <ClInclude Include="..\..\perfsl.h" />
+    <ClInclude Include="..\..\plane.h" />
+    <ClInclude Include="..\..\sbody3.h" />
+    <ClInclude Include="..\..\splane.h" />
+    <ClInclude Include="..\..\time.h" />
+    <ClInclude Include="..\..\bonanza6\bitop.h">
+      <Filter>bonanza6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\bonanza6\dfpn.h">
+      <Filter>bonanza6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\bonanza6\handjoseki.h">
+      <Filter>bonanza6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\bonanza6\inline.h">
+      <Filter>bonanza6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\bonanza6\param.h">
+      <Filter>bonanza6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\bonanza6\mate3.h">
+      <Filter>bonanza6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\bonanza6\shogi.h">
+      <Filter>bonanza6</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="bonanza6">
+      <UniqueIdentifier>{d91b3c8c-f460-4bed-a41b-32e16b91581e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
