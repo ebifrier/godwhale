@@ -242,7 +242,7 @@ public:
         return (mvcnt - donecnt);
     }
 
-    /// 現在、計算が完了していないノードの数を取得します。
+    /// 現在、計算が完了していないノードの数を計算します。
     int nnocompmvs(int dep, int A, int B)
     {
         int compcnt = 0;
@@ -254,7 +254,8 @@ public:
 
         return (mvcnt - compcnt);
     }
-    
+
+    // 指し手が一致する配列のインデックスを取得します。
     int findsuf(mvC mv)
     {
         forr (i, 0, mvcnt-1) {
@@ -279,6 +280,7 @@ public:
         MSDOut(";;;; set donecnt to %d\n", donecnt);
     }
 
+    // もし指し手mvがあれば、再計算フラグを設定します。
     void setRetrying(mvC mv)
     {
         int suf = findsuf(mv);

@@ -3,10 +3,6 @@
 #ifndef SHOGI_H
 #define SHOGI_H
 
-#ifndef _WIN32
-#include <inttypes.h>
-#endif
-
 #include <stdio.h>
 #include <stdint.h>
 #include "bitop.h"
@@ -18,28 +14,6 @@ extern "C" {
 
  // 3/22/2012 0 is faster
 #define USE_BBSUFMASK 0
-
-#ifdef BITBRD64
-#ifdef HAVE_AVX
-typedef union {
- __m256 m;
-#else
-#ifdef HAVE_SSE2
-typedef union {
- __m128i m[2];
-#else
-typedef struct {
-#endif
-#endif
- uint64_t x[4];  // rank, file, diag1(rl45), diag2(rr45)
-} occupiedC;
-
-extern bitboard_t abb_attacks[4][128/*81*/][128];
-extern const int ai_shift[4][81];
-extern const int ai_sufmask[4][81];
-extern occupiedC ao_bitmask[81];
-
-#endif // BITBRD64
 
 #ifdef MINIMUM
 #  ifndef _WIN32
@@ -79,18 +53,17 @@ typedef int sckt_t;
 
 /* Microsoft C/C++ on x86 and x86-64 */
 #if defined(_MSC_VER)
-#  include <process.h>
 
+#  include <process.h>
 #  define _CRT_DISABLE_PERFCRIT_LOCKS
-//#  define UINT64_MAX    ULLONG_MAX
 #  define PRIu64        "I64u"
 #  define PRIx64        "I64x"
-//#  define UINT64_C(u)  ( u )
 
 #  define restrict      __restrict
 #  define strtok_r      strtok_s
 #  define read          _read
 #  define getpid        _getpid
+#  define unreachable() __assume(0); assert(0)
 #  define strncpy( dst, src, len ) strncpy_s( dst, len, src, _TRUNCATE )
 #  define snprintf( buf, size, fmt, ... )   \
           _snprintf_s( buf, size, _TRUNCATE, fmt, __VA_ARGS__ )
@@ -103,20 +76,43 @@ typedef volatile long lock_t;
 #elif defined(__GNUC__) && ( defined(__i386__) || defined(__x86_64__) )
 
 #  include <inttypes.h>
-#  define restrict __restrict
-//typedef volatile int lock_t;
+#  define restrict      __restrict
+#  define unreachable() __builtin_unreachable(); assert(0)
 typedef pthread_mutex_t lock_t;
 
 /* other targets. */
 #else
 
-#  include <inttypes.h>
+#  define unreachable()
 typedef struct { unsigned int p[3]; } bitboard_t;
 typedef pthread_mutex_t lock_t;
 extern unsigned char aifirst_one[512];
 extern unsigned char ailast_one[512];
 
 #endif
+
+#ifdef BITBRD64
+
+#ifdef HAVE_AVX
+typedef union {
+ __m256 m;
+#else
+#ifdef HAVE_SSE2
+typedef union {
+ __m128i m[2];
+#else
+typedef struct {
+#endif
+#endif
+ uint64_t x[4];  // rank, file, diag1(rl45), diag2(rr45)
+} occupiedC;
+
+extern bitboard_t abb_attacks[4][128/*81*/][128];
+extern const int ai_shift[4][81];
+extern const int ai_sufmask[4][81];
+extern occupiedC ao_bitmask[81];
+
+#endif // BITBRD64
 
 #define BK_TINY
 /*
@@ -479,6 +475,7 @@ typedef unsigned int Move;
                 ( (turn) ? w_gen_checks( ptree, pmove )      \
                          : b_gen_checks( ptree, pmove ) )
 
+// 1手詰みチェック関数を手番に応じて呼び分けるためのマクロ
 #define IsMateIn1Ply(turn)                                    \
                 ( (turn) ? is_w_mate_in_1ply( ptree )         \
                          : is_b_mate_in_1ply( ptree ) )
@@ -496,17 +493,20 @@ typedef unsigned int Move;
 // テストする必要がある。
 #define IsDiscoverBK(from,to)                                  \
           idirec = adirec[SQ_BKING][from],               \
-          ( idirec && ( idirec!=adirec[SQ_BKING][to] )   \
+          ( idirec && idirec!=adirec[SQ_BKING][to]   \
             && is_pinned_on_black_king( ptree, from, idirec ) )
 
 // 後手版
 #define IsDiscoverWK(from,to)                                  \
           idirec = adirec[SQ_WKING][from],               \
-          ( idirec && ( idirec!=adirec[SQ_WKING][to] )   \
+          ( idirec && idirec!=adirec[SQ_WKING][to]   \
             && is_pinned_on_white_king( ptree, from, idirec ) )
+
+// 先手による後手玉の打ち歩詰めのチェック
 #define IsMateWPawnDrop(ptree,to) ( BOARD[(to)+9] == king                 \
                                      && is_mate_w_pawn_drop( ptree, to ) )
 
+// 後手による先手玉の打ち歩詰めのチェック
 #define IsMateBPawnDrop(ptree,to) ( BOARD[(to)-9] == -king                \
                                      && is_mate_b_pawn_drop( ptree, to ) )
 
@@ -1150,6 +1150,8 @@ extern uint64_t w_hand_gold_rand[ ngold_max ];
 extern uint64_t w_hand_bishop_rand[ nbishop_max ];
 extern uint64_t w_hand_rook_rand[ nrook_max ];
 
+extern int m3call, m3mvs, m3easy, m3hit, m3mate;
+
 extern unsigned int move_evasion_pchk;
 extern int easy_abs;
 extern int easy_min;
@@ -1260,6 +1262,7 @@ void CONV make_move_w( tree_t * restrict ptree, unsigned int move, int ply );
 void CONV make_move_b( tree_t * restrict ptree, unsigned int move, int ply );
 void CONV unmake_move_b( tree_t * restrict ptree, unsigned int move, int ply );
 void CONV unmake_move_w( tree_t * restrict ptree, unsigned int move, int ply );
+void ini_mate3( void );
 void ini_rand( unsigned int s );
 void out_CSA( tree_t * restrict ptree, record_t *pr, unsigned int move );
 void CONV out_pv( tree_t * restrict ptree, int value, int turn,
@@ -1362,8 +1365,8 @@ int record_open( record_t *pr, const char *str_file,
 int record_close( record_t *pr );
 unsigned int CONV phash( unsigned int move, int turn );
 unsigned int CONV is_mate_in3ply( tree_t * restrict ptree, int turn, int ply );
-unsigned int CONV is_b_mate_in_1ply( tree_t * restrict ptree );
-unsigned int CONV is_w_mate_in_1ply( tree_t * restrict ptree );
+Move CONV is_b_mate_in_1ply( tree_t * restrict ptree );
+Move CONV is_w_mate_in_1ply( tree_t * restrict ptree );
 unsigned int CONV hash_probe( tree_t * restrict ptree, int ply, int depth,
                               int turn, int alpha, int beta,
                               unsigned int *pstate_node );

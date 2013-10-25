@@ -497,18 +497,19 @@ int proce(int nested)
 
         case CMD_OPCODE_FIRST:
             assert(!(ABORT_ON_1ST && nested));
-            singleCmd.valid = 1;
-            singleCmd.opcode = pcOpc;
-            singleCmd.issued = 0;
-            singleCmd.itd = pendingCmd.itd();
-            singleCmd.pvleng = pendingCmd.pvleng();
+            singleCmd.valid    = 1;
+            singleCmd.opcode   = pcOpc;
+            singleCmd.issued   = 0;
+            singleCmd.itd      = pendingCmd.itd();
+            singleCmd.pvleng   = pendingCmd.pvleng();
             singleCmd.fromRoot = 0;
-            singleCmd.haveList =pendingCmd.havelist_first();
-            singleCmd.ule = ULE_NA;
-            singleCmd.val = 0;
+            singleCmd.haveList = pendingCmd.havelist_first();
+            singleCmd.ule      = ULE_NA;
+            singleCmd.val      = 0;
             singleCmd.bestseqLeng = 0;
             if (DBG_DUMP_COMM) {
-                SLTOut("^^^^ first called  itd %d pvleng %d havelist %04x\nfirst pv:",
+                SLTOut("^^^^ first called itd %d pvleng %d havelist %04x\n"
+                       "first pv:",
                        singleCmd.itd, singleCmd.pvleng, singleCmd.haveList);
             }
             forr (i, 0, singleCmd.pvleng-1) {
@@ -538,9 +539,9 @@ int proce(int nested)
             forr (i, 0, cnt-1) {
                 tuples[i] = pendingCmd.tuple(i);
             }
-            splane.cmdList(pendingCmd.itd(), pendingCmd.exd(), pendingCmd.alpha(),
-                           pendingCmd.beta(), pendingCmd.firstmv(), pvlen,
-                           pv, cnt, tuples);
+            splane.cmdList(pendingCmd.itd(), pendingCmd.exd(),
+                           pendingCmd.alpha(), pendingCmd.beta(),
+                           pendingCmd.firstmv(), pvlen, pv, cnt, tuples);
 
             if (DBG_DUMP_COMM) {
                 SLTOut("^^^^ list called  itd %d exd %d mvcnt %d alpha %d beta %d\n",
@@ -568,6 +569,7 @@ int proce(int nested)
         {   // find the relevant slot in pvsCmd[]
             int addcnt = pendingCmd.mvcnt();
             mvtupleC tuples[MAX_XFER_MVS];
+
             forr (i, 0, addcnt-1) {
                 tuples[i] = pendingCmd.tuple_extend(i);
             }

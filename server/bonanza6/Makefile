@@ -25,7 +25,7 @@ SRCS = data.c main.c io.c proce.c utility.c ini.c attack.c book.c makemove.c \
        genevasn.c gencap.c gennocap.c gendrop.c mate1ply.c rand.c learn1.c \
        learn2.c evaldiff.c problem.c ponder.c thread.c sckt.c debug.c mate3.c \
        genchk.c phash.c dfpn.c dfpnhash.c    shogi.h bitop.h param.h dfpn.h  \
-       handjoseki.h Makefile hand.jos bbini.c mate3.h
+       handjoseki.h Makefile hand.jos bbini.c
 
 PROBFILE=../d1.dpp
 
@@ -48,14 +48,15 @@ PROBFILE=../d1.dpp
 # -DDFPN_CLIENT      enables the client-mode of mate-problem server.
 
 #### enable to use gprof
-#PROFOPT = -pg
+#PROFOPT = -g -pg
 
 #### enable this for cluster parallel
 # bonk makefile should call like this: make CLUSTOPT=-DCLUSTER_PARALLEL gcc-bonk
 #CLUSTOPT = -DCLUSTER_PARALLEL  ==> this should be MAKE argument for bonkras
 
-OPT = -DNDEBUG -DMINIMUM $(SSEOPT) -DDFPN -DTLP -DDFPN_CLIENT \
-      -DINANIWA_SHIFT -DCSA_LAN $(AFFINOPT) $(CLUSTOPT) $(AVXOPT)
+OPT = -D__STDC_FORMAT_MACROS -DNDEBUG -DMINIMUM -DDFPN -DTLP \
+      -DDFPN_CLIENT -DINANIWA_SHIFT -DCSA_LAN \
+      $(SSEOPT) $(AFFINOPT) $(CLUSTOPT) $(AVXOPT)
 
 all: gcc
 
@@ -123,9 +124,9 @@ iterate.o: handjoseki.h
 #bbini.o: bbini.c
 #	$(CC) -c $(AVXOPT) -msse2 bbini.c
 
-mate3.o: mate3.c shogi.h bitop.h param.h mate3.h
+mate3.o: mate3.c shogi.h bitop.h param.h
 
-ini.o: ini.c shogi.h bitop.h param.h mate3.h
+ini.o: ini.c shogi.h bitop.h param.h
 
 #.c.o :
 #	$(CC) $(OPT) -c $(CFLAGS) $*.c

@@ -8,7 +8,6 @@
 #endif
 
 #include "shogi.h"
-#include "mate3.h"
 
 #ifdef CLUSTER_PARALLEL
 #include "../if_bonanza.h"
@@ -790,12 +789,68 @@ ini_attack_tables( void )
   int irank, ifile, pcs, i;
   bitboard_t bb;
 
+  // 以下、aslideのテーブル初期化コード
   for ( i = 0; i < nsquare; i++ )
     {
-      aslide[i].ir0   = (unsigned char)(i/27);
-      aslide[i].sr0   = (unsigned char)((2-(i/9)%3)*9+1);
-      aslide[i].irl90 = (unsigned char)(2-(i%9)/3);
-      aslide[i].srl90 = (unsigned char)(((i%9)%3)*9+1);
+      // そのnsquareが何番目のbitboardに属するのか
+      // 000000000
+      // 000000000
+      // 000000000
+      // 111111111
+      // 111111111
+      // 111111111
+      // 222222222
+      // 222222222
+      // 222222222
+      aslide[i].ir0 = (unsigned char)(i/(nfile*3));
+
+      // bitboardのp[N]から、その段の2～8筋(7bit)を取り出すのに必要なシフト回数
+      // 何故7bitで良いかというと、駒を捕獲しない指し手の生成だから、
+      // 例えば飛車が5筋にいて、2,3,4筋に駒がなければ1筋まで行けるのは確定で、
+      // 1筋に仮に駒があれば、それは捕獲する移動だから自動的に除外されるから、
+      // 飛車の利きを最初に調べるときに1筋まで考慮する必要はないのである。
+      // よって、2～8筋の駒の状態だけ調べれば十分。
+      //
+      // 19 19 19 ..
+      // 10 10 10 ..
+      //  1  1  1 ..
+      // 19 19 19 ..
+      // 10 10 10 ..
+      //  1  1  1 ..
+      // 19 19 19 ..
+      // 10 10 10 ..
+      //  1  1  1 ..
+      aslide[i].sr0 = (unsigned char)((2-(i/nfile)%3)*9+1);
+
+      // ir0を90度回転させたもの。
+      // あるBoardPosが occupied_rl90の何番目の要素にあるかを
+      // 確定させるのに使う。
+      // 
+      // 222111000
+      // 222111000
+      // 222111000
+      // 222111000
+      // 222111000
+      // 222111000
+      // 222111000
+      // 222111000
+      // 222111000
+      aslide[i].irl90 = (unsigned char)(2-(i%nfile)/3);
+
+      // ↑で求めたoccupied_rl90から、その筋(2～8筋の7bit)を
+      // 取り出すときに必要なshiftの回数。
+      // srl90はShift number to Rotate turn to the Left 90゜の意味か。
+      // 
+      //  1 10 19 ..
+      //  1 10 19 ..
+      //  1 10 19 ..
+      //  1 10 19 ..
+      //  1 10 19 ..
+      //  1 10 19 ..
+      //  1 10 19 ..
+      //  1 10 19 ..
+      //  1 10 19 ..
+      aslide[i].srl90 = (unsigned char)(((i%nfile)%3)*9+1);
     }
   
   for ( irank = 0; irank < nrank; irank++ )
@@ -857,9 +912,31 @@ ini_attack_tables( void )
         abb_w_knight_attacks[ irank*nfile + ifile ] = bb;
       
 
+      // abb_file_attacksとは、
+      // file = 筋 , file_attacks = 縦方向の利き
+      // の意味。
+      // abb_file_attacks[boardPos][pcs]
+      // を与えると、boardPosから上下に対する利きが一発で求まる。
+      // 
+      // また、
+      // pcs = そのboardPosの属する列の、駒がある位置が1であるbit pattern(7bit)
+      //   2の段 = 1 bit目
+      //    …
+      //   8の段 = 7 bit目
+      // に相当するので1,9の段にある障害駒は無視されるが、
+      // それらの駒は利きには関係ないので考慮する必要がない。
+      // ※なぜなら、1段目に駒があろうとなかろうと下から2段目までに
+      // 利きが伸びていて2段目に駒がなければ利きは当然1段目にも
+      // 到達しているからで、結局、1段目まで利きが到達するかどうかを
+      // 判定するために1段目に駒があるかないかという情報は必要ないのである。
+      //
+      // あと、特に pcs == 0 のときは、boardPosの位置の上下に発生している
+      // 利きを表現する。これは詰み判定のときに役立つ。
       for ( pcs = 0; pcs < 128; pcs++ )
         {
           BBIni(bb);
+
+          // 駒のある位置を除いた上下の利きを求める。
           for ( i = -1; irank+i >= 0; i-- )
             {
               set_attacks( irank+i, ifile, &bb );
@@ -871,7 +948,8 @@ ini_attack_tables( void )
               if ( (pcs<<1) & (1 << (8-irank-i)) ) { break; }
             }
           abb_file_attacks[irank*nfile+ifile][pcs] = bb; 
-        
+
+          // 駒のある位置を除いた左右の利きを求める。
           BBIni(bb);
           for ( i = -1; ifile+i >= 0; i-- )
             {
@@ -884,7 +962,8 @@ ini_attack_tables( void )
               if ( (pcs<<1) & (1 << (8-ifile-i)) ) { break; }
             }
           abb_rank_attacks[irank*nfile+ifile][pcs] = bb;
-        
+
+          // 左上から右下への利き。
           BBIni(bb);
           if ( ifile <= irank )
             {
@@ -913,7 +992,8 @@ ini_attack_tables( void )
           }
 
           abb_bishop_attacks_rl45[irank*nfile+ifile][pcs] = bb; 
-        
+
+          // 右上から左下への利き。
           BBIni(bb);
           if ( ifile+irank >= 8 )
             {
@@ -942,10 +1022,15 @@ ini_attack_tables( void )
           }
           abb_bishop_attacks_rr45[irank*nfile+ifile][pcs] = bb; 
         }
-      
+
+      // 将棋盤に斜めのラインは9+8=17本あって、45度回転させた盤面が
+      // 9*9に入りきらないので、それを詰め込むために共有しているラインがある。
+      // そこで盤面の右下半分なのか左上半分なのかで意味を変えることにする。
       if ( irank >= ifile )
         {
+          // 何番目のbitboardのunsigned intか(p[N]のN)。
           aslide[irank*nfile+ifile].irl45 = (unsigned char)((irank-ifile)/3);
+          // そこを取り出すのに必要な右shift回数。
           aslide[irank*nfile+ifile].srl45
             = (unsigned char)((2-((irank-ifile)%3))*9+1);
         }

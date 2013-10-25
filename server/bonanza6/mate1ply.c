@@ -2,18 +2,34 @@
 #include <stdlib.h>
 #include "shogi.h"
 
-#define DebugOut { static int count = 0; \
-                   if ( count++ < 16 ) { out_CSA_posi( ptree, stdout, 0 ); } }
+#define DebugOut {        \
+  static int count = 0;   \
+  if ( count++ < 16 ) { out_CSA_posi( ptree, stdout, 0 ); } }
 
+// 玉の退路を探す。敵の利きのない退路があるなら1。さもなくば0。
+// pbb = 玉が行けないところのmask。行けないところは1。
+// ここには、toに(いま置いたばかりの)駒による利きがあると考えられる。
+// また、玉はtoの場所にも特別に行けないと仮定する。
+// (toには敵の利きのある場所に敵の駒を打つと仮定しているのでこの駒を玉では取れない。)
+// 自駒があるところも、玉はもちろん行けない。
 static int CONV can_w_king_escape( tree_t * restrict ptree, int to,
                                    const bitboard_t * restrict pbb );
 static int CONV can_b_king_escape( tree_t * restrict ptree, int to,
                                    const bitboard_t * restrict pbb );
+
+// toにある駒を取るとこが出来るのか。toにある駒を取って空き王手にならないのか。
+// 取ることができるなら1。さもなくば0。
+// toの地点には敵の利きがあるので王で取る手は考えない。
+// また、toの地点にある駒をとるときにpinされているかはチェックする。
 static int CONV can_w_piece_capture( const tree_t * restrict ptree, int to );
 static int CONV can_b_piece_capture( const tree_t * restrict ptree, int to );
 
 
-unsigned int CONV
+// 先手番の1手詰みのチェック(後手玉が1手で詰むかどうか)
+// 先手玉に王手自体がかかっていないなら、このメソッドの呼び出しをしてはならない
+// 戻り値は、詰みに導く指し手のひとつ。
+// 詰まなければ0(MOVA_NA = 指し手なし)が返る。
+Move CONV
 is_b_mate_in_1ply( tree_t * restrict ptree )
 {
   bitboard_t bb, bb_temp, bb_check, bb_check_pro, bb_attacks, bb_drop, bb_move;
@@ -21,14 +37,25 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
   int to, from;
   direc_t idirec;
 
+  // 先手玉に王手自体がかかっていないなら、このメソッドの呼び出しはおかしい。
   assert( ! is_black_attacked( ptree, SQ_BKING ) );
 
   /*  Drops  */
+  // 駒が打てる場所
   BBOr( bb_drop, BB_BOCCUPY, BB_WOCCUPY );
   BBNot( bb_drop, bb_drop );
 
+  // 飛車を持っていたら
   if ( IsHandRook(HAND_B) ) {
 
+    // 後手玉の上下左右の4つのマスで駒の打てるところ。
+    // 遠い位置からの飛車打ちは合駒が出来てややこしいのでmate3plyの
+    // ほうで行なうことにして、ここでは除外されている。
+    // 
+    // 十字の利きを持つbitboardを作るために先手・後手の金の利きを
+    // 合成しているのは面白い。十字の利きを持つbitboardを事前に
+    // 用意しておいたほうが高速化できるが、
+    // 保木さんはなるべく無駄なテーブル作成をしたくないのかも知れない。
     BBAnd( bb, abb_w_gold_attacks[SQ_WKING], abb_b_gold_attacks[SQ_WKING] );
     BBAnd( bb, bb, bb_drop );
     while( BBTest(bb) )
@@ -36,15 +63,30 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
         to = FirstOne( bb );
         Xor( to, bb );
 
+        // そこに先手の利きがないならその手は考えない。
         if ( ! is_white_attacked( ptree, to ) ) { continue; }
-        
+
+        // 飛車の利きを表現するbitboardを得る。
         BBOr( bb_attacks, abb_file_attacks[to][0], abb_rank_attacks[to][0] );
+
+        // 打った飛車の利きが生きているものとして、玉の退路があるかを探す。
         if ( can_w_king_escape( ptree, to, &bb_attacks ) ) { continue; }
+
+        // あとは、後手が王以外の駒でこの打ったばかりの飛車を取れるのか調べる。
         if ( can_w_piece_capture( ptree, to ) )            { continue; }
+
+        // もし退路がなく駒を取りながらの移動もできないなら
+        // この指し手で詰みである。
         return To2Move(to) | Drop2Move(rook);
       }
 
-  } else if ( IsHandLance(HAND_B) && SQ_WKING <= I2 ) {
+  }
+  // 以下は香打ちだが、飛車打ちを試したのならば、
+  // 飛車は香の利きを包含するので香打ちを試す必要はない。
+  // そこでelse ifで書かれている。
+  // また、後手玉が1～8段目にいなければ香打ちで王手にならないので
+  // そのケースも事前に除外しておく。
+  else if ( IsHandLance(HAND_B) && SQ_WKING <= I2 ) {
 
     to = SQ_WKING+nfile;
     if ( ! BOARD[to] && is_white_attacked( ptree, to ) )
@@ -1028,7 +1070,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
 }
 
 
-unsigned int CONV
+Move CONV
 is_w_mate_in_1ply( tree_t * restrict ptree )
 {
   bitboard_t bb, bb_temp, bb_check, bb_check_pro, bb_attacks, bb_drop, bb_move;

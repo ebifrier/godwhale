@@ -17,7 +17,7 @@ endif
 BNSFLAGS = -DMINIMUM -DHAVE_SSE4 -msse4.1 -DDFPN -DTLP -DDFPN_CLIENT \
            -DINANIWA_SHIFT -DCSA_LAN
 INCLUDES =
-CPPFLAGS =
+CPPFLAGS = -D__STDC_FORMAT_MACROS
 CFLAGS   = -Wall -g
 CXXFLAGS = -Wall -g $(IPOOPT)
 LDFLAGS  =
@@ -69,7 +69,7 @@ $(BIN): bns_objs $(BIN_OBJS)
 	$(MPI_LINK) -o $@ $(BIN_OBJS) $(BNS_OBJS) $(LIBS)
 
 bns_objs:
-	make -C $(BNS) CLUSTOPT=-DCLUSTER_PARALLEL $(BN_OBJTYPE)
+	$(MAKE) -C $(BNS) CLUSTOPT=-DCLUSTER_PARALLEL $(BN_OBJTYPE)
 
 
 $(U2B): u2b.o
@@ -80,7 +80,7 @@ depend:
 
 clean:
 	rm -fr $(BIN) $(U2B) *.o *.stackdump logslave* logmaster*
-	make -C $(BNS) clean
+	$(MAKE) -C $(BNS) clean
 
 # 依存ファイルの読み込み
 -include $(DEP_FILE)

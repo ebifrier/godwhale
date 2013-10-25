@@ -4,9 +4,9 @@ TMP=/tmp/bkrcmd
 echo 'beep off'  > $TMP
 echo 'sendpv on' >> $TMP
 echo 'resign 32599' >> $TMP
-echo 'connect wdoor.c.u-tokyo.ac.jp 4081 TestWhale4 floodgate-900-0,mytrip 1' >> $TMP
+#echo 'connect wdoor.c.u-tokyo.ac.jp 4081 TestWhale4 floodgate-900-0,mytrip 1' >> $TMP
 #echo 'connect localhost 4081 TestWhale4 test-900-0' >> $TMP
-#echo 'connect 101.110.31.31 4081 TestWhale4 test-900-10' >> $TMP
+echo 'connect 101.110.31.31 4081 TestWhale4 test-900-10' >> $TMP
 
 while :
 do

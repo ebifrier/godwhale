@@ -38,7 +38,6 @@
 #  define BBContract(b1,b2) ( ! _mm_testz_si128( (b1).m, (b2).m ) )
 #  define BBTest(b)         ( ! _mm_testz_si128( (b).m, _mm_set1_epi8(0xff) ) )
 
-
 #else /* no SSE4 */
 
 #  include <emmintrin.h>
@@ -48,14 +47,13 @@
                             | ( (b1).p[2] & (b2).p[2] ) )
 #  define BBTest(b)         ( (b).p[0] | (b).p[1] | (b).p[2] )
 #else
-#define MMZERO       _mm_setzero_si128()
-#define MMFF         _mm_set1_epi8(0xff)
-#define MMTest(mm) \
+#  define MMZERO       _mm_setzero_si128()
+#  define MMFF         _mm_set1_epi8(0xff)
+#  define MMTest(mm) \
     (_mm_movemask_epi8( _mm_cmpeq_epi32( mm, MMZERO ) ) - 0xffff)
-#define BBTest(bb) MMTest((bb).m)
-#define BBContract(bb1,bb2)  MMTest(_mm_and_si128( (bb1).m, (bb2).m ))
+#  define BBTest(bb)   MMTest((bb).m)
+#  define BBContract(bb1,bb2)  MMTest(_mm_and_si128( (bb1).m, (bb2).m ))
 #endif
-
 
 #endif /* HAVE_SSE4 */
 
@@ -132,47 +130,57 @@ typedef union {
     (b).p[0] ^= ( abb_mask_rl90[sq1].p[0] | abb_mask_rl90[sq2].p[0] ),  \
     (b).p[1] ^= ( abb_mask_rl90[sq1].p[1] | abb_mask_rl90[sq2].p[1] ),  \
     (b).p[2] ^= ( abb_mask_rl90[sq1].p[2] | abb_mask_rl90[sq2].p[2] )
-
 #define SetClearDiag1(sq1,sq2,b) \
-    (b).p[0] ^= ((abb_mask_rr45[sq1].p[0])|(abb_mask_rr45[sq2].p[0])), \
-    (b).p[1] ^= ((abb_mask_rr45[sq1].p[1])|(abb_mask_rr45[sq2].p[1])), \
-    (b).p[2] ^= ((abb_mask_rr45[sq1].p[2])|(abb_mask_rr45[sq2].p[2]))
-
+    (b).p[0] ^= ( abb_mask_rr45[sq1].p[0] | abb_mask_rr45[sq2].p[0] ), \
+    (b).p[1] ^= ( abb_mask_rr45[sq1].p[1] | abb_mask_rr45[sq2].p[1] ), \
+    (b).p[2] ^= ( abb_mask_rr45[sq1].p[2] | abb_mask_rr45[sq2].p[2] )
 #define SetClearDiag2(sq1,sq2,b) \
-    (b).p[0] ^= ((abb_mask_rl45[sq1].p[0])|(abb_mask_rl45[sq2].p[0])), \
-    (b).p[1] ^= ((abb_mask_rl45[sq1].p[1])|(abb_mask_rl45[sq2].p[1])), \
-    (b).p[2] ^= ((abb_mask_rl45[sq1].p[2])|(abb_mask_rl45[sq2].p[2]))
-
-
+    (b).p[0] ^= ( abb_mask_rl45[sq1].p[0] | abb_mask_rl45[sq2].p[0] ), \
+    (b).p[1] ^= ( abb_mask_rl45[sq1].p[1] | abb_mask_rl45[sq2].p[1] ), \
+    (b).p[2] ^= ( abb_mask_rl45[sq1].p[2] | abb_mask_rl45[sq2].p[2] )
 
 typedef struct { unsigned int p[3]; } bitboard_t;
 
 #endif /* HAVE_SSE2 */
 
-#ifndef BITBRD64
-#define IniOccupied()  do {                                   \
-   BBIni( OCCUPIED_FILE );  \
+#if ! defined(BITBRD64)
+
+#define IniOccupied()  do {  \
+   BBIni( OCCUPIED_FILE );   \
    BBIni( OCCUPIED_DIAG1 );  \
    BBIni( OCCUPIED_DIAG2 );  \
  } while (0)
 
-#define XorOccupied(sq)  do {                                   \
-   XorFile( sq, OCCUPIED_FILE );   \
+#define XorOccupied(sq)  do {        \
+   XorFile( sq, OCCUPIED_FILE );     \
    XorDiag2( sq, OCCUPIED_DIAG2 );   \
    XorDiag1( sq, OCCUPIED_DIAG1 );   \
  } while (0)
 
-#define SetClearOccupied(sq1,sq2)  do {                                   \
-       SetClearFile( sq1, sq2, OCCUPIED_FILE );  \
-       SetClearDiag1( sq1, sq2, OCCUPIED_DIAG1 );  \
-       SetClearDiag2( sq1, sq2, OCCUPIED_DIAG2 );  \
+#define SetClearOccupied(sq1,sq2)  do {        \
+   SetClearFile( sq1, sq2, OCCUPIED_FILE );    \
+   SetClearDiag1( sq1, sq2, OCCUPIED_DIAG1 );  \
+   SetClearDiag2( sq1, sq2, OCCUPIED_DIAG2 );  \
  } while (0)
 
-#else
+# elif defined(HAVE_AVX)
 
-#ifndef HAVE_AVX
+#define IniOccupied()  do {                  \
+    ptree->posi.occ.m = _mm256_setzero_ps(); \
+  } while(0)
 
-#if defined(HAVE_SSE2)
+#define XorOccupied(sq)  do {                             \
+    ptree->posi.occ.m =                                   \
+      _mm256_xor_ps(ptree->posi.occ.m, ao_bitmask[sq].m); \
+  } while (0)
+
+#define SetClearOccupied(sq1,sq2)  do {                     \
+    ptree->posi.occ.m = _mm256_xor_ps(ptree->posi.occ.m,    \
+      _mm256_xor_ps(ao_bitmask[sq1].m, ao_bitmask[sq2].m)); \
+  } while (0)
+
+#elif defined(HAVE_SSE2)
+
 #define IniOccupied()  do {                                   \
     ptree->posi.occ.m[0] = ptree->posi.occ.m[1] = _mm_setzero_si128(); \
   } while (0)
@@ -191,7 +199,8 @@ typedef struct { unsigned int p[3]; } bitboard_t;
       _mm_or_si128( ao_bitmask[sq1].m[1], ao_bitmask[sq2].m[1])); \
   } while (0)
 
-#else /* HAVE_SSE2 */
+#else
+
 #define IniOccupied()  do {                            \
     ptree->posi.occ.x[0] = ptree->posi.occ.x[1] =      \
     ptree->posi.occ.x[2] = ptree->posi.occ.x[3] = 0UL; \
@@ -210,24 +219,7 @@ typedef struct { unsigned int p[3]; } bitboard_t;
     ptree->posi.occ.x[2] ^= ( ao_bitmask[sq1].x[2] | ao_bitmask[sq2].x[2] ); \
     ptree->posi.occ.x[3] ^= ( ao_bitmask[sq1].x[3] | ao_bitmask[sq2].x[3] ); \
   } while (0)
-#endif /* !HAVE_SSE2  */
 
-#else /* !HAVE_AVX  */
-#define IniOccupied()  do {                  \
-    ptree->posi.occ.m = _mm256_setzero_ps(); \
-  } while(0)
-
-#define XorOccupied(sq)  do {                             \
-    ptree->posi.occ.m =                                   \
-      _mm256_xor_ps(ptree->posi.occ.m, ao_bitmask[sq].m); \
-  } while (0)
-
-#define SetClearOccupied(sq1,sq2)  do {                     \
-    ptree->posi.occ.m = _mm256_xor_ps(ptree->posi.occ.m,    \
-      _mm256_xor_ps(ao_bitmask[sq1].m, ao_bitmask[sq2].m)); \
-  } while (0)
-#endif /* HAVE_AVX  */
-
-#endif /* BITBRD64  */
+#endif
 
 #endif /* BITOP_H */

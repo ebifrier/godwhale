@@ -90,9 +90,9 @@ make_move_b( tree_t * restrict ptree, unsigned int move, int ply )
                      Xor( to, BB_BTGOLD );     break;
         case bishop: DropB( BISHOP, bishop );
                      Xor( to, BB_B_BH );       break;
-        default:     assert( From2Drop(from) == rook );
-                     DropB( ROOK,  rook );
+        case rook:   DropB( ROOK,  rook );
                      Xor( to, BB_B_RD );       break;
+        default:     unreachable();            break;
         }
       Xor( to, BB_BOCCUPY );
       //XorFile( to, OCCUPIED_FILE );
@@ -103,7 +103,7 @@ make_move_b( tree_t * restrict ptree, unsigned int move, int ply )
       nlist = ptree->nlist++;
       ptree->list0[2*(pc-1)  ]--;
       ptree->list1[2*(pc-1)+1]--;
-      ptree->curhand[2*(pc-1)  ]--;
+      ptree->curhand[2*(pc-1)]--;
       ptree->listsuf4sq[to] = nlist;
       ptree->sq4listsuf[nlist] = to;
       ptree->list0[nlist] = pc2suf[15+pc] + to;
@@ -134,10 +134,10 @@ make_move_b( tree_t * restrict ptree, unsigned int move, int ply )
       case bishop: Xor( to, BB_B_HDK );
                    SetClear( BB_B_BH );
                    NocapProB( BISHOP, HORSE,      bishop, horse );      break;
-      default:     assert( ipiece_move == rook );
-                   Xor( to, BB_B_HDK );
+      case rook:   Xor( to, BB_B_HDK );
                    SetClear( BB_B_RD );
                    NocapProB( ROOK,   DRAGON,     rook,   dragon );     break;
+      default:     unreachable();                                       break;
       }
     else switch ( ipiece_move )
       {
@@ -168,10 +168,10 @@ make_move_b( tree_t * restrict ptree, unsigned int move, int ply )
       case horse:      NocapNoproB( HORSE, horse );
                        SetClear( BB_B_HDK );
                        SetClear( BB_B_BH );                break;
-      default:         assert( ipiece_move == dragon );
-                       NocapNoproB( DRAGON, dragon );
+      case dragon:     NocapNoproB( DRAGON, dragon );
                        SetClear( BB_B_HDK );
                        SetClear( BB_B_RD );                break;
+      default:         unreachable();                      break;
       }
     
 #define NOSQ (-1)
@@ -201,10 +201,10 @@ make_move_b( tree_t * restrict ptree, unsigned int move, int ply )
           case horse:      CapW( HORSE, bishop, horse );
                            Xor( to, BB_W_HDK );
                            Xor( to, BB_W_BH );                          break;
-          default:         assert( ipiece_cap == dragon );
-                           CapW( DRAGON, rook, dragon );
+          case dragon:     CapW( DRAGON, rook, dragon );
                            Xor( to, BB_W_HDK );
                            Xor( to, BB_W_RD );                         break;
+          default:         unreachable();                      break;
           }
         Xor( to, BB_WOCCUPY );
         //XorFile( from, OCCUPIED_FILE );
@@ -218,7 +218,7 @@ make_move_b( tree_t * restrict ptree, unsigned int move, int ply )
         listswap(ptree, tgtsuf, tail);  // now tgt is at tail
         ptree->list0[2*(tgtpc-1)  ]++;
         ptree->list1[2*(tgtpc-1)+1]++;
-        ptree->curhand[2*(tgtpc-1)  ]++;
+        ptree->curhand[2*(tgtpc-1)]++;
         ptree->sq4listsuf[tail] = NOSQ;
         // ptree->listsuf4sq[dst] will be overwritten by dst
         // list0,1 for suf>=nlist we don't care (FIXME? really?)
@@ -246,7 +246,7 @@ make_move_b( tree_t * restrict ptree, unsigned int move, int ply )
 
 
 void CONV
-make_move_w( tree_t * restrict ptree, unsigned int move, int ply )
+make_move_w( tree_t * restrict ptree, Move move, int ply )
 {
   const int from = (int)I2From(move);
   const int to   = (int)I2To(move);
@@ -275,8 +275,9 @@ make_move_w( tree_t * restrict ptree, unsigned int move, int ply )
                      Xor( to, BB_WTGOLD );     break;
         case bishop: DropW( BISHOP, bishop );
                      Xor( to, BB_W_BH );       break;
-        default:     DropW( ROOK,   rook );
+        case rook:   DropW( ROOK,   rook );
                      Xor( to, BB_W_RD );       break;
+        default:     unreachable();            break;
         }
       Xor( to, BB_WOCCUPY );
       //XorFile( to, OCCUPIED_FILE );
@@ -318,9 +319,10 @@ make_move_w( tree_t * restrict ptree, unsigned int move, int ply )
       case bishop: NocapProW( BISHOP, HORSE, bishop, horse );
                    Xor( to, BB_W_HDK );
                    SetClear( BB_W_BH );                              break;
-      default:     NocapProW( ROOK, DRAGON, rook, dragon);
+      case rook:   NocapProW( ROOK, DRAGON, rook, dragon);
                    Xor( to, BB_W_HDK );
                    SetClear( BB_W_RD );                              break;
+      default:     unreachable();            break;
       }
     else switch ( ipiece_move )
       {
@@ -351,9 +353,10 @@ make_move_w( tree_t * restrict ptree, unsigned int move, int ply )
       case horse:      NocapNoproW( HORSE, horse );
                        SetClear( BB_W_HDK );
                        SetClear( BB_W_BH );                break;
-      default:         NocapNoproW( DRAGON, dragon );
+      case dragon:     NocapNoproW( DRAGON, dragon );
                        SetClear( BB_W_HDK );
                        SetClear( BB_W_RD );                break;
+      default:         unreachable();            break;
       }
 
     if ( ipiece_cap )
@@ -382,9 +385,10 @@ make_move_w( tree_t * restrict ptree, unsigned int move, int ply )
           case horse:      CapB( HORSE, bishop, horse );
                            Xor( to, BB_B_HDK );
                            Xor( to, BB_B_BH );                      break;
-          default:         CapB( DRAGON, rook, dragon );
+          case dragon:     CapB( DRAGON, rook, dragon );
                            Xor( to, BB_B_HDK );
                            Xor( to, BB_B_RD );                      break;
+          default:         unreachable();            break;
           }
         Xor( to, BB_BOCCUPY );
         //XorFile( from, OCCUPIED_FILE );

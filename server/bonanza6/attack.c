@@ -41,13 +41,16 @@ is_pinned_on_white_king( const tree_t * restrict ptree, int isquare,
         }
       break;
 
-    default:
-      assert( idirec == direc_diag2 );
+    case direc_diag2:
       bb_attacks = AttackDiag2( isquare );
       if ( BBContract( bb_attacks, BB_WKING ) )
         {
           return BBContract( bb_attacks, BB_B_BH );      /* return! */
         }
+      break;
+
+    default:
+      unreachable();
       break;
     }
   
@@ -89,15 +92,19 @@ is_pinned_on_black_king( const tree_t * restrict ptree, int isquare,
         }
       break;
 
-    default:
-      assert( idirec == direc_diag2 );
+    case direc_diag2:
       bb_attacks = AttackDiag2( isquare );
       if ( BBContract( bb_attacks, BB_BKING ) )
         {
           return BBContract( bb_attacks, BB_W_BH );          /* return! */
         }
       break;
+
+    default:
+      unreachable();
+      break;
     }
+
   return 0;
 }
 
@@ -444,6 +451,7 @@ w_attacks_to_piece( const tree_t * restrict ptree, int sq )
 }
 
 
+// 後手の利きが、sqの地点に到達しているか。
 unsigned int CONV
 is_white_attacked( const tree_t * restrict ptree, int sq )
 {
@@ -467,6 +475,7 @@ is_white_attacked( const tree_t * restrict ptree, int sq )
 }
 
 
+// 先手の利きが、sqの地点に到達しているか。
 unsigned int CONV
 is_black_attacked( const tree_t * restrict ptree, int sq )
 {
