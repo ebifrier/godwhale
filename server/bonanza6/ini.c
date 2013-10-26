@@ -37,8 +37,6 @@ static void ini_tables( void );
 static void ini_attack_tables( void );
 static void ini_random_table( void );
 
-int readHandJoseki();
-
 int CONV load_fv( void )
 {
 #if 0
@@ -96,7 +94,7 @@ int CONV load_fv( void )
   if ( iret < 0 ) { return iret; }
 #else
   int fd;
-  size_t sz1, sz2;
+  size_t sz1, sz2, j;
   void* mapbase;
 
 #ifndef USE_FV3
@@ -109,18 +107,19 @@ int CONV load_fv( void )
   sz2 = nsquare * nsquare * kkp_end;
 
    //          hint_adr                                   offset
-  mapbase = mmap(NULL, (sz1+sz2)*sizeof(short), PROT_READ, MAP_SHARED, fd, 0);
-  if (mapbase == MAP_FAILED) return -2;
-  pc_on_sq = (pconsqAry*) mapbase;
+  mapbase = mmap( NULL, (sz1+sz2) * sizeof(short),
+                  PROT_READ, MAP_SHARED, fd, 0 );
+  if ( mapbase == MAP_FAILED ) { return -2; }
+  pc_on_sq = (pconsqAry*)mapbase;
   kkp = (kkpAry*)(mapbase + sz1 * sizeof(short));
   close(fd);
 
   { // read in all the area into memory
-    int x = 0, j;
+    int x = 0;
     char* p = (char*)mapbase;
-    for(j=0; j<(sz1+sz2)*sizeof(short); j += 4096)
+    for ( j = 0; j < (sz1+sz2)*sizeof(short); j += 4096 )
       x += p[j];
-    if (x == 43256) printf(".");
+    if ( x == 43256 ) printf(".");
   }
 #endif
 
@@ -161,9 +160,8 @@ int
 ini( tree_t * restrict ptree )
 {
   int i;
-  if (readHandJoseki() < 0) return -1;
 
-  /*if ( ini_fv() < 0 ) { return -1; }*/
+  if ( read_handjoseki() < 0 ) { return -1; }
   if ( load_fv() < 0 ) { return -1; }
 
   for ( i = 0; i < 31; i++ ) { p_value[i]       = 0; }
@@ -677,6 +675,8 @@ ini_tables( void )
         // ifromから見て
         if ( ifrom > ito ) switch ( adirec[ifrom][ito] )
           {
+          case direc_misc:
+            break;
           case direc_rank: // 左
             BBXor( abb_obstacle[ifrom][ito],
                    abb_minus1dir[ito+1], abb_minus1dir[ifrom] );
@@ -693,9 +693,14 @@ ini_tables( void )
             BBXor( abb_obstacle[ifrom][ito],
                    abb_minus10dir[ito+10], abb_minus10dir[ifrom] );
             break;
+          default:
+            unreachable();
+            break;
           }
         else switch ( adirec[ifrom][ito] )
           {
+          case direc_misc:
+            break;
           case direc_rank: // 右
             BBXor( abb_obstacle[ifrom][ito],
                    abb_plus1dir[ito-1], abb_plus1dir[ifrom] );
@@ -711,6 +716,9 @@ ini_tables( void )
           case direc_diag2: // 右下
             BBXor( abb_obstacle[ifrom][ito],
                    abb_plus10dir[ito-10], abb_plus10dir[ifrom] );
+            break;
+          default:
+            unreachable();
             break;
           }
       }

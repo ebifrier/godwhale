@@ -3,13 +3,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include "shogi.h"
-#include "handjoseki.h"
 
 #ifdef CLUSTER_PARALLEL
 #include "../if_bonanza.h"
 #endif
-
-extern int m3call, m3mvs, m3easy, m3hit, m3mate;
 
 static int CONV set_root_alpha( int nfail_low, int root_alpha_old );
 static int CONV set_root_beta( int nfail_high, int root_beta_old );
@@ -66,13 +63,14 @@ iterate( tree_t * restrict ptree )
   m3call = m3mvs = m3easy = m3hit = m3mate = 0;
 
   handjoseki = probe_handjoseki(ptree);
-  if ( handjoseki ) {
-          ptree->current_move[1] = handjoseki;
-        pv_close( ptree, 2, book_hit );
-        last_pv         = ptree->pv[1];
-        last_root_value = 0;
-        return 1;
-  }
+  if ( handjoseki )
+    {
+      ptree->current_move[1] = handjoseki;
+      pv_close( ptree, 2, book_hit );
+      last_pv         = ptree->pv[1];
+      last_root_value = 0;
+      return 1;
+    }
 
   /* probe the opening book */
   if ( pf_book != NULL
@@ -129,24 +127,25 @@ iterate( tree_t * restrict ptree )
     }
 
 #ifdef CLUSTER_PARALLEL
-    game_status  &= ~( flag_move_now | flag_suspend  // copied from below
-                       | flag_quit_ponder | flag_search_error );
-    last_pv.length = master(last_pv.a);
-    ptree->pv[0].length = last_pv.length;
-    forr (i, 1, last_pv.length) {
-        ptree->pv[0].a[i] = last_pv.a[i];
-    }
-    last_root_value = (last_pv.a[1] != MOVE_NA) ? last_root_value :
-                      (!root_turn ? -score_bound : score_bound);
+  game_status  &= ~( flag_move_now | flag_suspend  // copied from below
+                     | flag_quit_ponder | flag_search_error );
 
-    right_answer_made = 0;
-    //if ( ( game_status & flag_problem ) && depth_limit == PLY_MAX )
-    if ( ( game_status & flag_problem ) )
-      {
-        if ( is_answer_right( ptree->pv[0].a[1] ) )
-            right_answer_made = 1;
-        else { right_answer_made = 0; }
-      }
+  last_pv.length = master( last_pv.a );
+  ptree->pv[0].length = last_pv.length;
+  for ( int i = 1; i < last_pv.length; i++ )
+    {
+      ptree->pv[0].a[i] = last_pv.a[i];
+    }
+  last_root_value = (last_pv.a[1] != MOVE_NA) ? last_root_value :
+      (!root_turn ? -score_bound : score_bound);
+
+  right_answer_made = 0;
+  if ( ( game_status & flag_problem ) )
+    {
+      if ( is_answer_right( ptree->pv[0].a[1] ) )
+        right_answer_made = 1;
+      else { right_answer_made = 0; }
+    }
 
   if ( ( game_status & flag_problem ) && ! right_answer_made ) { iret = 0; }
   else                                                         { iret = 1; }

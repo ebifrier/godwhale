@@ -16,7 +16,7 @@ occupiedC ao_bitmask[81];
 
 enum { OD_HORIZ=0, OD_VERT=1, OD_DIAG1=2, OD_DIAG2=3, OD_SIZE=4 };
 
-const static int ai_bitpos[4][81] = {
+static const int ai_bitpos[4][81] = {
   // HORIZ
  {-1,  0,  1,  2,  3,  4,  5,  6, -1,
   -1,  7,  8,  9, 10, 11, 12, 13, -1,

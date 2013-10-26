@@ -229,7 +229,7 @@ void mpi_init(int argc, char **argv, int *nproc, int *mproc)
 #endif
 
     if (!Mproc && use_cpu_affinity) {
-        attachCpu(master_proc_offset);
+        attach_cpu(master_proc_offset);
         MSTOut("master cpu set to %d\n", master_proc_offset);
     }
 #endif

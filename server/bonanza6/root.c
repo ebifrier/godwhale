@@ -150,6 +150,8 @@ make_root_move_list( tree_t * restrict ptree )
                I2IsPromote(pmove[0])       ? 1 : 0,
                I2From(pmove[0]) >= nsquare ? 1 : 0,
                asort[0], asort[1] );
+#else
+          (void)id_easy_move;
 #endif
           easy_value = asort[0];
         }

@@ -17,15 +17,15 @@ OBJS = data.o main.o io.o proce.o utility.o ini.o attack.o book.o makemove.o \
        quiesrch.o evaluate.o swap.o  hash.o root.o next.o movgenex.o \
        genevasn.o gencap.o gennocap.o gendrop.o mate1ply.o rand.o learn1.o \
        learn2.o evaldiff.o problem.o ponder.o thread.o sckt.o debug.o mate3.o \
-       genchk.o phash.o dfpn.o dfpnhash.o bbini.o
+       genchk.o phash.o dfpn.o dfpnhash.o bbini.o handjoseki.o
 
 SRCS = data.c main.c io.c proce.c utility.c ini.c attack.c book.c makemove.c \
        unmake.c time.c csa.c valid.c bitop.c iterate.c searchr.c search.c \
        quiesrch.c evaluate.c swap.c  hash.c root.c next.c movgenex.c \
        genevasn.c gencap.c gennocap.c gendrop.c mate1ply.c rand.c learn1.c \
        learn2.c evaldiff.c problem.c ponder.c thread.c sckt.c debug.c mate3.c \
-       genchk.c phash.c dfpn.c dfpnhash.c    shogi.h bitop.h param.h dfpn.h  \
-       handjoseki.h Makefile hand.jos bbini.c
+       genchk.c phash.c dfpn.c dfpnhash.c shogi.h bitop.h param.h dfpn.h  \
+       handjoseki.c Makefile hand.jos bbini.c
 
 PROBFILE=../d1.dpp
 
@@ -54,9 +54,12 @@ PROBFILE=../d1.dpp
 # bonk makefile should call like this: make CLUSTOPT=-DCLUSTER_PARALLEL gcc-bonk
 #CLUSTOPT = -DCLUSTER_PARALLEL  ==> this should be MAKE argument for bonkras
 
-OPT = -D__STDC_FORMAT_MACROS -DNDEBUG -DMINIMUM -DDFPN -DTLP \
-      -DDFPN_CLIENT -DINANIWA_SHIFT -DCSA_LAN \
-      $(SSEOPT) $(AFFINOPT) $(CLUSTOPT) $(AVXOPT)
+DEFS    = -D__STDC_FORMAT_MACROS -DNDEBUG -DMINIMUM -DDFPN -DTLP \
+          -DDFPN_CLIENT -DINANIWA_SHIFT -DCSA_LAN \
+          $(SSEOPT) $(AFFINOPT) $(CLUSTOPT) $(AVXOPT)
+OPT     = -std=gnu99 $(DEFS)
+GCC_OPT = -Wall -Wextra
+ICC_OPT = -w2
 
 all: gcc
 
@@ -71,16 +74,16 @@ help:
 	@echo "  icc-ampl"
 
 gcc:
-	$(MAKE) CC=gcc CFLAGS='-std=gnu99 -O2 -Wall $(OPT) $(PROFOPT)' LDFLAG1='-lm -lpthread $(PROFOPT)' bonanza
+	$(MAKE) CC=gcc CFLAGS='$(OPT) $(GCC_OPT) $(PROFOPT) -O2' LDFLAG1='-lm -lpthread $(PROFOPT)' bonanza
 
 gcc-bonk:
-	$(MAKE) CC=gcc CFLAGS='-std=gnu99 -O2 -Wall $(OPT)' LDFLAG1='-lm -lpthread' bonkras
+	$(MAKE) CC=gcc CFLAGS='$(OPT) $(GCC_OPT) -O2' LDFLAG1='-lm -lpthread' bonkras
 
 gpgo1:
-	$(MAKE) CC=gcc CFLAGS='-std=gnu99 -O2  -fprofile-generate -Wall $(OPT)' LDFLAG1='-lm -lpthread' bonkras
+	$(MAKE) CC=gcc CFLAGS='$(OPT) $(GCC_OPT) -fprofile-generate' LDFLAG1='-lm -lpthread' bonkras
 
 gpgo2:
-	$(MAKE) CC=gcc CFLAGS='-std=gnu99 -O2  -fprofile-use -Wall $(OPT)' LDFLAG1='-lm -lpthread' bonkras
+	$(MAKE) CC=gcc CFLAGS='$(OPT) $(GCC_OPT) -fprofile-use' LDFLAG1='-lm -lpthread' bonkras
 
 gcc-pgo:
 	$(MAKE) clean
@@ -89,49 +92,44 @@ gcc-pgo:
 	gcc -std=gnu99 -O2 -Wall $(OPT) -fprofile-use -o bonanza -lm -lpthread $(OBJS:.o=.c)
 
 icc-ampl:
-	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -g -O2 -fno-inline-functions' LDFLAG1='-pthread -g' bonanza
+	$(MAKE) CC=icc CFLAGS='$(OPT) $(ICC_OPT) -g -O2 -fno-inline-functions' LDFLAG1='-pthread -g' bonanza
 
 icc:
-	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -O2 -g -ipo' LDFLAG1='        -g -ipo -pthread' bonanza
+	$(MAKE) CC=icc CFLAGS='$(OPT) $(ICC_OPT) -O2 -g -ipo' LDFLAG1='-g -ipo -pthread' bonanza
 
 icc-bonk:
-	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -O2 -ipo' LDFLAG1='-static -ipo -pthread' bonkras
+	$(MAKE) CC=icc CFLAGS='$(OPT) $(ICC_OPT) -O2 -ipo' LDFLAG1='-static -ipo -pthread' bonkras
 
 ipgo1:
-	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -O2-prof_gen -prof_dir ./profdir' LDFLAG1='-static  -pthread' bonkras
+	$(MAKE) CC=icc CFLAGS='$(OPT) $(ICC_OPT) -O2-prof_gen -prof_dir ./profdir' LDFLAG1='-static -pthread' bonkras
 
 ipgo2:
-	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -O3 -ipo -prof_use -prof_dir ./profdir' LDFLAG1='-static -ipo -pthread' bonkras
+	$(MAKE) CC=icc CFLAGS='$(OPT) $(ICC_OPT) -O3 -ipo -prof_use -prof_dir ./profdir' LDFLAG1='-static -ipo -pthread' bonkras
 
 icc-pgo:
 	$(MAKE) clean
 	mkdir profdir
-	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -O2 -prof_gen -prof_dir ./profdir' LDFLAG1='-pthread' bonanza
+	$(MAKE) CC=icc CFLAGS='$(OPT) $(ICC_OPT) -O2 -prof_gen -prof_dir ./profdir' LDFLAG1='-pthread' bonanza
 	$(MAKE) run-prof
 	rm *.o
-	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -O3 -ipo -prof_use -prof_dir ./profdir' LDFLAG1='-ipo -pthread' bonanza
+	$(MAKE) CC=icc CFLAGS='$(OPT) $(ICC_OPT) -O3 -ipo -prof_use -prof_dir ./profdir' LDFLAG1='-ipo -pthread' bonanza
 
-bonkras : $(OBJS)
+bonkras: $(OBJS)
 
-bonanza : $(OBJS)
+bonanza: $(OBJS)
 	$(CC) -o bonanza $(OBJS) $(LDFLAG2) $(LDFLAG1)
 
-$(OBJS) : shogi.h param.h bitop.h
+$(OBJS): shogi.h param.h bitop.h
 dfpn.o dfpnhash.o: dfpn.h
-iterate.o: handjoseki.h
 
 # 3/22/2012 w/ icc 12.0, compile w/ -O3 fails.  avoid CFLAG due to this
 #bbini.o: bbini.c
 #	$(CC) -c $(AVXOPT) -msse2 bbini.c
 
-mate3.o: mate3.c shogi.h bitop.h param.h
-
-ini.o: ini.c shogi.h bitop.h param.h
-
-#.c.o :
+#.c.o:
 #	$(CC) $(OPT) -c $(CFLAGS) $*.c
 
-clean :
+clean:
 	rm -f *.o *.il *.da *.gcda *.gcno *.bb *.bbg *.dyn
 	rm -f  bonanza gmon.out runprof
 	rm -fr profdir

@@ -1422,6 +1422,8 @@ bitboard_t CONV w_attacks_to_piece( const tree_t * restrict ptree, int sq );
 const char * CONV str_time( unsigned int time );
 const char * CONV str_time_symple( unsigned int time );
 const char *str_CSA_move( unsigned int move );
+int CONV read_handjoseki( void );
+Move CONV probe_handjoseki( tree_t* restrict ptree );
 void CONV adjust_fmg( void );
 
 #if defined(MPV)
@@ -1440,6 +1442,7 @@ void CONV lock( lock_t *plock );
 void CONV unlock( lock_t *plock );
 int CONV lock_init( lock_t *plock );
 int CONV lock_free( lock_t *plock );
+void attach_cpu( int cpu );
 void tlp_yield( void );
 extern lock_t io_lock;
 #endif

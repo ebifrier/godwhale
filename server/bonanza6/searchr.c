@@ -16,7 +16,7 @@ static void CONV mpv_out( tree_t * restrict ptree, int turn,
                           unsigned int time );
 #endif
 
-#if defined(NO_STDOUT) && defined(NO_LOGGING)
+#if (defined(NO_STDOUT) && defined(NO_LOGGING)) || defined(CLUSTER_PARALLEL)
 #  define NextRootMove(a,b) next_root_move(a)
 static int CONV next_root_move( tree_t * restrict ptree );
 #else
@@ -528,6 +528,8 @@ save_result( tree_t * restrict ptree, int value, int beta, int turn )
 
 #ifndef CLUSTER_PARALLEL
       out_pv( ptree, value, turn, time_last_result - time_start );
+#else
+      (void)turn;
 #endif
     }
 
@@ -536,7 +538,7 @@ save_result( tree_t * restrict ptree, int value, int beta, int turn )
 
 
 static int CONV
-#if defined(NO_STDOUT) && defined(NO_LOGGING)
+#if (defined(NO_STDOUT) && defined(NO_LOGGING)) || defined(CLUSTER_PARALLEL)
 next_root_move( tree_t * restrict ptree )
 #else
 next_root_move( tree_t * restrict ptree, int turn )
@@ -552,7 +554,7 @@ next_root_move( tree_t * restrict ptree, int turn )
       ptree->current_move[1]    = root_move_list[i].move;
       root_index                = i;
 
-#if ! ( defined(NO_STDOUT) && defined(NO_LOGGING) || defined(CLUSTER_PARALLEL) )
+#if ! ( (defined(NO_STDOUT) && defined(NO_LOGGING)) || defined(CLUSTER_PARALLEL) )
       if ( iteration_depth > 5 )
         {
           const char *str_move;

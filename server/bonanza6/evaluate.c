@@ -453,6 +453,9 @@ make_list( const tree_t * restrict ptree, int * restrict pscore,
 {
   int sq, score, sq_bk0, sq_wk0, sq_bk1, sq_wk1;
 
+  (void)list0;
+  (void)list1;
+
   score  = 0;
   sq_bk0 = SQ_BKING;
   sq_wk0 = SQ_WKING;

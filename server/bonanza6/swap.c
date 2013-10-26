@@ -47,6 +47,9 @@ swap( const tree_t * restrict ptree, unsigned int move, int root_alpha,
           Xor( from, bb_attack );
           switch ( adirec[to][from] )
             {
+            case direc_misc:
+              break;
+
             case direc_rank:
               bb = AttackRank( from );
               if ( from > to ) { BBAnd( bb, bb, abb_plus_rays[from] ); }
@@ -88,7 +91,7 @@ swap( const tree_t * restrict ptree, unsigned int move, int root_alpha,
               BBAnd( bb, bb, bb_temp );
               BBOr( bb_attack, bb_attack, bb );
               break;
-              
+
             }
         }
 

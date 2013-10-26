@@ -18,8 +18,8 @@ BNSFLAGS = -DMINIMUM -DHAVE_SSE4 -msse4.1 -DDFPN -DTLP -DDFPN_CLIENT \
            -DINANIWA_SHIFT -DCSA_LAN
 INCLUDES =
 CPPFLAGS = -D__STDC_FORMAT_MACROS
-CFLAGS   = -Wall -g
-CXXFLAGS = -Wall -g $(IPOOPT)
+CFLAGS   = -Wall -Wextra -g
+CXXFLAGS = -Wall -Wextra -g $(IPOOPT)
 LDFLAGS  =
 LIBS     = -lrt
 
@@ -45,7 +45,7 @@ BNS_OBJS = $(BNS)/data.o $(BNS)/main.o $(BNS)/io.o $(BNS)/proce.o \
            $(BNS)/evaldiff.o $(BNS)/problem.o $(BNS)/ponder.o \
            $(BNS)/thread.o $(BNS)/sckt.o $(BNS)/debug.o $(BNS)/mate3.o \
            $(BNS)/genchk.o $(BNS)/phash.o $(BNS)/dfpn.o \
-           $(BNS)/dfpnhash.o $(BNS)/bbini.o
+           $(BNS)/dfpnhash.o $(BNS)/bbini.o $(BNS)/handjoseki.o
 
 BIN_OBJS = slave3.o putils.o invokempi.o master3.o
 BIN = ./bin/gmx

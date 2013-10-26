@@ -244,6 +244,8 @@ void srowC::updateValue(int val, valtypeE type) {
 
 void srowC::setlist(int A, int B, mvC first_mv, int mvcnt, mvtupleC* tuples)
 {
+    (void)B;
+
     alpha   = -score_bound;
     gamma   = A;    // 11/30/2011 %18 was setting A, not gamma
     beta    = score_bound;    // FIXME B not used?
@@ -373,6 +375,8 @@ public:
 int sstreamC::propagateUp(int exd, int val, int runexd)
 {
     int abt = 0;
+
+    (void)runexd;
 
     forv (d, exd, 0) {
         srowC& r = row[d];

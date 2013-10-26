@@ -19,22 +19,7 @@
 #include "shogi.h"
 #include "../if_bonanza.h"
 
-//#define ENABLE_AFFINITY
-
-extern int Mproc, slave_proc_offset;
-
 #if defined(TLP) || defined(DFPN_CLIENT)
-
-void attachCpu(int cpu)
-{
-#if !defined( __MACH__ ) && !defined( __CYGWIN__ ) && \
-    !defined( _MSC_VER ) && defined( ENABLE_AFFINITY )
-  cpu_set_t cpuset;
-  CPU_ZERO(&cpuset);
-  CPU_SET(cpu, &cpuset);
-  pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
-#endif
-}
 
 int CONV
 lock_init( lock_t *plock )
@@ -107,6 +92,21 @@ lock( lock_t *plock )
 #  else
   pthread_mutex_lock( plock );
 #  endif
+}
+
+
+void CONV
+attach_cpu( int cpu )
+{
+#if !defined( __MACH__ ) && !defined( __CYGWIN__ ) && \
+    !defined( _MSC_VER ) && defined( ENABLE_AFFINITY )
+  cpu_set_t cpuset;
+  CPU_ZERO(&cpuset);
+  CPU_SET(cpu, &cpuset);
+  pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
+#else
+  (void)cpu;
+#endif
 }
 
 
@@ -203,6 +203,8 @@ static void *dfpn_client_receiver( void *arg )
   struct timeval tv;
   fd_set readfds;
   int iret;
+
+  (void)arg; // 未使用
 
   recv_buf[0] = '\0';
 
@@ -407,11 +409,11 @@ tlp_start( void )
   int num;
 
 #ifndef CLUSTER_PARALLEL
-  if (use_cpu_affinity >= 0)
-    attachCpu(use_cpu_affinity);
+  if ( use_cpu_affinity >= 0 )
+    attach_cpu( use_cpu_affinity );
 #else
-  if (Mproc && use_cpu_affinity)
-    attachCpu(slave_proc_offset);
+  if ( Mproc && use_cpu_affinity )
+    attach_cpu( slave_proc_offset );
 #endif
 
   if ( tlp_num ) { return 1; }
@@ -571,11 +573,11 @@ static void *start_address( void *arg )
   unlock( &tlp_lock );
 
 #ifndef CLUSTER_PARALLEL
-  if (use_cpu_affinity >= 0)  // -1 - no affinity  N - use cpu N+TID
-    attachCpu(use_cpu_affinity + tid);
+  if ( use_cpu_affinity >= 0 )  // -1 - no affinity  N - use cpu N+TID
+    attach_cpu( use_cpu_affinity + tid );
 #else
-  if (Mproc && use_cpu_affinity)
-    attachCpu(slave_proc_offset + tid);
+  if ( Mproc && use_cpu_affinity )
+    attach_cpu( slave_proc_offset + tid );
 #endif
 
   wait_work( tid, NULL );

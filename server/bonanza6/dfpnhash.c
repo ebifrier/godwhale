@@ -89,6 +89,8 @@ void CONV dfpn_hash_probe( const dfpn_tree_t * restrict pdfpn_tree,
   unsigned int index, hand_b, phi, delta, u, offset, hand_b_curr;
   int relation, is_phi_loop, is_delta_loop;
 
+  (void)ply;
+
 #define REL_SUPE 0
 #define REL_INFE 1
 

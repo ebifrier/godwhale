@@ -25,9 +25,6 @@ void slave();
  // for search()
 int detectSignalSlave();
 
- // for thread
-void attachCpu(int cpu);
-
  // for bonanza6
 void iniGameHook(const min_posi_t*);
 void makeMoveRootHook(int move);

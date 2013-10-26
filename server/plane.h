@@ -461,8 +461,8 @@ public:
     bool mvdone(int dep, mvC mv, int A, int B);
     bool mvdoneExact(int dep, mvC mv);
     
-    int setupReorder(int newdep, int pvleng, mvC* pv);
-    void refCreate(int exd, int pvleng, mvC *pv, mvC mv2rt);
+    int setupReorder(int newdep, mvC* pv);
+    void refCreate(int exd, int pvleng, mvC *pv);
     void setlist(int mvcnt, mvC *mvs);
     
     void updateValue(int val, valtypeE typ);
@@ -475,7 +475,7 @@ public:
  //****
  // returns 0 if success; 1 if BESTMV not found
 
-int rowC::setupReorder(int newdep, int pvleng, mvC* pv)
+int rowC::setupReorder(int newdep, mvC* pv)
 {
   /* if FIRSTMV is not the current best, sort/reorder the list.  BESTMV to top
 
@@ -493,6 +493,7 @@ int rowC::setupReorder(int newdep, int pvleng, mvC* pv)
     int bestsuf = -1, bestpr = -1;
     int d = exd();
     mvC bestmv = pv[d];
+
     // NOTE don't copy row if bestseqLeng==0
     assert (bestseqLeng > 0 && bestseq[0] != NULLMV && bestmv != NULLMV) ;
     MSTOut("]]]]setupRe:i %d e %d dep %d bseq0 %07x firstmv %07x bestmv %07x\n",
@@ -581,9 +582,6 @@ int rowC::setupReorder(int newdep, int pvleng, mvC* pv)
     }
     
     forr (pr, 1, Nproc-1) {
-#if SORT_BY_NUMNODE
-        //procmvs[pr].sort(); - moved to earlier
-#endif
         forr (i, 0, procmvs[pr].mvcnt-1)
             procmvs[pr].mvs[i].numnode = 0;
     }
@@ -591,7 +589,6 @@ int rowC::setupReorder(int newdep, int pvleng, mvC* pv)
     forr (pr, 1, Nproc-1) {
         // FIXME TBC CUT_MATE
         procmvs[pr].donecnt = 0;
-        //procmvs[pr].lastrpy = 0;
 
         forr (i, 0, procmvs[pr].mvcnt-1) {
             procmvs[pr].mvs[i].retrying = 0;
@@ -607,7 +604,7 @@ int rowC::setupReorder(int newdep, int pvleng, mvC* pv)
     return ((firstmvExact || bestseqExact) ? 1 : 0);
 }
 
-void rowC::refCreate(int exd, int pvleng, mvC *pv, mvC mv2rt)
+void rowC::refCreate(int exd, int pvleng, mvC *pv)
 {
     assert(exd < pvleng);
     clear();
@@ -1265,7 +1262,7 @@ int planeC::rpySetpv(int itd, int pvleng, mvC* pv) // set up row[pvleng-1:0]
         if (copyFrom == -1) {  // mvlist not found
             MSTOut("%%%%%%%% i%d e%d refcre mv2r %07x\n",
                    itd, e, readable(mv2root));
-            stream[itd].row[e].refCreate(e, pvleng, pv, mv2root);
+            stream[itd].row[e].refCreate(e, pvleng, pv);
 
         }
         else {  // mvlist found
@@ -1275,7 +1272,7 @@ int planeC::rpySetpv(int itd, int pvleng, mvC* pv) // set up row[pvleng-1:0]
             }
             // FIXME set variables in row[e]
             int bestFound =
-                stream[itd].row[e].setupReorder(itdexd2srd(itd, e), pvleng, pv);
+                stream[itd].row[e].setupReorder(itdexd2srd(itd, e), pv);
             // 12/31/2011 %60 was using copyFrom instead of itd
             haveList |= 1 << e;
             if (bestFound) {

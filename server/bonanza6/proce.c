@@ -2024,8 +2024,7 @@ static int CONV cmd_dfpn_client( tree_t * restrict ptree, char **lasts )
   str = strtok_r( NULL, str_delimiters, lasts );
   if ( ! str || ! strcmp( str, "." ) ) { str = "4083"; }
   dfpn_client_port = strtol( str, &ptr, 0 );
-  if ( ptr == str || dfpn_client_port == LONG_MAX || dfpn_client_port < 0
-       || dfpn_client_port > USHRT_MAX )
+  if ( ptr == str || dfpn_client_port < 0 || dfpn_client_port > USHRT_MAX )
     {
       str_error = str_bad_cmdline;
       return -2;
