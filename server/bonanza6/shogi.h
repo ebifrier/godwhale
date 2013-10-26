@@ -1460,6 +1460,8 @@ int CONV tlp_search( tree_t * restrict ptree, int alpha, int beta, int turn,
 int tlp_split( tree_t * restrict ptree );
 int tlp_start( void );
 int tlp_is_descendant( const tree_t * restrict ptree, int slot_ancestor );
+typedef void (* thread_func_t)( void *arg );
+int start_thread ( thread_func_t func, void *arg );
 extern lock_t tlp_lock;
 extern volatile int tlp_abort;
 extern volatile int tlp_idle;

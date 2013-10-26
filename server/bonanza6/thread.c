@@ -124,12 +124,8 @@ tlp_yield( void )
 
 #if defined(DFPN_CLIENT)
 
+static void dfpn_client_receiver( void *arg );
 static int CONV proce_line( char *line_buf );
-#  if defined(_WIN32)
-static unsigned int __stdcall dfpn_client_receiver( void *arg );
-#  else
-static void *dfpn_client_receiver( void *arg );
-#  endif
 
 void CONV
 dfpn_client_start( const tree_t * restrict ptree )
@@ -158,24 +154,12 @@ dfpn_client_start( const tree_t * restrict ptree )
          dfpn_client_str_addr, dfpn_client_port );
   }
 
-#  if defined(_WIN32)
-  if ( ! _beginthreadex( 0, 0, &dfpn_client_receiver, NULL, 0, 0 ) )
+  if ( start_thread( &dfpn_client_receiver, NULL ) < 0 )
     {
       sckt_shutdown( dfpn_client_sckt );
       dfpn_client_sckt = SCKT_NULL;
-      out_warning( "_beginthreadex() failed." );
+      out_warning( "start_thread() failed." );
     }
-#  else
-  {
-    pthread_t pt;
-    if ( pthread_create( &pt, &pthread_attr, &dfpn_client_receiver, NULL ) )
-      {
-        sckt_shutdown( dfpn_client_sckt );
-        dfpn_client_sckt = SCKT_NULL;
-        out_warning( "_beginthreadex() failed." );
-      }
-  }
-#  endif
 
   dfpn_client_out( "Client: anonymous\n" );
 }
@@ -187,11 +171,8 @@ dfpn_client_start( const tree_t * restrict ptree )
 #    pragma warning(disable:869)
 #  endif
 
-#  if defined(_MSC_VER)
-static unsigned int __stdcall dfpn_client_receiver( void *arg )
-#  else
-static void *dfpn_client_receiver( void *arg )
-#endif
+static void
+dfpn_client_receiver( void *arg )
 {
 #define SIZE_RECV_BUF ( 1024 * 16 )
 #define SIZE_LINE_BUF 1024
@@ -238,7 +219,7 @@ static void *dfpn_client_receiver( void *arg )
       lock( &dfpn_client_lock);
       iret = dfpn_client_out( "ping\n" );
       unlock( &dfpn_client_lock);
-      if ( iret < 0 ) { return 0; }
+      if ( iret < 0 ) { return; }
     }
 
     /* read messages */
@@ -298,8 +279,6 @@ static void *dfpn_client_receiver( void *arg )
   sckt_shutdown( dfpn_client_sckt );
   dfpn_client_sckt = SCKT_NULL;
   out_warning( "A connection to DFPN server is down." );
-
-  return 0;
 }
 #  if defined(_MSC_VER)
 #    pragma warning(default:4100)
@@ -390,11 +369,12 @@ static int CONV proce_line( char *line_buf )
 #if defined(TLP)
 
 #  if defined(_WIN32)
-static unsigned int __stdcall start_address( void *arg );
+static unsigned int __stdcall start_thread_thunk( void *arg );
 #  else
-static void *start_address( void *arg );
+static void *start_thread_thunk( void *arg );
 #  endif
 
+static void start_address( void *arg );
 static tree_t *find_child( void );
 static void init_state( const tree_t * restrict parent,
                         tree_t * restrict child );
@@ -402,11 +382,61 @@ static void copy_state( tree_t * restrict parent,
                         const tree_t * restrict child, int value );
 static void wait_work( int tid, tree_t *parent );
 
+
+int
+start_thread ( thread_func_t func, void *arg )
+{
+  void **holder;
+#  if ! defined(_WIN32)
+  pthread_t pt;
+# endif
+
+  holder = (void **)memory_alloc( 2 * sizeof(void *) );
+  if ( holder == NULL ) { return -1; }
+
+  holder[0] = func;
+  holder[1] = arg;
+
+#  if defined(_WIN32)
+  if ( ! _beginthreadex( 0, 0, start_thread_thunk, holder, 0, 0 ) )
+    {
+      str_error = "_beginthreadex() failed.";
+      return -1;
+    }
+#  else
+  if ( pthread_create( &pt, &pthread_attr, start_thread_thunk, holder ) )
+    {
+      str_error = "pthread_create() failed.";
+      return -1;
+    }
+#  endif
+
+  return 1;
+}
+
+
+#  if defined(_WIN32)
+static unsigned int __stdcall start_thread_thunk( void *arg )
+#  else
+static void *start_thread_thunk( void *arg )
+#  endif
+{
+  void **holder = (void **)arg;
+  thread_func_t th_func = (thread_func_t)holder[0];
+  void *th_arg = holder[1];
+
+  memory_free( holder );
+
+  th_func( th_arg );
+  return 0;
+}
+
+
 int
 tlp_start( void )
 {
   int work[ TLP_MAX_THREADS ];
-  int num;
+  int iret, num;
 
 #ifndef CLUSTER_PARALLEL
   if ( use_cpu_affinity >= 0 )
@@ -421,24 +451,11 @@ tlp_start( void )
   for ( num = 1; num < tlp_max; num++ )
     {
       work[num] = num;
-      
-#  if defined(_WIN32)
-      if ( ! _beginthreadex( 0, 0, start_address, work+num, 0, 0 ) )
-        {
-          str_error = "_beginthreadex() failed.";
-          return -2;
-        }
-#  else
-      {
-        pthread_t pt;
-        if ( pthread_create( &pt, &pthread_attr, start_address, work+num ) )
-          {
-            str_error = "pthread_create() failed.";
-            return -2;
-          }
-      }
-#  endif
+
+      iret = start_thread( start_address, work+num );
+      if ( iret < 0 ) { return iret; }
     }
+
   while ( tlp_num +1 < tlp_max ) { tlp_yield(); }
 
   return 1;
@@ -556,11 +573,8 @@ tlp_is_descendant( const tree_t * restrict ptree, int slot_ancestor )
 }
 
 
-#  if defined(_MSC_VER)
-static unsigned int __stdcall start_address( void *arg )
-#  else
-static void *start_address( void *arg )
-#endif
+static void
+start_address( void *arg )
 {
   int tid = *(int *)arg;
 
@@ -587,8 +601,6 @@ static void *start_address( void *arg )
   tlp_num  -= 1;
   tlp_idle -= 1;
   unlock( &tlp_lock );
-
-  return 0;
 }
 
 

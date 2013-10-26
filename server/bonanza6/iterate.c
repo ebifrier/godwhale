@@ -14,44 +14,6 @@ static int CONV is_answer_right( unsigned int move );
 static int CONV rep_book_prob( tree_t * restrict ptree );
 static const char * CONV str_fail_high( int turn, int nfail_high );
 
-#if defined(INANIWA_SHIFT)
-int CONV detect_inaniwa(tree_t* ptree)
-{
-  if ( ! inaniwa_flag && 19 < ptree->nrep )
-    {
-      if ( root_turn == white
-           && ( BOARD[A7]==-pawn || BOARD[A6]==-pawn || BOARD[A5]==-pawn )
-           && BOARD[B7] == -pawn && BOARD[C7] == -pawn
-           && BOARD[D7] == -pawn && BOARD[E7] == -pawn
-           && BOARD[F7] == -pawn && BOARD[G7] == -pawn
-           && BOARD[H7] == -pawn
-           && ( BOARD[I7]==-pawn || BOARD[I6]==-pawn || BOARD[I5]==-pawn ) )
-        {
-          Out( "\nINANIWA SHIFT TURNED ON (BLACK)\n\n" );
-            inaniwa_flag = 1;
-          ehash_clear();
-          if ( ini_trans_table() < 0 ) { return -1; }
-        }
-
-      if ( root_turn == black
-           && ( BOARD[A3]==pawn || BOARD[A4]==pawn || BOARD[A5] == pawn )
-           && BOARD[B3] == pawn && BOARD[C3] == pawn
-           && BOARD[D3] == pawn && BOARD[E3] == pawn
-           && BOARD[F3] == pawn && BOARD[G3] == pawn
-           && BOARD[H3] == pawn
-           && ( BOARD[I3]==pawn || BOARD[I4]==pawn || BOARD[I5]==pawn ) )
-        {
-          Out( "\nINANIWA SHIFT TURNED ON (WHITE)\n\n" );
-          inaniwa_flag = 2;
-          ehash_clear();
-          if ( ini_trans_table() < 0 ) { return -1; }
-        }
-    }
-
-  return 0;
-}
-#endif
-
 int CONV
 iterate( tree_t * restrict ptree )
 {
@@ -935,6 +897,46 @@ iterate( tree_t * restrict ptree )
        m3call, m3mvs, m3easy, m3hit, m3mate );
   return iret;
 }
+
+
+#if defined(INANIWA_SHIFT)
+int CONV
+ detect_inaniwa(tree_t* ptree)
+{
+  if ( ! inaniwa_flag && 19 < ptree->nrep )
+    {
+      if ( root_turn == white
+           && ( BOARD[A7]==-pawn || BOARD[A6]==-pawn || BOARD[A5]==-pawn )
+           && BOARD[B7] == -pawn && BOARD[C7] == -pawn
+           && BOARD[D7] == -pawn && BOARD[E7] == -pawn
+           && BOARD[F7] == -pawn && BOARD[G7] == -pawn
+           && BOARD[H7] == -pawn
+           && ( BOARD[I7]==-pawn || BOARD[I6]==-pawn || BOARD[I5]==-pawn ) )
+        {
+          Out( "\nINANIWA SHIFT TURNED ON (BLACK)\n\n" );
+            inaniwa_flag = 1;
+          ehash_clear();
+          if ( ini_trans_table() < 0 ) { return -1; }
+        }
+
+      if ( root_turn == black
+           && ( BOARD[A3]==pawn || BOARD[A4]==pawn || BOARD[A5] == pawn )
+           && BOARD[B3] == pawn && BOARD[C3] == pawn
+           && BOARD[D3] == pawn && BOARD[E3] == pawn
+           && BOARD[F3] == pawn && BOARD[G3] == pawn
+           && BOARD[H3] == pawn
+           && ( BOARD[I3]==pawn || BOARD[I4]==pawn || BOARD[I5]==pawn ) )
+        {
+          Out( "\nINANIWA SHIFT TURNED ON (WHITE)\n\n" );
+          inaniwa_flag = 2;
+          ehash_clear();
+          if ( ini_trans_table() < 0 ) { return -1; }
+        }
+    }
+
+  return 0;
+}
+#endif
 
 
 #if defined(USI)

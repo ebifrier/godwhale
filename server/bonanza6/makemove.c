@@ -61,7 +61,7 @@
 
 
 void CONV
-make_move_b( tree_t * restrict ptree, unsigned int move, int ply )
+make_move_b( tree_t * restrict ptree, Move move, int ply )
 {
   const int from = (int)I2From(move);
   const int to   = (int)I2To(move);
@@ -95,9 +95,6 @@ make_move_b( tree_t * restrict ptree, unsigned int move, int ply )
         default:     unreachable();            break;
         }
       Xor( to, BB_BOCCUPY );
-      //XorFile( to, OCCUPIED_FILE );
-      //XorDiag2( to, OCCUPIED_DIAG2 );
-      //XorDiag1( to, OCCUPIED_DIAG1 );
       XorOccupied( to );
 
       nlist = ptree->nlist++;
@@ -207,9 +204,6 @@ make_move_b( tree_t * restrict ptree, unsigned int move, int ply )
           default:         unreachable();                      break;
           }
         Xor( to, BB_WOCCUPY );
-        //XorFile( from, OCCUPIED_FILE );
-        //XorDiag2( from, OCCUPIED_DIAG2 );
-        //XorDiag1( from, OCCUPIED_DIAG1 );
         XorOccupied( from );
 
         tgtpc = ipiece_cap & 7;
@@ -224,9 +218,6 @@ make_move_b( tree_t * restrict ptree, unsigned int move, int ply )
         // list0,1 for suf>=nlist we don't care (FIXME? really?)
       }
     else {
-      //SetClearFile( from, to, OCCUPIED_FILE );
-      //SetClearDiag1( from, to, OCCUPIED_DIAG1 );
-      //SetClearDiag2( from, to, OCCUPIED_DIAG2 );
       SetClearOccupied( from, to );
     }
 
@@ -280,9 +271,6 @@ make_move_w( tree_t * restrict ptree, Move move, int ply )
         default:     unreachable();            break;
         }
       Xor( to, BB_WOCCUPY );
-      //XorFile( to, OCCUPIED_FILE );
-      //XorDiag2( to, OCCUPIED_DIAG2 );
-      //XorDiag1( to, OCCUPIED_DIAG1 );
       XorOccupied( to );
 
       nlist = ptree->nlist++;
@@ -391,9 +379,6 @@ make_move_w( tree_t * restrict ptree, Move move, int ply )
           default:         unreachable();            break;
           }
         Xor( to, BB_BOCCUPY );
-        //XorFile( from, OCCUPIED_FILE );
-        //XorDiag1( from, OCCUPIED_DIAG1 );
-        //XorDiag2( from, OCCUPIED_DIAG2 );
         XorOccupied( from );
 
         tgtpc = ipiece_cap & 7;
@@ -408,9 +393,6 @@ make_move_w( tree_t * restrict ptree, Move move, int ply )
         // list0,1 for suf>=nlist we don't care (FIXME? really?)
       }
     else {
-      //SetClearFile( from, to, OCCUPIED_FILE );
-      //SetClearDiag1( from, to, OCCUPIED_DIAG1 );
-      //SetClearDiag2( from, to, OCCUPIED_DIAG2 );
       SetClearOccupied( from, to );
     }
 
@@ -445,7 +427,7 @@ make_move_w( tree_t * restrict ptree, Move move, int ply )
  * flag_history
  */
 int CONV
-make_move_root( tree_t * restrict ptree, unsigned int move, int flag )
+make_move_root( tree_t * restrict ptree, Move move, int flag )
 {
   int check, drawn, iret, i, n;
 

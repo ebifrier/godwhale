@@ -318,8 +318,8 @@ public:
     void summary()
     {
         MSTOut("==== rsum st%d rw%d A %d B %d G %d bv %d bul %d bL %d fmv %07x bsq",
-               itd(), exd(), alpha, beta, gamma, bestval, bestule, bestseqLeng,
-               readable(firstmv.mv));
+               itd(), exd(), alpha, beta, gamma, bestval, bestule,
+               bestseqLeng, readable(firstmv.mv));
         forr (i, 0, min(1, bestseqLeng-1)) {
             MSTOut(" %07x", readable(bestseq[i]));
         }
@@ -698,16 +698,11 @@ bool rowC::mvdoneExact(int dep, mvC mv)
 
 void rowC::updateValue(int val, valtypeE type)
 {
-    if (type == VALTYPE_ALPHA) {
-        alpha = val;
-    }
-    else if (type == VALTYPE_BETA) {
-        beta = val;
-    }
-    else {
-        assert(type == VALTYPE_GAMMA);
-        //oldG = gamma;
-        gamma = val;
+    switch (type) {
+    case VALTYPE_ALPHA: alpha = val;   break;
+    case VALTYPE_BETA:  beta  = val;   break;
+    case VALTYPE_GAMMA: gamma = val;   break;
+    default:            unreachable(); break;
     }
 
     // always set Donecnt - by A up or B down, Donecnt may change
@@ -844,7 +839,8 @@ void streamC::rpyFirst(int exd, int valAtExd)
 
     for (int d=exd; d>=0; d--) {   // FIXME?  exd-1?
         rowC& r = row[d];
-        r.gamma = (d==exd && row[exd].alpha > -score_bound) ? -score_bound : val;
+        r.gamma = (d==exd && row[exd].alpha > -score_bound) ?
+                   -score_bound : val;
 
         // issue LIST
         forr (pr, 1, Nproc-1) {
@@ -861,7 +857,7 @@ void streamC::rpyFirst(int exd, int valAtExd)
             }
             
             cmd2send.setCmdList(itd(), d, r.procmvs[pr].mvcnt, val, r.beta,
-                                r.firstmv.mv , d,
+                                r.firstmv.mv, d,
                                 seqFromPrev+1, tuples);
             cmd2send.send(pr);
         }
@@ -972,12 +968,14 @@ void streamC::rpyPvs(int rank, int exd, int valChild, mvC mv, int ule,
     if ((ule == ULE_EXACT) ||    // 3/11/2012 %xx this if cond missing
         (ule == ULE_UPPER && val >= r.beta) ||
         (ule == ULE_LOWER && val <= effalpha(r.alpha, r.gamma))) {
-        r.procmvs[rank].donecnt++;  // 12/1/2011 %22 donecnt increment was missing
+        // 12/1/2011 %22 donecnt increment was missing
+        r.procmvs[rank].donecnt++;
     }
 
     MSTOut(":::: rk %d i %d e %d tl %d A %d B %d G %d done %d/%d bstv %d len %d\n",
            rank, itd(), exd, tailExd, r.alpha, r.beta, r.gamma,
-           r.procmvs[rank].donecnt, r.procmvs[rank].mvcnt, r.bestval, r.bestseqLeng);
+           r.procmvs[rank].donecnt, r.procmvs[rank].mvcnt, r.bestval,
+           r.bestseqLeng);
 
     // FIXME slave returns w/ seqleng=0 very often.  need hash retrieval?
 
@@ -987,8 +985,7 @@ void streamC::rpyPvs(int rank, int exd, int valChild, mvC mv, int ule,
         r.updateBest(val, mv, seqleng, bestseq);
 
         cmd2send.setCmdNotify(itd(), exd, val, mv);
-        forr(pr, 1, Nproc-1)
-            //if (pr != rank)
+        forr (pr, 1, Nproc-1)
             cmd2send.send(pr);
     }
 

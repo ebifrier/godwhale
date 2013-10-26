@@ -1,11 +1,11 @@
+#if ! defined(MINIMUM)
+
 #include <stdlib.h>
 #include <limits.h>
 #include <float.h>
 #include <math.h>
 #include <assert.h>
 #include "shogi.h"
-
-#if ! defined(MINIMUM)
 
 #define GO_THROUGH_ALL_PARAMETERS_BY_FOO                                  \
   for ( i=0; i < nsquare*pos_n; i++ )           { Foo( pc_on_sq[0][i] ) } \

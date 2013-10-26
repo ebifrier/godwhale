@@ -1,3 +1,5 @@
+#if ! defined(MINIMUM)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,8 +12,6 @@
 #  include <sched.h>
 #endif
 #include "shogi.h"
-
-#if ! defined(MINIMUM)
 
 #  define SEARCH_DEPTH      2
 #  define NUM_RESULT        8
@@ -75,13 +75,7 @@ typedef struct {
 
 } parse2_data_t;
 
-#  if defined(_WIN32)
-static unsigned int __stdcall parse1_worker( void *arg );
-static unsigned int __stdcall parse2_worker( void *arg );
-#  else
-static void *parse1_worker( void *arg );
-static void *parse2_worker( void *arg );
-#endif
+
 static void ini_book( book_entry_t *pbook_entry );
 static void make_pv( parse1_data_t *pdata, unsigned int record_move );
 static int read_game( parse1_data_t *pdata );
@@ -94,6 +88,8 @@ static int learn_parse1( tree_t * restrict ptree, book_entry_t *pbook_entry,
 static int learn_parse2( tree_t * restrict ptree, FILE *pf_tmp,
                          int nsteps, double target_out_window,
                          double obj_norm, int tlp2 );
+static void parse1_worker( void *arg );
+static void parse2_worker( void *arg );
 static int book_probe_learn( const tree_t * restrict ptree,
                              book_entry_t *pbook_entry, int ply,
                              unsigned int move );
@@ -237,23 +233,9 @@ learn_parse1( tree_t * restrict ptree, book_entry_t *pbook_entry, FILE *pf_tmp,
   tlp_num = nworker;
   for ( id = 1; id < nworker; id++ )
     {
-#  if defined(_WIN32)
       pdata[id]->ptree = tlp_atree_work + id;
-      if ( ! _beginthreadex( 0, 0, parse1_worker, pdata[id], 0, 0 ) )
-        {
-          str_error = "_beginthreadex() failed.";
-          return -1;
-        }
-#  else
-      pthread_t pt;
 
-      pdata[id]->ptree = tlp_atree_work + id;
-      if ( pthread_create( &pt, &pthread_attr, parse1_worker, pdata[id] ) )
-        {
-          str_error = "pthread_create() failed.";
-          return -1;
-        }
-#  endif
+      if ( start_thread( parse1_worker, pdata[id] ) < 0 ) { return -1 }
     }
 #endif /* TLP */
 
@@ -331,11 +313,8 @@ learn_parse1( tree_t * restrict ptree, book_entry_t *pbook_entry, FILE *pf_tmp,
 }
 
 
-#  if defined(_MSC_VER)
-static unsigned int __stdcall parse1_worker( void *arg )
-#  else
-static void *parse1_worker( void *arg )
-#endif
+static void
+parse1_worker( void *arg )
 {
   parse1_data_t *pdata;
   tree_t *ptree;
@@ -673,23 +652,9 @@ learn_parse2( tree_t * restrict ptree, FILE *pf_tmp, int nsteps,
     tlp_num = nworker;
     for ( id = 1; id < nworker; id++ )
       {
-#  if defined(_WIN32)
         pdata[id]->ptree = tlp_atree_work + id;
-        if ( ! _beginthreadex( 0, 0, parse2_worker, pdata[id], 0, 0 ) )
-          {
-            str_error = "_beginthreadex() failed.";
-            return -1;
-          }
-#  else
-        pthread_t pt;
-        
-        pdata[id]->ptree = tlp_atree_work + id;
-        if ( pthread_create( &pt, &pthread_attr, parse2_worker, pdata[id] ) )
-          {
-            str_error = "pthread_create() failed.";
-            return -1;
-          }
-#  endif
+
+        if ( start_thread( parse2_worker, pdata[id] ) < 0 ) { return -1; }
       }
 #endif /* TLP */
     
