@@ -4,16 +4,12 @@
 #include "pcommon3.h"
 #include "comm3.h"
 
-int problemMode();  // in sbody3.h  FIXME here?
-
 //******** data decl   FIXME s/b here? ********
 
-//cmdPacketC cmd2send;
 static replyPacketC rpypkt;
 static replyEntryC  rpyent(&rpypkt);
 int exitPending, exitAcked;
 
-#define NOSIDE (-1)
 int compTurn = NOSIDE;
 
 #define PR1 1
@@ -124,7 +120,8 @@ int master(unsigned int* retmvseq)
                     expired = timeCheck();
 
                 if (detected || expired) {
-                    MSTOut("____ sig detected det %d exp %d\n", detected, expired);
+                    MSTOut("____ sig detected det %d exp %d\n",
+                           detected, expired);
 
                     if (!exitPending) {
                         exitPending = (1 << Nproc) - 2;  // bits[Nproc-1:1] are set

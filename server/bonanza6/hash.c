@@ -133,10 +133,15 @@ hash_store( const tree_t * restrict ptree, int ply, int depth, int turn,
             | ( (uint64_t)( move & 0x7ffffU ) << 21 )
             | HAND_B );
 
+  // HASH_KEYは64bitだが、その下位32bit。
   index = (unsigned int)HASH_KEY & hash_mask;
+
+  // 現在の局面からhashのentryが確定するので、それを取得。
   hash_word1 = ptrans_table[index].prefer.word1;
   hash_word2 = ptrans_table[index].prefer.word2;
   SignKey( hash_word2, hash_word1 );  // hash_word2 now plain
+
+  // このentryの世代を調べる。
   age_hash   = (int)((unsigned int)(hash_word2    ) & 0x07U);
   depth_hash = (int)((unsigned int)(hash_word1>>56) & 0xffU);
 
@@ -145,20 +150,30 @@ hash_store( const tree_t * restrict ptree, int ply, int depth, int turn,
 
   SignKey( word2, word1 );
 
+  // 以前の世代のhashであったり、あるいはdepthがいまの探索深さより浅ければ
+  // いま置換表にあるのは意味のないentryなので書き換えてしまう。
   if ( age_hash != trans_table_age || depth_hash <= depth )
     {
       if (BKUP_TO_ALWAYS && keyt_hash != keyt) {
         slot = hashslot(HASH_KEY);
+
+        // Craftyの方法。これなら別threadからの破壊をチェックできる
         SignKey( hash_word2, hash_word1 );  // hash_word2 now crypted
+
+        // alwaysは予備スロット。ここに登録しておく。
         ptrans_table[index].always[slot].word1 = hash_word1;
         ptrans_table[index].always[slot].word2 = hash_word2;
       }
+
+      // メインのスロットに登録する。
       ptrans_table[index].prefer.word1 = word1;
       ptrans_table[index].prefer.word2 = word2;
     }
   else {
     //slot = (unsigned int)HASH_KEY >> 31;
     slot = hashslot(HASH_KEY);
+
+    // 予備スロットへの登録
     ptrans_table[index].always[slot].word1 = word1;
     ptrans_table[index].always[slot].word2 = word2;
   }

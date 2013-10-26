@@ -230,7 +230,7 @@ calc_is_safe_impl( int at, int oc )
 // at, ocは玉周辺の升に利き／駒があるかどうかを示す9bitのbitmask
 // 右下から左上方向にのび、0ビット目が１であれば
 // それは右下の升に駒があることを示す。
-// それらの関係から玉が絶対に積まないパターンを調べます。
+// それらの関係から玉が絶対に積まないパターン(safe)を調べます。
 static int CONV
 calc_is_safe( int at, int oc )
 {
@@ -619,6 +619,7 @@ mhash_store( const tree_t * restrict ptree, int turn, unsigned int move )
 }
 
 
+// 3手詰みなのか
 unsigned int CONV
 is_mate_in3ply( tree_t * restrict ptree, int turn, int ply )
 {
@@ -636,26 +637,41 @@ is_mate_in3ply( tree_t * restrict ptree, int turn, int ply )
       else                        { return 1; }
     }
 
+  // 3手で探索打ち切りまで行ってしまうなら探索しない。
   if ( ply >= PLY_MAX-2 ) { return 0; }
 
   m3call++;
   flag_skip = 0;
 
+  // ptree->anext_move[ply].move_lastが生成された指し手の開始点。
   ptree->anext_move[ply].move_last = ptree->move_last[ply-1];
+
+  // 王手になる手をすべて生成
+  // 前の探索深さで生成した指し手の最後から続きを生成する。
+  // ptree->move_last[ply]は生成された指し手の終端。
   ptree->move_last[ply] = GenCheck( turn, ptree->move_last[ply-1] );
 
   kloc = (turn ? SQ_BKING : SQ_WKING);
   bb_atk = findAllNeibAttacks(ptree, kloc, turn);
 
+  // 生成されたすべての指し手に対して、ひとつでも詰む手があれば詰み。
+  // (or接点なので)
   while ( ptree->anext_move[ply].move_last != ptree->move_last[ply] )
     {
+      // 生成された指し手のうちひとつ取り出す。
       MOVE_CURR = *ptree->anext_move[ply].move_last++;
 
       if ( MOVE_CURR & MOVE_CHK_CLEAR ) { flag_skip = 0; }
       if ( flag_skip ) { continue; }
 
+      // この生成された指し手が合法手であるか
       assert( is_move_valid( ptree, MOVE_CURR, turn ) );
+
+      // 指し手で局面を進める。
       MakeMove( turn, MOVE_CURR, ply );
+
+      // 王手が回避できていないのでこの王手は無効な指し手。
+      // (pinされている駒を動かした)
       if ( InCheck(turn) )
         {
           UnMakeMove( turn, MOVE_CURR, ply );
@@ -673,14 +689,14 @@ is_mate_in3ply( tree_t * restrict ptree, int turn, int ply )
            I2From(MOVE_CURR) >= 81 &&                           // drop
            ! BBContract(bb_atk, abb_mask[to]) )   // no opn atk on dst
         {
-          bitboard_t bb = (turn ? BB_BOCCUPY : BB_WOCCUPY);
+          bitboard_t bb = ( turn ? BB_BOCCUPY : BB_WOCCUPY );
           Xor(kloc, bb); // assume capture by king, kloc empty (new kloc no matter)
           m3easy++;
           if ( is_safe( to, &bb_atk, &bb ) )
             {
               m3hit++;
 #  ifdef DBG_M3CUT
-              hit=1;
+              hit = 1;
 #  else
               UnMakeMove( turn, MOVE_CURR, ply );
               continue;
@@ -689,17 +705,21 @@ is_mate_in3ply( tree_t * restrict ptree, int turn, int ply )
         }
 #endif
 
+      // この進めて局面に対してすべての回避手が詰みならこの局面は詰み
+      // (and接点なので)
       value = mate3_and( ptree, Flip(turn), ply+1, 0 );
-      
+
       UnMakeMove( turn, MOVE_CURR, ply );
 
+      // 回避不能な王手が見つかったので詰み。
       if ( value )
         {
 #ifdef DBG_M3CUT
           if (hit)
             {
-              Out(":::: M3WARNING: wrong hit  mv %07x\n", readable_c(MOVE_CURR));
-              out_board(ptree, stdout, 0, 0);
+              Out( ":::: M3WARNING: wrong hit  mv %07x\n",
+                   readable_c(MOVE_CURR) );
+              out_board( ptree, stdout, 0, 0 );
               //abort();
             }
 #endif

@@ -91,29 +91,6 @@ extern unsigned char ailast_one[512];
 
 #endif
 
-#ifdef BITBRD64
-
-#ifdef HAVE_AVX
-typedef union {
- __m256 m;
-#else
-#ifdef HAVE_SSE2
-typedef union {
- __m128i m[2];
-#else
-typedef struct {
-#endif
-#endif
- uint64_t x[4];  // rank, file, diag1(rl45), diag2(rr45)
-} occupiedC;
-
-extern bitboard_t abb_attacks[4][128/*81*/][128];
-extern const int ai_shift[4][81];
-extern const int ai_sufmask[4][81];
-extern occupiedC ao_bitmask[81];
-
-#endif // BITBRD64
-
 #define BK_TINY
 /*
   #define BK_SMALL
@@ -811,6 +788,31 @@ typedef struct {
 } slide_tbl_t;
 
 
+#ifdef BITBRD64
+
+// 駒の占有箇所を示したビットボード
+#ifdef HAVE_AVX
+typedef union {
+ __m256 m;
+#else
+#ifdef HAVE_SSE2
+typedef union {
+ __m128i m[2];
+#else
+typedef struct {
+#endif
+#endif
+ uint64_t x[4];  // rank, file, diag1(rl45), diag2(rr45)
+} occupiedC;
+
+extern bitboard_t abb_attacks[4][128/*81*/][128];
+extern const int ai_shift[4][81];
+extern const int ai_sufmask[4][81];
+extern occupiedC ao_bitmask[81];
+
+#endif // BITBRD64
+
+
 // 局面情報
 typedef struct {
   // 局面のhash値
@@ -1240,7 +1242,7 @@ int CONV dfpn_client_out( const char *fmt, ... );
 #endif
 
 #ifdef BITBRD64
-void CONV initNewBB( void );
+void CONV ini_bitboards( void );
 #endif
 
 void CONV listswap( tree_t * restrict ptree, int a, int b );

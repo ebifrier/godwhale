@@ -10,10 +10,6 @@
  // for INT_MAX
 #include <limits.h>
 
-extern "C" {
-#include "bonanza6/shogi.h"
-};
-
 #include "pcommon3.h"
 #include "comm3.h"
 #include "splane.h"

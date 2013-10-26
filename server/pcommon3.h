@@ -70,6 +70,12 @@ struct timespec
 };
 #endif
 
+#define NOSIDE (-1)
+extern int compTurn;
+
+class planeC;
+extern planeC plane;
+
  // defined in putils.cpp
 extern void ei_clock_gettime(struct timespec* tsp);
 extern int worldTime();
@@ -80,7 +86,7 @@ extern void microsleepMaster(int);
 extern int readable_c(int mv);
 extern int readable(mvC);
 
- // for invokempi
+ // for invokempi.cpp
 extern void sendQuit(int pr);
 
  // for 
@@ -98,3 +104,6 @@ extern int inRoot, rootExceeded, inFirst, firstReplied;
 extern uint64_t preNodeCount;
 
 extern void replyFirst();
+
+ // sbody.h
+extern int problemMode();

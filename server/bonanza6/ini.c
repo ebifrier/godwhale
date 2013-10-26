@@ -322,10 +322,11 @@ ini( tree_t * restrict ptree )
   ini_attack_tables();
   ini_random_table();
   ini_check_table();
-
+  ini_mate3();
   set_derivative_param();
+
 #ifdef BITBRD64
-  initNewBB();
+  ini_bitboards();
 #endif
 
   if ( ini_game( ptree, &min_posi_no_handicap, flag_history, NULL, NULL ) < 0 )
@@ -365,8 +366,6 @@ ini( tree_t * restrict ptree )
 #if defined(INANIWA_SHIFT)
   inaniwa_flag = 0;
 #endif
-
-  ini_mate3();
 
   return 1;
 }

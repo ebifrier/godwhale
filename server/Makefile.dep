@@ -1,6 +1,6 @@
-slave3.o: slave3.cpp bonanza6/shogi.h bonanza6/bitop.h bonanza6/param.h \
- bonanza6/inline.h pcommon3.h if_bonanza.h comm3.h splane.h perfsl.h \
- sbody3.h
+slave3.o: slave3.cpp pcommon3.h if_bonanza.h bonanza6/shogi.h \
+ bonanza6/bitop.h bonanza6/param.h bonanza6/inline.h comm3.h splane.h \
+ perfsl.h sbody3.h
 putils.o: putils.cpp pcommon3.h if_bonanza.h bonanza6/shogi.h \
  bonanza6/bitop.h bonanza6/param.h bonanza6/inline.h
 invokempi.o: invokempi.cpp /usr/lib/openmpi/include/mpi.h \

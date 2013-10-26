@@ -7,8 +7,6 @@
 #include "shogi.h"
 
 
-void CONV
-set_search_limit_time( int turn )
 /*
   [inputs]
   global variables:
@@ -37,6 +35,8 @@ set_search_limit_time( int turn )
     u0              tentative deadline for searching in second
     u1              maximum allowed time to search in second
 */
+void CONV
+set_search_limit_time( int turn )
 {
   unsigned int u0, u1;
 

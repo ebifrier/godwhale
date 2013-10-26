@@ -1655,8 +1655,6 @@ void planeC::catchupCommits()
 
 //********
 
-extern planeC plane;
-
 int streamC::itd()
 {
     return (int)(this - &(plane.stream[0]));

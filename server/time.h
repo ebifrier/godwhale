@@ -1,7 +1,5 @@
 /* $Id: time.h,v 1.11 2012-04-24 04:31:40 eikii Exp $ */
 
-//******** time check ********
-
 #define DBG_NO_TIME_CHECK 0
 #define TREAT_RETRY_UNSTABLE 1
 #define STABLE_THRESH      250

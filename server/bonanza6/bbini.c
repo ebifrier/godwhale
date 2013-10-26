@@ -207,16 +207,14 @@ typedef struct
   int locs[MAXLEN][9];  // squares on the line
 } iniAtkDataC;
 
-static iniAtkDataC adata[OD_SIZE]; // 縦横斜め*2ごとに確保
-static iniAtkDataC f, r, d1,d2;
-
-static void iniAtkData( void ); // defined below
+static void CONV ini_attack_data( void ); // defined below
 
 
 void CONV
-initNewBB( void )
+ini_bitboards( void )
 {
   int d, sq;
+
   memset( &ao_bitmask, 0, sizeof(ai_bitpos) );
 
   foro (d, 0, 3)
@@ -224,13 +222,15 @@ initNewBB( void )
     if (ai_bitpos[d][sq] >= 0)
       ao_bitmask[sq].x[d] = (uint64_t)(1UL << ai_bitpos[d][sq]);
 
-  iniAtkData();
+  ini_attack_data();
 }
 
 
-static void
-iniAtkData( void )
+static void CONV
+ini_attack_data( void )
 {
+  iniAtkDataC adata[OD_SIZE]; // 縦横斜め*2ごとに確保
+  iniAtkDataC f, r, d1,d2;
   int i, j, k, direc, line, sqsuf, vec, pcs;
 
   memset(&r, 0, sizeof(f));
@@ -302,9 +302,9 @@ iniAtkData( void )
 
           abb_attacks[direc][sq][pcs] = bb;
         }
-      } // for sqsuf
-    } // for line
-  } // for direc
+      }
+    }
+  }
 }
 
 #ifdef DBG_BBATK

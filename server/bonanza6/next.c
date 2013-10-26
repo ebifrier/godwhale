@@ -10,9 +10,10 @@ gen_next_move( tree_t * restrict ptree, int ply, int turn )
     {
     case next_move_hash:
       {
-        unsigned int * restrict pmove;
         int * restrict psortv = ptree->sort_value;
-        unsigned int move, killer1, killer2, move_hash, move_best, move_second;
+        unsigned int killer1, killer2, move_hash, move_best, move_second;
+        Move * restrict pmove;
+        Move move;
         int i, j, sortv, n, value_best, value_second, value, remaining;
 
         ptree->anext_move[ply].phase_done = 0;
@@ -31,24 +32,28 @@ gen_next_move( tree_t * restrict ptree, int ply, int turn )
           {
             move = pmove[i];
             sortv = swap( ptree, move, -1, INT_MAX, turn );
-            if ( sortv > value_best )
+            if ( sortv > value_second )
               {
-                move_second  = move_best;
-                value_second = value_best;
-                value_best = sortv;
-                move_best  = move;
+                if ( sortv > value_best )
+                  {
+                    move_second  = move_best;
+                    value_second = value_best;
+                    value_best = sortv;
+                    move_best  = move;
+                  }
+                else
+                  {
+                    move_second  = move;
+                    value_second = sortv;
+                  }
               }
-            else if ( sortv > value_second )
-              {
-                move_second  = move;
-                value_second = sortv;
-              }
+              
             if ( move == move_hash ) { sortv = INT_MIN; }
             else if ( UToFromToPromo(move) == killer1 )
               {
                 killer1 = 0;
                 value = ptree->amove_killer[ply].no1_value
-                  + p_value_ex[15U+UToCap(move)];
+                      + p_value_ex[15U+UToCap(move)];
                 if ( sortv < value ) { sortv = value; }
                 if ( sortv > -1 ) { remaining++; }
               }
@@ -56,7 +61,7 @@ gen_next_move( tree_t * restrict ptree, int ply, int turn )
               {
                 killer2 = 0;
                 value = ptree->amove_killer[ply].no2_value
-                  + p_value_ex[15U+UToCap(move)];
+                      + p_value_ex[15U+UToCap(move)];
                 if ( sortv < value ) { sortv = value; }
                 if ( sortv > -1 ) { remaining++; }
               }
@@ -135,7 +140,7 @@ gen_next_move( tree_t * restrict ptree, int ply, int turn )
     case next_move_capture:
       if ( ptree->anext_move[ply].remaining-- )
         {
-          unsigned int move;
+          Move move;
 
           MOVE_CURR = move = *(ptree->anext_move[ply].move_last++);
           if ( move == ptree->anext_move[ply].move_cap1 )
@@ -155,7 +160,7 @@ gen_next_move( tree_t * restrict ptree, int ply, int turn )
         }
 
       {
-        unsigned int * restrict pmove;
+        Move * restrict pmove;
         unsigned int value_best, value, key, good, tried;
         int i, n, ibest;
 
@@ -213,7 +218,7 @@ gen_next_move( tree_t * restrict ptree, int ply, int turn )
       
     case next_move_history2:
       {
-        unsigned int * restrict pmove;
+        Move * restrict pmove;
         unsigned int value_best, value, key, good, tried;
         int ibest, i, n;
 
