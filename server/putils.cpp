@@ -28,7 +28,7 @@ void ei_clock_gettime(struct timespec* tsp)
     tsp->tv_nsec = mts.tv_nsec;
 #elif _WIN32
     ULONGLONG tick = GetTickCount64();
-    tsp->tv_sec  = (int) (tick / 1000);
+    tsp->tv_sec  = (int)(tick / 1000);
     tsp->tv_nsec = (int)((tick % 1000) * 1000 * 1000); // msec -> nanosec
 #else
     clock_gettime(CLOCK_REALTIME, tsp);
@@ -74,7 +74,7 @@ void initTime()
     origin_nsec = ts.tv_nsec;
 }
 
-// timespec‚ğorigin‚©‚ç‚ÌŒo‰ßŠÔ[10us]‚É•ÏŠ·‚µ‚Ü‚·B
+// timespecã‚’originã‹ã‚‰ã®çµŒéæ™‚é–“[10us]ã«å¤‰æ›ã—ã¾ã™ã€‚
 // s -*1000-> ms -*1000-> us -*1000-> ns
 static int timespec2int(const struct timespec &ts)
 {
@@ -83,10 +83,10 @@ static int timespec2int(const struct timespec &ts)
         (ts.tv_nsec - origin_nsec) / 1000 / 10);
 }
 
-// origin‚©‚ç‚ÌŒo‰ßŠÔ[10us]‚ğƒ}ƒXƒ^^ƒXƒŒ[ƒuŠÔ‚Ì·‚ğl—¶‚µ‚È‚ª‚çŒvZ‚µ‚Ü‚·B
+// originã‹ã‚‰ã®çµŒéæ™‚é–“[10us]ã‚’ãƒã‚¹ã‚¿ï¼ã‚¹ãƒ¬ãƒ¼ãƒ–é–“ã®æ™‚å·®ã‚’è€ƒæ…®ã—ãªãŒã‚‰è¨ˆç®—ã—ã¾ã™
 //
-// adjustMaster/adjustSlave‚ğg‚Á‚½ƒ}ƒXƒ^^ƒXƒŒ[ƒuŠÔ‚Ì’²®‚ªs‚í‚ê‚Ä
-// ‚¢‚È‚¯‚ê‚ÎA‚±‚Ì‚Í–³’²®iƒ}ƒXƒ^‚Æ“¯‚¶jŠÔ‚ğ•Ô‚µ‚Ü‚·B
+// adjustMaster/adjustSlaveã‚’ä½¿ã£ãŸãƒã‚¹ã‚¿ï¼ã‚¹ãƒ¬ãƒ¼ãƒ–é–“ã®æ™‚åˆ»èª¿æ•´ãŒè¡Œã‚ã‚Œã¦
+// ã„ãªã‘ã‚Œã°ã€ã“ã®æ™‚åˆ»ã¯ç„¡èª¿æ•´ï¼ˆãƒã‚¹ã‚¿ã¨åŒã˜ï¼‰æ™‚é–“ã‚’è¿”ã—ã¾ã™ã€‚
 int worldTime()
 {
     struct timespec ts;
@@ -95,14 +95,15 @@ int worldTime()
     return (timespec2int(ts) - time_offset);
 }
 
-// Œ»İ‚ğƒiƒm•b’PˆÊ‚Åæ“¾‚µ‚Ü‚·B
+// ç¾åœ¨æ™‚åˆ»ã‚’ãƒŠãƒç§’å˜ä½ã§å–å¾—ã—ã¾ã™ã€‚
 int64_t worldTimeLl()
 {
     struct timespec ts;
     int64_t x;
 
     ei_clock_gettime(&ts);
-    x  = ts.tv_sec * 1000 * 1000 * 1000;
+    x  = ts.tv_sec;
+    x *= 1000 * 1000 * 1000;
     x += ts.tv_nsec;
     return x;
 }

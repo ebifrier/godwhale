@@ -1,3 +1,7 @@
+2013-10-26  - Ver 1.1.2
+
+	* server/putil.cpp: 値がオーバーフローしていたバグを修正しました。
+
 2013-10-19  - Ver 1.1.1
 
 	* ディレクトリ名を変更しserver→server.old, server2→serverとしました。

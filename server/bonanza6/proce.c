@@ -515,6 +515,8 @@ usi_option( tree_t * restrict ptree, char **lasts )
 {
   const char *name, *name_str, *value, *value_str;
 
+  (void)ptree; // 未使用
+
   name = strtok_r( NULL, str_delimiters, lasts );
   if ( name == NULL || strcmp( name, "name" ) )
     {

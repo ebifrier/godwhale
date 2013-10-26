@@ -55,7 +55,7 @@ PROBFILE=../d1.dpp
 #CLUSTOPT = -DCLUSTER_PARALLEL  ==> this should be MAKE argument for bonkras
 
 DEFS    = -D__STDC_FORMAT_MACROS -DNDEBUG -DMINIMUM -DDFPN -DTLP \
-          -DDFPN_CLIENT -DINANIWA_SHIFT -DCSA_LAN \
+          -DDFPN_CLIENT -DINANIWA_SHIFT -DCSA_LAN -DUSI \
           $(SSEOPT) $(AFFINOPT) $(CLUSTOPT) $(AVXOPT)
 OPT     = -std=gnu99 $(DEFS)
 GCC_OPT = -Wall -Wextra
