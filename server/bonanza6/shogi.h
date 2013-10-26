@@ -1034,16 +1034,28 @@ extern unsigned int time_last_result;
 extern unsigned int time_last_eff_search;
 extern unsigned int time_last_search;
 extern unsigned int time_last_check;
+// 手番の開始時刻[ms]
 extern unsigned int time_turn_start;
+// 手番の開始時刻[ms]
 extern unsigned int time_start;
+
+// 思考可能な最大時間[ms]。これ以上その手に時間はかけられない
 extern unsigned int time_max_limit;
+// 思考可能な時間[ms]。とりあえずの期限でそれ以上考える可能性もあり
 extern unsigned int time_limit;
+// 指し手の送信にかかる時間（この値はコマンドから変更できるので変数）
 extern unsigned int time_response;
+// 持ち時間[s]（コマンドから変更可能）
 extern unsigned int sec_limit;
+// 秒読み時間[s]（コマンドから変更可能）
 extern unsigned int sec_limit_up;
+// 最大探索深さ（コマンドから変更可能）
 extern unsigned int sec_limit_depth;
+// 手番側の経過時間[s]
 extern unsigned int sec_elapsed;
+// 先手側の経過時間[s]
 extern unsigned int sec_b_total;
+// 後手側の経過時間[s]
 extern unsigned int sec_w_total;
 
 extern record_t record_problems;

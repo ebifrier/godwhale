@@ -89,8 +89,8 @@ iterate( tree_t * restrict ptree )
     }
 
 #ifdef CLUSTER_PARALLEL
-  game_status  &= ~( flag_move_now | flag_suspend  // copied from below
-                     | flag_quit_ponder | flag_search_error );
+  game_status &= ~( flag_move_now | flag_suspend  // copied from below
+                    | flag_quit_ponder | flag_search_error );
 
   last_pv.length = master( last_pv.a );
   ptree->pv[0].length = last_pv.length;
@@ -99,7 +99,7 @@ iterate( tree_t * restrict ptree )
       ptree->pv[0].a[i] = last_pv.a[i];
     }
   last_root_value = (last_pv.a[1] != MOVE_NA) ? last_root_value :
-      (!root_turn ? -score_bound : score_bound);
+    (!root_turn ? -score_bound : score_bound);
 
   right_answer_made = 0;
   if ( ( game_status & flag_problem ) )

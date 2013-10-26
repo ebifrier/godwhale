@@ -109,10 +109,12 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSA_LAN;INANIWA_SHIFT;DFPN;DFPN_CLIENT;CLUSTER_PARALLEL;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;DBG_NO_MPI;_DEBUG;_CONSOLE;MINIMUM;TLP;USI;HAVE_SSE2;HAVE_SSE4;CSA_LAN;INANIWA_SHIFT;DFPN;DFPN_CLIENT;CLUSTER_PARALLEL;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <OpenMPSupport>true</OpenMPSupport>
       <CompileAs>CompileAsCpp</CompileAs>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,9 +148,10 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSA_LAN;INANIWA_SHIFT;DFPN;DFPN_CLIENT;CLUSTER_PARALLEL;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;MINIMUM;TLP;USI;HAVE_SSE2;HAVE_SSE4;CSA_LAN;INANIWA_SHIFT;DFPN;DFPN_CLIENT;CLUSTER_PARALLEL;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <OpenMPSupport>true</OpenMPSupport>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -161,9 +164,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\bonanza6\bitop.h" />
     <ClInclude Include="..\..\bonanza6\dfpn.h" />
-    <ClInclude Include="..\..\bonanza6\handjoseki.h" />
     <ClInclude Include="..\..\bonanza6\inline.h" />
-    <ClInclude Include="..\..\bonanza6\mate3.h" />
     <ClInclude Include="..\..\bonanza6\param.h" />
     <ClInclude Include="..\..\bonanza6\shogi.h" />
     <ClInclude Include="..\..\comm3.h" />
@@ -194,6 +195,7 @@
     <ClCompile Include="..\..\bonanza6\gendrop.c" />
     <ClCompile Include="..\..\bonanza6\genevasn.c" />
     <ClCompile Include="..\..\bonanza6\gennocap.c" />
+    <ClCompile Include="..\..\bonanza6\handjoseki.c" />
     <ClCompile Include="..\..\bonanza6\hash.c" />
     <ClCompile Include="..\..\bonanza6\ini.c" />
     <ClCompile Include="..\..\bonanza6\io.c" />

@@ -36,7 +36,7 @@
 #  include <smmintrin.h>
 
 #  define BBContract(b1,b2) ( ! _mm_testz_si128( (b1).m, (b2).m ) )
-#  define BBTest(b)         ( ! _mm_testz_si128( (b).m, _mm_set1_epi8(0xff) ) )
+#  define BBTest(b)         ( ! _mm_testz_si128( (b).m, _mm_set1_epi8(~0) ) )
 
 #else /* no SSE4 */
 
@@ -52,13 +52,13 @@
 #  define MMTest(mm) \
     (_mm_movemask_epi8( _mm_cmpeq_epi32( mm, MMZERO ) ) - 0xffff)
 #  define BBTest(bb)   MMTest((bb).m)
-#  define BBContract(bb1,bb2)  MMTest(_mm_and_si128( (bb1).m, (bb2).m ))
+#  define BBContract(bb1,bb2)  MMTest( _mm_and_si128( (bb1).m, (bb2).m ) )
 #endif
 
 #endif /* HAVE_SSE4 */
 
 #define BBNot(b,b1)         (b).m = _mm_andnot_si128( (b1).m,                 \
-                                                      _mm_set1_epi8(0xff) )
+                                                      _mm_set1_epi8(~0) )
 #define BBIni(b)            (b).m = _mm_setzero_si128()
 #define BBAnd(b,b1,b2)      (b).m = _mm_and_si128( (b1).m, (b2).m )
 #define BBOr(b,b1,b2)       (b).m = _mm_or_si128( (b1).m, (b2).m )

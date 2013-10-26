@@ -139,6 +139,9 @@
       <Filter>bonanza6</Filter>
     </ClCompile>
     <ClCompile Include="..\..\master3.cpp" />
+    <ClCompile Include="..\..\bonanza6\handjoseki.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\comm3.h" />
@@ -157,16 +160,10 @@
     <ClInclude Include="..\..\bonanza6\dfpn.h">
       <Filter>bonanza6</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\bonanza6\handjoseki.h">
-      <Filter>bonanza6</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\bonanza6\inline.h">
       <Filter>bonanza6</Filter>
     </ClInclude>
     <ClInclude Include="..\..\bonanza6\param.h">
-      <Filter>bonanza6</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\bonanza6\mate3.h">
       <Filter>bonanza6</Filter>
     </ClInclude>
     <ClInclude Include="..\..\bonanza6\shogi.h">

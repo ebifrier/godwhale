@@ -70,8 +70,14 @@ struct timespec
 };
 #endif
 
+extern int THINK_TIME, BYOYOMI_TIME;
+extern int x_dmy_for_calcinc, INCS_PER_USEC;
+// マスタ／スレーブ間の時差[10us]
+extern int time_offset;
+
 #define NOSIDE (-1)
-extern int compTurn;
+// 自分の手番を示します
+extern int myTurn;
 
 class planeC;
 extern planeC plane;

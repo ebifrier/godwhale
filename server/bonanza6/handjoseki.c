@@ -1,6 +1,7 @@
-
+﻿
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 #include "shogi.h"
 
 /* hand joseki

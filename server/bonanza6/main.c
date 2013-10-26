@@ -48,8 +48,8 @@ main()
 #endif
 
 #if defined(USI)
-  if ( argc >= 1 && ! strcmp( argv[1], "usi" ) ) { usi_mode = usi_on; }
-  else                                           { usi_mode = usi_off; }
+  if ( argc > 1 && ! strcmp( argv[1], "usi" ) ) { usi_mode = usi_on; }
+  else                                          { usi_mode = usi_off; }
 #endif
 
 #ifdef CLUSTER_PARALLEL

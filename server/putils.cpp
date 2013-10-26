@@ -28,7 +28,7 @@ void ei_clock_gettime(struct timespec* tsp)
     tsp->tv_nsec = mts.tv_nsec;
 #elif _WIN32
     ULONGLONG tick = GetTickCount64();
-    tsp->tv_sec  = (int)(tick / 1000);
+    tsp->tv_sec  = (int) (tick / 1000);
     tsp->tv_nsec = (int)((tick % 1000) * 1000 * 1000); // msec -> nanosec
 #else
     clock_gettime(CLOCK_REALTIME, tsp);
@@ -63,34 +63,6 @@ int readable(mvC mv)
 static int origin_sec = 0, origin_nsec = 0;
 int time_offset = 0;
 
-static int timespec2int(int sec, int nsec)
-{
-    // 1/14/2010 changed from us to 10us
-    //return ((sec - origin_sec) * 1000000 + (nsec - origin_nsec) / 1000);
-    return ((sec - origin_sec) * 100000 + (nsec - origin_nsec) / 10000);
-}
-
-int worldTime()
-{
-    struct timespec ts;
-    ei_clock_gettime(&ts);
-
-    return (timespec2int(ts.tv_sec, ts.tv_nsec) - time_offset);
-    // NOTE before offset is set, this is equal to master's time
-}
-
-int64_t worldTimeLl()
-{
-    struct timespec ts;
-    int64_t x;
-
-    ei_clock_gettime(&ts);
-    x = ts.tv_sec;
-    x *= 1000000000;
-    x += ts.tv_nsec;
-    return x;
-}
-
  // called by mpi_init(), just once.  after that, worldTime() will
  // return the 10us unit since start
 void initTime()
@@ -101,6 +73,40 @@ void initTime()
     origin_sec = ts.tv_sec;
     origin_nsec = ts.tv_nsec;
 }
+
+// timespecをoriginからの経過時間[10us]に変換します。
+// s -*1000-> ms -*1000-> us -*1000-> ns
+static int timespec2int(const struct timespec &ts)
+{
+    return (
+        (ts.tv_sec  - origin_sec ) * 1000 * 100 +
+        (ts.tv_nsec - origin_nsec) / 1000 / 10);
+}
+
+// originからの経過時間[10us]をマスタ／スレーブ間の時差を考慮しながら計算します。
+//
+// adjustMaster/adjustSlaveを使ったマスタ／スレーブ間の時刻調整が行われて
+// いなければ、この時刻は無調整（マスタと同じ）時間を返します。
+int worldTime()
+{
+    struct timespec ts;
+
+    ei_clock_gettime(&ts);
+    return (timespec2int(ts) - time_offset);
+}
+
+// 現在時刻をナノ秒単位で取得します。
+int64_t worldTimeLl()
+{
+    struct timespec ts;
+    int64_t x;
+
+    ei_clock_gettime(&ts);
+    x  = ts.tv_sec * 1000 * 1000 * 1000;
+    x += ts.tv_nsec;
+    return x;
+}
+
 
 #if USE_PAUSE
 static void micropauseCore(int t)

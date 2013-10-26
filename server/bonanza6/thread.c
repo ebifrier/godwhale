@@ -1,4 +1,4 @@
-// $Id: thread.c,v 1.2 2012/02/17 06:31:48 eikii Exp $
+﻿// $Id: thread.c,v 1.2 2012/02/17 06:31:48 eikii Exp $
 
  // this must be before any #include - before <features.h>
 #define _GNU_SOURCE

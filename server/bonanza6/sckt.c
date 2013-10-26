@@ -70,7 +70,7 @@ client_next_game( tree_t * restrict ptree, const char *str_addr, int iport )
 
     if (!restart_mode) {
       iret = sckt_out( sckt_csa, "LOGIN %s %s\n",
-                     client_str_id, client_str_pwd );
+                       client_str_id, client_str_pwd );
       if ( iret < 0 ) { return iret; }
     } else {
       int n;   // split gamename and pwd

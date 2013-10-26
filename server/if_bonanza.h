@@ -13,7 +13,6 @@ extern FILE* slavelogfp;
 extern FILE* masterlogfp;
 
 extern int Mproc, Nproc, Ncomm;
-extern int x_dmy_for_calcinc, INCS_PER_USEC;
 extern tree_t* g_ptree;
 
  // for main()

@@ -728,6 +728,7 @@ static int CONV cmd_restart( int n )
 }
 
 
+// 対局者の手が送られてきたときに呼ばれる
 static int CONV
 cmd_usrmove( tree_t * restrict ptree, const char *str_move, char **lasts )
 {
@@ -799,6 +800,8 @@ cmd_usrmove( tree_t * restrict ptree, const char *str_move, char **lasts )
           return 2;
         }
       else {
+        // ponder中なので、手番はこちら側にあり、
+        // 送られてきたのは相手の差し手なので、相手の手番にする必要がある
         iret = update_time( Flip(root_turn) );
         if ( iret < 0 ) { return iret; }
         if ( lelapsed )
@@ -860,6 +863,7 @@ cmd_usrmove( tree_t * restrict ptree, const char *str_move, char **lasts )
         return iret;
       }
 
+  // 指し手の時間が設定されていたら、それをもとに新たな経過時間を設定します。
   if ( lelapsed ) { adjust_time( (unsigned int)lelapsed, Flip(root_turn) ); }
   Out( "  elapsed: b%u, w%u\n", sec_b_total, sec_w_total );
 

@@ -1181,7 +1181,7 @@ void planeC::makeMoveRoot(mvC mv)
 
     // when making two fwd's, 'shift' itd for one mv, no shift for the other
     // thus SRD (srch dep = 2*i-e) for the row remains the same
-    int shift = (compTurn == root_turn ? 1 : 0);
+    int shift = (myTurn == root_turn ? 1 : 0);
 
     forr (i, 1, MAX_ITD-1-shift) {
         int srci = i + shift;

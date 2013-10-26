@@ -346,8 +346,8 @@ int probePacketSlave()
 #endif
 }
 
-int x_dmy_for_calcinc = 0;
 #define CALCINC_CONST  1000000000
+int x_dmy_for_calcinc = 0;
 
 static int calcIncsPerUsec()
 {
@@ -370,17 +370,13 @@ static int calcIncsPerUsec()
 
 
 //******** time related *********** 
-static int origin_sec, origin_nsec;
-extern int time_offset;
 
-int keyOffset, nodeLeader;
-#define KEYOFFSET_BITPOS 2
-
+// マスタ／スレーブ間の時間差を求めるために使います。
 static void adjustTimeMaster()
 {
-    int v[100];
     struct timespec ts;
-    int proc;
+    int origin_sec, origin_nsec, proc;
+    int v[100];
     
     ei_clock_gettime(&ts);
     origin_sec  = ts.tv_sec;
@@ -390,8 +386,7 @@ static void adjustTimeMaster()
     for (proc = 1; proc <= Nproc-1; proc++) {
         v[0] = origin_sec;
         v[1] = origin_nsec;
-        v[2] = 0; //(keyOffset << KEYOFFSET_BITPOS) | isNodeLeader(proc);
-        sendPacket(proc, v, 3);  // send origin
+        sendPacket(proc, v, 2);  // send origin
         
         recvPacket(proc, v);  // ack
 
@@ -408,15 +403,17 @@ static void adjustTimeMaster()
     }
 }
 
+// マスタ／スレーブ間の時間差を求めるために使います。
+// 最終的に必要なのは time_offset のみ。
 /*
   M   ...1--->.....2.
   S   .......1'--->..
  */
 static void adjustTimeSlave()
 {
-    int buf[100];
     struct timespec ts;
-    int pre, mid, post;
+    int origin_sec, origin_nsec, pre, mid, post;
+    int buf[100];
 
     // for debug purpose, realtime of slave is also displayed
     ei_clock_gettime(&ts);
@@ -425,8 +422,6 @@ static void adjustTimeSlave()
     recvPacket(MASTERRANK, buf);  // get origin
     origin_sec  = buf[0];
     origin_nsec = buf[1];
-    nodeLeader  = buf[2] & 1;
-    keyOffset   = (buf[2] >> KEYOFFSET_BITPOS) & 1;
     
     buf[0] = 0xac1c; // ack
     sendPacket(MASTERRANK, buf, 1);

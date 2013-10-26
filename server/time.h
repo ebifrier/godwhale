@@ -5,7 +5,6 @@
 #define STABLE_THRESH      250
 #define UNSTABLE_EXTEND_COEFF 3
 
-extern int THINK_TIME, BYOYOMI_TIME;
 #define RESPONSE_TIME 200
 
 #define maxtime25_0_ms(timeleft, root_nrep) ( \
@@ -60,9 +59,9 @@ extern int THINK_TIME, BYOYOMI_TIME;
    (THINK_TIME==10800&&BYOYOMI_TIME==60)? maxtime180_60_ms(timeleft,root_nrep):\
                      1800    )
 
-#define maxtimeAll_ms()    (355000)
-#define maxtimeTurn_ms()   (420000)
-#define maxtimePonder_ms() (420000)
+#define maxtimeAll_ms()    (355 * 1000)
+#define maxtimeTurn_ms()   (420 * 1000)
+#define maxtimePonder_ms() (420 * 1000)
 
 #define MINTIME4EXTEND_SEC ( \
    (THINK_TIME==  0                    )?   1 : \
@@ -81,7 +80,7 @@ extern int THINK_TIME, BYOYOMI_TIME;
 static int timeCheck()
 {
     unsigned int tnow, tMaxSpent, tMaxPonder;
-    int timeleft = THINK_TIME - (compTurn ? sec_w_total : sec_b_total);
+    int timeleft = THINK_TIME - (myTurn == white ? sec_w_total : sec_b_total);
 
     //make sure at least one loop is done (even at the risk of timeup)
     if (plane.lastDoneItd == 0) return 0;

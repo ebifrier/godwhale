@@ -10,7 +10,7 @@ static replyPacketC rpypkt;
 static replyEntryC  rpyent(&rpypkt);
 int exitPending, exitAcked;
 
-int compTurn = NOSIDE;
+int myTurn = NOSIDE;
 
 #define PR1 1
 
@@ -20,7 +20,7 @@ int compTurn = NOSIDE;
 
 int cmdchkTick, detected, expired, touched, inhFirst, waitRoot;
 
- // need compTurn
+ // need myTurn
 #include "plane.h"
 #include "time.h"
 
@@ -94,8 +94,8 @@ int master(unsigned int* retmvseq)
     plane.lastDoneItd = 0;
 
     // set compTurn when master() is first called
-    if (compTurn == NOSIDE) {
-        compTurn = root_turn;
+    if (myTurn == NOSIDE) {
+        myTurn = root_turn;
     }
 
     // 1. ROOT/FIRST/LIST issue
