@@ -102,9 +102,6 @@
     <ClCompile Include="..\..\bonanza6\proce.c">
       <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\putils.cpp">
-      <Filter>bonanza6</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\bonanza6\quiesrch.c">
       <Filter>bonanza6</Filter>
     </ClCompile>
@@ -142,6 +139,7 @@
     <ClCompile Include="..\..\bonanza6\handjoseki.c">
       <Filter>bonanza6</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\putils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\comm3.h" />
