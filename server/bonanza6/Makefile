@@ -12,7 +12,7 @@ SSEOPT = -DHAVE_SSE4 -msse4.1 -DHAVE_SSE2 -msse2
 
 ######## No need to change below (probably) ########
 
-OBJS = data.o main.o io.o proce.o utility.o ini.o attack.o book.o makemove.o \
+OBJS = data.o  io.o proce.o utility.o ini.o attack.o book.o makemove.o \
        unmake.o time.o csa.o valid.o bitop.o iterate.o searchr.o search.o \
        quiesrch.o evaluate.o swap.o  hash.o root.o next.o movgenex.o \
        genevasn.o gencap.o gennocap.o gendrop.o mate1ply.o rand.o learn1.o \
@@ -48,17 +48,17 @@ PROBFILE=../d1.dpp
 # -DDFPN_CLIENT      enables the client-mode of mate-problem server.
 
 #### enable to use gprof
-#PROFOPT = -g -pg
+#PROFOPT = -pg
 
 #### enable this for cluster parallel
 # bonk makefile should call like this: make CLUSTOPT=-DCLUSTER_PARALLEL gcc-bonk
 #CLUSTOPT = -DCLUSTER_PARALLEL  ==> this should be MAKE argument for bonkras
 
-DEFS    = -D__STDC_FORMAT_MACROS -DNDEBUG -DMINIMUM -DDFPN -DTLP \
-          -DDFPN_CLIENT -DINANIWA_SHIFT -DCSA_LAN -DUSI \
+DEFS    = -D__STDC_FORMAT_MACROS -DMINIMUM -DDFPN -DTLP \
+          -DDFPN_CLIENT -DCSA_LAN -DUSI \
           $(SSEOPT) $(AFFINOPT) $(CLUSTOPT) $(AVXOPT)
 OPT     = -std=gnu99 $(DEFS)
-GCC_OPT = -Wall -Wextra
+GCC_OPT = -Wall -Wextra -g
 ICC_OPT = -w2
 
 all: gcc
@@ -74,7 +74,7 @@ help:
 	@echo "  icc-ampl"
 
 gcc:
-	$(MAKE) CC=gcc CFLAGS='$(OPT) $(GCC_OPT) $(PROFOPT) -O2' LDFLAG1='-lm -lpthread $(PROFOPT)' bonanza
+	$(MAKE) CC=gcc CFLAGS='$(OPT) $(GCC_OPT) $(PROFOPT) ' LDFLAG1='-lm -lpthread $(PROFOPT)' bonanza
 
 gcc-bonk:
 	$(MAKE) CC=gcc CFLAGS='$(OPT) $(GCC_OPT) -O2' LDFLAG1='-lm -lpthread' bonkras

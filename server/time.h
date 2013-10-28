@@ -45,8 +45,14 @@
    (timeleft>1800 && root_nrep>30) ? (233000 - RESPONSE_TIME): \
                                      ( 60000 - RESPONSE_TIME)    )
 
+#ifdef INANIWA_SHIFT
+#  define INANIWA_TIME inaniwa_flag ? (5000 - RESPONSE_TIME):
+#else
+#  define INANIWA_TIME
+#endif
+
 #define maxtime_ms(timeleft, root_nrep) ( \
-   inaniwa_flag ? (5000 - RESPONSE_TIME): \
+   INANIWA_TIME \
    (THINK_TIME==  0 && BYOYOMI_TIME==10)?  (10000 - RESPONSE_TIME): \
    (THINK_TIME==  0 && BYOYOMI_TIME==30)?  (30000 - RESPONSE_TIME): \
    (THINK_TIME==  0 && BYOYOMI_TIME==60)?  (60000 - RESPONSE_TIME): \
