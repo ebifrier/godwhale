@@ -3,6 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #if defined(_WIN32)
+#  include <process.h>
 #  include <fcntl.h>
 #else
 #  include <unistd.h>

@@ -5,63 +5,12 @@
 #include <string.h>
 #include "shogi.h"
 
-//#define DBG_BBATK
-
-#define foro(i,m,n) for(i=(m); i<=(n); i++)
+/*#define DBG_BBATK*/
 
 #define MAXLEN 17
 
 bitboard_t abb_attacks[4][128/*81*/][128];
 occupiedC ao_bitmask[81];
-
-enum { OD_HORIZ=0, OD_VERT=1, OD_DIAG1=2, OD_DIAG2=3, OD_SIZE=4 };
-
-static const int ai_bitpos[4][81] = {
-  // HORIZ
- {-1,  0,  1,  2,  3,  4,  5,  6, -1,
-  -1,  7,  8,  9, 10, 11, 12, 13, -1,
-  -1, 14, 15, 16, 17, 18, 19, 20, -1,
-  -1, 21, 22, 23, 24, 25, 26, 27, -1,
-  -1, 28, 29, 30, 31, 32, 33, 34, -1,
-  -1, 35, 36, 37, 38, 39, 40, 41, -1,
-  -1, 42, 43, 44, 45, 46, 47, 48, -1,
-  -1, 49, 50, 51, 52, 53, 54, 55, -1,
-  -1, 56, 57, 58, 59, 60, 61, 62, -1 },
-
-  // VERT
- {-1, -1, -1, -1, -1, -1, -1, -1, -1,
-   0,  7, 14, 21, 28, 35, 42, 49, 56,
-   1,  8, 15, 22, 29, 36, 43, 50, 57,
-   2,  9, 16, 23, 30, 37, 44, 51, 58,
-   3, 10, 17, 24, 31, 38, 45, 52, 59,
-   4, 11, 18, 25, 32, 39, 46, 53, 60,
-   5, 12, 19, 26, 33, 40, 47, 54, 61,
-   6, 13, 20, 27, 34, 41, 48, 55, 62,
-  -1, -1, -1, -1, -1, -1, -1, -1, -1 },
-
-  // DIAG1
- {-1, -1, -1, -1, -1, -1, -1, -1, -1,
-  -1,  0,  2,  5,  9, 14, 20, 27, -1,
-  -1,  1,  4,  8, 13, 19, 26, 33, -1,
-  -1,  3,  7, 12, 18, 25, 32, 38, -1,
-  -1,  6, 11, 17, 24, 31, 37, 42, -1,
-  -1, 10, 16, 23, 30, 36, 41, 45, -1,
-  -1, 15, 22, 29, 35, 40, 44, 47, -1,
-  -1, 21, 28, 34, 39, 43, 46, 48, -1,
-  -1, -1, -1, -1, -1, -1, -1, -1, -1 },
-
-  // DIAG2
- {-1, -1, -1, -1, -1, -1, -1, -1, -1,
-  -1, 21, 15, 10,  6,  3,  1,  0, -1,
-  -1, 28, 22, 16, 11,  7,  4,  2, -1,
-  -1, 34, 29, 23, 17, 12,  8,  5, -1,
-  -1, 39, 35, 30, 24, 18, 13,  9, -1,
-  -1, 43, 40, 36, 31, 25, 19, 14, -1,
-  -1, 46, 44, 41, 37, 32, 26, 20, -1,
-  -1, 48, 47, 45, 42, 38, 33, 27, -1,
-  -1, -1, -1, -1, -1, -1, -1, -1, -1 }
-};
-
 
 const int ai_shift[4][81] = {
   // HORIZ
@@ -109,35 +58,52 @@ const int ai_shift[4][81] = {
    0,  0, 48, 46, 43, 39, 34, 28, 21 },
 };
 
-const int ai_sufmask[4][81] = {
+
+static const int ai_bitpos[4][81] = {
   // HORIZ
- { },
-  // VERT 
- { },
+ {-1,  0,  1,  2,  3,  4,  5,  6, -1,
+  -1,  7,  8,  9, 10, 11, 12, 13, -1,
+  -1, 14, 15, 16, 17, 18, 19, 20, -1,
+  -1, 21, 22, 23, 24, 25, 26, 27, -1,
+  -1, 28, 29, 30, 31, 32, 33, 34, -1,
+  -1, 35, 36, 37, 38, 39, 40, 41, -1,
+  -1, 42, 43, 44, 45, 46, 47, 48, -1,
+  -1, 49, 50, 51, 52, 53, 54, 55, -1,
+  -1, 56, 57, 58, 59, 60, 61, 62, -1 },
+
+  // VERT
+ {-1, -1, -1, -1, -1, -1, -1, -1, -1,
+   0,  7, 14, 21, 28, 35, 42, 49, 56,
+   1,  8, 15, 22, 29, 36, 43, 50, 57,
+   2,  9, 16, 23, 30, 37, 44, 51, 58,
+   3, 10, 17, 24, 31, 38, 45, 52, 59,
+   4, 11, 18, 25, 32, 39, 46, 53, 60,
+   5, 12, 19, 26, 33, 40, 47, 54, 61,
+   6, 13, 20, 27, 34, 41, 48, 55, 62,
+  -1, -1, -1, -1, -1, -1, -1, -1, -1 },
 
   // DIAG1
- { 0,  0,  1,  3,  7, 15, 31, 63,127,
-   0,  1,  3,  7, 15, 31, 63,127, 63,
-   1,  3,  7, 15, 31, 63,127, 63, 31,
-   3,  7, 15, 31, 63,127, 63, 31, 15,
-   7, 15, 31, 63,127, 63, 31, 15,  7,
-  15, 31, 63,127, 63, 31, 15,  7,  3,
-  31, 63,127, 63, 31, 15,  7,  3,  1,
-  63,127, 63, 31, 15,  7,  3,  1,  0,
- 127, 63, 31, 15,  7,  3,  1,  0,  0 },
+ {-1, -1, -1, -1, -1, -1, -1, -1, -1,
+  -1,  0,  2,  5,  9, 14, 20, 27, -1,
+  -1,  1,  4,  8, 13, 19, 26, 33, -1,
+  -1,  3,  7, 12, 18, 25, 32, 38, -1,
+  -1,  6, 11, 17, 24, 31, 37, 42, -1,
+  -1, 10, 16, 23, 30, 36, 41, 45, -1,
+  -1, 15, 22, 29, 35, 40, 44, 47, -1,
+  -1, 21, 28, 34, 39, 43, 46, 48, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1, -1 },
 
   // DIAG2
- {127, 63, 31, 15,  7,  3,  1,  0,  0,
-   63,127, 63, 31, 15,  7,  3,  1,  0,
-   31, 63,127, 63, 31, 15,  7,  3,  1,
-   15, 31, 63,127, 63, 31, 15,  7,  3,
-    7, 15, 31, 63,127, 63, 31, 15,  7,
-    3,  7, 15, 31, 63,127, 63, 31, 15,
-    1,  3,  7, 15, 31, 63,127, 63, 31,
-    0,  1,  3,  7, 15, 31, 63,127, 63,
-    0,  0,  1,  3,  7, 15, 31, 63,127 }
+ {-1, -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, 21, 15, 10,  6,  3,  1,  0, -1,
+  -1, 28, 22, 16, 11,  7,  4,  2, -1,
+  -1, 34, 29, 23, 17, 12,  8,  5, -1,
+  -1, 39, 35, 30, 24, 18, 13,  9, -1,
+  -1, 43, 40, 36, 31, 25, 19, 14, -1,
+  -1, 46, 44, 41, 37, 32, 26, 20, -1,
+  -1, 48, 47, 45, 42, 38, 33, 27, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1, -1 }
 };
-
 
 static int locsR[MAXLEN][9] = {
   { A9, B9, C9, D9, E9, F9, G9, H9, I9 },
@@ -203,24 +169,25 @@ static int locsD2[MAXLEN][9] = {
 typedef struct
 {
   int listlen;    // 0/90 : 9   45 : 17
-  int width[MAXLEN];  // 0/90 : all 9   45 : 1,2,..,8,9,8,..,1
+  int loc_width[MAXLEN];  // 0/90 : all 9   45 : 1,2,..,8,9,8,..,1
   int locs[MAXLEN][9];  // squares on the line
-} iniAtkDataC;
+} attack_data_info_t;
 
-static void CONV ini_attack_data( void ); // defined below
-
+static void CONV ini_attack_data( void );
+static void CONV set_attack_bb( attack_data_info_t adata[], int direc,
+                                int line, int loc_pos, int pcs );
 
 void CONV
 ini_bitboards( void )
 {
   int d, sq;
 
-  memset( &ao_bitmask, 0, sizeof(ai_bitpos) );
+  memset( &ao_bitmask, 0, sizeof(ao_bitmask) );
 
-  foro (d, 0, 3)
-  foro (sq, 0, 80)
-    if (ai_bitpos[d][sq] >= 0)
-      ao_bitmask[sq].x[d] = (uint64_t)(1UL << ai_bitpos[d][sq]);
+  for ( d = 0; d < direc_idx_max; d++ )
+    for ( sq = 0; sq < nsquare; sq++ )
+      if ( ai_bitpos[d][sq] >= 0 )
+        ao_bitmask[sq].x[d] = (1ULL << ai_bitpos[d][sq]);
 
   ini_attack_data();
 }
@@ -229,153 +196,194 @@ ini_bitboards( void )
 static void CONV
 ini_attack_data( void )
 {
-  iniAtkDataC adata[OD_SIZE]; // 縦横斜め*2ごとに確保
-  iniAtkDataC f, r, d1,d2;
-  int i, j, k, direc, line, sqsuf, vec, pcs;
+  attack_data_info_t adata[direc_idx_max]; // 縦横斜め*2ごとに確保
+  attack_data_info_t rank, file, diag1, diag2;
+  int i, j, k, direc, line, loc_pos, pcs;
 
-  memset(&r, 0, sizeof(f));
-  memset(&f, 0, sizeof(f));
-  memset(&d1, 0, sizeof(f));
-  memset(&d2, 0, sizeof(f));
-  r.listlen =
-  f.listlen = 9;
-  d1.listlen =
-  d2.listlen = 17;
+  memset(&rank, 0, sizeof(rank));
+  memset(&file, 0, sizeof(file));
+  memset(&diag1, 0, sizeof(diag1));
+  memset(&diag2, 0, sizeof(diag2));
+  rank.listlen =
+  file.listlen = 9;
+  diag1.listlen =
+  diag2.listlen = MAXLEN;
 
-  foro (k, 0, 8) {
-    r.width[k] =
-    f.width[k] = 9;
-    d1.width[k] =
-    d2.width[k] = k+1;
-  }
-  foro (k, 9, 16) {
-    d1.width[k] =
-    d2.width[k] = 17-k;
-  }
-
-  foro (i, 0, 16) {
-    foro (j, 0, 8) {
-      r.locs[i][j] = locsR[i][j];
-      f.locs[i][j] = locsF[i][j];
-      d1.locs[i][j] = locsD1[i][j];
-      d2.locs[i][j] = locsD2[i][j];
+  for ( k = 0; k < 9; k++ )
+    {
+      rank.loc_width[k] =
+      file.loc_width[k] = 9;
+      diag1.loc_width[k] =
+      diag2.loc_width[k] = k+1;
     }
-  }
+  for ( k = 9; k < MAXLEN; k++ )
+    {
+      diag1.loc_width[k] =
+      diag2.loc_width[k] = 17-k;
+    }
 
-  adata[0] = r;
-  adata[1] = f;
-  adata[2] = d1;
-  adata[3] = d2;
+  for ( i = 0; i < MAXLEN; i++ )
+    for ( j = 0; j < 9; j++ )
+      {
+        rank.locs[i][j] = locsR[i][j];
+        file.locs[i][j] = locsF[i][j];
+        diag1.locs[i][j] = locsD1[i][j];
+        diag2.locs[i][j] = locsD2[i][j];
+      }
+
+  adata[0] = rank;
+  adata[1] = file;
+  adata[2] = diag1;
+  adata[3] = diag2;
 
   memset( &abb_attacks, 0, sizeof(abb_attacks) );
 
-  foro (direc, OD_HORIZ, OD_DIAG2) {
-    foro (line, 0, adata[direc].listlen-1) {
-      int wid = adata[direc].width[line];
+  for ( direc = direc_idx_horiz; direc < direc_idx_max; direc++ )
+    for ( line = 0; line < adata[direc].listlen; line++ )
+      for ( loc_pos = 0; loc_pos < adata[direc].loc_width[line]; loc_pos++ )
+        for ( pcs = 0; pcs < 128; pcs++ ) // for each bit patterns
+          set_attack_bb( adata, direc, line, loc_pos, pcs );
+}
 
-      foro (sqsuf, 0, wid-1) {
-        int sq = adata[direc].locs[line][sqsuf];
 
-        //**** for each PCS bit patterns
-        foro (pcs, 0, 127) {
-          bitboard_t bb;
+static void CONV
+set_attack_bb( attack_data_info_t *adata, int direc, int line,
+               int loc_pos, int pcs )
+{
+  int wid, sq, vec;
+  bitboard_t bb;
 
-           //**** need only up to sufmask, in case of diag
-          if (USE_BBSUFMASK && (direc==OD_DIAG1 || direc==OD_DIAG2) &&
-              pcs > ai_sufmask[direc][sq])
-              break;
-          BBIni( bb ); 
+  wid = adata[direc].loc_width[line];
+  sq  = adata[direc].locs[line][loc_pos];
 
-           //**** go both +/- dir's from sq
-          for (vec = -1; vec <= 1; vec += 2) { //vec=-1/+1
-            int tgtsuf = sqsuf + vec;
+  BBIni( bb );
 
-             //**** go until either edge or blocked 
-            while (0 <= tgtsuf && tgtsuf < wid) {
-              int tgtsq = adata[direc].locs[line][tgtsuf];
+  //**** go both +/- dir's from sq
+  for ( vec = -1; vec <= 1; vec += 2 ) //vec=-1/+1
+    {
+      int new_loc_pos = loc_pos + vec;
 
-              Xor(tgtsq, bb);
-              if (tgtsuf > 0 && ((1 << (tgtsuf-1)) & pcs) != 0) break;
-              tgtsuf += vec;
-            }
-          }
+      //**** go until either edge or blocked 
+      while ( 0 <= new_loc_pos && new_loc_pos < wid )
+        {
+          int tmp_sq = adata[direc].locs[line][new_loc_pos];
 
-          abb_attacks[direc][sq][pcs] = bb;
+          Xor( tmp_sq, bb );
+          if ( new_loc_pos > 0 && ( (1 << (new_loc_pos-1)) & pcs ) ) break;
+          new_loc_pos += vec;
         }
-      }
     }
-  }
+
+  abb_attacks[direc][sq][pcs] = bb;
 }
 
 #ifdef DBG_BBATK
 
-occupiedC occ;
-
-void setOcc(int* a) {
- int i;
- areaclr(occ);
- foro(i, 0, 80)
-   if (a[i]) {
-     occ.x[0] |= ao_bitmask[i].x[0];
-     occ.x[1] |= ao_bitmask[i].x[1];
-     occ.x[2] |= ao_bitmask[i].x[2];
-     occ.x[3] |= ao_bitmask[i].x[3];
-   }
-}
-
-int bitisset(bitboard_t bb, int sq) {
- int i;
- bitboard_t bb2 = bb_set_mask(sq);
- foro(i,0,2)
-   if (bb.p[i] & bb2.p[i])
-     return 1;
- return 0;
-}
-
-void dispbb(bitboard_t bb) {
- int i;
- foro(i, 0, 80) {
-   printf("%d", bitisset(bb,i));
-   if (i%9 == 8) putchar('\n');
- }
-}
-
 int blocked[81] = {
- 1,0,0,1,0,0,1,0,0,
- 1,0,0,0,0,0,1,0,0,
- 0,0,0,1,0,0,0,0,0,
- 0,1,0,1,0,0,1,0,0,
- 1,1,0,0,0,0,0,0,0,
- 0,0,1,0,0,0,1,0,0,
- 0,0,0,0,0,0,1,0,0,
- 1,0,0,1,0,0,0,0,0,
- 0,0,0,0,0,0,1,0,1
+  1,0,0,1,0,0,1,0,0,
+  1,0,0,0,0,0,1,0,0,
+  0,0,0,1,0,0,0,0,0,
+  0,1,0,1,0,0,1,0,0,
+  1,1,0,0,0,0,0,0,0,
+  0,0,1,0,0,0,1,0,0,
+  0,0,0,0,0,0,1,0,0,
+  1,0,0,1,0,0,0,0,0,
+  0,0,0,0,0,0,1,0,1
 };
 
-int main() {
- bitboard_t bb;
- int i, q;
- int sqa[6] = {C8, A4, E2, H9, F3, G6};
- foro(q,0,80)
-   abb_mask[q] = bb_set_mask(q);
- initNewBB();    // initilize tables
- setOcc(blocked); // set occupied data
- foro(i,0,5) {
-   int sq = sqa[i];
-   printf("---- (%d,%d)\n", 9-sq%9, sq/9+1);
-   bb = AttackRankE(occ,sq);
-   printf("rank:\n");
-   dispbb(bb);
-   bb = AttackFileE(occ,sq);
-   printf("file:\n");
-   dispbb(bb);
-   bb = AttackDiag1E(occ,sq);
-   printf("diag1:\n");
-   dispbb(bb);
-   bb = AttackDiag2E(occ,sq);
-   printf("diag2:\n");
-   dispbb(bb);
- }
+static bitboard_t
+bb_set_mask( int sq )
+{
+  bitboard_t bb;
+  
+  BBIni(bb);
+  if      ( sq > 53 ) { bb.p[2] = 1U << ( 80 - sq ); }
+  else if ( sq > 26 ) { bb.p[1] = 1U << ( 53 - sq ); }
+  else                { bb.p[0] = 1U << ( 26 - sq ); }
+  
+  return bb;
+}
+
+
+static void
+set_occ( occupiedC* occ, int* a )
+{
+  int i;
+
+  memset(occ, 0, sizeof(*occ));
+
+  for ( i = 0; i < nsquare; i++ )
+    if ( a[i] )
+      {
+        occ->x[0] |= ao_bitmask[i].x[0];
+        occ->x[1] |= ao_bitmask[i].x[1];
+        occ->x[2] |= ao_bitmask[i].x[2];
+        occ->x[3] |= ao_bitmask[i].x[3];
+      }
+}
+
+
+static int
+is_setbit( const bitboard_t * restrict bb, int sq )
+{
+  bitboard_t bb2 = bb_set_mask(sq);
+  int i;
+ 
+  for ( i = 0; i <= 2; i++ )
+    if ( bb->p[i] & bb2.p[i] )
+      return 1;
+  return 0;
+}
+
+
+static void
+disp_bb( const bitboard_t * restrict bb )
+{
+  int i;
+
+  for ( i = 0; i < nsquare; i++ )
+    {
+      printf( "%d", is_setbit( bb, i ) );
+      if ( i%9 == 8 ) putchar( '\n' );
+    }
+}
+
+
+int
+main( void )
+{
+  occupiedC occ;
+  bitboard_t bb;
+  int sqa[6] = {C8, A4, E2, H9, F3, G6};
+  int i, q;
+
+  for ( q = 0; q < nsquare; i++ )
+    abb_mask[q] = bb_set_mask(q);
+  ini_bitboards();    // initilize tables
+  set_occ( &occ, blocked ); // set occupied data
+
+  for ( i = 0; i < 6; i++ )
+    {
+      int sq = sqa[i];
+
+      printf("---- (%d,%d)\n", 9-sq%9, sq/9+1);
+
+      bb = AttackRankE(occ, sq);
+      printf("rank: %d\n", ai_shift[0][sq]);
+      disp_bb(&bb);
+   
+      bb = AttackFileE(occ, sq);
+      printf("file: %d\n", ai_shift[1][sq]);
+      disp_bb(&bb);
+
+      bb = AttackDiag1E(occ, sq);
+      printf("diag1: %d\n", ai_shift[2][sq]);
+      disp_bb(&bb);
+
+      bb = AttackDiag2E(occ, sq);
+      printf("diag2: %d\n", ai_shift[3][sq]);
+      disp_bb(&bb);
+    }
 }
 
 #endif

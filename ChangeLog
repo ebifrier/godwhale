@@ -1,3 +1,10 @@
+2013-10-28  - Ver 1.1.4
+
+	* server/Makefile: bonanza側とコンパイルオプションを合わせるようにしま
+	した。ヘッダの関係でそうしないと動作がおかしくなることがあります。
+	* server/bonanza6/bbini.c: VC上でのバグ(uint64_t型をuint32_t型で計算し
+	上位の桁が切り捨てられていた)を解消しました。
+
 2013-10-28  - Ver 1.1.3
 
 	* server/bonanza6/time.c: unsigned intの引き算に関するバグを修正しま

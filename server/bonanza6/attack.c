@@ -451,7 +451,7 @@ w_attacks_to_piece( const tree_t * restrict ptree, int sq )
 }
 
 
-// 後手の利きが、sqの地点に到達しているか。
+// 先手の利きが、sqの地点に到達しているか。
 unsigned int CONV
 is_white_attacked( const tree_t * restrict ptree, int sq )
 {
@@ -475,7 +475,7 @@ is_white_attacked( const tree_t * restrict ptree, int sq )
 }
 
 
-// 先手の利きが、sqの地点に到達しているか。
+// 後手の利きが、sqの地点に到達しているか。
 unsigned int CONV
 is_black_attacked( const tree_t * restrict ptree, int sq )
 {

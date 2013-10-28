@@ -1,9 +1,10 @@
-/* $Id: putils.cpp,v 1.3 2012-04-20 07:32:31 eikii Exp $ */
+﻿/* $Id: putils.cpp,v 1.3 2012-04-20 07:32:31 eikii Exp $ */
 
 #include "pcommon3.h"
 
  // for mm_pause
 #include <xmmintrin.h>
+#include <emmintrin.h>
 
  // for nanosleep
 #include <time.h>
@@ -28,7 +29,7 @@ void ei_clock_gettime(struct timespec* tsp)
     tsp->tv_nsec = mts.tv_nsec;
 #elif _WIN32
     ULONGLONG tick = GetTickCount64();
-    tsp->tv_sec  = (int)(tick / 1000);
+    tsp->tv_sec  = (int) (tick / 1000);
     tsp->tv_nsec = (int)((tick % 1000) * 1000 * 1000); // msec -> nanosec
 #else
     clock_gettime(CLOCK_REALTIME, tsp);

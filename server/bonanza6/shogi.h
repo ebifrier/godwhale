@@ -54,7 +54,6 @@ typedef int sckt_t;
 /* Microsoft C/C++ on x86 and x86-64 */
 #if defined(_MSC_VER)
 
-#  include <process.h>
 #  define _CRT_DISABLE_PERFCRIT_LOCKS
 #  define PRIu64        "I64u"
 #  define PRIx64        "I64x"
@@ -385,19 +384,20 @@ typedef unsigned int Move;
             [((ptree->posi.occupied_rl45.p[aslide[i].irl45]) \
                >> aslide[i].srl45) & 0x7f])
 #else
-/*#define AttackRank(i)  AttackRankE(ptree->posi.occ,i)
+// デバッグ用
+#define AttackRankE(occ,sq) abb_attacks[0][sq][           \
+  ((occ).x[0] >> ai_shift[0][sq]) & 0x7f]
+#define AttackFileE(occ,sq) abb_attacks[1][sq][           \
+  ((occ).x[1] >> ai_shift[1][sq]) & 0x7f]
+#define AttackDiag1E(occ,sq) abb_attacks[2][sq][          \
+  ((occ).x[2] >> ai_shift[2][sq]) & 0x7f]
+#define AttackDiag2E(occ,sq) abb_attacks[3][sq][          \
+  ((occ).x[3] >> ai_shift[3][sq]) & 0x7f]
+
+#define AttackRank(i)  AttackRankE(ptree->posi.occ,i)
 #define AttackFile(i)  AttackFileE(ptree->posi.occ,i)
 #define AttackDiag1(i) AttackDiag1E(ptree->posi.occ,i)
-#define AttackDiag2(i) AttackDiag2E(ptree->posi.occ,i)*/
-
-#define AttackRank(sq) abb_attacks[0][sq][           \
-  (ptree->posi.occ.x[0] >> ai_shift[0][sq]) & 0x7f]
-#define AttackFile(sq) abb_attacks[1][sq][           \
-  (ptree->posi.occ.x[1] >> ai_shift[1][sq]) & 0x7f]
-#define AttackDiag1(sq) abb_attacks[2][sq][          \
-  (ptree->posi.occ.x[2] >> ai_shift[2][sq]) & 0x7f]
-#define AttackDiag2(sq) abb_attacks[3][sq][          \
-  (ptree->posi.occ.x[3] >> ai_shift[3][sq]) & 0x7f]
+#define AttackDiag2(i) AttackDiag2E(ptree->posi.occ,i)
 #endif
 
 #define BishopAttack0(i) ( AttackDiag1(i).p[0] | AttackDiag2(i).p[0] )
@@ -525,6 +525,15 @@ enum { nhand = 7, nfile = 9,  nrank = 9,  nsquare = 81 };
 enum { mask_file1 = (( 1U << 18 | 1U << 9 | 1U ) << 8) };
 
 enum { flag_diag1 = b0001, flag_plus = b0010 };
+
+// abb_attacks, ai_shift, ao_bitmaskのインデックスに使います。
+enum {
+  direc_idx_horiz = 0, // 横方向用のテーブルインデックス
+  direc_idx_vert  = 1, // 縦方向用のテーブルインデックス
+  direc_idx_diag1 = 2, // 右斜め上方向のテーブルインデックス
+  direc_idx_diag2 = 3, // 右斜め下方向のテーブルインデックス
+  direc_idx_max   = 4
+};
 
 enum { score_draw     =     1,
        score_max_eval = 30000,
@@ -807,7 +816,6 @@ typedef struct {
 
 extern bitboard_t abb_attacks[4][128/*81*/][128];
 extern const int ai_shift[4][81];
-extern const int ai_sufmask[4][81];
 extern occupiedC ao_bitmask[81];
 
 #endif // BITBRD64
@@ -1322,8 +1330,8 @@ int read_board_rep1( const char *str_line, min_posi_t *pmin_posi );
 int CONV com_turn_start( tree_t * restrict ptree, int flag );
 int read_record( tree_t * restrict ptree, const char *str_file,
                  unsigned int moves, int flag );
-int out_board( const tree_t * restrict ptree, FILE *pf, unsigned int move,
-               int flag );
+int out_board( const tree_t * restrict ptree, FILE *pf, Move move,
+               int is_strict );
 int make_root_move_list( tree_t * restrict ptree );
 int record_wind( record_t *pr );
 int CONV book_probe( tree_t * restrict ptree );

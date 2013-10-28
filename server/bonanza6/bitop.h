@@ -48,7 +48,6 @@
 #  define BBTest(b)         ( (b).p[0] | (b).p[1] | (b).p[2] )
 #else
 #  define MMZERO       _mm_setzero_si128()
-#  define MMFF         _mm_set1_epi8(~0)
 #  define MMTest(mm) \
     (_mm_movemask_epi8( _mm_cmpeq_epi32( mm, MMZERO ) ) - 0xffff)
 #  define BBTest(bb)   MMTest((bb).m)

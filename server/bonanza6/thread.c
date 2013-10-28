@@ -95,7 +95,7 @@ lock( lock_t *plock )
 }
 
 
-void CONV
+void
 attach_cpu( int cpu )
 {
 #if !defined( __MACH__ ) && !defined( __CYGWIN__ ) && \

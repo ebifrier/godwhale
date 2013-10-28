@@ -334,7 +334,7 @@ open_history( const char *str_name1, const char *str_name2 )
 
 
 int
-out_board( const tree_t * restrict ptree, FILE *pf, unsigned int move,
+out_board( const tree_t * restrict ptree, FILE *pf, Move move,
            int is_strict )
 {
   int irank, ifile, i, iret, ito, ifrom;

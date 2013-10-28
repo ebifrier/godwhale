@@ -537,9 +537,10 @@ ini_mate3( void )
       m[1].word = (sq  ) / (3*nfile);
       m[2].word = (sq+9) / (3*nfile);
 
-      // shiftはp[N]からsq周辺の3bitを取り出すために必要なシフト回数
-      // p[N]には3段分の列情報が入っているので合計27bit。
-      // また、結果として得るbitは 上段 : 中段 : 下段 (各3bit) 。
+      // shiftはp[N]からsq周辺の3bitを取り出すために必要なシフト回数。
+      // p[N]には3段分の列情報が入っているので合計27bitで、
+      // 結果として得るbitはsqの周囲９升を 上段 : 中段 : 下段 (各3bit)
+      // の順に並べたもの。
       //
       // 演算前に7bit分左シフトするため、実質的には (shift - 7)
       // だけ右シフトを行う。(マイナスの場合は左シフト)
@@ -651,7 +652,7 @@ is_mate_in3ply( tree_t * restrict ptree, int turn, int ply )
   // ptree->move_last[ply]は生成された指し手の終端。
   ptree->move_last[ply] = GenCheck( turn, ptree->move_last[ply-1] );
 
-  kloc = (turn ? SQ_BKING : SQ_WKING);
+  kloc   = (turn ? SQ_BKING : SQ_WKING);
   bb_atk = findAllNeibAttacks(ptree, kloc, turn);
 
   // 生成されたすべての指し手に対して、ひとつでも詰む手があれば詰み。
