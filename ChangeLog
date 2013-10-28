@@ -1,3 +1,8 @@
+2013-10-28  - Ver 1.1.3
+
+	* server/bonanza6/time.c: unsigned intの引き算に関するバグを修正しま
+	した。
+
 2013-10-26  - Ver 1.1.2
 
 	* server/putil.cpp: 値がオーバーフローしていたバグを修正しました。

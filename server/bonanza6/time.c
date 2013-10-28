@@ -178,7 +178,7 @@ adjust_time( unsigned int elapsed_new, int turn )
           out_warning( str );
           sec_w_total = 0;
         }
-      else { sec_w_total += elapsed_new - sec_elapsed; };
+      else { sec_w_total = sec_w_total + elapsed_new - sec_elapsed; };
     }
   else {
     if ( sec_b_total + elapsed_new < sec_elapsed )
@@ -186,7 +186,7 @@ adjust_time( unsigned int elapsed_new, int turn )
         out_warning( str );
         sec_b_total = 0;
       }
-    else { sec_b_total += elapsed_new - sec_elapsed; };
+    else { sec_b_total = sec_b_total + elapsed_new - sec_elapsed; };
   }
 }
 
