@@ -12,7 +12,7 @@ SSEOPT = -DHAVE_SSE4 -msse4.1 -DHAVE_SSE2 -msse2
 
 ######## No need to change below (probably) ########
 
-OBJS = data.o  io.o proce.o utility.o ini.o attack.o book.o makemove.o \
+OBJS = data.o main.o io.o proce.o utility.o ini.o attack.o book.o makemove.o \
        unmake.o time.o csa.o valid.o bitop.o iterate.o searchr.o search.o \
        quiesrch.o evaluate.o swap.o  hash.o root.o next.o movgenex.o \
        genevasn.o gencap.o gennocap.o gendrop.o mate1ply.o rand.o learn1.o \
@@ -54,7 +54,7 @@ PROBFILE=../d1.dpp
 # bonk makefile should call like this: make CLUSTOPT=-DCLUSTER_PARALLEL gcc-bonk
 #CLUSTOPT = -DCLUSTER_PARALLEL  ==> this should be MAKE argument for bonkras
 
-DEFS    = -D__STDC_FORMAT_MACROS -DMINIMUM -DDFPN -DTLP \
+DEFS    = -D__STDC_FORMAT_MACROS -DMINIMUM -DTLP -DDFPN \
           -DDFPN_CLIENT -DCSA_LAN -DUSI \
           $(SSEOPT) $(AFFINOPT) $(CLUSTOPT) $(AVXOPT)
 OPT     = -std=gnu99 $(DEFS)
