@@ -17,6 +17,7 @@
  // set X if a single pause() takes X ns.
 #define PAUSE_DURATION_NS 1
 
+// 現在時刻をナノ秒単位で取得します。
 void ei_clock_gettime(struct timespec* tsp)
 {
 #ifdef __MACH__
@@ -39,7 +40,6 @@ void ei_clock_gettime(struct timespec* tsp)
 // bonanza mv format - cap:4 pc:4 prom:1 src:7 dst:7  -> convert to 4,4,4,8,8
 int readable_c(int mv)
 {
-    //if (mv == NULLMV.v) return 0;
     if (mv == 0) return 0;
 
     int x = mv;
@@ -110,7 +110,6 @@ int64_t worldTimeLl()
 }
 
 
-#if USE_PAUSE
 static void micropauseCore(int t)
 {
     // single call of pause() pauses 10ns on i7 860.
@@ -120,7 +119,6 @@ static void micropauseCore(int t)
         _mm_pause();
     }
 }
-#endif
 
 #ifndef _WIN32
 static void microsleepCore(int t)

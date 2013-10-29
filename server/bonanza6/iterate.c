@@ -21,6 +21,7 @@ iterate( tree_t * restrict ptree )
   unsigned int cpu_start;
   int right_answer_made;
   unsigned int handjoseki;
+  int i;
 
   m3call = m3mvs = m3easy = m3hit = m3mate = 0;
 
@@ -41,7 +42,7 @@ iterate( tree_t * restrict ptree )
 #endif
        && ! rep_book_prob( ptree ) )
     {
-      int is_book_hit, i;
+      int is_book_hit;
       unsigned int elapsed;
       
       is_book_hit = book_probe( ptree );
@@ -94,7 +95,7 @@ iterate( tree_t * restrict ptree )
 
   last_pv.length = master( last_pv.a );
   ptree->pv[0].length = last_pv.length;
-  for ( int i = 1; i < last_pv.length; i++ )
+  for ( i = 1; i < last_pv.length; i++ )
     {
       ptree->pv[0].a[i] = last_pv.a[i];
     }

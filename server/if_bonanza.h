@@ -1,6 +1,6 @@
 /* $Id: if_bonanza.h,v 1.4 2012/03/26 06:21:19 eikii Exp $ */
 
-/* bonanza側から参照する変数、関数はすべて extern "C" で宣言します。*/
+/* bonanza側から参照する関数/変数はすべて extern "C" で宣言します。*/
 
 #ifdef __cplusplus
 extern "C" {

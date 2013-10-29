@@ -196,7 +196,8 @@ read_handjoseki( void )
         case  7: case  8: case  9: case 10:
           {
             int row = state - 2;  // -2することで対応する段数になる
-            for ( int x = 0; x <= 8; x++ )
+            int x;
+            for ( x = 0; x <= 8; x++ )
               {
                 int c = char2pc(buf[x]);
                 if ( c == -16 )

@@ -41,7 +41,6 @@ struct perfMsC
 };
 
 perfMsC pfGame;
-extern int inhFirst;
 
 void planeC::initialAction() {
     int i;

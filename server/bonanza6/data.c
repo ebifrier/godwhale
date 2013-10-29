@@ -147,12 +147,16 @@ int p_value_ex[31];
 int p_value_pm[15];
 int p_value[31];
 
-#if 0
-short pc_on_sq[nsquare][pos_n];
-short kkp[nsquare][nsquare][kkp_end];
+#if ! defined(FVBIN_MMAP)
+#  if defined(USE_FV3)
+short pc_on_sq[ nsquare ][ fe_end ][ fe_end ];
+#  else
+short pc_on_sq[ nsquare ][ fe_end*(fe_end+1)/2 ];
+#  endif
+short kkp[ nsquare ][ nsquare ][ kkp_end ];
 #else
-pconsqAry* pc_on_sq;
-kkpAry* kkp;
+pconsq_table_t *pc_on_sq;
+kkp_table_t *kkp;
 #endif
 
 unsigned char ansuc_check_save[NUM_UNMAKE];
@@ -295,7 +299,12 @@ const char *str_fmt_line      = "Line %u: %s";
 const char *str_on            = "on";
 const char *str_off           = "off";
 const char *str_book          = "book.bin";
+#  if defined(USE_FV3)
+const char *str_fv            = "fv3.bin";
+#  else
 const char *str_fv            = "fv.bin";
+#  endif
+
 const char *str_book_error    = "invalid opening book";
 const char *str_io_error      = "I/O error";
 const char *str_perpet_check  = "perpetual check";

@@ -72,6 +72,14 @@ enum
 };
 
 
+#if defined(_WIN32)
+struct timespec
+{
+    int tv_sec;
+    int tv_nsec;
+};
+#endif
+
 class mvC {
 public:
     int v;
@@ -80,13 +88,6 @@ public:
     bool operator !=(mvC x) { return (v!=x.v); }
 };
 
-#if defined(_WIN32)
-struct timespec
-{
-    int tv_sec;
-    int tv_nsec;
-};
-#endif
 
 extern int THINK_TIME, BYOYOMI_TIME;
 extern int DBG_MASTER, VMMODE;

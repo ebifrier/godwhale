@@ -62,27 +62,27 @@
 // 残り時間に応じた思考の最大時間を求めます
 #define maxtime_ms(timeleft, root_nrep) ( \
    INANIWA_TIME \
-   (THINK_TIME==  0) ? (BYOYOMI_TIME*1000 - RESPONSE_TIME): \
-   (THINK_TIME== 480&& BYOYOMI_TIME== 0)? maxtime8_0_ms(timeleft, root_nrep):\
-   (THINK_TIME== 900&& BYOYOMI_TIME== 0)? maxtime15_0_ms(timeleft, root_nrep):\
-   (THINK_TIME==1500&& BYOYOMI_TIME== 0)? maxtime25_0_ms(timeleft, root_nrep):\
-   (THINK_TIME== 900&& BYOYOMI_TIME==60)? maxtime15_60_ms(timeleft, root_nrep):\
-   (THINK_TIME==1800&& BYOYOMI_TIME==60)? maxtime30_60_ms(timeleft, root_nrep):\
-   (THINK_TIME==3600&& BYOYOMI_TIME==60)? maxtime60_60_ms(timeleft, root_nrep):\
-   (THINK_TIME==10800&&BYOYOMI_TIME==60)? maxtime180_60_ms(timeleft,root_nrep):\
-                     1800    )
+   (THINK_TIME==   0 || (timeleft) ==  0) ? (BYOYOMI_TIME*1000 - RESPONSE_TIME): \
+   (THINK_TIME== 480 && BYOYOMI_TIME== 0) ? maxtime8_0_ms(timeleft, root_nrep):  \
+   (THINK_TIME== 900 && BYOYOMI_TIME== 0) ? maxtime15_0_ms(timeleft, root_nrep): \
+   (THINK_TIME==1500 && BYOYOMI_TIME== 0) ? maxtime25_0_ms(timeleft, root_nrep): \
+   (THINK_TIME== 900 && BYOYOMI_TIME==60) ? maxtime15_60_ms(timeleft, root_nrep):\
+   (THINK_TIME==1800 && BYOYOMI_TIME==60) ? maxtime30_60_ms(timeleft, root_nrep):\
+   (THINK_TIME==3600 && BYOYOMI_TIME==60) ? maxtime60_60_ms(timeleft, root_nrep):\
+   (THINK_TIME==10800&& BYOYOMI_TIME==60) ? maxtime180_60_ms(timeleft,root_nrep):\
+                                            1800    )
 
 // 残り時間がこの時間以上なら延長を考えます
 #define MINTIME4EXTEND_SEC ( \
-   (THINK_TIME==  0                    )?   1 : \
-   (THINK_TIME== 480&& BYOYOMI_TIME== 0)? 105 :\
-   (THINK_TIME== 900&& BYOYOMI_TIME== 0)? 105 :\
-   (THINK_TIME==1500&& BYOYOMI_TIME== 0)? 170 :\
-   (THINK_TIME== 900&& BYOYOMI_TIME==60)? 255 :\
-   (THINK_TIME==1800&& BYOYOMI_TIME==60)? 465 :\
-   (THINK_TIME==3600&& BYOYOMI_TIME==60)? 565 :\
-   (THINK_TIME==10800&&BYOYOMI_TIME==60)?1165 :\
-                     1    )
+   (THINK_TIME==  0                      ) ?    1 : \
+   (THINK_TIME== 480  && BYOYOMI_TIME== 0) ?  105 : \
+   (THINK_TIME== 900  && BYOYOMI_TIME== 0) ?  105 : \
+   (THINK_TIME==1500  && BYOYOMI_TIME== 0) ?  170 : \
+   (THINK_TIME== 900  && BYOYOMI_TIME==60) ?  255 : \
+   (THINK_TIME==1800  && BYOYOMI_TIME==60) ?  465 : \
+   (THINK_TIME==3600  && BYOYOMI_TIME==60) ?  565 : \
+   (THINK_TIME==10800 && BYOYOMI_TIME==60) ? 1165 : \
+                                                1   )
 
  // FIXME tune
 #define ADD_RWD_BONUS(x) ((x) * 3 / 8)

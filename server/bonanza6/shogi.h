@@ -12,9 +12,6 @@
 extern "C" {
 #endif
 
- // 3/22/2012 0 is faster
-#define USE_BBSUFMASK 0
-
 #ifdef MINIMUM
 #  ifndef _WIN32
 #    define FVBIN_MMAP
@@ -28,9 +25,9 @@ extern "C" {
 
 #ifdef CACHE_ALIGNED_HASH
   // 2 or 4
-#define HASH_ENTRY_WIDTH 2
+#  define HASH_ENTRY_WIDTH 2
 #else
-#define HASH_ENTRY_WIDTH 3
+#  define HASH_ENTRY_WIDTH 3
 #endif
 
 #if defined(_WIN32)
@@ -824,11 +821,11 @@ typedef struct {
 #endif
 #endif
  uint64_t x[4];  // rank, file, diag1(rl45), diag2(rr45)
-} occupiedC;
+} occupied_t;
 
 extern bitboard_t abb_attacks[4][128/*81*/][128];
 extern const int ai_shift[4][81];
-extern occupiedC ao_bitmask[81];
+extern occupied_t ao_bitmask[81];
 
 #endif // BITBRD64
 
@@ -839,13 +836,13 @@ typedef struct {
   uint64_t hash_key;
   // 先手/後手の駒の有無(駒があれば1)
   // このmaskには王も含まれる。
-  bitboard_t b_occupied,     w_occupied;
+  bitboard_t b_occupied, w_occupied;
 #ifndef BITBRD64
   // ↑の駒の存在する位置を示すビットマップを90度、45度回転させたもの。
   // 飛車角香による利きを計算するときに用いる
   bitboard_t occupied_rl90,  occupied_rl45, occupied_rr45;
 #else
-  occupiedC  occ;
+  occupied_t  occ;
 #endif
   // 馬龍王のビットマップの論理和(horse,dragon,king)
   bitboard_t b_hdk,          w_hdk;
@@ -1087,23 +1084,18 @@ extern int p_value_ex[31];
 extern int p_value_pm[15];
 extern int p_value[31];
 
-#if 0
-extern short pc_on_sq[nsquare][fe_end*(fe_end+1)/2];
-extern short kkp[nsquare][nsquare][kkp_end];
-#elif ! defined(FVBIN_MMAP)
-typedef short pconsqAry[fe_end][fe_end];
-typedef short kkpAry[nsquare][kkp_end];
-extern pconsqAry *pc_on_sq;
-extern kkpAry *kkp;
+#if ! defined(FVBIN_MMAP)
+#  if defined(USE_FV3)
+extern short pc_on_sq[ nsquare ][ fe_end ][ fe_end ];
+#  else
+extern short pc_on_sq[ nsquare ][ fe_end*(fe_end+1)/2 ];
+#  endif
+extern short kkp[ nsquare ][ nsquare ][ kkp_end ];
 #else
-#ifndef USE_FV3
-typedef short pconsqAry[fe_end*(fe_end+1)/2];
-#else
-typedef short pconsqAry[fe_end][fe_end];
-#endif
-typedef short kkpAry[nsquare][kkp_end];
-extern pconsqAry *pc_on_sq;
-extern kkpAry *kkp;
+typedef short pconsq_table_t[ fe_end ][ fe_end ];
+typedef short kkp_table_t[ nsquare ][ kkp_end ];
+extern pconsq_table_t *pc_on_sq;
+extern kkp_table_t *kkp;
 #endif
 
 extern uint64_t ehash_tbl[ EHASH_MASK + 1 ];
@@ -1121,7 +1113,7 @@ extern bitboard_t abb_w_silver_attacks[ nsquare ]; // 後手の銀
 extern bitboard_t abb_w_gold_attacks[ nsquare ];   // 後手の金
 extern bitboard_t abb_king_attacks[ nsquare ];     // 玉
 
-// ifromとitoの間にある空間を示すbitmap
+// ifromとitoの間にある升を示すbitmap
 // (ifrom, ito自身は含まない)
 // 二つの位置が縦横斜めの関係にない場合は空
 extern bitboard_t abb_obstacle[ nsquare ][ nsquare ];

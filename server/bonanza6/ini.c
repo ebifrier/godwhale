@@ -39,7 +39,7 @@ static void ini_random_table( void );
 
 int CONV load_fv( void )
 {
-#if 0
+#if ! defined(FVBIN_MMAP)
   FILE *pf;
   size_t size;
   int iret;
@@ -47,45 +47,20 @@ int CONV load_fv( void )
   pf = file_open( str_fv, "rb" );
   if ( pf == NULL ) { return -2; }
 
-  size = nsquare * pos_n;
-  if ( fread( pc_on_sq, sizeof(short), size, pf ) != size )
-    {
-      str_error = str_io_error;
-      return -2;
-    }
-
-  size = nsquare * nsquare * kkp_end;
-  if ( fread( kkp, sizeof(short), size, pf ) != size )
-    {
-      str_error = str_io_error;
-      return -2;
-    }
-
-  iret = file_close( pf );
-  if ( iret < 0 ) { return iret; }
-#elif ! defined(FVBIN_MMAP)
-  FILE *pf;
-  size_t size;
-  int iret;
-
-  pf = file_open( "fv3.bin", "rb" );
-  if ( pf == NULL ) { return -2; }
-
+#  if defined(USE_FV3)
   size = nsquare * fe_end * fe_end;
-  pc_on_sq = (pconsqAry *)memory_alloc( sizeof(short) * size );
+#  else
+  size = nsquare * pos_n;
+#  endif
   if ( fread( pc_on_sq, sizeof(short), size, pf ) != size )
     {
-      memory_free(pc_on_sq);
       str_error = str_io_error;
       return -2;
     }
 
   size = nsquare * nsquare * kkp_end;
-  kkp = (kkpAry *)memory_alloc( sizeof(short) * size );
   if ( fread( kkp, sizeof(short), size, pf ) != size )
     {
-      memory_free(kkp);
-      memory_free(pc_on_sq);
       str_error = str_io_error;
       return -2;
     }
@@ -93,30 +68,29 @@ int CONV load_fv( void )
   iret = file_close( pf );
   if ( iret < 0 ) { return iret; }
 #else
-  int fd;
   size_t sz1, sz2, j;
+  int fd;
   void* mapbase;
 
-#ifndef USE_FV3
-  fd = open(str_fv, O_RDONLY);
-  sz1 = nsquare * pos_n;
-#else
-  fd = open("fv3.bin", O_RDONLY);
+  fd = open( str_fv, O_RDONLY );
+  if ( fd < 0 ) { return -2; }
+
   sz1 = nsquare * fe_end * fe_end;
-#endif
   sz2 = nsquare * nsquare * kkp_end;
 
-   //          hint_adr                                   offset
   mapbase = mmap( NULL, (sz1+sz2) * sizeof(short),
                   PROT_READ, MAP_SHARED, fd, 0 );
   if ( mapbase == MAP_FAILED ) { return -2; }
-  pc_on_sq = (pconsqAry*)mapbase;
-  kkp = (kkpAry*)(mapbase + sz1 * sizeof(short));
-  close(fd);
+
+  pc_on_sq = (pconsq_table_t *)mapbase;
+  kkp = (kkp_table_t *)(mapbase + sz1 * sizeof(short));
+
+  iret = close( fd );
+  if ( iret < 0 ) { return iret; }
 
   { // read in all the area into memory
+    char *p = (char *)mapbase;
     int x = 0;
-    char* p = (char*)mapbase;
     for ( j = 0; j < (sz1+sz2)*sizeof(short); j += 4096 )
       x += p[j];
     if ( x == 43256 ) printf(".");
@@ -377,19 +351,6 @@ fin( void )
 #endif
 
   memory_free( (void *)ptrans_table_orig );
-
-#if ! defined(FVBIN_MMAP)
-  if ( pc_on_sq != NULL )
-     {
-       memory_free( pc_on_sq );
-       pc_on_sq = NULL;
-     }
-  if ( kkp != NULL )
-     {
-       memory_free( kkp );
-       kkp = NULL;
-     }
-#endif
 
 #if defined(TLP) || defined(DFPN_CLIENT)
   if ( lock_free( &io_lock ) < 0 ) { return -1; }

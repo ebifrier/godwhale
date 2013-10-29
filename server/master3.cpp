@@ -19,7 +19,7 @@ int myTurn = NOSIDE;
 #define CMDCHK_INTERVAL_MS 1000
 #define MASTER_INTERVAL 1000
 
-int cmdchkTick, detected, expired, touched, inhFirst, waitRoot;
+static int detected, inhFirst, waitRoot;
 
  // need myTurn
 #include "plane.h"
@@ -87,6 +87,8 @@ static void handleReplyMaster(); // defined below
 
 int master(Move *retmvseq)
 {
+    int cmdchkTick, expired, touched;
+
     if (problemMode()) {
         MAX_SRCH_DEP = depth_limit;
     }
@@ -94,7 +96,7 @@ int master(Move *retmvseq)
     // reset existing results
     plane.lastDoneItd = 0;
 
-    // set compTurn when master() is first called
+    // set myTurn when master() is first called
     if (myTurn == NOSIDE) {
         myTurn = root_turn;
     }
@@ -366,11 +368,11 @@ static void dumpRpyFcomp()
 static void dumpRpyPvs()
 {
     if (DBG_DUMP_COMM) {
-        MSTOut(
-            "%8d>&&&&RPY_PVS %d: itd %d exd %d val %d mv %07x ule %d num %d seqlen %d\nbestseq: ",
-            worldTime(), rpyent.rank(), rpyent.itd(), rpyent.exd(), rpyent.val(),
-            readable(rpyent.pvsmv()),rpyent.ule(),
-            rpyent.numnode(), rpyent.seqleng_pvs());
+        MSTOut("%8d>&&&&RPY_PVS %d: itd %d exd %d val %d mv %07x "
+               "ule %d num %d seqlen %d\nbestseq: ",
+               worldTime(), rpyent.rank(), rpyent.itd(), rpyent.exd(), rpyent.val(),
+               readable(rpyent.pvsmv()),rpyent.ule(),
+               rpyent.numnode(), rpyent.seqleng_pvs());
         forr (i, 0, rpyent.seqleng_pvs()-1) {
             MSTOut(" %07x", readable(rpyent.bestseq_pvs(i)));
             if ((i%6)==5) MSTOut("\n");

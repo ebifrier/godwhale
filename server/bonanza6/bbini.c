@@ -10,7 +10,7 @@
 #define MAXLEN 17
 
 bitboard_t abb_attacks[4][128/*81*/][128];
-occupiedC ao_bitmask[81];
+occupied_t ao_bitmask[81];
 
 const int ai_shift[4][81] = {
   // HORIZ
@@ -352,7 +352,7 @@ disp_bb( const bitboard_t * restrict bb )
 int
 main( void )
 {
-  occupiedC occ;
+  occupied_t occ;
   bitboard_t bb;
   int sqa[6] = {C8, A4, E2, H9, F3, G6};
   int i, q;

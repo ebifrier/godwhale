@@ -113,7 +113,7 @@ cmdPacketC pendingCmd;
 
 mvC mpLastMove;
 
-#define MAX_ROOT_PATH 32    // FIXME?
+#define MAX_ROOT_PATH 48    // FIXME?
 static int curPosPathLeng;
 static mvC curPosPath[MAX_ROOT_PATH];
 static int curPosPathChecks;

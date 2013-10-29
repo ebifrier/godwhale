@@ -17,8 +17,6 @@
 #define score_bound 32600
 #define score_max_eval 32500
 
-extern int inhFirst;
-
 //******** timeRecordC ********
 
 struct timeRecordUnitC
@@ -28,7 +26,8 @@ struct timeRecordUnitC
     int64_t starttime;
     int64_t accum; ///< 経過時間
 
-    void clr() {
+    timeRecordUnitC()
+    {
         memset(this, 0, sizeof(timeRecordUnitC));
     }
 
@@ -61,7 +60,7 @@ struct timeRecordC
 {
     timeRecordUnitC timerecu[MAXPROC];
 
-    void clr()
+    void clear()
     {
         memset(this, 0, sizeof(timeRecordC));
     }
@@ -80,7 +79,6 @@ struct timeRecordC
     {
         // find proc w/ max retry time
         int64_t z = timerecu[1].accum;
-        int x;
 
         forr (i, 2, Nproc-1) {
             if (z < timerecu[i].accum) {
@@ -88,10 +86,8 @@ struct timeRecordC
             }
         }
         
-        z /= 1000000;    // convert nanosec to millisec
-        x = (int)z;      // convert int64 to int
-        x = ADD_RETRY_BONUS(x);   // bonus time for retry time
-        return x;
+        z /= 1000 * 1000;    // convert nanosec to millisec
+        return ADD_RETRY_BONUS((int)z);   // bonus time for retry time
     }
     
     bool retryingAny()
@@ -1070,7 +1066,11 @@ void streamC::propagateDown(int exd, int val, valtypeE valtyp)
 class planeC
 {
 public:
-    int shallowItd, deepItd, lastDoneItd, rwdLatch, rwdLatch2;
+    int shallowItd, deepItd, lastDoneItd;
+    // unmake_moveした場合は1、そうでない場合は0が入ります。
+    int rwdLatch;
+    // 前の手番の先読みが外れた場合は1、そうでない場合は0が入ります。
+    int rwdLatch2;
     mvC mv2root;
     streamC stream[MAX_ITD];
 
@@ -1155,8 +1155,12 @@ void planeC::makeMoveRoot(mvC mv)
     forr (i, 1, MAX_ITD-1) {
         stream[i].tailExd = -1;
     }
-    timerec.clr();
+    timerec.clear();
 
+    // rwdLatchは先読みが外れた(unmake_move_rootされた)ときに1が入ります。
+    // ponderが外れた場合は、unmake_move -> make_move という
+    // 手順を追うので、rwdLatchはこの前の手番の先読みが
+    // 外れたかどうかを示しています。外れた場合は1。
     rwdLatch2 = rwdLatch;   // rwd2 is on after RWD-FWD
 
     if (rwdLatch) {
@@ -1315,12 +1319,10 @@ bool planeC::terminating()
 
 void planeC::finalAnswer(int *valp, mvC *mvp)
 {
-    rowC *bestrow;
-    int i;
+    rowC *bestrow = &stream[lastDoneItd].row[0];
+    int i = lastDoneItd;
 
-    // find last committed stream 
-    i = lastDoneItd;
-    bestrow = &stream[i].row[0];
+    // find last committed stream
     assert(bestrow->bestule == ULE_EXACT);
     MSTOut(".... finalAnswer: lastItd %d len %d val %d mv0 %07x\n",
            lastDoneItd, bestrow->bestseqLeng, bestrow->bestval,
@@ -1337,26 +1339,25 @@ void planeC::finalAnswer(int *valp, mvC *mvp)
 
     // current stream result can be used only if previous str's mv has been done
     forr (j, i+1, deepItd) {
-        rowC *row = &stream[j].row[0];
+        rowC &row = stream[j].row[0];
 
-        if (row->procmvs[1].mvcnt > -1 &&  // 12/13/2011 %47 was missing
+        if (row.procmvs[1].mvcnt > -1 &&  // 12/13/2011 %47 was missing
             stream[j].seqFromPrev[0] == mv2root &&
-            row->bestseqLeng > 0 &&
-            row->bestule == ULE_EXACT &&
-            row->bestval > -score_max_eval &&
-            row->mvdone(itdexd2srd(j,0), bestrow->bestseq[0],
-                        row->alpha, row->beta)) {
-            bestrow = row;
+            row.bestseqLeng > 0 &&
+            row.bestule == ULE_EXACT &&
+            row.bestval > -score_max_eval &&
+            row.mvdone(itdexd2srd(j,0), bestrow->bestseq[0],
+                       row.alpha, row.beta)) {
+            bestrow = &row;
             MSTOut(".... finalAnswer: newItd %d len %d val %d mv %07x %07x\n",
-                   j, row->bestseqLeng, row->bestval,
-                   readable(row->bestseq[0]), readable(row->bestseq[1]));
+                   j, row.bestseqLeng, row.bestval,
+                   readable(row.bestseq[0]), readable(row.bestseq[1]));
         }
         else {
             break;
         }
     }
 
-    // return results
     *valp = bestrow->bestval;
     forr (k, 0, GMX_MAX_PV-1) {
         mvp[k] = bestrow->bestseq[k];
