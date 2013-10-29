@@ -6,17 +6,7 @@
 #define score_bound 32600
 #define score_max_eval 32500
 
-typedef enum
-{
-    VALTYPE_ALPHA,
-    VALTYPE_BETA,
-    VALTYPE_GAMMA,
-} valtypeE; 
-
 extern cmdPacketC cmd2send;
-
- // FIXME  right?
-#define itdexd2srd(itd, exd) (2*(itd) - (exd))
 
 //******** jobDtorC ********
 enum

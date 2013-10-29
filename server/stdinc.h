@@ -1,5 +1,8 @@
 /* $Id: pcommon3.h,v 1.4 2012/03/26 06:21:19 eikii Exp $ */
 
+#ifndef PCOMMON_H
+#define PCOMMON_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -8,12 +11,18 @@
 
 #include "if_bonanza.h"
 
+/* このファイルにはbonanza側から参照しない変数、関数などを
+ * 定義します。そのため extern "C" は使用しません。
+ */
+
 #define BNS_COMPAT    0
 #define MASTERRANK    0
 
 #define MAX_SRCH_DEP_FIGHT     30
 #define MAX_SRCH_DEP_PROB       9
 extern int MAX_SRCH_DEP;
+
+#define NO_PENDING_REQUEST (-1)
 
 #define DBG_INTERVAL_CHK  0
 
@@ -26,6 +35,8 @@ extern int MAX_SRCH_DEP;
 #define max(m,n)    ((m)>(n) ? (m) : (n))
 #define min(m,n)    ((m)<(n) ? (m) : (n))
 #define NULLMV      mvC((int)(0))
+
+#define itdexd2srd(itd, exd) (2*(itd) - (exd))
 
 #define TBC  assert(0)
 #define NTBR assert(0)
@@ -43,7 +54,14 @@ extern int MAX_SRCH_DEP;
     do {if (DBG_MASTER  ) out_file(masterlogfp, __VA_ARGS__); } while(0)
 void out_file( FILE *pf, const char *format, ... );
 
-#define NO_PENDING_REQUEST (-1)
+
+// 評価形式
+typedef enum
+{
+    VALTYPE_ALPHA,
+    VALTYPE_BETA,
+    VALTYPE_GAMMA
+} valtypeE;
 
 enum
 {
@@ -53,7 +71,7 @@ enum
     ULE_EXACT = 3,
 };
 
-// copied from comm2.cc
+
 class mvC {
 public:
     int v;
@@ -71,9 +89,12 @@ struct timespec
 #endif
 
 extern int THINK_TIME, BYOYOMI_TIME;
+extern int DBG_MASTER, VMMODE;
 extern int x_dmy_for_calcinc, INCS_PER_USEC;
 // マスタ／スレーブ間の時差[10us]
 extern int time_offset;
+// プロセスごとのスレッド数
+extern int tlp_max_arg;
 
 #define NOSIDE (-1)
 // 自分の手番を示します
@@ -81,6 +102,7 @@ extern int myTurn;
 
 class planeC;
 extern planeC plane;
+
 
  // defined in putils.cpp
 extern void ei_clock_gettime(struct timespec* tsp);
@@ -113,3 +135,5 @@ extern void replyFirst();
 
  // sbody.h
 extern int problemMode();
+
+#endif /* PCOMMON_H */

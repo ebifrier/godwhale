@@ -1,15 +1,16 @@
 /* $Id: master3.cpp,v 1.52 2012-04-04 22:34:40 eiki Exp $ */
 
 #define MASTER_CC
-#include "pcommon3.h"
+#include "stdinc.h"
 #include "comm3.h"
 
 //******** data decl   FIXME s/b here? ********
 
 static replyPacketC rpypkt;
 static replyEntryC  rpyent(&rpypkt);
-int exitPending, exitAcked;
+static int exitPending, exitAcked;
 
+cmdPacketC cmd2send;
 int myTurn = NOSIDE;
 
 #define PR1 1
@@ -34,7 +35,7 @@ void iniGameHook(const min_posi_t* posi)
     plane.clear();
     pfGame.clear();
 
-    cmd2send.setCmdSetroot(posi);
+    cmd2send.setCmdSetRoot(posi);
     forr (pr, 1, Nproc-1) {
         cmd2send.send(pr);
     }
@@ -42,13 +43,13 @@ void iniGameHook(const min_posi_t* posi)
     root_turn = posi->turn_to_move;
 }
 
-void makeMoveRootHook(int move)
+void makeMoveRootHook(Move move)
 {
     MSDOut("---- makeMoveRootHook called\n");
     mvC mv2rt = mvC(move);
     plane.makeMoveRoot(mv2rt);
 
-    cmd2send.setCmdFwd(mv2rt);
+    cmd2send.setCmdMakeMove(mv2rt);
     forr (pr, 1, Nproc-1) {
         cmd2send.send(pr);
     }
@@ -84,7 +85,7 @@ void sendQuit(int proc)
 
 static void handleReplyMaster(); // defined below
 
-int master(unsigned int* retmvseq)
+int master(Move *retmvseq)
 {
     if (problemMode()) {
         MAX_SRCH_DEP = depth_limit;

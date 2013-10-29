@@ -1,3 +1,8 @@
+2013-10-29  - Ver 1.1.6
+
+	* server/time.h: コメントを追加しました。
+	* server/stdinc.h: 共通ヘッダファイルです。pcommon3.hから改名しました。
+
 2013-10-29  - Ver 1.1.5
 
 	* server/invokempi.cpp: プログラムオプションの解析プログラムを整理しま

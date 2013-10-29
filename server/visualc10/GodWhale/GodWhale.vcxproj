@@ -173,7 +173,7 @@
     <ClInclude Include="..\..\entsort.h" />
     <ClInclude Include="..\..\if_bonanza.h" />
     <ClInclude Include="..\..\initact.h" />
-    <ClInclude Include="..\..\pcommon3.h" />
+    <ClInclude Include="..\..\stdinc.h" />
     <ClInclude Include="..\..\perfsl.h" />
     <ClInclude Include="..\..\plane.h" />
     <ClInclude Include="..\..\sbody3.h" />

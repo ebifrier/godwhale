@@ -1,6 +1,6 @@
 ﻿/* $Id: putils.cpp,v 1.3 2012-04-20 07:32:31 eikii Exp $ */
 
-#include "pcommon3.h"
+#include "stdinc.h"
 
  // for mm_pause
 #include <xmmintrin.h>

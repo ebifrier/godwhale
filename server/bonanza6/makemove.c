@@ -1,4 +1,4 @@
-// $Id: makemove.c,v 1.3 2012/03/22 06:09:30 eiki Exp $
+﻿// $Id: makemove.c,v 1.3 2012/03/22 06:09:30 eiki Exp $
 
 #include <limits.h>
 #include <assert.h>
@@ -460,12 +460,12 @@ make_move_root( tree_t * restrict ptree, Move move, int flag )
     {
       switch ( detect_repetition( ptree, 2, Flip(root_turn), 3 ) )
         {
-        case perpetual_check:
+        case perpetual_check: // 連続王手の千日手なら局面を戻す
           str_error = str_perpet_check;
           UnMakeMove( root_turn, move, 1 );
           return -2;
       
-        case four_fold_rep:
+        case four_fold_rep: // 千日手なら引き分け
           drawn = 1;
           break;
         }

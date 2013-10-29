@@ -6,17 +6,9 @@
 #define MAX_ROOT_SRCH_DEP 10     // FIXME tune
 #define USE_SLV_HISTORY    1     // FIXME tune
 //#define USE_FIRST_HASH
-//#define EXTEND_LIST_HASH
 #define ROOT_SORT_BY_NODES
 #define PUZZLE_ON_1MV
 #define WEAK_LMR
-
-#if !BNS_COMPAT
-  // in compat mode, this must not be defined.  if not, either on or off fine
-  // 3/7/2011 on vs off 16-27 -> disable => 3/16/2011 on 47 - off 33, restored
-  // 4/21/2012 vs bns2c, on 40-55, off 40-44 => off
-//#define USE_LIST_ASP
-#endif
 
 //#define PUZZLE_VAL (score_bound - 30) - No! abs must be <score_max_eval
 #define PUZZLE_DEP 7
@@ -29,8 +21,6 @@ int inRoot, rootExceeded, inFirst, firstReplied;
 uint64_t preNodeCount;
 mvC firstMoves[MAX_EXPDEP][GMX_MAX_LEGAL_MVS];
 int firstMvcnt[MAX_EXPDEP];
-
-extern int tlp_max_arg;
 
 int MAX_SRCH_DEP = MAX_SRCH_DEP_FIGHT;  // FIXME? here? shared w/ someone else?
 
@@ -824,6 +814,11 @@ static void doFirst()
 
 //**************** LIST  ***************
 
+// if LIST, call search(). if val>A, do PVS
+//           then set pvsretrying. send reply also
+//
+// 指し手の探索を行い、よい評価であれば
+// pvsretryingフラグを立てPV情報を送信します。
 static void doList(jobDtorC srchJob)
 {
     int64_t pren, postn;
@@ -875,11 +870,12 @@ static void doList(jobDtorC srchJob)
     }
     SLDOut("-------- mkmv done\n");
 
-    int selfchk = InCheck(turn) ? 1 : 0;
-
-    if (selfchk) {
+	// 手番側の王に王手がかかっていたら、
+	// その局面は不正のため探索を行いません。
+    if (InCheck(turn)) {
         running.val = score_bound;       // 12/29(?)/2011 %58 was sc_mate1ply,
         UnMakeMove(turn, mv.v, ply+1);   // caused bestval update
+
         smvent.depth = DECISIVE_DEPTH;
         // 12/5/2011 %36 retval was -inf, s/b +inf
         smvent.lower = smvent.upper = score_bound;
@@ -897,13 +893,12 @@ static void doList(jobDtorC srchJob)
     // * PLY_INC + (1 + popcnt(pvsCmd[srchJob].onerepMask))*PLY_INC/2;
     int newdep = itdexd2srd(itd, exd) * PLY_INC / 2 - PLY_INC;
     // 11/29/2011 %14  *PLY_INC/2 was missing
-    int reduc = 0;
+    int depth_reduced = 0;
     if (!chk && curPosPathLeng>0 &&
         !(UToCap(mv.v) || (I2IsPromote(mv.v) && I2PieceMove(mv.v) != silver)) &&
         mv.v != (int)ptree->amove_hash[ply+1] &&
         mv.v != (int)ptree->killers[ply+1].no1 &&
         mv.v != (int)ptree->killers[ply+1].no2    ) {
-        int depth_reduced = 0;
         unsigned int key     = phash( mv.v, turn );
         unsigned int good    = hist_goodary[key]  + 1;
         unsigned int triedx8 = ( hist_tried[key] + 2 ) * 8U;
@@ -918,14 +913,12 @@ static void doList(jobDtorC srchJob)
         else if ( good * 50U < triedx8 ) { depth_reduced = PLY_INC * 2/2; }
         else if ( good * 19U < triedx8 ) { depth_reduced = PLY_INC * 1/2; }
 #endif
- 
-        reduc = depth_reduced;
     }
-    newdep -= reduc;
+    newdep -= depth_reduced;
 
     // FIXME? need move_last[], stand_pat<_full>[], etc? how about root_A/B?
     g_ptree->save_eval[ply+1] =
-        g_ptree->save_eval[ply+2] = INT_MAX;
+    g_ptree->save_eval[ply+2] = INT_MAX;
     g_ptree->move_last[ply+1] = g_ptree->amove;
 
     // store bestmv to hash
@@ -974,31 +967,16 @@ static void doList(jobDtorC srchJob)
         if (srow.beta < B)
             B = srow.beta;
         root_beta = -A;
-        newdep += reduc + PLY_INC/2;
+        newdep += depth_reduced + PLY_INC/2;
 
         // FIXME?  exam_bb check?  (selfchk is done)
         SLDOut("-------- LIST srch2 A=%d B=%d dep=%d ...", A, B, newdep);
         perfRecMove.startSrch();
-#ifdef USE_LIST_ASP
-        int oldrta = root_alpha;
-        root_alpha = (B == score_bound && abs(A)<score_max_eval ?
-                      -A - ASP_WINDOW: -B);
-        val = -search(g_ptree, root_alpha, -A, Flip(turn),
-                      newdep, ply+2, state_node); //FIXME?  ply ok?
-        SLDOut(" .. done abt=%d val=%d\n", root_abort, val);
-        if (!root_abort && -score_bound < root_alpha && val>=-root_alpha) {
-            root_alpha = -score_bound;
-            SLDOut("-------- LIST srch3 A=%d dep=%d ...", A, newdep);
-            val = -search(g_ptree, -B, -A, Flip(turn),
-                          newdep, ply+2, state_node);
-            SLDOut(" .. done abt=%d val=%d\n", root_abort, val);
-        }
-        root_alpha = oldrta;
-#else
+
         val = -search(g_ptree, -B, -A, Flip(turn),
                       newdep, ply+2, state_node); //FIXME?  ply ok?
         SLDOut(" .. done abt=%d val=%d\n", root_abort, val);
-#endif
+
         perfRecMove.endSrchRetry(ply+1 /*exd*/);
 
         if (root_abort) {
@@ -1010,8 +988,7 @@ static void doList(jobDtorC srchJob)
         root_beta = score_bound;
         running.retrying = 0;
 
-        //if (val>A) {   12/12/2011 %46 A may be updated during srch
-        if (val>max(A,srow.alpha)) {  // 3/6/2012 %xx was val>sr.alpha
+        if (val > max(A,srow.alpha)) {  // 3/6/2012 %xx was val>sr.alpha
             srow.alpha = running.val =  val;  // FIXME? need running?
             // FIXME always?  if (alpha >= gamma)?
             //srow.gamma = - score_bound;
@@ -1041,40 +1018,6 @@ static void doList(jobDtorC srchJob)
                         if (!InCheck(xturn)) {
                             g_ptree->pv[ply+1].length = ply+2;
                             g_ptree->pv[ply+1].a[ply+2] = hashmv;
-
-#ifdef EXTEND_LIST_HASH
-                            int hashmv2;
-                            if (g_ptree->pv[ply+1].length < ply+3) {
-                                int tv2 = hash_probe(g_ptree, ply+3, newdep-PLY_INC,
-                                                     turn, -score_bound, score_bound, &state_node_dmy);
-                                hashmv2 = g_ptree->amove_hash[ply+3];
-                            } else
-                                hashmv2 = g_ptree->pv[ply+1].a[ply+3];
-
-                            if (hashmv2 != MOVE_NA && hashmv2 != MOVE_PASS &&
-                                is_move_valid(g_ptree, hashmv2, turn)) {
-                                MakeMove(turn, hashmv2, ply+3);
-                                if (!InCheck(turn)) {
-                                    g_ptree->pv[ply+1].length = ply+3;
-                                    g_ptree->pv[ply+1].a[ply+3] = hashmv2;
-
-                                    int tv3 = hash_probe(g_ptree, ply+4, newdep-2*PLY_INC,
-                                                         xturn, -score_bound, score_bound, &state_node_dmy);
-                                    int hashmv3 = g_ptree->amove_hash[ply+4];
-                                    if (hashmv3 != MOVE_NA && hashmv3 != MOVE_PASS &&
-                                        is_move_valid(g_ptree, hashmv3, xturn)) {
-                                        MakeMove(xturn, hashmv3, ply+4);
-                                        if (!InCheck(xturn)) {
-                                            g_ptree->pv[ply+1].length = ply+4;
-                                            g_ptree->pv[ply+1].a[ply+4] = hashmv3;
-                                        }
-                                        UnMakeMove(xturn, hashmv3, ply+4);
-                                    }
-
-                                }
-                                UnMakeMove(turn, hashmv2, ply+3);
-                            }
-#endif
                         }
                         UnMakeMove(xturn, hashmv, ply+2);
                     }
@@ -1088,19 +1031,15 @@ static void doList(jobDtorC srchJob)
                 // 12/12/2010 #25 ply+i+1 was i+1
                 // 12/12/2010 #27 ply<+i>+*2*, not +1
                 //pvsCmd[srchJob].bestseq[0]  = mv;
-
-            } // val>A, srch2
-        } // val>A, srch1
+            }
+        }
 
         postn = g_ptree->node_searched;
 
         //srch writes to [ply], not[ply-1] when Bcut
         if (!root_abort && val<=A) { // 3/6/2012 %xx was val<=srow.alpha) {
 
-            //sCmd[srchJob].bestseq[0].v = ptree->pv[ply+2].a[ply+2];
-            ////md[srchJob].bestseqLeng =(pvsCmd[srchJob].bestseq[0]==NULLMV)? 0:1;
-            //sCmd[srchJob].bestseqLeng = (ptree->pv[ply+2].length >= ply+2) ? 1:0;
-            // 1/28/2011 hash is written on bcut, use of hash s/b correct
+			// 1/28/2011 hash is written on bcut, use of hash s/b correct
             hash_probe(g_ptree, ply+2, newdep, Flip(turn),
                        -A-1, -A, &state_node_dmy);
             int hashmv = g_ptree->amove_hash[ply+2];
@@ -1111,37 +1050,19 @@ static void doList(jobDtorC srchJob)
             srow.bestseqLeng = usemv ? 1 : 0;
         }        // 12/15/2010 #39  bestseq/Leng in -A<val case was wrong
 
-        //running.val = - val;
-
         // UnMakeMove by a move at top
         UnMakeMove(turn, mv.v, ply+1);
 
-        //if (!root_abort) {
-
-        //reflectResultsList();
-        //val = running.val;      // FIXME? reuse of VAL may be dangerous
         int valChild = - val;  // NOTE VAL is for parent
         assert(running.job.onList());  // pvs
-        //if ( !(running.alpha > srow.alpha &&
-        //       running.alpha > val) ) {
         {
             //if not (cur srch invalid due to Alpha change),
             // cancel @ NOTIFY.  if pvsretry & fail lo, will come here
             int64_t numnode = postn - pren;
-            //int mvloc = sprmv.top;
             int ule = (B<=val) ? ULE_UPPER : (running.alpha < val) ? ULE_EXACT : ULE_LOWER;
 
-#if 0
-            //smvent.depth = newdep;
-            smvent.depth = itdexd2srd(itd, exd);
-            smvent.lower = valChild;   // 11/29/2011 %17 upper/lower inverted
-            smvent.upper = (ule == ULE_EXACT) ? valChild : score_bound;
-            if (smvent.upper < -score_max_eval || score_max_eval < smvent.lower)
-                smvent.depth = DECISIVE_SRD; // 11/29/2011 %15 big dep in mate case
-#else
             smvent.update(itdexd2srd(itd, exd), valChild, -B, -A, numnode,
                           srow.bestseq[0]);
-#endif
        
             //create reply: pvs(mv,val,bestseq[]) seq[]is: pv[] if upd, else 1mv
             rpyent.pushPvs(itd, exd, valChild,

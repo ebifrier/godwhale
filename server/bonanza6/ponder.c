@@ -1,4 +1,4 @@
-#include <stdlib.h>
+﻿#include <stdlib.h>
 #include <limits.h>
 #include "shogi.h"
 
@@ -23,6 +23,7 @@ ponder( tree_t * restrict ptree )
 
   ponder_nmove = gen_legal_moves( ptree, ponder_move_list, 1 );
 
+  // 相手の手番での思考開始時間を設定
   if ( get_elapsed( &time_start ) < 0 ) { return -1; }
 
 #ifndef CLUSTER_PARALLEL
@@ -52,6 +53,7 @@ ponder( tree_t * restrict ptree )
   Out( "\nPonder on %c%s (%+.2f)\n\n",
        ach_turn[root_turn], str, (double)last_root_value / 100.0 );
 
+  // とりあえず、相手の予想手を指す
   iret = make_move_root( ptree, move, flag_rep );
   if ( iret < 0 )
     {
@@ -67,6 +69,7 @@ ponder( tree_t * restrict ptree )
   
   if ( get_elapsed( &time_start ) < 0 ) { return -1; }
 
+  // 相手番での先読み開始
   game_status |= flag_pondering;
 
   iret = iterate( ptree );

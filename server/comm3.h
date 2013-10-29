@@ -14,6 +14,12 @@
 #define MAX_ITD    32
 #define MAX_XFER_MVS  20
 
+#define GMX_MAGIC_CMD    (0x1eace394)
+#define GMX_MAX_PV       MAX_EXPDEP
+#define GMX_MAX_BESTSEQ  MAX_EXPDEP
+#define GMX_MAX_LEGAL_MVS  600
+#define GMX_MAX_CMD_PACKET  2400
+
 #define HVLST_MVONLY  (1 << 29)
 
 struct tripleC { int alpha, beta, gamma; };
@@ -47,12 +53,17 @@ commands:
 enum
 {
     CMD_OPCODE_NULL    = 0,
+    // ルート局面の設定を行います。
     CMD_OPCODE_SETROOT = 1,
-    CMD_OPCODE_FWD        ,   // 2
-    CMD_OPCODE_RWD        ,   // 3
+    // 指し手をひとつ進めます。
+    CMD_OPCODE_MKMOVE     ,   // 2
+    // 指し手をひとつ戻します。
+    CMD_OPCODE_UNMKMOVE   ,   // 3
+    // プロセスを終了します。
     CMD_OPCODE_QUIT       ,   // 4
     CMD_OPCODE_ROOT       ,   // 5
     CMD_OPCODE_WARM       ,   // 6
+
     CMD_OPCODE_FIRST      ,   // 7
     CMD_OPCODE_LIST       ,   // 8
     CMD_OPCODE_NOTIFY     ,   // 9
@@ -80,16 +91,22 @@ enum
     CMD_LOC_HAVELIST_LIST = 7,  // 1/27/2011 not used, replaced by firstmv
     CMD_LOC_FIRSTMV = 7,
     CMD_LOC_ONEREP   = 8,
+
+    // CMD_OPCODE_SETROOTで使用
+    CMD_LOC_HANDB    = 3,
+    CMD_LOC_HANDW    = 4,
+    CMD_LOC_TURN     = 5,
+    CMD_LOC_ASQ_OFS  = 6,
+
+    // CMD_OPCODE_MKMOVEで使用
+    CMD_LOC_MKMOVE_MV= 3, // 指し手
+
     CMD_LOC_PVLENG_LIST  = 9,
     CMD_LOC_BETA     = 10,
     CMD_LOC_PV_OFS_LIST  = 11,
     //CMD_LOC_PAIR_OFS = 19,
     CMD_LOC_PAIR_OFS = CMD_LOC_PV_OFS_LIST + MAX_EXPDEP,
-    CMD_LOC_HANDB    = 3,
-    CMD_LOC_HANDW    = 4,
-    CMD_LOC_TURN     = 5,
-    CMD_LOC_ASQ_OFS  = 6,
-    CMD_LOC_FWDMV    = 3,
+
     CMD_LOC_HAVELIST_FIRST = 4,
     CMD_LOC_PVLENG   = 5,
     CMD_LOC_PV_OFS   = 6,
@@ -103,15 +120,6 @@ enum
 };
 
 
-
-//**** command ****
-
-#define GMX_MAGIC_CMD    (0x1eace394)
-#define GMX_MAX_PV       MAX_EXPDEP
-#define GMX_MAX_BESTSEQ  MAX_EXPDEP
-#define GMX_MAX_LEGAL_MVS  600
-#define GMX_MAX_CMD_PACKET  2400
-
 struct mvtupleC
 {
     mvC mv, bestmv; 
@@ -123,6 +131,7 @@ struct mvtupleC
         : mv(m), bestmv(b), depth(d), upper(u), lower(l) {}
 };
 
+// short*2 を int にパックします。
 static int mergeint(short a, short b)
 {
     unsigned int x = a + (1<<15);
@@ -130,6 +139,7 @@ static int mergeint(short a, short b)
     return (int)((x<<16) | y);
 }
 
+// int を short*2 にアンパックします。
 static void splitint(int n, short *a, short *b)
 {
     unsigned int z = (unsigned)n;
@@ -143,51 +153,79 @@ static void splitint(int n, short *a, short *b)
 class cmdPacketC
 {
 public:
-  int v[GMX_MAX_CMD_PACKET];
+    int v[GMX_MAX_CMD_PACKET];
 
-  cmdPacketC() { v[CMD_LOC_MAGIC] = GMX_MAGIC_CMD; }
-  void clear(); // erase all
-  void erase() { int sz = v[CMD_LOC_SIZE]; //12/10/2010 #1 was forr(i,1,v[..]-1)
-                 forr(i,1,sz-1) v[i] = 0; }  // erase just enough
-  bool havecmd() { return (CMD_OPCODE_NULL   < v[CMD_LOC_OPCODE] &&
-                           v[CMD_LOC_OPCODE] < CMD_OPCODE_END);  }
+    void clear(); // erase all
 
-   // methods for master sending
+    explicit cmdPacketC()
+    {
+        v[CMD_LOC_MAGIC] = GMX_MAGIC_CMD;
+    }
 
-  void setCmdRwd()  { v[CMD_LOC_OPCODE] = CMD_OPCODE_RWD;  v[CMD_LOC_SIZE] = 3;
-                      if (DBG_DUMP_COMM)  MSTOut("######## CMD_RWD\n");       }
-  void setCmdQuit() { v[CMD_LOC_OPCODE] = CMD_OPCODE_QUIT; v[CMD_LOC_SIZE] = 3;
-                      if (DBG_DUMP_COMM)  MSTOut("######## CMD_QUIT\n");       }
+    // 使っている分のパケット情報をクリアします。
+    void erase()
+    {
+        int sz = v[CMD_LOC_SIZE]; //12/10/2010 #1 was forr(i,1,v[..]-1)
+        forr (i, 1, sz-1) v[i] = 0;
+    }
+
+    // コマンドが設定されているか調べます。
+    bool haveCmd()
+    {
+        int cmd = v[CMD_LOC_OPCODE];
+        return (CMD_OPCODE_NULL < cmd && cmd < CMD_OPCODE_END);
+    }
+
+     // methods for master sending
+
+    // ルート局面から指し手をひとつ進めます。(make_move_rootと同じ)
+    void setCmdRwd()
+    {
+        v[CMD_LOC_OPCODE] = CMD_OPCODE_UNMKMOVE;
+        v[CMD_LOC_SIZE]   = 3;
+        if (DBG_DUMP_COMM) MSTOut("######## CMD_RWD\n");
+    }
+
+    // プロセスの終了コマンドを送信します。
+    void setCmdQuit()
+    {
+        v[CMD_LOC_OPCODE] = CMD_OPCODE_QUIT;
+        v[CMD_LOC_SIZE]   = 3;
+        if (DBG_DUMP_COMM) MSTOut("######## CMD_QUIT\n");
+    }
   void setCmdRoot() { v[CMD_LOC_OPCODE] = CMD_OPCODE_ROOT; v[CMD_LOC_SIZE] = 3;
                       if (DBG_DUMP_COMM)  MSTOut("######## CMD_ROOT\n");       }
-  void setCmdWarm() { v[CMD_LOC_OPCODE] = CMD_OPCODE_WARM; v[CMD_LOC_SIZE] = 3;
-                      if (DBG_DUMP_COMM)  MSTOut("######## CMD_WARM\n");       }
-
   void setCmdPicked() { v[CMD_LOC_OPCODE] = CMD_OPCODE_PICKED; v[CMD_LOC_SIZE] = 3;
                       if (DBG_DUMP_COMM)  MSTOut("######## CMD_PICKED\n");       }
   void setCmdStop() { v[CMD_LOC_OPCODE] = CMD_OPCODE_STOP; v[CMD_LOC_SIZE] = 3;
                       if (DBG_DUMP_COMM)  MSTOut("######## CMD_STOP\n");       }
 
-  void setCmdFwd(mvC move)
-  {
-    if (DBG_DUMP_COMM)
-      MSTOut("%8d>######## CMD_FWD: mv %07x\n", worldTime(), readable(move));
-    v[CMD_LOC_OPCODE] = CMD_OPCODE_FWD;
-    v[CMD_LOC_FWDMV] = move.v;
-    v[CMD_LOC_SIZE] = CMD_LOC_FWDMV+1;
-  }
+    // ルート局面の設定を行います。(新規対局時などに使われます)
+    void setCmdSetRoot(const min_posi_t* posp)
+    {
+        // FIXME pos dump?
+        if (DBG_DUMP_COMM) MSTOut("######## CMD_SETROOT\n");
 
-  void setCmdSetroot(const min_posi_t* posp)
-  {
-    if (DBG_DUMP_COMM)  MSTOut("######## CMD_SETROOT\n"); // FIXME pos dump?
-    v[CMD_LOC_OPCODE] = CMD_OPCODE_SETROOT;
-    v[CMD_LOC_HANDB] = (int)posp->hand_black;
-    v[CMD_LOC_HANDW] = (int)posp->hand_white;
-    v[CMD_LOC_TURN ] = (int)posp->turn_to_move;
-    forr(i, 0, 80)
-      v[CMD_LOC_ASQ_OFS + i] = (int)posp->asquare[i];
-    v[CMD_LOC_SIZE] = CMD_LOC_ASQ_OFS + 81;
-  }
+        v[CMD_LOC_OPCODE]= CMD_OPCODE_SETROOT;
+        v[CMD_LOC_HANDB] = (int)posp->hand_black;
+        v[CMD_LOC_HANDW] = (int)posp->hand_white;
+        v[CMD_LOC_TURN ] = (int)posp->turn_to_move;
+        forr (i, 0, nsquare-1)
+            v[CMD_LOC_ASQ_OFS + i] = (int)posp->asquare[i];
+        v[CMD_LOC_SIZE] = CMD_LOC_ASQ_OFS + nsquare;
+    }
+
+    // ルート局面から指し手をひとつ進めます。(make_move_rootと同じ)
+    void setCmdMakeMove(mvC move)
+    {
+        if (DBG_DUMP_COMM)
+            MSTOut("%8d>######## CMD_FWD: mv %07x\n",
+                   worldTime(), readable(move));
+
+        v[CMD_LOC_OPCODE]    = CMD_OPCODE_MKMOVE;
+        v[CMD_LOC_MKMOVE_MV] = move.v;
+        v[CMD_LOC_SIZE]      = CMD_LOC_MKMOVE_MV+1;
+    }
 
   void setCmdFirst(int itd, int havelist, int pvleng, mvC* pv)
   {
@@ -380,11 +418,16 @@ public:
                     mvC(v[CMD_LOC_TUPLE_OFS_EXTEND + 4*i + 1]),
                         v[CMD_LOC_TUPLE_OFS_EXTEND + 4*i + 2], a, b);
   }
-  int handb()    { return (v[CMD_LOC_HANDB]); }
-  int handw()    { return (v[CMD_LOC_HANDW]); }
-  int turn()     { return (v[CMD_LOC_TURN]); }
-  int asquare(int sq)    { return (v[CMD_LOC_ASQ_OFS + sq]); }
-  mvC fwdmv()            { return mvC(v[CMD_LOC_FWDMV]); }
+
+    // CMD_OPCODE_SETROOTで使用
+    int handb() { return (v[CMD_LOC_HANDB]); }
+    int handw() { return (v[CMD_LOC_HANDW]); }
+    int turn()  { return (v[CMD_LOC_TURN]); }
+    int asquare(int sq) { return (v[CMD_LOC_ASQ_OFS + sq]); }
+
+    // CMD_OPCODE_MKMOVEで使用
+    mvC mkMoveMove() { return mvC(v[CMD_LOC_MKMOVE_MV]); }
+
   int pvleng()           { return (v[CMD_LOC_PVLENG]); }
   mvC pv(int i)          { return mvC(v[CMD_LOC_PV_OFS + i]); }
   int pvleng_list()           { return (v[CMD_LOC_PVLENG_LIST]); }
@@ -399,22 +442,27 @@ public:
   int vbeta(int i)           { return (v[CMD_LOC_ABGOFS + 3*i + 1]); }
   int vgamma(int i)          { return (v[CMD_LOC_ABGOFS + 3*i + 2]); }
 
-  void getCmd() {
-      // if cmd already exists, do nothing
-    if (havecmd()) return;
+    // コマンドがあれば何もしません。
+    // もしなければ次のコマンドを探し、可能であればそれを受信します。
+    // 呼び出せるのはスレーブ限定
+    void getCmd()
+    {
+        if (haveCmd()) return;
 
-      // now we have no cmd.  get new pkt; if none exists, can't help
-    if (!probePacketSlave()) return;
+        // 次のコマンドが受信できない状態なら帰る
+        if (!probePacketSlave()) return;
 
-      // some cmd has come.  get MPI packet
-    assert(Mproc);   // this method is for slave only
-    recvPacket(MASTERRANK, v);
-  }
+        // some cmd has come.  get MPI packet
+        assert(Mproc != 0);
+        recvPacket(MASTERRANK, v);
+    }
 };
 
 #ifndef MASTER_CC
 void cmdPacketC::clear() {memset(this, 0, sizeof(cmdPacketC));}
 #endif
+
+extern cmdPacketC cmd2send;
 
 //**************  reply entry ****************
 

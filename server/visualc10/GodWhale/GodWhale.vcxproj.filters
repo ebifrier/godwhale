@@ -146,7 +146,6 @@
     <ClInclude Include="..\..\entsort.h" />
     <ClInclude Include="..\..\if_bonanza.h" />
     <ClInclude Include="..\..\initact.h" />
-    <ClInclude Include="..\..\pcommon3.h" />
     <ClInclude Include="..\..\perfsl.h" />
     <ClInclude Include="..\..\plane.h" />
     <ClInclude Include="..\..\sbody3.h" />
@@ -167,6 +166,7 @@
     <ClInclude Include="..\..\bonanza6\shogi.h">
       <Filter>bonanza6</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\stdinc.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="bonanza6">

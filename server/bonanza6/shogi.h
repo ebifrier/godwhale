@@ -564,9 +564,21 @@ enum { next_evasion_hash = 0, next_evasion_genall, next_evasion_misc };
 
 enum { next_quies_gencap, next_quies_captures, next_quies_misc };
 
-enum { no_rep = 0, four_fold_rep, perpetual_check, perpetual_check2,
-       black_superi_rep, white_superi_rep, hash_hit, prev_solution, book_hit,
-       pv_fail_high, mate_search };
+enum {
+  // 千日手無し
+  no_rep = 0,
+  // 千日手
+  four_fold_rep,
+  // 連続王手の千日手
+  perpetual_check,
+  // よくわからん
+  perpetual_check2,
+  // 同一局面だが先手の持ち駒がより勝っている局面
+  black_superi_rep,
+  // 同一局面だが後手の持ち駒がより勝っている局面
+  white_superi_rep,
+  hash_hit, prev_solution, book_hit,
+  pv_fail_high, mate_search };
 
 enum { record_misc, record_eof, record_next, record_resign, record_drawn,
        record_error };
@@ -1044,7 +1056,7 @@ extern unsigned int time_last_search;
 extern unsigned int time_last_check;
 // 手番の開始時刻[ms]
 extern unsigned int time_turn_start;
-// 手番の開始時刻[ms]
+// 手番の開始時刻、もしくは先読みの開始時刻[ms]
 extern unsigned int time_start;
 
 // 思考可能な最大時間[ms]。これ以上その手に時間はかけられない

@@ -4,8 +4,6 @@
 // master : proc# = 0
 // slave : proc# =1,2...
 
-//#define DBG_NO_MPI
-
 #ifndef DBG_NO_MPI
 #include <mpi.h>
 #endif
@@ -19,7 +17,7 @@
 #include <unistd.h>
 #endif
 
-#include "pcommon3.h"
+#include "stdinc.h"
 
 #define MAXPACKETSIZE 19200
 //#define NO_PENDING_REQUEST 4100
@@ -311,8 +309,8 @@ int recvPacket(int src, int* buf)
     MPI_Recv(buf, MAXPACKETSIZE, MPI_INT, src, OURTAG,
              MPI_COMM_WORLD, &status);
     if (DBG_MPI) {
-        int cnt; // for dbg
         char str[300];
+        int cnt;
         MPI_Get_count(&status, MPI_UNSIGNED, &cnt);  // FIXME?  MPI_INT?
         sprintf(str,
                 "MPI received: rank %d src %d cnt %d buf0-3 %08x %08x %08x %08x\n",
@@ -343,6 +341,7 @@ int probeProcessor()
 }
 
 //******************* 
+// slaveにパケットが届いているかを確認します。
 int probePacketSlave()
 {
 #ifndef DBG_NO_MPI

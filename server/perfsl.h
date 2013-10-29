@@ -498,7 +498,7 @@ struct perfRecordC
 perfRecordC perfRecMove, perfRecGame;
 int64_t gameStartTime, lastFwdTime, noThinkTime;
 
-static void perfSetrootHook()
+static void perfSetRootHook()
 {
     perfRecGame.clear();
     perfRecMove.clear();
@@ -506,7 +506,7 @@ static void perfSetrootHook()
     noThinkTime = 0LL;
 }
 
-static void perfFwdHook()
+static void perfMkMoveHook()
 {
     int64_t post = worldTimeLl();
     int64_t span = post - lastFwdTime;
@@ -528,7 +528,7 @@ static void perfQuitHook()
     int64_t gamespan = post - gameStartTime;
     int64_t thinkspan = gamespan - noThinkTime;
 
-    perfFwdHook();
+    perfMkMoveHook();
     SLTOut("------------ Game Total -------------\n");
     perfRecGame.print(thinkspan);
     SLTOut("------------ Perf Summary -----------\n");

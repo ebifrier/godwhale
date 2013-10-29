@@ -9,7 +9,7 @@
 #define SORT_BY_NUMNODE 1
 #define USE_FIRST_BCUT 1
 
-#define DBG_DO_VERIFY 0
+#define DBG_DO_VERIFY 1
 
 //******** FIXME duplicated? ********
 
@@ -17,19 +17,7 @@
 #define score_bound 32600
 #define score_max_eval 32500
 
-// 評価形式
-typedef enum
-{
-    VALTYPE_ALPHA,
-    VALTYPE_BETA,
-    VALTYPE_GAMMA
-} valtypeE; 
-
-cmdPacketC cmd2send;
 extern int inhFirst;
-
- // FIXME  right?
-#define itdexd2srd(itd, exd) (2*(itd) - (exd))
 
 //******** timeRecordC ********
 

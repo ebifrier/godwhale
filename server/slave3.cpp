@@ -10,7 +10,7 @@
  // for INT_MAX
 #include <limits.h>
 
-#include "pcommon3.h"
+#include "stdinc.h"
 #include "comm3.h"
 #include "splane.h"
 
@@ -48,7 +48,7 @@ class singleCmdC
 public:
     // input
     int valid, issued;
-    int picked, haveList; // FIXME? need chkList? - do without it for now 10/30
+    int haveList; // FIXME? need chkList? - do without it for now 10/30
 
     // out for ROOT, in for FIRST
     int itd, pvleng, opcode, fromRoot;
@@ -301,23 +301,23 @@ enum
 int proce(int nested)
 {
     // if nested, no cmd should be pending
-    if (nested) assert(!pendingCmd.havecmd());
+    if (nested) assert(!pendingCmd.haveCmd());
 
     // if cmd has come, put it to pendigCmd(pc)
     pendingCmd.getCmd();
 
-    while (pendingCmd.havecmd()) {
+    while (pendingCmd.haveCmd()) {
         int pcOpc = pendingCmd.opcode();
         if (DBG_DUMP_COMM) {
             SLTOut("======== proce start: opc=%d ========\n", pcOpc);
         }
 
         if (nested &&  // pc is either setroot/fwd/rwd/quit/first
-            ( pcOpc == CMD_OPCODE_SETROOT ||
-              pcOpc == CMD_OPCODE_FWD     ||
-              pcOpc == CMD_OPCODE_RWD     ||
-              pcOpc == CMD_OPCODE_QUIT    ||
-              pcOpc == CMD_OPCODE_STOP    ||
+            ( pcOpc == CMD_OPCODE_SETROOT  ||
+              pcOpc == CMD_OPCODE_MKMOVE   ||
+              pcOpc == CMD_OPCODE_UNMKMOVE ||
+              pcOpc == CMD_OPCODE_QUIT     ||
+              pcOpc == CMD_OPCODE_STOP     ||
               ( pcOpc == CMD_OPCODE_LIST && running.job.onSingle() &&
                 // running.valid must be on, if nested
                 ( (ROOT_PARALLEL && singleCmd.opcode == CMD_OPCODE_ROOT) ||
@@ -370,20 +370,20 @@ int proce(int nested)
             mpLastMove = NULLMV;
             curPosPathLeng = curPosPathChecks = 0;
             resetBonaSearch(g_ptree);
-            perfSetrootHook();
+            perfSetRootHook();
             if (DBG_DUMP_COMM) {
                 out_board(g_ptree, slavelogfp, 0, 0);
             }
         }
         break;
 
-        case CMD_OPCODE_FWD:
+        // ルート局面から指し手を進めます。(make_move_rootと同じ)
+        case CMD_OPCODE_MKMOVE:
         {
             assert(!nested);
             // make the move
             rewindToRoot();
-            mpLastMove = pendingCmd.fwdmv();
-            //applyMove(&currentRootPos, mpLastMove);    remove
+            mpLastMove = pendingCmd.mkMoveMove();
             SLTOut("%8d>calling makemove: fwdmv %07x\n",
                    worldTime(), readable(mpLastMove));
             if (g_ptree->node_searched) {
@@ -392,9 +392,9 @@ int proce(int nested)
                 //perfRecGame.add(&perfRecMove);
                 //perfRecMove.clear();
             }
-            perfFwdHook();
+            perfMkMoveHook();
             make_move_root(g_ptree, mpLastMove.v, flag_time);
-            //root_nmove = -1;  indicates mkrtmvls() is needed - done in initPerf
+
             // clear tables
             singleCmd.clear();
             splane.clear();
@@ -437,7 +437,8 @@ int proce(int nested)
         }
         break;
 
-        case CMD_OPCODE_RWD:
+        // ルート局面から指し手を一つ戻します。(unmake_move_rootと同じ)
+        case CMD_OPCODE_UNMKMOVE:
             assert(!nested);
             // unmake the move
             rewindToRoot();
@@ -457,9 +458,9 @@ int proce(int nested)
             rwdLatch = 1;
             break;
 
+        // プロセスを終了します。
         case CMD_OPCODE_QUIT:
             SLTOut("calling quit\n");
-            //perfRecGame.print();
             perfQuitHook();
             mpi_close();   // (FIXME)  mpi_close() s/b inside fin()?
             fin();
@@ -488,7 +489,7 @@ int proce(int nested)
             forr (i, 0, GMX_MAX_BESTSEQ-1) {
                 singleCmd.bestseq[i] = NULLMV;
             }
-            singleCmd.picked = (pcOpc==CMD_OPCODE_ROOT ? 0 : 1); //WARM mean picked
+            //singleCmd.picked = (pcOpc==CMD_OPCODE_ROOT ? 0 : 1); //WARM mean picked
             break;
 
         case CMD_OPCODE_FIRST:
@@ -684,7 +685,7 @@ int proce(int nested)
         {   // just set PICKED flag in singleCmd
             if (DBG_DUMP_COMM) 
                 SLTOut("^^^^ picked called\n");
-            singleCmd.picked = 1;
+            //singleCmd.picked = 1;
         }
         break;
 
