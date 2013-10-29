@@ -608,6 +608,7 @@ void rowC::refCreate(int exd, int pvleng, mvC *pv)
 {
     assert(exd < pvleng);
     clear();
+    (void)pvleng;
 
     bestval = -score_bound;
     alpha   = -score_bound;

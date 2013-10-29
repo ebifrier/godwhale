@@ -45,9 +45,11 @@ FILE* masterlogfp = NULL;
 
 #define OURTAG 0
 
-static int calcIncsPerUsec();   // defined below 
-static void adjustTimeSlave();  // defined below 
-static void adjustTimeMaster();  // defined below 
+static void parseMasterOptions(int argc, char **argv);
+static void parseCommonOptions(int argc, char **argv, int nproc, int mproc);
+static int calcIncsPerUsec();
+static void adjustTimeSlave();
+static void adjustTimeMaster();
 
 #ifdef ENB_SIGHANDLE
 static void sigHandler(int signo)
@@ -65,7 +67,7 @@ static void sigHandler(int signo)
 void mpi_init(int argc, char **argv, int *nproc, int *mproc)
 {
 #ifndef DBG_NO_MPI
-    int i, pre_10us, post_10us;
+    int pre_10us, post_10us;
     char tmpbuf[100];
 
     MPI_Init(&argc, &argv);
@@ -108,117 +110,10 @@ void mpi_init(int argc, char **argv, int *nproc, int *mproc)
         adjustTimeMaster();
         MSTOut(tmpbuf);
         
-        // command option analysis: -v = verbose, -q = quick fight, -h = help
-        //  -a enable affinity  -m[0-9] master cpu   -s[0-9] slave cpu start
-        //   (-[2-9] = thread num ... handled by slave)
-        DBG_MASTER = 0;
-        THINK_TIME = 900;
-        BYOYOMI_TIME = 0;
-        use_cpu_affinity = 0;
-        for (i=1; i<argc; i++) {    // i=0 is for command itself
-            MSTOut("argv[%d]:%s:", i, argv[i]);
-            if (!strcmp(argv[i], "-v")) {
-                DBG_MASTER = 1;
-                MSTOut("master log on. longer probe cycle\n");
-            }
-            if (!strcmp(argv[i], "-q")) {
-                BYOYOMI_TIME = 6;
-                THINK_TIME = 0;
-                MSTOut("quick fight: use shorter time\n");
-            }
-            if (!strncmp(argv[i], "-t", 2)) {
-                char c = argv[i][2];
-                THINK_TIME = (c=='z' ?     0 :
-                              c=='q' ?   480 :
-                              c=='f' ?   900 :
-                              c=='c' ?  1500 :
-                              c=='l' ?  1800 :
-                              c=='h' ?  3600 :
-                              c=='x' ? 10800 : -1);
-                if (THINK_TIME == -1) {
-                    MSTOut("think time: illegal option, set to 900\n");
-                    THINK_TIME = 900;
-                } else {
-                    MSTOut("think time: %d min (%d sec)\n",
-                           THINK_TIME/60, THINK_TIME);
-                }
-            }
-            if (!strncmp(argv[i], "-y", 2)) {
-                char c = argv[i][2];
-                BYOYOMI_TIME = (c=='0' ?  0 :
-                                c=='1' ? 10 :
-                                c=='3' ? 30 :
-                                c=='6' ? 60 : -1);
-                if (BYOYOMI_TIME == -1) {
-                    MSTOut("byoyomi time: illegal option, set to 0\n");
-                    BYOYOMI_TIME = 0;
-                } else {
-                    MSTOut("byoyomi time: %d sec\n", BYOYOMI_TIME);
-                }
-            }
-            if (!strcmp(argv[i], "-w")) {
-                VMMODE      = 1;
-                MSTOut("vm mode set\n");
-            }
-            if (!strncmp(argv[i], "-m", 2)) {
-                master_proc_offset = atoi(&argv[i][2]);
-                MSTOut("master proc offset is %d\n", master_proc_offset);
-            }
-            if (!strcmp(argv[i], "-h")) {
-                MSTOut("-v: verbose mode   -q: quick fight mode\n");
-                MSTOut("-k: key offset = 1\n");
-                exit(4);
-            }
-            MSTOut("\n");
-        }
-
-        //adjustTimeMaster();  // must be after setting keyOffset   - commented 11/9  FIXME ok?
+        parseMasterOptions(argc, argv);
     }
 
-    // command option analysis for slave (see above)
-    tlp_max_arg = 1;
-    for (i=1; i<argc; i++) {    // i=0 is for command itself
-        if (argv[i][0] == '-' &&
-            '0' <= argv[i][1] && argv[i][1] <= '9') {
-            char s[100];
-            int ncore = argv[i][1] - '0';
-            if ('0' <= argv[i][2] && argv[i][2] <= '9') {
-                ncore = 10 * ncore + argv[i][2] - '0';
-            }
-
-            sprintf(s, " tlp num set to %d\n", ncore);
-            if (*mproc) SLTOut(s);
-            else        MSTOut(s);
-            if (Mproc) {
-                tlp_max_arg = ncore;
-                //tlp_start();
-            }
-        }
-        if (!strcmp(argv[i], "-a")) {
-            use_cpu_affinity = 1;
-            if (Mproc) {
-                SLTOut("thread affinity enabled\n");
-            } else {
-                MSTOut("thread affinity enabled\n");
-            }
-        }
-        if (!strncmp(argv[i], "-s", 2)) {
-            slave_proc_offset = atoi(&argv[i][2]);
-            if (Mproc) {
-                SLTOut("slave proc offset is %d\n", slave_proc_offset);
-            }
-        }
-        if (!strncmp(argv[i], "-h", 2)) {
-            log2_ntrans_table = 20 + argv[i][2] - '0';
-            if (Mproc) {
-                SLTOut("slave hash size is %d\n", log2_ntrans_table);
-            }
-        }
-        if (!strcmp(argv[i], "-b")) {
-            /* threadGroupB = 1; */
-            MSTOut("thread group B selected\n");
-        }
-    }
+    parseCommonOptions(argc, argv, *nproc, *mproc);
     
     if (tlp_max_arg >= 3) {
         MAX_ROOT_SRCH_NODE *= (tlp_max_arg-1);
@@ -267,6 +162,119 @@ void mpi_close(void)
     }
     MPI_Finalize();
 #endif
+}
+
+// マスタ用の引数をパースします。
+// command option analysis: -v = verbose, -q = quick fight, -h = help
+//  -a enable affinity  -m[0-9] master cpu   -s[0-9] slave cpu start
+//   (-[2-9] = thread num ... handled by slave)
+static void parseMasterOptions(int argc, char *argv[])
+{
+    char *p;
+    int i;
+
+    DBG_MASTER = 0;
+    THINK_TIME = 900;
+    BYOYOMI_TIME = 0;
+
+    // i=0 は自分のファイル名
+    for (i = 1; i < argc; i++) {
+        MSTOut("argv[%d]:%s:", i, argv[i]);
+
+        if (!strcmp(argv[i], "-v")) {
+            DBG_MASTER = 1;
+            MSTOut("master log on. longer probe cycle\n");
+        }
+        else if (!strcmp(argv[i], "-q")) {
+            BYOYOMI_TIME = 6;
+            THINK_TIME = 0;
+            MSTOut("quick fight: use shorter time\n");
+        }
+        else if (!strncmp(argv[i], "-t", 2)) {
+            long value = strtol(&argv[i][2], &p, 10);
+            if (p == NULL || value >= INT_MAX) {
+                MSTOut("think time: illegal option, set to 900\n");
+                value = 900;
+            } else {
+                MSTOut("think time: %d min (%d sec)\n", value/60, value);
+            }
+            THINK_TIME = (int)value;
+        }
+        else if (!strncmp(argv[i], "-b", 2)) {
+            long value = strtol(&argv[i][2], &p, 10);
+            if (p == NULL || value >= INT_MAX) {
+                MSTOut("byoyomi time: illegal option, set to 0\n");
+                value = 0;
+            } else {
+                MSTOut("byoyomi time: %d sec\n", value);
+            }
+            BYOYOMI_TIME = (int)value;
+        }
+        else if (!strcmp(argv[i], "-w")) {
+            VMMODE = 1;
+            MSTOut("vm mode set\n");
+        }
+        else if (!strncmp(argv[i], "-m", 2)) {
+            master_proc_offset = atoi(&argv[i][2]);
+            MSTOut("master proc offset is %d\n", master_proc_offset);
+        }
+        else if (!strcmp(argv[i], "-h")) {
+            MSTOut("-v: verbose mode   -q: quick fight mode\n");
+            MSTOut("-k: key offset = 1\n");
+            exit(4);
+        }
+
+        MSTOut("\n");
+    }
+}
+
+// command option analysis for slave (see above)
+static void parseCommonOptions(int argc, char *argv[], int nproc, int mproc)
+{
+    char buf[100];
+    int i;
+
+    use_cpu_affinity = 0;
+    tlp_max_arg = 1;
+    (void)nproc;
+
+    // i=0 は自分自身のファイル名が入ります。
+    for (i = 1; i < argc; i++) {
+        if (!strcmp(argv[i], "-a")) {
+            use_cpu_affinity = 1;
+            if (mproc) {
+                SLTOut("thread affinity enabled\n");
+            } else {
+                MSTOut("thread affinity enabled\n");
+            }
+        }
+        else if (!strncmp(argv[i], "-s", 2)) {
+            slave_proc_offset = atoi(&argv[i][2]);
+            if (mproc) {
+                SLTOut("slave proc offset is %d\n", slave_proc_offset);
+            }
+        }
+        else if (!strncmp(argv[i], "-h", 2)) {
+            log2_ntrans_table = 20 + (argv[i][2] - '0');
+            if (mproc) {
+                SLTOut("slave hash size is %d\n", log2_ntrans_table);
+            }
+        }
+        else if (argv[i][0] == '-' &&
+            '0' <= argv[i][1] && argv[i][1] <= '9') {
+            int ncore = argv[i][1] - '0';
+            if ('0' <= argv[i][2] && argv[i][2] <= '9') {
+                ncore = 10 * ncore + argv[i][2] - '0';
+            }
+
+            sprintf(buf, " tlp num set to %d\n", ncore);
+            if (mproc) SLTOut(buf);
+            else       MSTOut(buf);
+            if (mproc) {
+                tlp_max_arg = ncore;
+            }
+        }
+    }
 }
 
 //******************* 

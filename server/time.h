@@ -53,9 +53,7 @@
 
 #define maxtime_ms(timeleft, root_nrep) ( \
    INANIWA_TIME \
-   (THINK_TIME==  0 && BYOYOMI_TIME==10)?  (10000 - RESPONSE_TIME): \
-   (THINK_TIME==  0 && BYOYOMI_TIME==30)?  (30000 - RESPONSE_TIME): \
-   (THINK_TIME==  0 && BYOYOMI_TIME==60)?  (60000 - RESPONSE_TIME): \
+   (THINK_TIME==  0) ? (BYOYOMI_TIME*1000 - RESPONSE_TIME): \
    (THINK_TIME== 480&& BYOYOMI_TIME== 0)? maxtime8_0_ms(timeleft, root_nrep):\
    (THINK_TIME== 900&& BYOYOMI_TIME== 0)? maxtime15_0_ms(timeleft, root_nrep):\
    (THINK_TIME==1500&& BYOYOMI_TIME== 0)? maxtime25_0_ms(timeleft, root_nrep):\

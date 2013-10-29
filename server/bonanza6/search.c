@@ -1281,7 +1281,7 @@ hist_good( tree_t * restrict ptree, unsigned int move_good, int ply,
       key = phash( move, turn );
 
 #ifndef SHARED_HIST
-      if ( ptree->hist_tried[key] >= HIST_MAX )
+      while ( ptree->hist_tried[key] >= HIST_MAX )
         {
           ptree->hist_good[key]  /= 2U;
           ptree->hist_tried[key] /= 2U;
@@ -1297,7 +1297,7 @@ hist_good( tree_t * restrict ptree, unsigned int move_good, int ply,
 #  ifdef TLP
           lock(&hist_lock[key]);
 #  endif
-          if ( hist_tried[key] >= HIST_MAX ) {
+          while ( hist_tried[key] >= HIST_MAX ) {
             hist_goodary[key]  /= 2U;
             _mm_sfence();
             hist_tried[key] /= 2U;

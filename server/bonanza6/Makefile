@@ -1,7 +1,6 @@
 
 #### disable this if compilation fails due to 'pthread_setaffinity_np'
-AFFINOPT =
-#-DENABLE_AFFINITY
+AFFINOPT = -DENABLE_AFFINITY
 
 #### enable on sandy-bridge
 #AVXOPT = -mavx -DHAVE_AVX
@@ -55,7 +54,7 @@ PROBFILE=../d1.dpp
 #CLUSTOPT = -DCLUSTER_PARALLEL  ==> this should be MAKE argument for bonkras
 
 DEFS    = -D__STDC_FORMAT_MACROS -DMINIMUM -DTLP -DDFPN \
-          -DDFPN_CLIENT -DCSA_LAN -DUSI \
+          -DDFPN_CLIENT -DCSA_LAN -DUSI -DNDEBUG \
           $(SSEOPT) $(AFFINOPT) $(CLUSTOPT) $(AVXOPT)
 OPT     = -std=gnu99 $(DEFS)
 GCC_OPT = -Wall -Wextra -g

@@ -17,7 +17,7 @@ endif
 BNSOPTS  = -DMINIMUM -DTLP -DDFPN -DDFPN_CLIENT -DCSA_LAN -DUSI \
            -DHAVE_SSE4 -DHAVE_SSE2 -msse4.1 -msse2
 INCLUDES =
-CPPFLAGS = -D__STDC_FORMAT_MACROS $(BNSOPTS)
+CPPFLAGS = -D__STDC_FORMAT_MACROS -DNDEBUG $(BNSOPTS)
 CFLAGS   = -std=gnu99 -Wall -Wextra -g
 CXXFLAGS = -Wall -Wextra -g $(IPOOPT)
 LDFLAGS  =
@@ -67,6 +67,7 @@ all: $(BIN) $(U2B)
 
 $(BIN): bns_objs $(BIN_OBJS)
 	$(MPI_LINK) -o $@ $(BIN_OBJS) $(BNS_OBJS) $(LIBS)
+	cp $(BIN) bin2/
 
 bns_objs:
 	$(MAKE) -C $(BNS) CLUSTOPT=-DCLUSTER_PARALLEL $(BN_OBJTYPE)
