@@ -2,6 +2,10 @@
 
 	* server/invokempi.cpp: プログラムオプションの解析プログラムを整理しま
 	した。
+	* server/visualc10/Bonanza: デバッグ用にBonanza単体用のプロジェクトを追
+	加しました。
+	* server/visualc10/server2.sln: 不要なプロジェクトファイルを削除しまし
+	た。
 
 2013-10-28  - Ver 1.1.4
 

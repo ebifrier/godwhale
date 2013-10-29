@@ -30,3 +30,8 @@ Bonako/Bonako/dist/Bonako_*/
 server/visualc10/GodWhale/Debug/
 server/visualc10/GodWhale/x64/
 server/visualc10/x64/
+server/visualc10/GodWhale/Release/
+server/visualc10/GodWhale/log/
+server/visualc10/Release/
+server/visualc10/ipch/
+server/visualc10/Debug/

@@ -17,7 +17,7 @@ int slaveStartPly = 0;
 #define PREFCH_EHASH
 
 static void CONV hist_add( tree_t * restrict ptree, int ply );
-static void CONV hist_good( tree_t * restrict ptree, unsigned int move,
+static void CONV hist_good( tree_t * restrict ptree, Move move,
                             int ply, int depth, int turn );
 static int CONV detect_rep( tree_t * restrict ptree, int ply, int turn );
 static int CONV rep_type( const tree_t * restrict ptree, int n, int i, int ply,
@@ -1169,7 +1169,7 @@ hist_add( tree_t * restrict ptree, int ply )
 
 
 static void CONV
-hist_good( tree_t * restrict ptree, unsigned int move_good, int ply,
+hist_good( tree_t * restrict ptree, Move move_good, int ply,
            int depth, int turn )
 {
   unsigned int key, move;

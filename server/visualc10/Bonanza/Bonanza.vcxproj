@@ -27,6 +27,7 @@
     <ClCompile Include="..\..\bonanza6\gendrop.c" />
     <ClCompile Include="..\..\bonanza6\genevasn.c" />
     <ClCompile Include="..\..\bonanza6\gennocap.c" />
+    <ClCompile Include="..\..\bonanza6\handjoseki.c" />
     <ClCompile Include="..\..\bonanza6\hash.c" />
     <ClCompile Include="..\..\bonanza6\ini.c" />
     <ClCompile Include="..\..\bonanza6\io.c" />
@@ -55,45 +56,30 @@
     <ClCompile Include="..\..\bonanza6\unmake.c" />
     <ClCompile Include="..\..\bonanza6\utility.c" />
     <ClCompile Include="..\..\bonanza6\valid.c" />
-    <ClCompile Include="..\..\invokempi.c" />
-    <ClCompile Include="..\..\master3.cpp" />
-    <ClCompile Include="..\..\putils.cpp" />
-    <ClCompile Include="..\..\slave3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\bonanza6\bitop.h" />
     <ClInclude Include="..\..\bonanza6\dfpn.h" />
-    <ClInclude Include="..\..\bonanza6\handjoseki.h" />
-    <ClInclude Include="..\..\bonanza6\mate3.h" />
+    <ClInclude Include="..\..\bonanza6\inline.h" />
     <ClInclude Include="..\..\bonanza6\param.h" />
     <ClInclude Include="..\..\bonanza6\shogi.h" />
-    <ClInclude Include="..\..\comm3.h" />
-    <ClInclude Include="..\..\entsort.h" />
-    <ClInclude Include="..\..\initact.h" />
-    <ClInclude Include="..\..\pcommon3.h" />
-    <ClInclude Include="..\..\perfsl.h" />
-    <ClInclude Include="..\..\plane.h" />
-    <ClInclude Include="..\..\sbody3.h" />
-    <ClInclude Include="..\..\splane.h" />
-    <ClInclude Include="..\..\time.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{7078F53B-EC21-49D5-9197-9AAA5BAB4107}</ProjectGuid>
+    <ProjectGuid>{7B59B54E-F67A-4747-8DEA-AC9613F8D3EC}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>bonanza</RootNamespace>
-    <ProjectName>master</ProjectName>
+    <RootNamespace>Bonanza</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -107,59 +93,47 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files\Microsoft HPC Pack 2012\Inc;bonanza6;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files\Microsoft HPC Pack 2012\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Program Files\Microsoft HPC Pack 2012\Inc;bonanza6;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files\Microsoft HPC Pack 2012\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;MINIMUM;TLP;HAVE_SSE2;CSA_LAN;INANIWA_SHIFT;DFPN;DFPN_CLIENT;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;HAVE_SSE2;HAVE_SSE4;HAVE_AVX;MINIMUM;TLP;CSA_LAN;DFPN;DFPN_CLIENT;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/arch:AVX %(AdditionalOptions)</AdditionalOptions>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>user32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalDependencies>kernel32.lib;user32.lib;ws2_32.lib</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>copy $(TargetPath) $(ProjectDir)..\
-copy $(TargetPath) $(ProjectDir)..\..\Bonako\Bonako
-copy $(TargetPath) $(ProjectDir)..\..\Bonako\Bonako.DFPN</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;MINIMUM;TLP;HAVE_SSE2;CSA_LAN;INANIWA_SHIFT;DFPN;DFPN_CLIENT;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <PrecompiledHeaderFile>
-      </PrecompiledHeaderFile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;HAVE_SSE2;HAVE_SSE4;HAVE_AVX;MINIMUM;TLP;CSA_LAN;DFPN;DFPN_CLIENT;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>user32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;ws2_32.lib</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>copy $(TargetPath) $(ProjectDir)..\
-copy $(TargetPath) $(ProjectDir)..\..\Bonako\Bonako
-copy $(TargetPath) $(ProjectDir)..\..\Bonako\Bonako.DFPN</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
