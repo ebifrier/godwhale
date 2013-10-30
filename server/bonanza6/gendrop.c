@@ -1,7 +1,7 @@
 #include "shogi.h"
 
-Move * CONV
-b_gen_drop( tree_t * restrict __ptree__, Move * restrict pmove )
+move_t * CONV
+b_gen_drop( tree_t * restrict __ptree__, move_t * restrict pmove )
 {
   const tree_t * restrict ptree = __ptree__;
   bitboard_t bb_target;
@@ -97,8 +97,8 @@ b_gen_drop( tree_t * restrict __ptree__, Move * restrict pmove )
 }
 
 
-Move * CONV
-w_gen_drop( tree_t * restrict __ptree__, Move * restrict pmove )
+move_t * CONV
+w_gen_drop( tree_t * restrict __ptree__, move_t * restrict pmove )
 {
   const tree_t * restrict ptree = __ptree__;
   bitboard_t bb_target;

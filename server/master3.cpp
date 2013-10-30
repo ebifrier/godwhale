@@ -43,7 +43,7 @@ void iniGameHook(const min_posi_t* posi)
     root_turn = posi->turn_to_move;
 }
 
-void makeMoveRootHook(Move move)
+void makeMoveRootHook(move_t move)
 {
     MSDOut("---- makeMoveRootHook called\n");
     mvC mv2rt = mvC(move);
@@ -85,7 +85,7 @@ void sendQuit(int proc)
 
 static void handleReplyMaster(); // defined below
 
-int master(Move *retmvseq)
+int master(move_t *retmvseq)
 {
     int cmdchkTick, expired, touched;
 

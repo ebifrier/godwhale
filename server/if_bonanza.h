@@ -27,9 +27,9 @@ extern int detectSignalSlave();
 
  // for bonanza6
 extern void iniGameHook(const min_posi_t *posi);
-extern void makeMoveRootHook(Move move);
+extern void makeMoveRootHook(move_t move);
 extern void unmakeMoveRootHook();
-extern int master(Move* retmvseq);
+extern int master(move_t* retmvseq);
 
 #ifdef __cplusplus
 }

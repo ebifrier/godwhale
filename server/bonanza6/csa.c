@@ -340,14 +340,14 @@ in_CSA( tree_t * restrict ptree, record_t *pr, unsigned int *pmove, int flag )
 // 指し手の表現です。(32bit無符号整数)
 // 返し値は、成功すれば1。指し手が非合法手であるか解釈上のエラーであれば-2。
 int
-interpret_CSA_move( tree_t * restrict ptree, Move *pmove,
+interpret_CSA_move( tree_t * restrict ptree, move_t *pmove,
                     const char *str )
 {
   int ifrom_file, ifrom_rank, ito_file, ito_rank, ipiece;
   int ifrom, ito;
-  Move move;
-  Move *pmove_last;
-  Move *p;
+  move_t move;
+  move_t *pmove_last;
+  move_t *p;
 
   ifrom_file = str[0]-'0';
   ifrom_rank = str[1]-'0';

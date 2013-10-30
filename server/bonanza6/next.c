@@ -12,8 +12,8 @@ gen_next_move( tree_t * restrict ptree, int ply, int turn )
       {
         int * restrict psortv = ptree->sort_value;
         unsigned int killer1, killer2, move_hash, move_best, move_second;
-        Move * restrict pmove;
-        Move move;
+        move_t * restrict pmove;
+        move_t move;
         int i, j, sortv, n, value_best, value_second, value, remaining;
 
         ptree->anext_move[ply].phase_done = 0;
@@ -140,7 +140,7 @@ gen_next_move( tree_t * restrict ptree, int ply, int turn )
     case next_move_capture:
       if ( ptree->anext_move[ply].remaining-- )
         {
-          Move move;
+          move_t move;
 
           MOVE_CURR = move = *(ptree->anext_move[ply].move_last++);
           if ( move == ptree->anext_move[ply].move_cap1 )
@@ -160,7 +160,7 @@ gen_next_move( tree_t * restrict ptree, int ply, int turn )
         }
 
       {
-        Move * restrict pmove;
+        move_t * restrict pmove;
         unsigned int value_best, value, key, good, tried;
         int i, n, ibest;
 
@@ -218,7 +218,7 @@ gen_next_move( tree_t * restrict ptree, int ply, int turn )
       
     case next_move_history2:
       {
-        Move * restrict pmove;
+        move_t * restrict pmove;
         unsigned int value_best, value, key, good, tried;
         int ibest, i, n;
 

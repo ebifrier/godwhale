@@ -85,7 +85,7 @@ uint64_t w_hand_bishop_rand[ nbishop_max ];
 uint64_t w_hand_rook_rand[ nrook_max ];
 uint64_t node_limit;
 SHARE unsigned int game_status;
-Move amove_save[NUM_UNMAKE];
+move_t amove_save[NUM_UNMAKE];
 unsigned int move_evasion_pchk;
 unsigned int node_per_second;
 unsigned int node_next_signal;

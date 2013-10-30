@@ -85,7 +85,7 @@ str2piece( const char *str )
 
 // 7776FU などのCSA形式の文字列を指し手に変換します。
 static int
-interpret_CSA_move2( min_posi_t* posp, Move *pmove,
+interpret_CSA_move2( min_posi_t* posp, move_t *pmove,
                      const char *str )
 {
   int ifrom_file, ifrom_rank, ito_file, ito_rank, ipiece;
@@ -143,7 +143,7 @@ read_handjoseki( void )
   int capt[2][8];
   char buf[30];
   min_posi_t pos;
-  Move move = MOVE_NA;
+  move_t move = MOVE_NA;
 
   fp = file_open( "hand.jos", "r" );
   if (fp == NULL)
@@ -276,7 +276,7 @@ read_handjoseki( void )
 }
 
 
-Move CONV
+move_t CONV
 probe_handjoseki( tree_t* restrict ptree )
 {
   int i, j;

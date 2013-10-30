@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <limits.h>
 
-static __inline int CONV
+static inline int CONV
 ehash_probe( uint64_t current_key, unsigned int hand_b,
              int * restrict pscore )
 {
@@ -32,7 +32,7 @@ ehash_probe( uint64_t current_key, unsigned int hand_b,
 }
 
 
-static __inline int CONV
+static inline int CONV
 evaluate( tree_t * restrict ptree, int ply, int turn )
 {
   int score;

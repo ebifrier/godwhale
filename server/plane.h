@@ -449,7 +449,7 @@ public:
     void refCreate(int exd, int pvleng, mvC *pv);
     void setlist(int mvcnt, mvC *mvs);
     
-    void updateValue(int val, valtypeE typ);
+    void updateValue(int val, ValueType typ);
     void updateBest(int val, mvC mv, int seqleng, mvC* seq);
 
     int itd();
@@ -681,7 +681,7 @@ bool rowC::mvdoneExact(int dep, mvC mv)
 
  //****
 
-void rowC::updateValue(int val, valtypeE type)
+void rowC::updateValue(int val, ValueType type)
 {
     switch (type) {
     case VALTYPE_ALPHA: alpha = val;   break;
@@ -753,7 +753,7 @@ public:
     }
 
     void propagateUp(int exd, int val);
-    void propagateDown(int exd, int val, valtypeE valtyp);
+    void propagateDown(int exd, int val, ValueType valtyp);
     int  mvlistAvailable(int exd, int pvleng, mvC *pv, mvC mv2rt, int srd);
 
     // rpySetpv/Setlist/Retrying skip streamC
@@ -1042,9 +1042,9 @@ void streamC::propagateUp(int exd, int val)
 
 //****
 
-void streamC::propagateDown(int exd, int val, valtypeE valtyp)
+void streamC::propagateDown(int exd, int val, ValueType valtyp)
 {
-    valtypeE typ = valtyp;
+    ValueType typ = valtyp;
     assert(typ == VALTYPE_ALPHA || typ == VALTYPE_BETA);
 
     forr (d, exd, tailExd) {

@@ -343,11 +343,11 @@ flip_ft( ft_t ft, int turn, int is_flip )
 // 指し手のうち捕獲する駒や、動かす駒についての情報が欠落しているので
 // それを局面情報から補ってやる必要がある。
 // is_flipは手番を反転させるのかのフラグ。
-static Move CONV
-bm2move( const tree_t * restrict ptree, Move bmove, int is_flip )
+static move_t CONV
+bm2move( const tree_t * restrict ptree, move_t bmove, int is_flip )
 {
   ft_t ft;
-  Move move;
+  move_t move;
   int is_promote;
 
   ft.to      = I2To(bmove);

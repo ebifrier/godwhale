@@ -210,13 +210,13 @@ public:
     }
 
     void setlist(int A, int B, mvC firstmv, int mvcnt, mvtupleC* tuples);
-    void updateValue(int val, valtypeE typ);
+    void updateValue(int val, ValueType typ);
 
     int itd();
     int exd();
 };
 
-void srowC::updateValue(int val, valtypeE type) {
+void srowC::updateValue(int val, ValueType type) {
     if (type == VALTYPE_BETA) {
         assert(val < beta);
         beta = val;
@@ -279,7 +279,7 @@ public:
         }
     }
     int propagateUp(int exd, int val, int runexd);
-    int propagateDown(int exd, int val, valtypeE valtyp, int runexd);
+    int propagateDown(int exd, int val, ValueType valtyp, int runexd);
 
     // notify must have been done, no change in alpha/gamma
     void commit(int exd)
@@ -386,10 +386,10 @@ int sstreamC::propagateUp(int exd, int val, int runexd)
 }
 
   //****
-int sstreamC::propagateDown(int exd, int val, valtypeE valtyp, int runexd)
+int sstreamC::propagateDown(int exd, int val, ValueType valtyp, int runexd)
 {
     int abt = 0;
-    valtypeE typ = valtyp;
+    ValueType typ = valtyp;
     assert(typ == VALTYPE_ALPHA || typ == VALTYPE_BETA);
 
     forr (d, exd, tailExd) {

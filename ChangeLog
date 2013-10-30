@@ -1,5 +1,6 @@
 2013-10-30  - Ver 1.1.7
 
+	* Move -> move_t に、valtypeE -> ValueType にリネームしました。
 	* server/bonanza6/shogi.h: occupiedC型をoccupied_t型に改名しました。ま
 	た、pc_on_sqとkkpをstaticオブジェクトとして定義するようにしました。
 

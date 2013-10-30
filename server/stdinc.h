@@ -61,7 +61,7 @@ typedef enum
     VALTYPE_ALPHA,
     VALTYPE_BETA,
     VALTYPE_GAMMA
-} valtypeE;
+} ValueType;
 
 enum
 {

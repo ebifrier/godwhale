@@ -61,7 +61,7 @@
 
 
 void CONV
-make_move_b( tree_t * restrict ptree, Move move, int ply )
+make_move_b( tree_t * restrict ptree, move_t move, int ply )
 {
   const int from = (int)I2From(move);
   const int to   = (int)I2To(move);
@@ -237,7 +237,7 @@ make_move_b( tree_t * restrict ptree, Move move, int ply )
 
 
 void CONV
-make_move_w( tree_t * restrict ptree, Move move, int ply )
+make_move_w( tree_t * restrict ptree, move_t move, int ply )
 {
   const int from = (int)I2From(move);
   const int to   = (int)I2To(move);
@@ -427,7 +427,7 @@ make_move_w( tree_t * restrict ptree, Move move, int ply )
  * flag_history
  */
 int CONV
-make_move_root( tree_t * restrict ptree, Move move, int flag )
+make_move_root( tree_t * restrict ptree, move_t move, int flag )
 {
   int check, drawn, iret, i, n;
 
@@ -564,7 +564,7 @@ make_move_root( tree_t * restrict ptree, Move move, int flag )
 
 int CONV unmake_move_root( tree_t * restrict ptree )
 {
-  Move move;
+  move_t move;
   int i;
 
   if ( ptree->nrep == 0 || amove_save[NUM_UNMAKE-1] == MOVE_NA )

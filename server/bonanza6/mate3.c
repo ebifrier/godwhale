@@ -33,18 +33,18 @@ static int CONV mate_weak_or( tree_t * restrict ptree, int turn, int ply,
                               int from, int to );
 
 static void CONV checker( const tree_t * restrict ptree, int *psq, int turn,
-                          Move lastmv );
-static Move CONV gen_king_cap_checker( const tree_t * restrict ptree,
-                                       int to, int turn );
-static Move * CONV gen_move_to( const tree_t * restrict ptree, int to,
-                                int turn, Move * restrict pmove );
-static Move * CONV gen_king_move( const tree_t * restrict ptree,
-                                  const int *psq, int turn,
-                                  int is_capture, Move * restrict pmove );
-static Move * CONV gen_intercept( tree_t * restrict __ptree__,
-                                  int sq_checker, int ply, int turn,
-                                  int * restrict premaining,
-                                  Move * restrict pmove, int flag );
+                          move_t lastmv );
+static move_t CONV gen_king_cap_checker( const tree_t * restrict ptree,
+                                         int to, int turn );
+static move_t * CONV gen_move_to( const tree_t * restrict ptree, int to,
+                                  int turn, move_t * restrict pmove );
+static move_t * CONV gen_king_move( const tree_t * restrict ptree,
+                                    const int *psq, int turn,
+                                    int is_capture, move_t * restrict pmove );
+static move_t * CONV gen_intercept( tree_t * restrict __ptree__,
+                                    int sq_checker, int ply, int turn,
+                                    int * restrict premaining,
+                                    move_t * restrict pmove, int flag );
 static int CONV gen_next_evasion_mate( tree_t * restrict ptree,
                                        const int *psq, int ply, int turn,
                                        int flag );
@@ -93,7 +93,7 @@ rotate90( int x )
 {
   int i, z = 0;
 
-  for ( i = 0; i <= 8; i++ )
+  for ( i = 0; i < 9; i++ )
     {
       if ( x & (1 << i) ) z |= 1 << arotate90[i];
     }
@@ -107,7 +107,7 @@ mirror( int x )
 {
   int i, z = 0;
 
-  for ( i = 0; i <= 8; i++ )
+  for ( i = 0; i < 9; i++ )
     {
       if ( x & (1 << i) ) z |= 1 << amirror[i];
     }
@@ -746,7 +746,7 @@ is_mate_in3ply( tree_t * restrict ptree, int turn, int ply )
 static int CONV
 mate3_and( tree_t * restrict ptree, int turn, int ply, int flag )
 {
-  Move move;
+  move_t move;
   int asq[2];
 
   assert( InCheck(turn) );
@@ -960,7 +960,7 @@ gen_next_evasion_mate( tree_t * restrict ptree, const int *psq, int ply,
 // 前提 : turn側に王手がかかっていないといけない。
 // 両王手の場合、片方は直接王手である。直接王手しているほうをpsq[0]にする。
 static void CONV
-checker( const tree_t * restrict ptree, int *psq, int turn, Move lastmv )
+checker( const tree_t * restrict ptree, int *psq, int turn, move_t lastmv )
 {
   bitboard_t bb;
   int n, sq0, sq1, sq_king, from, to;
@@ -1013,10 +1013,10 @@ checker( const tree_t * restrict ptree, int *psq, int turn, Move lastmv )
 // 指し手がなければ0を返す。toの駒が王の移動範囲になかったり、
 // toの駒に敵の利きがあったりすれば0が返る。
 // さもなくば、指し手を生成してそれが返る。
-static Move CONV
+static move_t CONV
 gen_king_cap_checker( const tree_t * restrict ptree, int to, int turn )
 {
-  Move move;
+  move_t move;
   int from;
 
   if ( turn == white )
@@ -1042,9 +1042,9 @@ gen_king_cap_checker( const tree_t * restrict ptree, int to, int turn )
 
 // 王手している駒(to)を捕獲するように駒を移動させる手の生成
 // to : 駒を移動させる地点
-static Move * CONV
+static move_t * CONV
 gen_move_to( const tree_t * restrict ptree, int to, int turn,
-             Move * restrict pmove )
+             move_t * restrict pmove )
 {
   bitboard_t bb;
   int from, pc, flag_promo, flag_unpromo;
@@ -1169,9 +1169,9 @@ gen_move_to( const tree_t * restrict ptree, int to, int turn,
 // 2つある場合は、psq[0]は近接王手をしているほうの駒。
 // psq[1] == nsquareならば2つ目の王手駒は無し。
 // 利きのないすべての退路に移動する手を生成する。
-static Move * CONV
+static move_t * CONV
 gen_king_move( const tree_t * restrict ptree, const int *psq, int turn,
-               int is_capture, Move * restrict pmove )
+               int is_capture, move_t * restrict pmove )
 {
   bitboard_t bb;
   int to, from;
@@ -1247,9 +1247,9 @@ gen_king_move( const tree_t * restrict ptree, const int *psq, int turn,
 // turn : 詰みをチェックするほうの手番。blackならば先手手番で、
 //        かつ先手玉が王手されている。
 // sq_checker : 王手している駒
-static Move * CONV
+static move_t * CONV
 gen_intercept( tree_t * restrict __ptree__, int sq_checker, int ply, int turn,
-               int * restrict premaining, Move * restrict pmove, int flag )
+               int * restrict premaining, move_t * restrict pmove, int flag )
 {
 #define Drop(pc) ( To2Move(to) | Drop2Move(pc) )
 

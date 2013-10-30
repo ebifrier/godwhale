@@ -29,7 +29,7 @@ static int CONV can_b_piece_capture( const tree_t * restrict ptree, int to );
 // 先手玉に王手自体がかかっていないなら、このメソッドの呼び出しをしてはならない
 // 戻り値は、詰みに導く指し手のひとつ。
 // 詰まなければ0(MOVA_NA = 指し手なし)が返る。
-Move CONV
+move_t CONV
 is_b_mate_in_1ply( tree_t * restrict ptree )
 {
   bitboard_t bb, bb_temp, bb_check, bb_check_pro, bb_attacks, bb_drop, bb_move;
@@ -1070,7 +1070,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
 }
 
 
-Move CONV
+move_t CONV
 is_w_mate_in_1ply( tree_t * restrict ptree )
 {
   bitboard_t bb, bb_temp, bb_check, bb_check_pro, bb_attacks, bb_drop, bb_move;

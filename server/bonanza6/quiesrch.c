@@ -136,7 +136,7 @@ gen_next_quies( tree_t * restrict ptree, int alpha, int turn, int ply,
     {
     case next_quies_gencap:
       { 
-        Move * restrict pmove;
+        move_t * restrict pmove;
         int * restrict psortv;
         int i, j, n, nqmove, value, min_score, diff;
         unsigned int move;
