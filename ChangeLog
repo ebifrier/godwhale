@@ -1,3 +1,11 @@
+2013-10-31  - Ver 1.1.8
+
+	* server/visualc10/GodWhale/GodWhale.vcxproj: 出力ファイル名を
+	GodWhale.exeからgwx.exeに変更しました。
+	* server/bonanza6/proce.c: usiに対応するためのコードを追加しました。
+	* server/bonanza6/time.c: reset_timeで先手のみor後手のみでも残り時間を
+	設定できるようにしました。
+
 2013-10-30  - Ver 1.1.7
 
 	* Move -> move_t に、valtypeE -> ValueType にリネームしました。

@@ -439,7 +439,7 @@ interpret_CSA_move( tree_t * restrict ptree, move_t *pmove,
 
 
 const char *
-str_CSA_move( unsigned int move )
+str_CSA_move( move_t move )
 {
   static char str[7];
   int ifrom, ito, ipiece_move, is_promote;

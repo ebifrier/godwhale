@@ -25,7 +25,8 @@
 #define DBG_MPI 0
 
  // FIXME bogus
-int INCS_PER_USEC, THINK_TIME, BYOYOMI_TIME;
+//int THINK_TIME, BYOYOMI_TIME;
+int INCS_PER_USEC;
 int DBG_MASTER, VMMODE, tlp_max_arg;
 int Mproc, Nproc, Ncomm;
 
@@ -141,10 +142,6 @@ void mpi_close(void)
         for (proc = 1; proc < Nproc; proc++) {
             sendQuit(proc);
         }
-#if (USE_SHMEM_HASH)
-        shmdt(hashTableAddr);
-        shmctl(shmid, IPC_RMID, NULL);
-#endif
         microsleep(100000);  // wait 0.1sec for slaves to quit
     }
 
@@ -355,7 +352,7 @@ int probePacketSlave()
 #endif
 }
 
-#define CALCINC_CONST  1000000000
+#define CALCINC_CONST  10000000
 int x_dmy_for_calcinc = 0;
 
 static int calcIncsPerUsec()

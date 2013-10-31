@@ -334,6 +334,7 @@ public:
         }
     }
 
+    // ベータカットかどうかを判定します。
     bool betacut()
     {
         return (beta <= bestval);
@@ -771,30 +772,32 @@ int streamC::mvlistAvailable(int exd, int pvleng, mvC *pv, mvC mv2rt,int srd)
 {
     rowC& r = row[exd];
     if (!r.mvgened() || seqFromPrev[0] != mv2rt) return 0;
-    //if (pvleng < exd) return false;    3/11/2012 %xx pvleng->seqprevLeng
     if (seqprevLeng - 1 < exd) return 0;
     if (r.bestseqLeng == 0) return 0;
     // FIXME?  A--- || r-[-].bestval < -score_max_eval ?
+
     forr (d, 0, exd-1) {
         if (pv[d] != seqFromPrev[d+1]) {
             return 0;
         }
     }
 
-    bool firstmvExact =
-        r.bestval > -score_bound &&
+    if (r.bestval > -score_bound &&
         r.bestule == ULE_EXACT &&
-        r.bestseqLeng>0 &&
-        r.firstmv.mv == r.bestseq[0] && 
-        r.firstmv.exact(srd);
-    bool bestseqExact =
-        r.bestval > -score_bound &&
-        r.bestule == ULE_EXACT &&
-        r.bestseqLeng>0 &&
-        r.bestseq[0] != r.firstmv.mv &&
-        r.mvdoneExact(srd, r.bestseq[0]);
-    if (firstmvExact || bestseqExact) {
-        return 2;
+        r.bestseqLeng > 0) {
+        bool firstmvExact =
+            r.firstmv.mv == r.bestseq[0] && 
+            r.firstmv.exact(srd);
+        if (firstmvExact) {
+            return 2;
+        }
+
+        bool bestseqExact =
+            r.firstmv.mv != r.bestseq[0] &&
+            r.mvdoneExact(srd, r.bestseq[0]);
+        if (bestseqExact) {
+            return 2;
+        }
     }
 
     MSDOut("```` mvlsAvail: exd %d pvlen %d mv2r %07x bstsqlen %d pv:\n",
@@ -1033,6 +1036,7 @@ void streamC::propagateUp(int exd, int val)
         rowC& r = row[d];
         if (val == r.gamma)
             break;   // FIXME need this break?  or go upto d=0?
+
         MSTOut("jjjj propUp i %d e %d oldG %d newG %d\n",
                itd(), d, r.gamma, val);
         r.updateValue(val, VALTYPE_GAMMA);
@@ -1042,22 +1046,21 @@ void streamC::propagateUp(int exd, int val)
 
 //****
 
-void streamC::propagateDown(int exd, int val, ValueType valtyp)
+void streamC::propagateDown(int exd, int val, ValueType type)
 {
-    ValueType typ = valtyp;
-    assert(typ == VALTYPE_ALPHA || typ == VALTYPE_BETA);
+    assert(type == VALTYPE_ALPHA || type == VALTYPE_BETA);
 
     forr (d, exd, tailExd) {
-        bool isA = (typ == VALTYPE_ALPHA);
+        bool isA = (type == VALTYPE_ALPHA);
         rowC& r = row[d];
         if (isA && val <= r.alpha) 
             break;   // FIXME need this break?  or go downto d=tail?
 
         MSTOut("jjjj propDn i %d e %d isB %d old %d new %d\n",
-               itd(), d, typ, (typ ? r.beta : r.alpha), val);
-        r.updateValue(val, typ);
-        typ = (!isA ? VALTYPE_ALPHA : VALTYPE_BETA);
-        val = -val;
+               itd(), d, type, (type ? r.beta : r.alpha), val);
+        r.updateValue(val, type);
+        type = (!isA ? VALTYPE_ALPHA : VALTYPE_BETA);
+        val  = -val;
     }
 }
 

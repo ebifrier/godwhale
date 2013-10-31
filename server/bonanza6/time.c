@@ -201,7 +201,8 @@ reset_time( unsigned int b_remain, unsigned int w_remain )
       return -2;
     }
 
-  if ( b_remain > sec_limit || w_remain > sec_limit )
+  if ( ( b_remain != UINT_MAX && b_remain > sec_limit )
+       || ( w_remain != UINT_MAX && w_remain > sec_limit ) )
     {
       snprintf( str_message, SIZE_MESSAGE,
                 "time remaining can't be larger than %u", sec_limit );
@@ -209,8 +210,8 @@ reset_time( unsigned int b_remain, unsigned int w_remain )
       return -2;
     }
 
-  sec_b_total = sec_limit - b_remain;
-  sec_w_total = sec_limit - w_remain;
+  if ( b_remain != UINT_MAX ) sec_b_total = sec_limit - b_remain;
+  if ( w_remain != UINT_MAX ) sec_w_total = sec_limit - w_remain;
   Out( "  elapsed: b%u, w%u\n", sec_b_total, sec_w_total );
 
   return 1;

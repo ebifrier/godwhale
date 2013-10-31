@@ -73,6 +73,7 @@
     <IncludePath>C:\Program Files\Microsoft HPC Pack 2012\Inc;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\Microsoft HPC Pack 2012\Lib\amd64;$(LibraryPath)</LibraryPath>
     <ExecutablePath>C:\Program Files\Microsoft HPC Pack 2012\Bin;$(ExecutablePath)</ExecutablePath>
+    <TargetName>gwx</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -85,6 +86,7 @@
     <IncludePath>C:\Program Files\Microsoft HPC Pack 2012\Inc;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\Microsoft HPC Pack 2012\Lib\amd64;$(LibraryPath)</LibraryPath>
     <ExecutablePath>C:\Program Files\Microsoft HPC Pack 2012\Bin;$(ExecutablePath)</ExecutablePath>
+    <TargetName>gwx</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

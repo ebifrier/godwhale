@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GodWhale", "GodWhale\GodWha
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bonanza", "Bonanza\Bonanza.vcxproj", "{7B59B54E-F67A-4747-8DEA-AC9613F8D3EC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "u2g", "u2g\u2g.vcxproj", "{B3201028-41B2-4669-930B-A4454E62DED2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,6 +21,10 @@ Global
 		{7B59B54E-F67A-4747-8DEA-AC9613F8D3EC}.Debug|Win32.Build.0 = Debug|Win32
 		{7B59B54E-F67A-4747-8DEA-AC9613F8D3EC}.Release|Win32.ActiveCfg = Release|Win32
 		{7B59B54E-F67A-4747-8DEA-AC9613F8D3EC}.Release|Win32.Build.0 = Release|Win32
+		{B3201028-41B2-4669-930B-A4454E62DED2}.Debug|Win32.ActiveCfg = Debug|x64
+		{B3201028-41B2-4669-930B-A4454E62DED2}.Debug|Win32.Build.0 = Debug|x64
+		{B3201028-41B2-4669-930B-A4454E62DED2}.Release|Win32.ActiveCfg = Release|Win32
+		{B3201028-41B2-4669-930B-A4454E62DED2}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

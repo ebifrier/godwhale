@@ -89,7 +89,10 @@ public:
 };
 
 
-extern int THINK_TIME, BYOYOMI_TIME;
+#define THINK_TIME   sec_limit
+#define BYOYOMI_TIME sec_limit_up
+
+//extern int THINK_TIME, BYOYOMI_TIME;
 extern int DBG_MASTER, VMMODE;
 extern int x_dmy_for_calcinc, INCS_PER_USEC;
 // マスタ／スレーブ間の時差[10us]

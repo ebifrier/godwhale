@@ -558,12 +558,13 @@ ini_mate3( void )
       m[1].and = ~m[1].or & 0x038; // 0000 0011 1000
       m[2].and = ~m[2].or & 0x007; // 0000 0000 0111
 
-      for ( j = 0; j <= 2; j++ )
+      for ( j = 0; j < 3; j++ )
         apattern[sq][j] = m[j];
   }
 
-  for ( i = 0; i <= 511; i++ )
-      for ( j = 0; j <= 511; j++ )
+  // 512 = 2^9 => 9bit分のbitmask
+  for ( i = 0; i < 512; i++ )
+      for ( j = 0; j < 512; j++ )
           is_safe_array[i][j] = calc_is_safe( i, j );
 
 #undef xx

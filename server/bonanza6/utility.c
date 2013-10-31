@@ -12,71 +12,7 @@
 #include "../if_bonanza.h"
 #endif
 
- // set mklist data
-
-void setEvalList(tree_t * restrict ptree)
-{
-  int sq;
-  ptree->nlist = 14;
-
-  ptree->list0[ 0] = f_hand_pawn   + I2HandPawn(HAND_B);
-  ptree->list0[ 1] = e_hand_pawn   + I2HandPawn(HAND_W);
-  ptree->list0[ 2] = f_hand_lance  + I2HandLance(HAND_B);
-  ptree->list0[ 3] = e_hand_lance  + I2HandLance(HAND_W);
-  ptree->list0[ 4] = f_hand_knight + I2HandKnight(HAND_B);
-  ptree->list0[ 5] = e_hand_knight + I2HandKnight(HAND_W);
-  ptree->list0[ 6] = f_hand_silver + I2HandSilver(HAND_B);
-  ptree->list0[ 7] = e_hand_silver + I2HandSilver(HAND_W);
-  ptree->list0[ 8] = f_hand_gold   + I2HandGold(HAND_B);
-  ptree->list0[ 9] = e_hand_gold   + I2HandGold(HAND_W);
-  ptree->list0[10] = f_hand_bishop + I2HandBishop(HAND_B);
-  ptree->list0[11] = e_hand_bishop + I2HandBishop(HAND_W);
-  ptree->list0[12] = f_hand_rook   + I2HandRook(HAND_B);
-  ptree->list0[13] = e_hand_rook   + I2HandRook(HAND_W);
-
-  ptree->list1[ 0] = f_hand_pawn   + I2HandPawn(HAND_W);
-  ptree->list1[ 1] = e_hand_pawn   + I2HandPawn(HAND_B);
-  ptree->list1[ 2] = f_hand_lance  + I2HandLance(HAND_W);
-  ptree->list1[ 3] = e_hand_lance  + I2HandLance(HAND_B);
-  ptree->list1[ 4] = f_hand_knight + I2HandKnight(HAND_W);
-  ptree->list1[ 5] = e_hand_knight + I2HandKnight(HAND_B);
-  ptree->list1[ 6] = f_hand_silver + I2HandSilver(HAND_W);
-  ptree->list1[ 7] = e_hand_silver + I2HandSilver(HAND_B);
-  ptree->list1[ 8] = f_hand_gold   + I2HandGold(HAND_W);
-  ptree->list1[ 9] = e_hand_gold   + I2HandGold(HAND_B);
-  ptree->list1[10] = f_hand_bishop + I2HandBishop(HAND_W);
-  ptree->list1[11] = e_hand_bishop + I2HandBishop(HAND_B);
-  ptree->list1[12] = f_hand_rook   + I2HandRook(HAND_W);
-  ptree->list1[13] = e_hand_rook   + I2HandRook(HAND_B);
-
-  ptree->curhand[ 0] = I2HandPawn(HAND_B);
-  ptree->curhand[ 1] = I2HandPawn(HAND_W);
-  ptree->curhand[ 2] = I2HandLance(HAND_B);
-  ptree->curhand[ 3] = I2HandLance(HAND_W);
-  ptree->curhand[ 4] = I2HandKnight(HAND_B);
-  ptree->curhand[ 5] = I2HandKnight(HAND_W);
-  ptree->curhand[ 6] = I2HandSilver(HAND_B);
-  ptree->curhand[ 7] = I2HandSilver(HAND_W);
-  ptree->curhand[ 8] = I2HandGold(HAND_B);
-  ptree->curhand[ 9] = I2HandGold(HAND_W);
-  ptree->curhand[10] = I2HandBishop(HAND_B);
-  ptree->curhand[11] = I2HandBishop(HAND_W);
-  ptree->curhand[12] = I2HandRook(HAND_B);
-  ptree->curhand[13] = I2HandRook(HAND_W);
-
-  for (sq=0; sq<=80; sq++) {
-    int pc = BOARD[sq];
-    if (pc & 7) {  // omit kings and empty
-      int pcsufb = pc2suf[15+pc] + sq;
-      int pcsufw = pc2suf[15-pc] + Inv(sq);
-      ptree->sq4listsuf[ptree->nlist  ] = sq;
-      ptree->listsuf4sq[sq] = ptree->nlist;
-      ptree->list0[ptree->nlist  ] = pcsufb;
-      ptree->list1[ptree->nlist++] = pcsufw;
-    }
-  }
-}
-
+static void set_eval_list( tree_t * restrict ptree );
 
 int CONV
 ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
@@ -161,18 +97,12 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
   BBIni( BB_WHORSE );
   BBIni( BB_WDRAGON );
   BBIni( BB_WTGOLD );
-  //BBIni( OCCUPIED_FILE );
-  //BBIni( OCCUPIED_DIAG1 );
-  //BBIni( OCCUPIED_DIAG2 );
   IniOccupied();
 
   for ( sq = 0; sq < nsquare; sq++ ) {
     piece = BOARD[sq];
     if ( piece > 0 ) {
       Xor( sq, BB_BOCCUPY );
-      //XorFile( sq, OCCUPIED_FILE );
-      //XorDiag1( sq, OCCUPIED_DIAG1 );
-      //XorDiag2( sq, OCCUPIED_DIAG2 );
       XorOccupied( sq );
       switch ( piece )
         {
@@ -194,9 +124,6 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
     }
     else if ( piece < 0 ) {
       Xor( sq, BB_WOCCUPY );
-      //XorFile( sq, OCCUPIED_FILE );
-      //XorDiag1( sq, OCCUPIED_DIAG1 );
-      //XorDiag2( sq, OCCUPIED_DIAG2 );
       XorOccupied( sq );
       switch ( - piece )
         {
@@ -255,7 +182,7 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
   memset( ptree->hist_good,       0, sizeof(ptree->hist_good) );
   memset( ptree->hist_tried,      0, sizeof(ptree->hist_tried) );
 #else
-  memset( (void*)hist_goodary,       0, sizeof(hist_goodary) );
+  memset( (void*)hist_goodary,    0, sizeof(hist_goodary) );
   memset( (void*)hist_tried,      0, sizeof(hist_tried) );
 #endif
 
@@ -334,9 +261,38 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
   nrook_box -= (int)I2HandRook(HAND_B);
   nrook_box -= (int)I2HandRook(HAND_W);
 
-#if 0
-  { // set mklist data
+  set_eval_list(ptree);
+
+  iret = exam_tree( ptree );
+  if ( iret < 0 )
+    {
+      ini_game( ptree, &min_posi_no_handicap, 0, NULL, NULL );
+      return iret;
+    }
+
+  /* connect to Tsumeshogi server */
+#if defined(DFPN_CLIENT)
+  lock( &dfpn_client_lock );
+  dfpn_client_start( ptree );
+  snprintf( (char *)dfpn_client_signature, DFPN_CLIENT_SIZE_SIGNATURE,
+            "%" PRIx64 "_%x_%x_%x", HASH_KEY, HAND_B, HAND_W, root_turn );
+  dfpn_client_signature[DFPN_CLIENT_SIZE_SIGNATURE-1] = '\0';
+  dfpn_client_rresult       = dfpn_client_na;
+  dfpn_client_num_cresult   = 0;
+  dfpn_client_flag_read     = 0;
+  dfpn_client_out( "new %s\n", dfpn_client_signature );
+  unlock( &dfpn_client_lock );
+#endif
+
+  return 1;
+}
+
+
+static void
+set_eval_list( tree_t * restrict ptree )
+{
   int sq;
+
   ptree->nlist = 14;
 
   ptree->list0[ 0] = f_hand_pawn   + I2HandPawn(HAND_B);
@@ -384,49 +340,26 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
   ptree->curhand[12] = I2HandRook(HAND_B);
   ptree->curhand[13] = I2HandRook(HAND_W);
 
-  for(sq=0; sq<=80; sq++) {
-   int pc = BOARD[sq];
-   if (pc&7) {  // omit kings and empty
-     int pcsufb = pc2suf[15+pc] + sq;
-     int pcsufw = pc2suf[15-pc] + Inv(sq);
-     ptree->sq4listsuf[ptree->nlist  ] = sq;
-     ptree->listsuf4sq[sq] = ptree->nlist;
-     ptree->list0[ptree->nlist  ] = pcsufb;
-     ptree->list1[ptree->nlist++] = pcsufw;
-   }
-  }
-
-  } // set mklist data end
-#else
-  setEvalList(ptree);
-#endif
-
-  iret = exam_tree( ptree );
-  if ( iret < 0 )
+  for ( sq = 0; sq < nsquare; sq++ )
     {
-      ini_game( ptree, &min_posi_no_handicap, 0, NULL, NULL );
-      return iret;
+      int pc = BOARD[sq];
+      if ( pc & 7 )  // omit kings and empty
+        {
+          int pcsufb = pc2suf[15+pc] + sq;
+          int pcsufw = pc2suf[15-pc] + Inv(sq);
+
+          ptree->sq4listsuf[ptree->nlist] = sq;
+          ptree->listsuf4sq[sq] = ptree->nlist;
+
+          ptree->list0[ptree->nlist  ] = pcsufb;
+          ptree->list1[ptree->nlist++] = pcsufw;
+        }
     }
-
-  /* connect to Tsumeshogi server */
-#if defined(DFPN_CLIENT)
-  lock( &dfpn_client_lock );
-  dfpn_client_start( ptree );
-  snprintf( (char *)dfpn_client_signature, DFPN_CLIENT_SIZE_SIGNATURE,
-            "%" PRIx64 "_%x_%x_%x", HASH_KEY, HAND_B, HAND_W, root_turn );
-  dfpn_client_signature[DFPN_CLIENT_SIZE_SIGNATURE-1] = '\0';
-  dfpn_client_rresult       = dfpn_client_na;
-  dfpn_client_num_cresult   = 0;
-  dfpn_client_flag_read     = 0;
-  dfpn_client_out( "new %s\n", dfpn_client_signature );
-  unlock( &dfpn_client_lock );
-#endif
-
-  return 1;
 }
 
 
-int CONV gen_legal_moves( tree_t * restrict ptree, unsigned int *p0, int flag )
+int CONV
+gen_legal_moves( tree_t * restrict ptree, unsigned int *p0, int flag )
 {
   unsigned int *p1;
   int i, j, n;

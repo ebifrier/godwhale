@@ -36,3 +36,5 @@ server/visualc10/Release/
 server/visualc10/ipch/
 server/visualc10/Debug/
 server/visualc10/Bonanza/Debug/
+server/visualc10/u2g/Debug/
+server/visualc10/u2g/x64/

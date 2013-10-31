@@ -1,4 +1,4 @@
-#include <ctype.h>
+ï»¿#include <ctype.h>
 #include <limits.h>
 #include <math.h>
 #include <stdio.h>
@@ -96,6 +96,29 @@ static int CONV cmd_new( tree_t * restrict ptree, char **lasts );
 static int CONV cmd_read( tree_t * restrict ptree, char **lasts );
 static int CONV cmd_resign( tree_t * restrict ptree, char **lasts );
 static int CONV cmd_time( char **lasts );
+
+#if defined(USI)
+/* USI options */
+const char usi_ini[] = "usi.ini";
+struct {
+	char time_a[ BUFSIZ ];
+	char time_b[ BUFSIZ ];
+	char use_book[ BUFSIZ ];
+	char resign[ BUFSIZ ];
+	char memory[ BUFSIZ ];
+	char ponder[ BUFSIZ ];
+	char threads[ BUFSIZ ];
+} usi_name;
+struct {
+	int time_a;
+	int time_b;
+	char use_book[ BUFSIZ ];
+	int resign;
+	int memory;
+	char ponder[ BUFSIZ ];
+	int threads;
+} usi_value;
+#endif
 
 
 int CONV is_move( const char *str )
@@ -410,7 +433,150 @@ cmd_mnjmove( tree_t * restrict ptree, char **lasts, int num_alter )
 
 
 #if defined(USI)
-static int CONV proce_usi( tree_t * restrict ptree )
+/* initialize usi options */
+static void CONV
+init_usi_option( void )
+{
+	strcpy( usi_name.time_a,   "TimeA[min]" );
+	strcpy( usi_name.time_b,   "TimeB[sec]" );
+	strcpy( usi_name.use_book, "UseBook" );
+	strcpy( usi_name.resign,   "Resign" );
+	strcpy( usi_name.memory,   "Memory" );
+	strcpy( usi_name.ponder,   "Ponder" );
+	strcpy( usi_name.threads,  "Threads" );
+
+	usi_value.time_a      = 0;
+	usi_value.time_b      = 3;
+	strcpy( usi_value.use_book, "true" );
+	usi_value.resign      = 3000;
+	usi_value.memory      = 12;
+	strcpy( usi_value.ponder, "false" );
+	usi_value.threads     = 1;
+}
+
+
+/* set usi_options, cmd : send command to engine ? */
+static void CONV
+set_usi_option( tree_t * restrict ptree, const char *name, const char *value,
+                int cmd )
+{
+  char str[ SIZE_CMDLINE ];
+  char *last, *token, *ptr;
+
+  if ( ! strcmp( name, usi_name.time_a ) )
+    {
+      usi_value.time_a = (int)strtol( value, &ptr, 0 );
+    }
+  else if ( ! strcmp( name, usi_name.time_b ) )
+    {
+      usi_value.time_b = (int)strtol( value, &ptr, 0 );
+      if ( cmd )
+        {
+          sprintf( str, "limit time %d %d", usi_value.time_a, usi_value.time_b );
+          token = strtok_r( str, str_delimiters, &last );
+          cmd_limit( &last );
+        }
+    }
+  else if ( ! strcmp( name, usi_name.use_book ) )
+    {
+      strcpy( usi_value.use_book, value );
+      if ( cmd )
+        {
+          sprintf( str, "book %s", ( ! strcmp( usi_value.use_book, "true" ) ? str_on : str_off ) );
+          token = strtok_r( str, str_delimiters, &last );
+          CmdBook( ptree, &last );
+        }
+    }
+  else if ( ! strcmp( name, usi_name.resign ) )
+    {
+      usi_value.resign = (int)strtol( value, &ptr, 0 );
+      if ( cmd )
+        {
+          sprintf( str, "resign %d", usi_value.resign );
+          token = strtok_r( str, str_delimiters, &last );
+          cmd_resign( ptree, &last );
+        }
+    }
+  else if ( ! strcmp( name, usi_name.memory ) )
+    {
+      usi_value.memory = (int)strtol( value, &ptr, 0 );
+      if ( cmd )
+        {
+          int hash = (int)(log(usi_value.memory * 1e6 / 48) / log(2.0)) + 1;
+          sprintf( str, "hash %d", hash );
+          token = strtok_r( str, str_delimiters, &last );
+          cmd_hash( &last );
+        }
+    }
+  else if ( ! strcmp( name, usi_name.ponder ) )
+    {
+/* not implemented
+      strcpy( usi_value.ponder, value );
+      if ( cmd )
+        {
+          sprintf( str, "ponder %s", ( ! strcmp( usi_value.ponder, "true" ) ? str_on : str_off ) );
+          token = strtok_r( str, str_delimiters, &last );
+          cmd_ponder( &last );
+        }
+*/
+    }
+  else if ( ! strcmp( name, usi_name.threads ) )
+    {
+      usi_value.threads = (int)strtol( value, &ptr, 0 );
+      if ( cmd )
+        {
+#if defined(TLP)
+          sprintf( str, "tlp num %d", usi_value.threads );
+          token = strtok_r( str, str_delimiters, &last );
+          cmd_thread( &last );
+#endif
+        }
+    }
+}
+
+
+/* read usi.ini */
+static void CONV
+read_usi_ini( tree_t * restrict ptree, int cmd )
+{
+	char name[ BUFSIZ ], value[ BUFSIZ ];
+    FILE *fp;
+
+	if ( (fp = fopen(usi_ini, "r")) == NULL ) return;
+
+	while ( ( fscanf( fp, "%s %s", name, value ) ) != EOF )
+	  {
+	    set_usi_option( ptree, name, value, cmd );
+	  }
+
+	fclose( fp );
+}
+
+
+/* write usi.ini */
+static void CONV
+write_usi_ini( void )
+{
+	const char fmt_d[] = "%s %d\n";
+	const char fmt_s[] = "%s %s\n";
+    FILE *fp;
+
+	if ( (fp = fopen(usi_ini, "w")) == NULL ) return;
+
+	fprintf( fp, fmt_d, usi_name.time_a,   usi_value.time_a );
+	fprintf( fp, fmt_d, usi_name.time_b,   usi_value.time_b );
+	fprintf( fp, fmt_s, usi_name.use_book, usi_value.use_book );
+	fprintf( fp, fmt_d, usi_name.resign,   usi_value.resign );
+	fprintf( fp, fmt_d, usi_name.memory,   usi_value.memory );
+	fprintf( fp, fmt_s, usi_name.ponder,   usi_value.ponder );
+	fprintf( fp, fmt_d, usi_name.threads,  usi_value.threads );
+
+	fclose( fp );
+}
+
+
+static int CONV
+proce_usi( tree_t * restrict ptree )
 {
   const char *token;
   char *lasts;
@@ -421,6 +587,24 @@ static int CONV proce_usi( tree_t * restrict ptree )
 
   if ( ! strcmp( token, "usi" ) )
     {
+      /* options */
+      init_usi_option();
+      read_usi_ini( ptree, 0 );
+      USIOut( "option name %s type spin default %d min 0 max 600\n",
+              usi_name.time_a, usi_value.time_a );
+      USIOut( "option name %s type spin default %d min 0 max 600\n",
+              usi_name.time_b, usi_value.time_b );
+      USIOut( "option name %s type check default %s\n",
+              usi_name.use_book, usi_value.use_book );
+      USIOut( "option name %s type combo default %d var 500 var 1000 var 2000 var 3000 var 5000 var 32596\n",
+              usi_name.resign, usi_value.resign );
+      USIOut( "option name %s type combo default %d var 12 var 25 var 50 var 100 var 200 var 400 var 800\n",
+              usi_name.memory, usi_value.memory );
+      USIOut( "option name %s type check default %s\n",
+              usi_name.ponder, usi_value.ponder );
+      USIOut( "option name %s type spin default %d min 1 max 32\n",
+              usi_name.threads, usi_value.threads );
+
       USIOut( "id name %s\n", str_myname );
       USIOut( "id author Kunihito Hoki\n" );
       USIOut( "usiok\n" );
@@ -438,9 +622,14 @@ static int CONV proce_usi( tree_t * restrict ptree )
       return 1;
     }
 
+  if ( ! strcmp( token, "setoption" ) )
+    {
+      return usi_option( ptree, &lasts );
+    }
+
   if ( ! strcmp( token, "usinewgame" ) )
     {
-      Out( "%s\n", lasts );
+      read_usi_ini( ptree, 1 );
       return 1;
     }
 
@@ -448,17 +637,6 @@ static int CONV proce_usi( tree_t * restrict ptree )
     {
       USIOut( "%s\n", lasts );
       return 1;
-    }
-
-  if ( ! strcmp( token, "ignore_moves" ) )
-    {
-      return usi_ignore( ptree, &lasts );
-    }
-
-  if ( ! strcmp( token, "genmove_probability" ) )
-    {
-      if ( get_elapsed( &time_start ) < 0 ) { return -1; }
-      return usi_root_list( ptree );
     }
 
   if ( ! strcmp( token, "go" ) )
@@ -484,38 +662,9 @@ static int CONV proce_usi( tree_t * restrict ptree )
 
 
 static int CONV
-usi_ignore( tree_t * restrict ptree, char **lasts )
-{
-  const char *token;
-  char str_buf[7];
-  int i;
-  unsigned int move;
-
-  AbortDifficultCommand;
-
-  for ( i = 0; ; i += 1 )
-    {
-      token = strtok_r( NULL, str_delimiters, lasts );
-      if ( token == NULL ) { break; }
-      
-      if ( usi2csa( ptree, token, str_buf ) < 0 )            { return -1; }
-      if ( interpret_CSA_move( ptree, &move, str_buf ) < 0 ) { return -1; }
-
-      moves_ignore[i] = move;
-    }
-
-  moves_ignore[i] = MOVE_NA;
-
-  return 1;
-}
-
-
-static int CONV
 usi_option( tree_t * restrict ptree, char **lasts )
 {
   const char *name, *name_str, *value, *value_str;
-
-  (void)ptree; // æœªä½¿ç”¨
 
   name = strtok_r( NULL, str_delimiters, lasts );
   if ( name == NULL || strcmp( name, "name" ) )
@@ -545,7 +694,8 @@ usi_option( tree_t * restrict ptree, char **lasts )
       return -1;
     }
 
-  /*set_usi_option( ptreee, name_str, value_str, 0 );*/
+  set_usi_option( ptree, name_str, value_str, 0 );
+  write_usi_ini();
   return 1;
 }
 
@@ -576,7 +726,6 @@ usi_go( tree_t * restrict ptree, char **lasts )
       return 1;
     }
 
-
   while ( token != NULL )
     {
       if ( ! strcmp( token, "infinite" ) )
@@ -601,6 +750,8 @@ usi_go( tree_t * restrict ptree, char **lasts )
               str_error = str_bad_cmdline;
               return -1;
             }
+
+          reset_time( (unsigned int)l, UINT_MAX );
         }
       else if ( ! strcmp( token, "wtime" ) )
         {
@@ -617,6 +768,8 @@ usi_go( tree_t * restrict ptree, char **lasts )
               str_error = str_bad_cmdline;
               return -1;
             }
+
+          reset_time( UINT_MAX, (unsigned int)l );
         }
       else if ( ! strcmp( token, "byoyomi" ) )
         {
@@ -730,7 +883,7 @@ static int CONV cmd_restart( int n )
 }
 
 
-// ‘Î‹ÇŽÒ‚ÌŽè‚ª‘—‚ç‚ê‚Ä‚«‚½‚Æ‚«‚ÉŒÄ‚Î‚ê‚é
+// å¯¾å±€è€…ã®æ‰‹ãŒé€ã‚‰ã‚Œã¦ããŸã¨ãã«å‘¼ã°ã‚Œã‚‹
 static int CONV
 cmd_usrmove( tree_t * restrict ptree, const char *str_move, char **lasts )
 {
@@ -802,8 +955,8 @@ cmd_usrmove( tree_t * restrict ptree, const char *str_move, char **lasts )
           return 2;
         }
       else {
-        // ponder’†‚È‚Ì‚ÅAŽè”Ô‚Í‚±‚¿‚ç‘¤‚É‚ ‚èA
-        // ‘—‚ç‚ê‚Ä‚«‚½‚Ì‚Í‘ŠŽè‚Ì·‚µŽè‚È‚Ì‚ÅA‘ŠŽè‚ÌŽè”Ô‚É‚·‚é•K—v‚ª‚ ‚é
+        // ponderä¸­ãªã®ã§ã€æ‰‹ç•ªã¯ã“ã¡ã‚‰å´ã«ã‚ã‚Šã€
+        // é€ã‚‰ã‚Œã¦ããŸã®ã¯ç›¸æ‰‹ã®å·®ã—æ‰‹ãªã®ã§ã€ç›¸æ‰‹ã®æ‰‹ç•ªã«ã™ã‚‹å¿…è¦ãŒã‚ã‚‹
         iret = update_time( Flip(root_turn) );
         if ( iret < 0 ) { return iret; }
         if ( lelapsed )
@@ -865,7 +1018,7 @@ cmd_usrmove( tree_t * restrict ptree, const char *str_move, char **lasts )
         return iret;
       }
 
-  // Žw‚µŽè‚ÌŽžŠÔ‚ªÝ’è‚³‚ê‚Ä‚¢‚½‚çA‚»‚ê‚ð‚à‚Æ‚ÉV‚½‚ÈŒo‰ßŽžŠÔ‚ðÝ’è‚µ‚Ü‚·B
+  // æŒ‡ã—æ‰‹ã®æ™‚é–“ãŒè¨­å®šã•ã‚Œã¦ã„ãŸã‚‰ã€ãã‚Œã‚’ã‚‚ã¨ã«æ–°ãŸãªçµŒéŽæ™‚é–“ã‚’è¨­å®šã—ã¾ã™ã€‚
   if ( lelapsed ) { adjust_time( (unsigned int)lelapsed, Flip(root_turn) ); }
   Out( "  elapsed: b%u, w%u\n", sec_b_total, sec_w_total );
 
