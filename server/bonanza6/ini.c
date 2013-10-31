@@ -40,26 +40,27 @@ static void ini_random_table( void );
 int CONV load_fv( void )
 {
 #if ! defined(FVBIN_MMAP)
+
   FILE *pf;
-  size_t size;
+  size_t sz;
   int iret;
 
   pf = file_open( str_fv, "rb" );
   if ( pf == NULL ) { return -2; }
 
 #  if defined(USE_FV3)
-  size = nsquare * fe_end * fe_end;
+  sz = nsquare * fe_end * fe_end;
 #  else
-  size = nsquare * pos_n;
+  sz = nsquare * pos_n;
 #  endif
-  if ( fread( pc_on_sq, sizeof(short), size, pf ) != size )
+  if ( fread( pc_on_sq, sizeof(short), sz, pf ) != sz )
     {
       str_error = str_io_error;
       return -2;
     }
 
-  size = nsquare * nsquare * kkp_end;
-  if ( fread( kkp, sizeof(short), size, pf ) != size )
+  sz = nsquare * nsquare * kkp_end;
+  if ( fread( kkp, sizeof(short), sz, pf ) != sz )
     {
       str_error = str_io_error;
       return -2;
@@ -67,9 +68,11 @@ int CONV load_fv( void )
 
   iret = file_close( pf );
   if ( iret < 0 ) { return iret; }
+
 #else
+
   size_t sz1, sz2, j;
-  int fd;
+  int fd, iret;
   void* mapbase;
 
   fd = open( str_fv, O_RDONLY );
@@ -95,6 +98,7 @@ int CONV load_fv( void )
       x += p[j];
     if ( x == 43256 ) printf(".");
   }
+
 #endif
 
 #if 0

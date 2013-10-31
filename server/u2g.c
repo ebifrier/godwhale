@@ -36,11 +36,13 @@ main(int argc, char *argv[])
 {
     char buf[1024], command[1024];
 
+    (void)argc;
+
     get_directory(argv[0], buf, sizeof(buf));
 
     snprintf(command, sizeof(command),
-             "mpiexec.exe -n 1 \"%s" SEP TARGET "\" usi -h0 -m0 -q : "
-             "            -n 1 \"%s" SEP TARGET "\"     -h3 -s1 -1",
+             "mpiexec -n 1 \"%s" SEP TARGET "\" usi -h0 -m0 : "
+             "        -n 1 \"%s" SEP TARGET "\"     -h3 -s1 -1",
              buf, buf);
 
     system(command);

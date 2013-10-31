@@ -1,3 +1,9 @@
+2013-10-31  - Ver 1.1.9
+
+	* conv/convfv.cpp: convfv.ccから改名し、またコンパイルが通るように中身
+	を修正しました。
+	* Makefile: 実行ファイル名をgmx->gwxに変更しました。
+
 2013-10-31  - Ver 1.1.8
 
 	* server/visualc10/GodWhale/GodWhale.vcxproj: 出力ファイル名を

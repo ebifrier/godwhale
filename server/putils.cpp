@@ -110,6 +110,7 @@ int64_t worldTimeLl()
 }
 
 
+#if 0
 static void micropauseCore(int t)
 {
     // single call of pause() pauses 10ns on i7 860.
@@ -119,6 +120,7 @@ static void micropauseCore(int t)
         _mm_pause();
     }
 }
+#endif
 
 #ifndef _WIN32
 static void microsleepCore(int t)

@@ -53,7 +53,6 @@ static int CONV proce_usi( tree_t * restrict ptree );
 static int CONV usi_option( tree_t * restrict ptree, char **lasts );
 static int CONV usi_posi( tree_t * restrict ptree, char **lasts );
 static int CONV usi_go( tree_t * restrict ptree, char **lasts );
-static int CONV usi_ignore( tree_t * restrict ptree, char **lasts );
 #endif
 
 #if defined(TLP)
@@ -461,7 +460,7 @@ set_usi_option( tree_t * restrict ptree, const char *name, const char *value,
                 int cmd )
 {
   char str[ SIZE_CMDLINE ];
-  char *last, *token, *ptr;
+  char *last, *ptr;
 
   if ( ! strcmp( name, usi_name.time_a ) )
     {
@@ -472,8 +471,9 @@ set_usi_option( tree_t * restrict ptree, const char *name, const char *value,
       usi_value.time_b = (int)strtol( value, &ptr, 0 );
       if ( cmd )
         {
-          sprintf( str, "limit time %d %d", usi_value.time_a, usi_value.time_b );
-          token = strtok_r( str, str_delimiters, &last );
+          sprintf( str, "limit time %d %d",
+                   usi_value.time_a, usi_value.time_b );
+          strtok_r( str, str_delimiters, &last );
           cmd_limit( &last );
         }
     }
@@ -482,8 +482,10 @@ set_usi_option( tree_t * restrict ptree, const char *name, const char *value,
       strcpy( usi_value.use_book, value );
       if ( cmd )
         {
-          sprintf( str, "book %s", ( ! strcmp( usi_value.use_book, "true" ) ? str_on : str_off ) );
-          token = strtok_r( str, str_delimiters, &last );
+          sprintf( str, "book %s",
+                   ( ! strcmp( usi_value.use_book, "true" )
+                     ? str_on : str_off ) );
+          strtok_r( str, str_delimiters, &last );
           CmdBook( ptree, &last );
         }
     }
@@ -493,7 +495,7 @@ set_usi_option( tree_t * restrict ptree, const char *name, const char *value,
       if ( cmd )
         {
           sprintf( str, "resign %d", usi_value.resign );
-          token = strtok_r( str, str_delimiters, &last );
+          strtok_r( str, str_delimiters, &last );
           cmd_resign( ptree, &last );
         }
     }
@@ -504,7 +506,7 @@ set_usi_option( tree_t * restrict ptree, const char *name, const char *value,
         {
           int hash = (int)(log(usi_value.memory * 1e6 / 48) / log(2.0)) + 1;
           sprintf( str, "hash %d", hash );
-          token = strtok_r( str, str_delimiters, &last );
+          strtok_r( str, str_delimiters, &last );
           cmd_hash( &last );
         }
     }
@@ -514,8 +516,10 @@ set_usi_option( tree_t * restrict ptree, const char *name, const char *value,
       strcpy( usi_value.ponder, value );
       if ( cmd )
         {
-          sprintf( str, "ponder %s", ( ! strcmp( usi_value.ponder, "true" ) ? str_on : str_off ) );
-          token = strtok_r( str, str_delimiters, &last );
+          sprintf( str, "ponder %s",
+                   ( ! strcmp( usi_value.ponder, "true" )
+                     ? str_on : str_off ) );
+          strtok_r( str, str_delimiters, &last );
           cmd_ponder( &last );
         }
 */
@@ -527,7 +531,7 @@ set_usi_option( tree_t * restrict ptree, const char *name, const char *value,
         {
 #if defined(TLP)
           sprintf( str, "tlp num %d", usi_value.threads );
-          token = strtok_r( str, str_delimiters, &last );
+          strtok_r( str, str_delimiters, &last );
           cmd_thread( &last );
 #endif
         }

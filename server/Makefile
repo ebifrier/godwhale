@@ -48,16 +48,16 @@ BNS_OBJS = $(BNS)/data.o $(BNS)/main.o $(BNS)/io.o $(BNS)/proce.o \
            $(BNS)/dfpnhash.o $(BNS)/bbini.o $(BNS)/handjoseki.o
 
 BIN_OBJS = slave3.o putils.o invokempi.o master3.o
-BIN = ./bin/gmx
+BIN = ./bin/gwx
 
-U2B_OBJS = u2b.o
-U2B = ./bin/u2b
+U2G_OBJS = u2g.o
+U2G = ./bin/u2g
 
 SRCS = slave3.cpp putils.cpp invokempi.cpp master3.cpp u2b.c
 
 ########
 
-all: $(BIN) $(U2B)
+all: $(BIN) $(U2G)
 
 %.o: %.cpp
 	$(MPI_COMPILE) -c -o $@ $<
@@ -67,13 +67,12 @@ all: $(BIN) $(U2B)
 
 $(BIN): bns_objs $(BIN_OBJS)
 	$(MPI_LINK) -o $@ $(BIN_OBJS) $(BNS_OBJS) $(LIBS)
-	cp $(BIN) bin2/
 
 bns_objs:
 	$(MAKE) -C $(BNS) CLUSTOPT=-DCLUSTER_PARALLEL $(BN_OBJTYPE)
 
 
-$(U2B): u2b.o
+$(U2G): u2g.o
 	$(COMPILE) -o $@ $<
 
 depend:
