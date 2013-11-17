@@ -2,16 +2,16 @@
 TMP=/tmp/bkrcmd1
 
 echo 'beep off'  > $TMP
-#echo 'sendpv on' >> $TMP
+echo 'sendpv on' >> $TMP
+echo 'book narrow' >> $TMP
 echo 'resign 32599' >> $TMP
 #echo 'connect wdoor.c.u-tokyo.ac.jp 4081 TestWhale4 floodgate-900-0,mytrip 1' >> $TMP
-#echo 'connect 101.110.31.31 4081 TestWhale4 test-900-10' >> $TMP
 echo 'connect localhost 4081 slave1 test-0-10' >> $TMP
 
 while :
 do
     mpiexec -host localhost -n 1 gwx -h0 -m0 -q : \
-            -host localhost -n 1 gwx -h4 -s1 -3 \
+            -host localhost -n 2 gwx -h4 -s1 -1 \
             < $TMP
     sleep 10
 done
