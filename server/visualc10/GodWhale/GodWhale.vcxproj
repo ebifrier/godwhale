@@ -171,6 +171,7 @@
     <ClInclude Include="..\..\bonanza6\bitop.h" />
     <ClInclude Include="..\..\bonanza6\dfpn.h" />
     <ClInclude Include="..\..\bonanza6\inline.h" />
+    <ClInclude Include="..\..\bonanza6\makemove.h" />
     <ClInclude Include="..\..\bonanza6\param.h" />
     <ClInclude Include="..\..\bonanza6\shogi.h" />
     <ClInclude Include="..\..\comm3.h" />

@@ -28,16 +28,14 @@ gote
 
  */
 
-#define forr(i,m,n) for(int i=(m); i<=(n); i++)
-
 #define MAX_HANDJOSEKI 32
 
 struct {
- min_posi_t pos;
- unsigned int move;
+  min_posi_t pos;
+  move_t move;
 } hanjo_entry[MAX_HANDJOSEKI];
 
-int hanjo_entry_cnt;
+static int hanjo_entry_cnt;
 
 
 // 文字を駒番号に変換するためのテーブル
@@ -60,7 +58,7 @@ char2pc( char c )
 {
   int i;
 
-  for ( i = 0; i < 31; i++ )
+  for ( i = 0; i < ArraySize(n2pcchar); i++ )
     {
         // 2, 28は使わない駒番号(piece_null)なのでとばす
       if ( i == 2 || i == 28 ) { continue; }

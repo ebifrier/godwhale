@@ -400,7 +400,8 @@ hash_probe( tree_t * restrict ptree, int ply, int depth_current,
               }
           }
 
-      }        else if ( is_superior == -1 ) {
+      }
+      else if ( is_superior == -1 ) {
 
         *pstate_node |= state_node_hash;
         

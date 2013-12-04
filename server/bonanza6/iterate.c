@@ -902,7 +902,7 @@ iterate( tree_t * restrict ptree )
 
 #if defined(INANIWA_SHIFT)
 int CONV
- detect_inaniwa(tree_t* ptree)
+detect_inaniwa(tree_t* ptree)
 {
   if ( ! inaniwa_flag && 19 < ptree->nrep )
     {

@@ -20,6 +20,8 @@ const int pc2suf[31] = {
   f_gold, f_gold, f_gold, f_gold, f_gold, f_horse, f_dragon
 };
 
+static int CONV eval_castling_material( const tree_t * restrict ptree,
+                                        int ouby, int ouwy );
 static int CONV doacapt( const tree_t * restrict ptree, int pc, int turn,
                          const int list0[52],
                          const int list1[52], int *curhand, int nlist );
@@ -39,64 +41,8 @@ static int CONV make_list( const tree_t * restrict ptree,
 static int inaniwa_score( const tree_t * restrict ptree );
 #endif
 
-static const int castlingBonusAry[10] = {
+static const int acastling_bonus[10] = {
   0, 0, 0, 50, 210, 420, 730, 1040, 1350, 1660
-};
-
-static const int kkpbase[16] = {
-  0,
-  kkp_pawn, 
-  kkp_lance,
-  kkp_knight,
-  kkp_silver,
-  kkp_gold,
-  kkp_bishop,
-  kkp_rook,
-  0,
-  kkp_gold, 
-  kkp_gold,
-  kkp_gold,
-  kkp_gold,
-  kkp_gold,
-  kkp_horse,
-  kkp_dragon
-};
-
-
-static int CONV
-castlingMaterialPoint( const tree_t * restrict ptree, int ouby, int ouwy )
-{
-  int filteredPoint, blackPoint, x, z, h;
-  int sq;
-
-  blackPoint = 0;
-  for ( sq = 0; sq <= 80; sq++ )
-    {
-      char c = BOARD[sq];
-      if ( c == rook   || c == dragon ||
-           c == bishop || c == horse    )
-        blackPoint += 5;
-      else if ( c > 0 )
-        blackPoint += 1;   // NOTE counting king also here
-    }
-  h = HAND_B;
-  blackPoint += I2HandPawn(h) + I2HandLance(h) +
-                I2HandKnight(h) + I2HandSilver(h) +
-                I2HandGold(h) + 5 * (I2HandBishop(h) + I2HandRook(h));
-  x = blackPoint - 28;  // -27 to +27   0 means even
-
-  //  x   -27  ..  -2  -1  0   1   2   3   4   5    ..  27
-  //      -39      -8  -4  0   4   8  12  16  17        39
-  filteredPoint = (x>4 ? x+4*3 : x<-4 ? x-4*3 : 4*x);
-  z = (ouby + ouwy - 6) * filteredPoint * 4;   // FIXME? tune
-
-#ifdef DBG_CASTLING_MATERIAL
-  printf("\n{{{{ mv %d ouby %d ouwy %d blackPoint %d filteredPoint %d z %d\n",
-         ptree->current_move[1], ouby, ouwy, blackPoint, filteredPoint, z);
-  exit(4);
-#endif
-
-  return z;
 };
 
 
@@ -161,12 +107,49 @@ eval_material( const tree_t * restrict ptree )
 }
 
 
+static int CONV
+eval_castling_material( const tree_t * restrict ptree, int ouby, int ouwy )
+{
+  int filtered_point, black_point, x, z, h;
+  int sq;
+
+  black_point = 0;
+  for ( sq = 0; sq < nsquare; sq++ )
+    {
+      char c = BOARD[sq];
+      if ( c == rook   || c == dragon ||
+           c == bishop || c == horse    )
+        black_point += 5;
+      else if ( c > 0 )
+        black_point += 1;   // NOTE counting king also here
+    }
+  h = HAND_B;
+  black_point += I2HandPawn(h) + I2HandLance(h) +
+                 I2HandKnight(h) + I2HandSilver(h) +
+                 I2HandGold(h) + 5 * (I2HandBishop(h) + I2HandRook(h));
+  x = black_point - 28;  // -27 to +27   0 means even
+
+  //  x   -27  ..  -2  -1  0   1   2   3   4   5    ..  27
+  //      -39      -8  -4  0   4   8  12  16  17        39
+  filtered_point = (x>4 ? x+4*3 : x<-4 ? x-4*3 : 4*x);
+  z = (ouby + ouwy - 6) * filtered_point * 4;   // FIXME? tune
+
+#if defined(DBG_CASTLING_MATERIAL)
+  printf( "\n{{{{ mv %d ouby %d ouwy %d blackpoint %d filteredpoint %d z %d\n",
+          ptree->current_move[1], ouby, ouwy, black_point, filtered_point, z );
+  exit( 4 );
+#endif
+
+  return z;
+};
+
+
 int CONV
 evaluate_body( tree_t * restrict ptree, int ply, int turn )
 {
   int *list0, *list1;
-  int nlist, score, sq_bk, sq_wk, k0, k1, l0, l1, i, j, sum;
-  int castlingBonus, ouby, ouwy;
+  int nlist, score, sq_bk, sq_wk, i, j, sum;
+  int castling_bonus, ouby, ouwy;
 
 #if 0
   assert( 0 < ply );
@@ -205,15 +188,12 @@ evaluate_body( tree_t * restrict ptree, int ply, int turn )
   sum = 0;
   for ( i = 0; i < nlist; i++ )
     {
-      k0 = list0[i];
-      k1 = list1[i];
+      int k0 = list0[i];
+      int k1 = list1[i];
       for ( j = 0; j <= i; j++ )
         {
-          l0 = list0[j];
-          l1 = list1[j];
-          //assert( k0 >= l0 && k1 >= l1 );
-          sum += PcPcOnSq( sq_bk, k0, l0 );
-          sum -= PcPcOnSq( sq_wk, k1, l1 );
+          sum += PcPcOnSq( sq_bk, k0, list0[j] );
+          sum -= PcPcOnSq( sq_wk, k1, list1[j] );
         }
     }
   
@@ -225,13 +205,12 @@ evaluate_body( tree_t * restrict ptree, int ply, int turn )
 
   ouby = sq2y(Inv(SQ_BKING));
   ouwy = sq2y(    SQ_WKING );
-  castlingBonus = castlingBonusAry[ouby]
-                - castlingBonusAry[ouwy];
+  castling_bonus = acastling_bonus[ouby] - acastling_bonus[ouwy];
 
-  if (ENB_CASTLING_MATERIAL && ouby + ouwy >= 7)
-    castlingBonus += castlingMaterialPoint(ptree, ouby, ouwy);
+  if ( ENB_CASTLING_MATERIAL && ouby + ouwy >= 7 )
+    castling_bonus += eval_castling_material( ptree, ouby, ouwy );
 
-  score += castlingBonus * FV_SCALE;
+  score += castling_bonus * FV_SCALE;
 
   ehash_store( HASH_KEY, HAND_B, score );
 
@@ -257,33 +236,6 @@ ehash_clear( void )
 {
   memset( ehash_tbl, 0, sizeof(ehash_tbl) );
 }
-
-
-#if 0
-static int CONV ehash_probe( uint64_t current_key, unsigned int hand_b,
-                             int * restrict pscore )
-{
-  uint64_t hash_word, hash_key;
-
-  hash_word = ehash_tbl[ (unsigned int)current_key & EHASH_MASK ];
-
-#if ! defined(__x86_64__)
-  hash_word ^= hash_word << 32;
-#endif
-
-  current_key ^= (uint64_t)hand_b << 21;
-  current_key &= ~(uint64_t)0x1fffffU;
-
-  hash_key  = hash_word;
-  hash_key &= ~(uint64_t)0x1fffffU;
-
-  if ( hash_key != current_key ) { return 0; }
-
-  *pscore = (int)( (unsigned int)hash_word & 0x1fffffU ) - 0x100000;
-
-  return 1;
-}
-#endif
 
 
 static void CONV
@@ -441,7 +393,7 @@ calc_difference( tree_t * restrict __ptree__, int ply, int turn,
       }
   }
   
-  diff += turn ? ptree->save_eval[ply-1] : - ptree->save_eval[ply-1];
+  diff += turn ? ptree->save_eval[ply-1] : -ptree->save_eval[ply-1];
   *pscore = diff;
   return 1;
 }
@@ -451,42 +403,51 @@ static int CONV
 make_list( const tree_t * restrict ptree, int * restrict pscore,
            int list0[52], int list1[52] )
 {
+  static const int kkpbase[] = {
+    0, kkp_pawn, kkp_lance, kkp_knight, kkp_silver, kkp_gold,
+    kkp_bishop, kkp_rook,
+    0, kkp_gold, kkp_gold, kkp_gold, kkp_gold, kkp_gold,
+    kkp_horse, kkp_dragon
+  };
   int sq, score, sq_bk0, sq_wk0, sq_bk1, sq_wk1;
+  short *kkp0, *kkp1;
 
   (void)list0;
   (void)list1;
 
-  score  = 0;
   sq_bk0 = SQ_BKING;
   sq_wk0 = SQ_WKING;
   sq_bk1 = Inv(SQ_WKING);
   sq_wk1 = Inv(SQ_BKING);
+  kkp0 = kkp[sq_bk0][sq_wk0];
+  kkp1 = kkp[sq_bk1][sq_wk1];
 
-  score += kkp[sq_bk0][sq_wk0][ kkp_hand_pawn   + I2HandPawn(HAND_B) ];
-  score += kkp[sq_bk0][sq_wk0][ kkp_hand_lance  + I2HandLance(HAND_B) ];
-  score += kkp[sq_bk0][sq_wk0][ kkp_hand_knight + I2HandKnight(HAND_B) ];
-  score += kkp[sq_bk0][sq_wk0][ kkp_hand_silver + I2HandSilver(HAND_B) ];
-  score += kkp[sq_bk0][sq_wk0][ kkp_hand_gold   + I2HandGold(HAND_B) ];
-  score += kkp[sq_bk0][sq_wk0][ kkp_hand_bishop + I2HandBishop(HAND_B) ];
-  score += kkp[sq_bk0][sq_wk0][ kkp_hand_rook   + I2HandRook(HAND_B) ];
+  score  = 0;
+  score += kkp0[ kkp_hand_pawn   + I2HandPawn(HAND_B) ];
+  score += kkp0[ kkp_hand_lance  + I2HandLance(HAND_B) ];
+  score += kkp0[ kkp_hand_knight + I2HandKnight(HAND_B) ];
+  score += kkp0[ kkp_hand_silver + I2HandSilver(HAND_B) ];
+  score += kkp0[ kkp_hand_gold   + I2HandGold(HAND_B) ];
+  score += kkp0[ kkp_hand_bishop + I2HandBishop(HAND_B) ];
+  score += kkp0[ kkp_hand_rook   + I2HandRook(HAND_B) ];
 
-  score -= kkp[sq_bk1][sq_wk1][ kkp_hand_pawn   + I2HandPawn(HAND_W) ];
-  score -= kkp[sq_bk1][sq_wk1][ kkp_hand_lance  + I2HandLance(HAND_W) ];
-  score -= kkp[sq_bk1][sq_wk1][ kkp_hand_knight + I2HandKnight(HAND_W) ];
-  score -= kkp[sq_bk1][sq_wk1][ kkp_hand_silver + I2HandSilver(HAND_W) ];
-  score -= kkp[sq_bk1][sq_wk1][ kkp_hand_gold   + I2HandGold(HAND_W) ];
-  score -= kkp[sq_bk1][sq_wk1][ kkp_hand_bishop + I2HandBishop(HAND_W) ];
-  score -= kkp[sq_bk1][sq_wk1][ kkp_hand_rook   + I2HandRook(HAND_W) ];
+  score -= kkp1[ kkp_hand_pawn   + I2HandPawn(HAND_W) ];
+  score -= kkp1[ kkp_hand_lance  + I2HandLance(HAND_W) ];
+  score -= kkp1[ kkp_hand_knight + I2HandKnight(HAND_W) ];
+  score -= kkp1[ kkp_hand_silver + I2HandSilver(HAND_W) ];
+  score -= kkp1[ kkp_hand_gold   + I2HandGold(HAND_W) ];
+  score -= kkp1[ kkp_hand_bishop + I2HandBishop(HAND_W) ];
+  score -= kkp1[ kkp_hand_rook   + I2HandRook(HAND_W) ];
 
-  for ( sq = 0; sq <= 80; sq++ )
+  for ( sq = 0; sq < nsquare; sq++ )
     {
       int pc = BOARD[sq];
       if ( pc & 7 )  // omit kings and empty
         {
           if ( pc > 0 )
-            score += kkp[sq_bk0][sq_wk0][ kkpbase[pc] + sq ];
-          if ( pc < 0 )
-            score -= kkp[sq_bk1][sq_wk1][ kkpbase[-pc] + Inv(sq) ];
+            score += kkp0[ kkpbase[pc] + sq ];
+		  else
+            score -= kkp1[ kkpbase[-pc] + Inv(sq) ];
         }
     }
 
@@ -499,11 +460,11 @@ static int CONV
 doapc( const tree_t * restrict ptree, int pc, int sq,
        const int list0[52], const int list1[52], int nlist )
 {
-  int i, sum;
   int index_b = aikpp[15+pc] + sq;
   int index_w = aikpp[15-pc] + Inv(sq);
   int sq_bk   = SQ_BKING;
   int sq_wk   = Inv(SQ_WKING);
+  int i, sum;
   
   sum = 0;
   for( i = 0; i < nlist; i++ )

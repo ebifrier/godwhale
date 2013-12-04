@@ -167,6 +167,9 @@
       <Filter>bonanza6</Filter>
     </ClInclude>
     <ClInclude Include="..\..\stdinc.h" />
+    <ClInclude Include="..\..\bonanza6\makemove.h">
+      <Filter>bonanza6</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="bonanza6">

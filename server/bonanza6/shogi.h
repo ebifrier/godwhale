@@ -272,8 +272,9 @@ extern unsigned char ailast_one[512];
                                   e /= 2 * iteration_depth;                   \
                                 } else { e = 0; } }
 
+#define ArraySize(ary)      (sizeof(ary) / sizeof((ary)[0]))
 #define Flip(turn)          ((turn)^1)
-#define Inv(sq)             (nsquare-1-sq)
+#define Inv(sq)             (nsquare-1-(sq))
 
 #ifndef USE_FV3
 #define PcOnSq(k,i)         pc_on_sq[k][(i)*((i)+3)/2]
@@ -413,15 +414,15 @@ typedef unsigned int move_t;
                   : is_black_attacked( ptree, SQ_BKING ) )
 
 #define MakeMove(turn,move,ply)                                \
-                ( (turn) ? make_move_w( ptree, move, ply ) \
+                ( (turn) ? make_move_w( ptree, move, ply )     \
                          : make_move_b( ptree, move, ply ) )
 
-#define UnMakeMove(turn,move,ply)                                \
-                ( (turn) ? unmake_move_w( ptree, move, ply ) \
+#define UnMakeMove(turn,move,ply)                              \
+                ( (turn) ? unmake_move_w( ptree, move, ply )   \
                          : unmake_move_b( ptree, move, ply ) )
 
-#define IsMoveCheck( ptree, turn, move )                        \
-                ( (turn) ? is_move_check_w( ptree, move )   \
+#define IsMoveCheck( ptree, turn, move )                       \
+                ( (turn) ? is_move_check_w( ptree, move )      \
                          : is_move_check_b( ptree, move ) )
 
 #define GenCaptures(turn,pmove) ( (turn) ? w_gen_captures( ptree, pmove )   \
