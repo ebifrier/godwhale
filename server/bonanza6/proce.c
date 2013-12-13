@@ -100,22 +100,24 @@ static int CONV cmd_time( char **lasts );
 /* USI options */
 const char usi_ini[] = "usi.ini";
 struct {
-	char time_a[ BUFSIZ ];
-	char time_b[ BUFSIZ ];
-	char use_book[ BUFSIZ ];
-	char resign[ BUFSIZ ];
-	char memory[ BUFSIZ ];
-	char ponder[ BUFSIZ ];
-	char threads[ BUFSIZ ];
+  char time_a[ BUFSIZ ];
+  char time_b[ BUFSIZ ];
+  char use_book[ BUFSIZ ];
+  char narrow_book[ BUFSIZ ];
+  char resign[ BUFSIZ ];
+  char memory[ BUFSIZ ];
+  char ponder[ BUFSIZ ];
+  char threads[ BUFSIZ ];
 } usi_name;
 struct {
-	int time_a;
-	int time_b;
-	char use_book[ BUFSIZ ];
-	int resign;
-	int memory;
-	char ponder[ BUFSIZ ];
-	int threads;
+  int time_a;
+  int time_b;
+  char use_book[ BUFSIZ ];
+  char narrow_book[ BUFSIZ ];
+  int resign;
+  int memory;
+  char ponder[ BUFSIZ ];
+  int threads;
 } usi_value;
 #endif
 
@@ -436,21 +438,23 @@ cmd_mnjmove( tree_t * restrict ptree, char **lasts, int num_alter )
 static void CONV
 init_usi_option( void )
 {
-	strcpy( usi_name.time_a,   "TimeA[min]" );
-	strcpy( usi_name.time_b,   "TimeB[sec]" );
-	strcpy( usi_name.use_book, "UseBook" );
-	strcpy( usi_name.resign,   "Resign" );
-	strcpy( usi_name.memory,   "Memory" );
-	strcpy( usi_name.ponder,   "Ponder" );
-	strcpy( usi_name.threads,  "Threads" );
+  strcpy( usi_name.time_a,      "TimeA[min]" );
+  strcpy( usi_name.time_b,      "TimeB[sec]" );
+  strcpy( usi_name.use_book,    "UseBook" );
+  strcpy( usi_name.narrow_book, "NarrowBook" );
+  strcpy( usi_name.resign,      "Resign" );
+  strcpy( usi_name.memory,      "Memory" );
+  strcpy( usi_name.ponder,      "Ponder" );
+  strcpy( usi_name.threads,     "Threads" );
 
-	usi_value.time_a      = 0;
-	usi_value.time_b      = 3;
-	strcpy( usi_value.use_book, "true" );
-	usi_value.resign      = 3000;
-	usi_value.memory      = 12;
-	strcpy( usi_value.ponder, "false" );
-	usi_value.threads     = 1;
+  usi_value.time_a      = 0;
+  usi_value.time_b      = 3;
+  strcpy( usi_value.use_book,    "true" );
+  strcpy( usi_value.narrow_book, "true" );
+  usi_value.resign      = 3000;
+  usi_value.memory      = 12;
+  strcpy( usi_value.ponder, "false" );
+  usi_value.threads     = 1;
 }
 
 
@@ -485,6 +489,16 @@ set_usi_option( tree_t * restrict ptree, const char *name, const char *value,
           sprintf( str, "book %s",
                    ( ! strcmp( usi_value.use_book, "true" )
                      ? str_on : str_off ) );
+          strtok_r( str, str_delimiters, &last );
+          CmdBook( ptree, &last );
+        }
+    }
+  else if ( ! strcmp( name, usi_name.narrow_book ) )
+    {
+      strcpy( usi_value.narrow_book, value );
+      if ( cmd )
+        {
+          sprintf( str, "book %s", ( ! strcmp( usi_value.narrow_book, "true" ) ? "narrow" : "wide" ) );
           strtok_r( str, str_delimiters, &last );
           CmdBook( ptree, &last );
         }
@@ -543,17 +557,17 @@ set_usi_option( tree_t * restrict ptree, const char *name, const char *value,
 static void CONV
 read_usi_ini( tree_t * restrict ptree, int cmd )
 {
-	char name[ BUFSIZ ], value[ BUFSIZ ];
-    FILE *fp;
+  char name[ BUFSIZ ], value[ BUFSIZ ];
+  FILE *fp;
 
-	if ( (fp = fopen(usi_ini, "r")) == NULL ) return;
+  if ( (fp = fopen(usi_ini, "r")) == NULL ) return;
 
-	while ( ( fscanf( fp, "%s %s", name, value ) ) != EOF )
-	  {
-	    set_usi_option( ptree, name, value, cmd );
-	  }
+  while ( ( fscanf( fp, "%s %s", name, value ) ) != EOF )
+    {
+      set_usi_option( ptree, name, value, cmd );
+    }
 
-	fclose( fp );
+  fclose( fp );
 }
 
 
@@ -561,21 +575,22 @@ read_usi_ini( tree_t * restrict ptree, int cmd )
 static void CONV
 write_usi_ini( void )
 {
-	const char fmt_d[] = "%s %d\n";
-	const char fmt_s[] = "%s %s\n";
-    FILE *fp;
+  const char fmt_d[] = "%s %d\n";
+  const char fmt_s[] = "%s %s\n";
+  FILE *fp;
 
-	if ( (fp = fopen(usi_ini, "w")) == NULL ) return;
+  if ( (fp = fopen(usi_ini, "w")) == NULL ) return;
 
-	fprintf( fp, fmt_d, usi_name.time_a,   usi_value.time_a );
-	fprintf( fp, fmt_d, usi_name.time_b,   usi_value.time_b );
-	fprintf( fp, fmt_s, usi_name.use_book, usi_value.use_book );
-	fprintf( fp, fmt_d, usi_name.resign,   usi_value.resign );
-	fprintf( fp, fmt_d, usi_name.memory,   usi_value.memory );
-	fprintf( fp, fmt_s, usi_name.ponder,   usi_value.ponder );
-	fprintf( fp, fmt_d, usi_name.threads,  usi_value.threads );
+  fprintf( fp, fmt_d, usi_name.time_a,      usi_value.time_a );
+  fprintf( fp, fmt_d, usi_name.time_b,      usi_value.time_b );
+  fprintf( fp, fmt_s, usi_name.use_book,    usi_value.use_book );
+  fprintf( fp, fmt_s, usi_name.narrow_book, usi_value.narrow_book );
+  fprintf( fp, fmt_d, usi_name.resign,      usi_value.resign );
+  fprintf( fp, fmt_d, usi_name.memory,      usi_value.memory );
+  fprintf( fp, fmt_s, usi_name.ponder,      usi_value.ponder );
+  fprintf( fp, fmt_d, usi_name.threads,     usi_value.threads );
 
-	fclose( fp );
+  fclose( fp );
 }
 
 
@@ -600,6 +615,8 @@ proce_usi( tree_t * restrict ptree )
               usi_name.time_b, usi_value.time_b );
       USIOut( "option name %s type check default %s\n",
               usi_name.use_book, usi_value.use_book );
+      USIOut( "option name %s type check default %s\n",
+              usi_name.narrow_book, usi_value.narrow_book );
       USIOut( "option name %s type combo default %d var 500 var 1000 var 2000 var 3000 var 5000 var 32596\n",
               usi_name.resign, usi_value.resign );
       USIOut( "option name %s type combo default %d var 12 var 25 var 50 var 100 var 200 var 400 var 800\n",
@@ -755,7 +772,7 @@ usi_go( tree_t * restrict ptree, char **lasts )
               return -1;
             }
 
-          reset_time( (unsigned int)l, UINT_MAX );
+          /*reset_time( (unsigned int)l, UINT_MAX );*/
         }
       else if ( ! strcmp( token, "wtime" ) )
         {
@@ -773,7 +790,7 @@ usi_go( tree_t * restrict ptree, char **lasts )
               return -1;
             }
 
-          reset_time( UINT_MAX, (unsigned int)l );
+          /*reset_time( UINT_MAX, (unsigned int)l );*/
         }
       else if ( ! strcmp( token, "byoyomi" ) )
         {
