@@ -9,6 +9,8 @@ BIN  = convfv
 
 ########
 
+all: $(BIN)
+
 $(BIN): $(OBJS)
 	$(CC) -o $@ $<
 
