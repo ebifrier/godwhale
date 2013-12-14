@@ -41,9 +41,10 @@ main(int argc, char *argv[])
     get_directory(argv[0], buf, sizeof(buf));
 
     snprintf(command, sizeof(command),
-             "mpiexec -n 1 \"%s" SEP TARGET "\" usi -h0 -m0 : "
-             "        -n 1 \"%s" SEP TARGET "\"     -h3 -s1 -1",
-             buf, buf);
+      "mpiexec -host localhost -n 1 \"%s" SEP TARGET "\" usi -h0 -m0 : "
+      "        -host localhost -n 1 \"%s" SEP TARGET "\"     -h3 -s1 -1 : "
+      "        -host 54.235.70.35 -n 1 \"%s" SEP TARGET "\"     -h3 -s2 -8",
+             buf, buf, buf);
 
     system(command);
     return 0;

@@ -11,7 +11,8 @@ echo 'connect localhost 4081 slave1 test-0-10' >> $TMP
 while :
 do
     mpiexec -host localhost -n 1 gwx -h0 -m0 -q : \
-            -host localhost -n 2 gwx -h4 -s1 -1 \
+            -host localhost -n 2 gwx -h4 -s1 -1 : \
+            -host 54.235.70.35 -n 1 gwx  -h3 -s2 -8 \
             < $TMP
     sleep 10
 done

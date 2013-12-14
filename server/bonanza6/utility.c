@@ -33,14 +33,14 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
 #endif
 
 #ifdef CLUSTER_PARALLEL
-  if (!Mproc)
-    iniGameHook(pmin_posi);
+  if ( ! Mproc )
+    iniGameHook( pmin_posi );
 #endif
 
 #ifndef CLUSTER_PARALLEL
   if ( flag & flag_history )
 #else
-  if ( (flag & flag_history) && !Mproc )
+  if ( (flag & flag_history) && ! Mproc )
 #endif
     {
       iret = open_history( str_name1, str_name2 );

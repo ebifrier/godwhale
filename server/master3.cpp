@@ -85,6 +85,38 @@ void sendQuit(int proc)
 
 static void handleReplyMaster(); // defined below
 
+// bonanza mv format - cap:4 pc:4 prom:1 src:7 dst:7  -> convert to sfen
+static int to_sfen(mvC mv, char str[])
+{
+    static const char hand_strs[] = {
+      ' ', 'P', 'N', 'L', 'S', 'G', 'B', 'R', 'K'
+    };
+    if (mv == 0) return 0;
+
+    int x = mv.v;
+    int dst  = I2To(x);
+    int src  = I2From(x);
+    int prom = I2IsPromote(x);
+    //int pc   = I2PieceMove(x);
+    //int cap  = UToCap(x);
+    int dx = 9 - (dst % 9);
+    int dy = 1 + (dst / 9);
+
+    // 1 2 3 4 5 6 7 8 9
+    // a b c d e f g h i
+    if (src < nsquare) {
+      int sx = 9 - (src % 9);
+      int sy = 1 + (src / 9);
+
+      return sprintf(str, "%d%c%d%c%c ",
+		     sx, 'a'+(sy-1), dx, 'a'+(dy-1), (prom ? '+' : ' '));
+    }
+    else {
+      return sprintf(str, "%c*%d%c ",
+		     hand_strs[From2Drop(src)], dx, 'a'+(dy-1));
+    }
+}
+
 int master(move_t *retmvseq)
 {
     int cmdchkTick, expired, touched;
@@ -167,18 +199,32 @@ int master(move_t *retmvseq)
 
         if (exitAcked /* || srched deep enuf */) {
             mvC mvs[GMX_MAX_PV];
-            int val;
+            int val, count = GMX_MAX_PV;
             plane.finalAnswer(&val, mvs);
             last_root_value = root_turn ? -val : val;  // flip by turn - v from black
             forr (j, 0, GMX_MAX_PV-1) {
                 retmvseq[j+1] = mvs[j].v;
                 if (mvs[j] == NULLMV) {
-                    MSTOut("Answer len %d.\n", j);
-                    return j;
+		  count = j;
+		  break;
                 }
             }
 
-            return GMX_MAX_PV;
+	    if (usi_mode != usi_off) {
+  	      char str[6];
+	      USIOut("info score cp %d nodes %" PRIu64 " pv ",
+		     val, 0UL);
+
+	      forr (j, 0, count) {
+		to_sfen(mvs[j], str);
+		USIOut(str);
+	      }
+
+	      USIOut("\n");
+	    }
+
+	    MSTOut("Answer len %d.\n", count);
+	    return count;
         }
 
         if (!touched || exitPending) {

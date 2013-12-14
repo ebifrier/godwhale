@@ -54,8 +54,8 @@ main()
 #endif
 
 #ifdef CLUSTER_PARALLEL
-  mpi_init(argc, argv, &Nproc, &Mproc); // both master&slave
-  Out("pid=%d: my rank is %d out of %d\n", getpid(), Mproc, Nproc);
+  mpi_init( argc, argv, &Nproc, &Mproc ); // both master&slave
+  Out( "pid=%d: my rank is %d out of %d\n", getpid(), Mproc, Nproc );
 #endif
   
   if ( ini( ptree ) < 0 )
@@ -65,8 +65,8 @@ main()
     }
 
 #ifdef CLUSTER_PARALLEL
-  if (Mproc) slave();
-  else       { /* TBC master_init(); */ }
+  if ( Mproc ) slave();
+  else         { /* TBC master_init(); */ }
 #endif
 
   for ( ;; )
@@ -94,7 +94,7 @@ main()
     }
 
 #ifdef CLUSTER_PARALLEL
-  assert(!Mproc);
+  assert( ! Mproc );
   quitHook();
   mpi_close();
 #endif

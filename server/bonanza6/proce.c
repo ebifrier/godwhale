@@ -498,7 +498,9 @@ set_usi_option( tree_t * restrict ptree, const char *name, const char *value,
       strcpy( usi_value.narrow_book, value );
       if ( cmd )
         {
-          sprintf( str, "book %s", ( ! strcmp( usi_value.narrow_book, "true" ) ? "narrow" : "wide" ) );
+          sprintf( str, "book %s",
+                   ( ! strcmp( usi_value.narrow_book, "true" )
+                     ? "narrow" : "wide" ) );
           strtok_r( str, str_delimiters, &last );
           CmdBook( ptree, &last );
         }
@@ -515,18 +517,17 @@ set_usi_option( tree_t * restrict ptree, const char *name, const char *value,
     }
   else if ( ! strcmp( name, usi_name.memory ) )
     {
-      usi_value.memory = (int)strtol( value, &ptr, 0 );
+      /*usi_value.memory = (int)strtol( value, &ptr, 0 );
       if ( cmd )
         {
           int hash = (int)(log(usi_value.memory * 1e6 / 48) / log(2.0)) + 1;
           sprintf( str, "hash %d", hash );
           strtok_r( str, str_delimiters, &last );
           cmd_hash( &last );
-        }
+        }*/
     }
   else if ( ! strcmp( name, usi_name.ponder ) )
     {
-/* not implemented
       strcpy( usi_value.ponder, value );
       if ( cmd )
         {
@@ -536,11 +537,10 @@ set_usi_option( tree_t * restrict ptree, const char *name, const char *value,
           strtok_r( str, str_delimiters, &last );
           cmd_ponder( &last );
         }
-*/
     }
   else if ( ! strcmp( name, usi_name.threads ) )
     {
-      usi_value.threads = (int)strtol( value, &ptr, 0 );
+      /*usi_value.threads = (int)strtol( value, &ptr, 0 );
       if ( cmd )
         {
 #if defined(TLP)
@@ -548,7 +548,7 @@ set_usi_option( tree_t * restrict ptree, const char *name, const char *value,
           strtok_r( str, str_delimiters, &last );
           cmd_thread( &last );
 #endif
-        }
+       }*/
     }
 }
 
@@ -842,7 +842,7 @@ usi_posi( tree_t * restrict ptree, char **lasts )
 {
   const char *token;
   char str_buf[7];
-  unsigned int move;
+  move_t move;
     
   AbortDifficultCommand;
     
@@ -857,6 +857,9 @@ usi_posi( tree_t * restrict ptree, char **lasts )
     
   if ( ini_game( ptree, &min_posi_no_handicap,
                  flag_history, NULL, NULL ) < 0 ) { return -1; }
+
+  /* ini_gameでフラグが初期化されるため、ここで再設定 */
+  set_usi_option( ptree, usi_name.ponder, usi_value.ponder, 1 );
     
   token = strtok_r( NULL, str_delimiters, lasts );
   if ( token == NULL ) { return 1; }
