@@ -1,6 +1,6 @@
 
 #### disable this if compilation fails due to 'pthread_setaffinity_np'
-AFFINOPT = -DENABLE_AFFINITY
+#AFFINOPT = -DENABLE_AFFINITY
 
 #### enable on sandy-bridge
 #AVXOPT = -mavx -DHAVE_AVX

@@ -8,8 +8,10 @@ extern "C" {
 
 #include "bonanza6/shogi.h"
 
-extern int slave_proc_offset;
+#ifdef ENABLE_AFFINITY
 extern int master_proc_offset;
+extern int slave_proc_offset;
+#endif
 extern FILE* slavelogfp;
 extern FILE* masterlogfp;
 

@@ -438,12 +438,14 @@ tlp_start( void )
   int work[ TLP_MAX_THREADS ];
   int iret, num;
 
+#ifdef ENABLE_AFFINITY
 #ifndef CLUSTER_PARALLEL
   if ( use_cpu_affinity >= 0 )
     attach_cpu( use_cpu_affinity );
 #else
   if ( Mproc && use_cpu_affinity )
     attach_cpu( slave_proc_offset );
+#endif
 #endif
 
   if ( tlp_num ) { return 1; }
@@ -586,12 +588,14 @@ start_address( void *arg )
   tlp_idle += 1;
   unlock( &tlp_lock );
 
+#ifdef ENABLE_AFFINITY
 #ifndef CLUSTER_PARALLEL
   if ( use_cpu_affinity >= 0 )  // -1 - no affinity  N - use cpu N+TID
     attach_cpu( use_cpu_affinity + tid );
 #else
   if ( Mproc && use_cpu_affinity )
     attach_cpu( slave_proc_offset + tid );
+#endif
 #endif
 
   wait_work( tid, NULL );

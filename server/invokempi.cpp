@@ -30,14 +30,16 @@ int INCS_PER_USEC;
 int DBG_MASTER, VMMODE, tlp_max_arg;
 int Mproc, Nproc, Ncomm;
 
-#define HASH_DEFAULT_SIZE 20
+#define HASH_DEFAULT_SIZE 23
 
 extern int MAX_ROOT_SRCH_NODE; 
 extern int MAX_FIRST_NODE;
 
  // FIXME TBC set these
 int master_proc_offset = 0;
+#ifdef ENABLE_AFFINITY
 int slave_proc_offset = 0;
+#endif
 
 FILE* slavelogfp = NULL;
 FILE* masterlogfp = NULL;
@@ -124,10 +126,13 @@ void mpi_init(int argc, char **argv, int *nproc, int *mproc)
     signal(SIGINT , sigHandler);
 #endif
 
+#ifdef ENABLE_AFFINITY
     if (!Mproc && use_cpu_affinity) {
         attach_cpu(master_proc_offset);
         MSTOut("master cpu set to %d\n", master_proc_offset);
     }
+#endif
+
 #endif
 }
 
@@ -210,8 +215,10 @@ static void parseMasterOptions(int argc, char *argv[])
             MSTOut("vm mode set\n");
         }
         else if (!strncmp(argv[i], "-m", 2)) {
+#ifdef ENABLE_AFFINITY
             master_proc_offset = atoi(&argv[i][2]);
             MSTOut("master proc offset is %d\n", master_proc_offset);
+#endif
         }
         else if (!strcmp(argv[i], "-h")) {
             MSTOut("-v: verbose mode   -q: quick fight mode\n");
@@ -259,10 +266,12 @@ static void parseCommonOptions(int argc, char *argv[], int nproc, int mproc)
             }
         }
         else if (!strncmp(argv[i], "-s", 2)) {
+#ifdef ENABLE_AFFINITY
             slave_proc_offset = atoi(&argv[i][2]);
             if (mproc) {
                 SLTOut("slave proc offset is %d\n", slave_proc_offset);
             }
+#endif
         }
         else if (!strncmp(argv[i], "-h", 2)) {
             log2_ntrans_table = 20 + (argv[i][2] - '0');
