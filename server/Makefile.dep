@@ -40,4 +40,4 @@ invokempi.o: invokempi.cpp /usr/lib/openmpi/include/mpi.h \
 master3.o: master3.cpp stdinc.h if_bonanza.h bonanza6/shogi.h \
  bonanza6/bitop.h bonanza6/param.h bonanza6/inline.h comm3.h plane.h \
  entsort.h initact.h time.h
-u2b.o: u2b.c
+u2g.o: u2g.c

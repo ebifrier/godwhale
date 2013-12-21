@@ -53,7 +53,7 @@ BIN = ./bin/gwx
 U2G_OBJS = u2g.o
 U2G = ./bin/u2g
 
-SRCS = slave3.cpp putils.cpp invokempi.cpp master3.cpp u2b.c
+SRCS = slave3.cpp putils.cpp invokempi.cpp master3.cpp u2g.c
 
 ########
 

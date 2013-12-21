@@ -233,8 +233,23 @@ static void parseCommonOptions(int argc, char *argv[], int nproc, int mproc)
     tlp_max_arg = 1;
     (void)nproc;
 
+    int ncore = 8;
+    sprintf(buf, " tlp num set to %d\n", ncore);
+    if (mproc) SLTOut(buf);
+    else       MSTOut(buf);
+    if (mproc) {
+      tlp_max_arg = ncore;
+    }
+
     // i=0 は自分自身のファイル名が入ります。
     for (i = 1; i < argc; i++) {
+        if (mproc) {
+            MSTOut("argv[%d]:%s:", i, argv[i]);
+	}
+	else {
+            SLTOut("argv[%d]:%s:", i, argv[i]);
+	}
+
         if (!strcmp(argv[i], "-a")) {
             use_cpu_affinity = 1;
             if (mproc) {
