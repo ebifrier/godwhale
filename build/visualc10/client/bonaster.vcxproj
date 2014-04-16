@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\client\main.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\attack.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\bitop.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\book.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\csa.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\data.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\debug.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\dfpn.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\dfpnhash.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\evaldiff.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\evaluate.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\gencap.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\genchk.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\gendrop.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\genevasn.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\gennocap.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\hash.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\ini.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\io.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\iterate.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\learn1.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\learn2.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\makemove.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\mate1ply.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\mate3.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\movgenex.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\next.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\phash.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\ponder.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\problem.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\proce.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\quiesrch.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\rand.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\root.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\sckt.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\search.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\searchr.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\swap.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\thread.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\time.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\unmake.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\utility.c" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\valid.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\common\bonanza6\bitop.h" />
+    <ClInclude Include="..\..\..\src\common\bonanza6\dfpn.h" />
+    <ClInclude Include="..\..\..\src\common\bonanza6\param.h" />
+    <ClInclude Include="..\..\..\src\common\bonanza6\shogi.h" />
+    <ClInclude Include="..\..\..\src\common\bonanza_if.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\src\client\bonanza.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\src\client\bonanza.rc" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7078F53B-EC21-49D5-9197-9AAA5BAB4107}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>bonanza</RootNamespace>
+    <ProjectName>client</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;MNJ_LAN;NO_LOGGING;INANIWA_SHIFT;GODWHALE_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>user32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy $(TargetPath) $(ProjectDir)..\..\..\src\client
+copy $(TargetPath) $(ProjectDir)..\..\..\utility\Bonako\Bonako</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;MNJ_LAN;NO_LOGGING;INANIWA_SHIFT;GODWHALE_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>user32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy $(TargetPath) $(ProjectDir)..\
+copy $(TargetPath) $(ProjectDir)..\..\Bonako\Bonako
+copy $(TargetPath) $(ProjectDir)..\..\Bonako\Bonako.DFPN</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
