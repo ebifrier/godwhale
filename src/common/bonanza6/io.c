@@ -91,9 +91,8 @@ usi_out( const char *format, ... )
 #endif
 
 
-#if defined(CSASHOGI)
 void
-out_csashogi( const char *format, ... )
+out_stdout( const char *format, ... )
 {
   va_list arg;
 
@@ -103,7 +102,6 @@ out_csashogi( const char *format, ... )
 
   fflush( stdout );
 }
-#endif
 
 
 void

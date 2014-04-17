@@ -32,10 +32,14 @@ typedef int sckt_t;
 #if defined(_MSC_VER)
 
 #  define _CRT_DISABLE_PERFCRIT_LOCKS
-#  define UINT64_MAX    ULLONG_MAX
 #  define PRIu64        "I64u"
 #  define PRIx64        "I64x"
-#  define UINT64_C(u)  ( u )
+#  ifndef UINT64_MAX
+#    define UINT64_MAX  ULLONG_MAX
+#  endif
+#  ifndef UINT64_C
+#    define UINT64_C(u) ( u )
+#  endif
 
 #  define restrict      __restrict
 #  define strtok_r      strtok_s
@@ -1009,6 +1013,7 @@ void CONV hash_store_pv( const tree_t * restrict ptree, move_t move,
 void CONV check_futile_score_quies( const tree_t * restrict ptree,
                                     move_t move, int old_val,
                                     int new_val, int turn );
+void out_stdout( const char *format, ... );
 void out_warning( const char *format, ... );
 void out_error( const char *format, ... );
 void show_prompt( void );
@@ -1021,7 +1026,7 @@ void out_CSA( tree_t * restrict ptree, record_t *pr, move_t move );
 void CONV out_pv( tree_t * restrict ptree, int value, int turn,
                   unsigned int time );
 void CONV make_mnj_pv( tree_t * restrict ptree, int value, int turn,
-                       char *mnj_pv );
+                       char *mnj_pv, size_t mnj_pv_size );
 void CONV hash_store( const tree_t * restrict ptree, int ply, int depth,
                       int turn, int value_type, int value, unsigned int move,
                       unsigned int state_node );
@@ -1305,17 +1310,19 @@ extern move_t moves_ignore[MAX_LEGAL_MOVES];
 #endif
 
 #if defined(MNJ_LAN)
-#  define MnjOut( ... ) if ( sckt_mnj != SCKT_NULL ) \
-                          sckt_out( sckt_mnj, __VA_ARGS__ )
+#  define MnjOut( ... )      if ( sckt_mnj != SCKT_NULL ) \
+                               sckt_out( sckt_mnj, __VA_ARGS__ )
+#  define MnjLocalOut( ... ) out_stdout( __VA_ARGS__ )
 extern sckt_t sckt_mnj;
-extern int mnj_table_reseted;
 extern int mnj_posi_id;
 extern int mnj_depth_stable;
 void CONV mnj_check_results( void );
-int CONV mnj_reset_tbl( int sd, unsigned int seed );
+//int CONV mnj_reset_tbl( int sd, unsigned int seed );
+int CONV mnj_reset_tbl( void );
 int analyze( tree_t * restrict ptree );
 #else
 #  define MnjOut( ... )
+#  define MnjLocalOut( ... )
 #endif
 
 #if defined(USI)
@@ -1341,8 +1348,7 @@ const char *str_WSAError( const char *str );
 #endif
 
 #if defined(CSASHOGI)
-#  define OutCsaShogi( ... ) out_csashogi( __VA_ARGS__ )
-void out_csashogi( const char *format, ... );
+#  define OutCsaShogi( ... ) out_stdout( __VA_ARGS__ )
 #else
 #  define OutCsaShogi( ... )
 #endif

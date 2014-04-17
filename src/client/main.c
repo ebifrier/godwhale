@@ -25,7 +25,7 @@ main()
 #endif
 
 #if defined(CSASHOGI) && defined(_WIN32)
-  if ( argc != 2 || strcmp( argv[1], "csa_shogi" ) )
+  /*if ( argc != 2 || strcmp( argv[1], "csa_shogi" ) )
     {
       MessageBox( NULL,
                   "The executable image is not intended\x0d"
@@ -33,7 +33,7 @@ main()
                   "Execute CSA.EXE instead.",
                   str_myname, MB_OK | MB_ICONINFORMATION );
       return EXIT_FAILURE;
-    }
+    }*/
 #endif
 
 #if defined(USI)

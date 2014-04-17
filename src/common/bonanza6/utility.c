@@ -605,6 +605,7 @@ com_turn_start( tree_t * restrict ptree, int flag )
 }
 
 #if defined(MNJ_LAN)
+#if 0
 int CONV mnj_reset_tbl( int sd, unsigned int seed )
 {
   double average, deviation, d;
@@ -616,7 +617,6 @@ int CONV mnj_reset_tbl( int sd, unsigned int seed )
   if ( load_fv()           < 0 ) { return -1; }
   if ( clear_trans_table() < 0 ) { return -1; }
   ehash_clear();
-
 
   ini_rand( seed );
   average   = 0.0;
@@ -646,7 +646,7 @@ int CONV mnj_reset_tbl( int sd, unsigned int seed )
 
   average   /= (double)( nsquare * pos_n + nsquare * nsquare * kkp_end );
   deviation /= (double)( nsquare * pos_n + nsquare * nsquare * kkp_end );
-  deviation  = sqrt( deviation );
+  deviation  = sqrt( deviation );*/
 
   if ( get_elapsed( &u ) < 0 ) { return -1; }
   ini_rand( u );
@@ -655,10 +655,17 @@ int CONV mnj_reset_tbl( int sd, unsigned int seed )
   Out( "  actual average:            % .7f\n", average );
   Out( "  actual standard deviation: % .7f\n", deviation );
   Out( "rand seed = %x\n", u );
-  mnj_table_reseted = 1;
 
   return 1;
 }
+#else
+int CONV mnj_reset_tbl( void )
+{
+  if ( clear_trans_table() < 0 ) { return -1; }
+  ehash_clear();
+  return 1;
+}
+#endif
 #endif
 
 void * CONV memory_alloc( size_t nbytes )

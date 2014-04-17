@@ -25,6 +25,7 @@
 #include <boost/thread.hpp>
 #include <boost/regex.hpp>
 #include <boost/asio.hpp>
+#include <boost/timer/timer.hpp>
 
 #include <boost/log/core.hpp>
 #include <boost/log/common.hpp>

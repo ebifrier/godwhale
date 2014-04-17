@@ -8,7 +8,16 @@ namespace godwhale {
 namespace server {
 
 shared_ptr<Server> Server::ms_instance;
-mutex Server::ms_guard;
+
+/**
+ * サーバーのシングルトンインスタンスを初期化します。
+ */
+void Server::Initialize()
+{
+    ms_instance.reset(new Server());
+
+    ms_instance->StartThread();
+}
 
 Server::Server()
     : m_isAlive(true), m_acceptor(m_service)
@@ -16,10 +25,6 @@ Server::Server()
     m_acceptor.open(tcp::v4());
     m_acceptor.bind(tcp::endpoint(tcp::v4(), 4082));
     m_acceptor.listen(100);
-
-    // IO関係の処理を開始します。
-    m_thread.reset(new thread(&Server::ServiceThreadMain, shared_from_this()));
-    BeginAccept();
 }
 
 Server::~Server()
@@ -31,10 +36,32 @@ Server::~Server()
     m_acceptor.cancel(error);
     m_acceptor.close(error);
 
+    // foreach中にm_clientListが変更される可能性があるため、
+    // 念のため一時変数にコピーします。
+    auto tmp = CloneClientList();
+    BOOST_FOREACH(auto client, tmp) {
+        client.reset();
+    }
+
+    {
+        ScopedLock lock(m_guard);
+        m_clientList.clear();
+    }
+
     if (m_thread != NULL) {
         m_thread->join();
         m_thread.reset();
     }
+}
+
+/**
+ * @brief IOスレッドを開始します。
+ */
+void Server::StartThread()
+{
+    // IO関係の処理を開始します。
+    m_thread.reset(new thread(&Server::ServiceThreadMain, this));
+    BeginAccept();
 }
 
 void Server::ServiceThreadMain()
@@ -56,6 +83,16 @@ void Server::ServiceThreadMain()
             LOG(Error) << "ServerのIOスレッドでエラーが発生しました。";
         }
     }
+}
+
+/**
+ * @brief クライアントのリストを安全にコピーします。
+ */
+std::list<shared_ptr<Client> > Server::CloneClientList()
+{
+    ScopedLock lock(m_guard);
+
+    return m_clientList;
 }
 
 void Server::ClientDisconnected(shared_ptr<Client> client)
@@ -110,12 +147,6 @@ void Server::HandleAccept(shared_ptr<tcp::socket> socket,
     }
 
     BeginAccept();
-}
-
-int Server::Iterate(int *value, std::vector<move_t> &pvseq)
-{
-    *value = 0;
-    return 0;
 }
 
 } // namespace server

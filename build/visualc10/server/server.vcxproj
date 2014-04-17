@@ -137,6 +137,8 @@
     <ClCompile Include="..\..\..\src\common\bonanza6\valid.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\server\board.cpp" />
+    <ClCompile Include="..\..\..\src\server\bonanza_if.cpp" />
     <ClCompile Include="..\..\..\src\server\client.cpp" />
     <ClCompile Include="..\..\..\src\server\logger.cpp" />
     <ClCompile Include="..\..\..\src\server\main.cpp">
@@ -146,6 +148,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\..\src\server\server.cpp" />
+    <ClCompile Include="..\..\..\src\server\server_move.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\common\bonanza6\bitop.h" />
@@ -153,6 +156,7 @@
     <ClInclude Include="..\..\..\src\common\bonanza6\param.h" />
     <ClInclude Include="..\..\..\src\common\bonanza6\shogi.h" />
     <ClInclude Include="..\..\..\src\common\bonanza_if.h" />
+    <ClInclude Include="..\..\..\src\server\board.h" />
     <ClInclude Include="..\..\..\src\server\client.h" />
     <ClInclude Include="..\..\..\src\server\logger.h" />
     <ClInclude Include="..\..\..\src\server\precomp.h" />
@@ -188,7 +192,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\common;E:\programs\cpp\boost_1_55_0;$(IncludePath)</IncludePath>
+    <IncludePath>E:\programs\cpp\boost_1_55_0;$(IncludePath)</IncludePath>
     <LibraryPath>E:\programs\cpp\boost_1_55_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -203,6 +207,7 @@
       <PrecompiledHeaderFile>precomp.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <AdditionalOptions>/Zm148 %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4819</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -220,6 +225,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <DisableSpecificWarnings>4819</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

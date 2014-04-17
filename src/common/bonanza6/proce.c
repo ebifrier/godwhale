@@ -41,7 +41,6 @@ static int CONV cmd_sendpv( char **lasts );
 #if defined(MNJ_LAN)
 static int CONV proce_mnj( tree_t * restrict ptree );
 static int CONV cmd_mnjignore( tree_t *restrict ptree, char **lasts );
-static int CONV cmd_mnjprepare( char **lasts );
 static int CONV cmd_mnj( char **lasts );
 static int CONV cmd_mnjinit( tree_t * restrict ptree, char **lasts );
 static int CONV cmd_mnjmove( tree_t * restrict ptree, char **lasts,
@@ -159,7 +158,6 @@ static int CONV proce_cui( tree_t * restrict ptree )
   if ( ! strcmp( token, "sendpv" ) )    { return cmd_sendpv( &last ); }
 #endif
 #if defined(MNJ_LAN)
-  if ( ! strcmp( token, "mnjprepare" ) ){ return cmd_mnjprepare( &last ); }
   if ( ! strcmp( token, "mnj" ) )       { return cmd_mnj( &last ); }
 #endif
 #if defined(MPV)
@@ -255,25 +253,12 @@ static int CONV proce_mnj( tree_t * restrict ptree )
 {
   const char *token;
   char *last;
-  int iret;
 
   token = strtok_r( str_cmdline, str_delimiters, &last );
   if ( token == NULL ) { return 1; }
 
-  OutCsaShogi( "%s %s\n", str_cmdline, last );
+  MnjLocalOut( "%s %s\n", str_cmdline, last );
 
-  if ( ! strcmp( token, "new" ) )
-    {
-      iret = cmd_suspend();
-      if ( iret != 1 ) { return iret; }
-
-      mnj_posi_id = -1;
-      iret = cmd_new( ptree, &last );
-      if ( iret < 0 ) { return iret; }
-
-      moves_ignore[0] = MOVE_NA;
-      return analyze( ptree );
-    }
   if ( ! strcmp( token, "init" ) )   { return cmd_mnjinit( ptree, &last ); }
   if ( ! strcmp( token, "quit" ) )   { return cmd_quit(); }
   if ( ! strcmp( token, "ignore" ) ) { return cmd_mnjignore( ptree, &last ); }
@@ -2043,58 +2028,6 @@ static int CONV cmd_sendpv( char **lasts )
 
 
 #if defined(MNJ_LAN)
-/* mnjprepare sd seed */
-static int CONV cmd_mnjprepare( char **lasts )
-{
-  const char *str;
-  char *ptr;
-  unsigned int seed;
-  long l;
-  int sd;
-
-  str = strtok_r( NULL, str_delimiters, lasts );
-  if ( ! str )
-    {
-      str_error = str_bad_cmdline;
-      return -2;
-    }
-  l = strtol( str, &ptr, 0 );
-  if ( ptr == str || l == LONG_MAX || l < 0 )
-    {
-      str_error = str_bad_cmdline;
-      return -2;
-    }
-  sd = (int)l;
-
-
-  str = strtok_r( NULL, str_delimiters, lasts );
-  if ( ! str )
-    {
-      str_error = str_bad_cmdline;
-      return -2;
-    }
-  l = strtol( str, &ptr, 0 );
-  if ( ptr == str || l == LONG_MAX || l < 0 )
-    {
-      str_error = str_bad_cmdline;
-      return -2;
-    }
-  seed = (unsigned int)l;
-
-  if ( mnj_reset_tbl( sd, seed ) < 0 )
-    {
-      OutCsaShogi( "info mnjprepare failed\n" );
-      return -1;
-    }
-
-  str_buffer_cmdline[0] = '\0';
-
-  Out( "mnjprepare ok\n" );
-  OutCsaShogi( "info mnjprepare ok\n" );
-
-  return 1;
-}
-
 /* mnj addr port factor stable_depth */
 static int CONV cmd_mnj( char **lasts )
 {
@@ -2105,12 +2038,11 @@ static int CONV cmd_mnj( char **lasts )
   long l;
   int client_port, nthreads, recv_pv;
 
-  if ( ! mnj_table_reseted )
+  if ( mnj_reset_tbl(  ) < 0 )
     {
       str_error = str_bad_cmdline;
       return -2;
     }
-
 
   str = strtok_r( NULL, str_delimiters, lasts );
   if ( ! str || ! strcmp( str, "." ) ) { str = "localhost"; }
@@ -2168,7 +2100,8 @@ static int CONV cmd_mnj( char **lasts )
 
   str_buffer_cmdline[0] = '\0';
 
-  Out( "Sending my name %s", client_str_id );
+  Out( "Sending my name %s\n", client_str_id );
+  MnjLocalOut( "mnj ok\n" );
   MnjOut( "login %s %d %d %s\n", client_str_id, nthreads, recv_pv,
           ( mnj_depth_stable == INT_MAX ) ? "" : " stable" );
 

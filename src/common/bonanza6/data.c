@@ -229,7 +229,6 @@ move_t moves_ignore[MAX_LEGAL_MOVES];
 
 #if defined(MNJ_LAN)
 sckt_t sckt_mnj;
-int mnj_table_reseted;
 int mnj_posi_id;
 int mnj_depth_stable;
 move_t mnj_moves_ignore[MAX_LEGAL_MOVES];

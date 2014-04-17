@@ -71,9 +71,6 @@
     <ClCompile Include="..\..\..\src\common\bonanza6\learn2.c">
       <Filter>common\bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\server\main.cpp">
-      <Filter>common\bonanza6</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\common\bonanza6\makemove.c">
       <Filter>common\bonanza6</Filter>
     </ClCompile>
@@ -134,6 +131,10 @@
     <ClCompile Include="..\..\..\src\common\bonanza6\utility.c">
       <Filter>common\bonanza6</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\server\main.cpp" />
+    <ClCompile Include="..\..\..\src\server\server_move.cpp" />
+    <ClCompile Include="..\..\..\src\server\bonanza_if.cpp" />
+    <ClCompile Include="..\..\..\src\server\board.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\server\client.h" />
@@ -156,6 +157,7 @@
     <ClInclude Include="..\..\..\src\common\bonanza6\shogi.h">
       <Filter>common\bonanza6</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\server\board.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="common">

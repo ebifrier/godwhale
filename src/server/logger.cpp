@@ -44,7 +44,7 @@ void InitializeLog()
     backend->auto_flush(true);
     
     auto frontend = make_shared< sinks::synchronous_sink<text_backend> >(backend);
-    frontend->set_filter(Severity >= Notification);
+    //frontend->set_filter(Severity >= Notification);
 
     core::get()->add_sink(frontend);
 }
