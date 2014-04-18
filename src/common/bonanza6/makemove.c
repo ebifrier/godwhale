@@ -3,6 +3,10 @@
 #include <string.h>
 #include "shogi.h"
 
+#ifdef GODWHALE_SERVER
+#include "../bonanza_if.h"
+#endif
+
 #define DropB( PIECE, piece )  Xor( to, BB_B ## PIECE );                    \
                                HASH_KEY    ^= ( b_ ## piece ## _rand )[to]; \
                                HAND_B      -= flag_hand_ ## piece;          \
@@ -367,6 +371,11 @@ int CONV
 make_move_root( tree_t * restrict ptree, unsigned int move, int flag )
 {
   int check, drawn, iret, i, n;
+
+#ifdef GODWHALE_SERVER
+  if ( ! ( flag & flag_nomake_move ) )
+    make_move_root_hook( move );
+#endif
 
   MakeMove( root_turn, move, 1 );
 

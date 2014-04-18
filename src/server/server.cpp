@@ -20,7 +20,7 @@ void Server::Initialize()
 }
 
 Server::Server()
-    : m_isAlive(true), m_acceptor(m_service)
+    : m_isAlive(true), m_acceptor(m_service), m_gid(0)
 {
     m_acceptor.open(tcp::v4());
     m_acceptor.bind(tcp::endpoint(tcp::v4(), 4082));

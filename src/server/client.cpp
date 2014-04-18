@@ -1,6 +1,5 @@
 #include "precomp.h"
 #include "stdinc.h"
-
 #include "server.h"
 #include "client.h"
 
@@ -8,19 +7,24 @@ namespace godwhale {
 namespace server {
 
 Client::Client(Server *server, shared_ptr<tcp::socket> socket)
-    : m_server(server), m_socket(socket)
+    : m_server(server), m_socket(socket), m_logined(false), m_nthreads(0)
+    , m_sendpv(false), m_move(MOVE_NA), m_playedMove(MOVE_NA), m_stable(false)
+    , m_final(false), m_nodes(0), m_value(0), m_pid(0)
 {
+    LOG(Notification) << m_board;
 }
 
 Client::~Client()
 {
-    //Disconnected();
+    if (m_socket->is_open()) {
+        Disconnected(true);
+    }
 }
 
 /**
  * @brief コネクションの切断時に呼ばれます。
  */
-void Client::Disconnected()
+void Client::Disconnected(bool destructor/*=false*/)
 {
     {
         ScopedLock lock(m_guard);
@@ -29,12 +33,13 @@ void Client::Disconnected()
 
     if (m_socket != NULL) {
         system::error_code error;
-        m_socket->cancel(error);
         m_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
         m_socket->close();
     }
 
-    m_server->ClientDisconnected(shared_from_this());
+    if (!destructor) {
+        m_server->ClientDisconnected(shared_from_this());
+    }
 
     LOG(Notification) << "Client[" << m_id << "] が切断されました。";
 }
@@ -64,8 +69,12 @@ void Client::HandleAsyncReceive(const system::error_code &error)
     std::istream is(&m_streambuf);
     std::string line;
 
-    while (std::getline(is, line)) {
-        ParseCommand(line);
+    while (std::getline(is, line, '\n')) {
+        LOG(Debug) << "client[" << m_id << "] recv: " << line;
+        
+        if (ParseCommand(line) < 0) {
+            LOG(Error) << "parse error: " << line;
+        }
     }
 
     BeginAsyncReceive();
@@ -146,6 +155,8 @@ void Client::HandleAsyncSend(const system::error_code &error)
     
     {
         ScopedLock lock(m_guard);
+
+        LOG(Debug) << "client[" << m_id << "] send: " << m_sendingbuf;
         m_sendingbuf.clear();
     }
 
@@ -161,7 +172,7 @@ const static regex MoveRegex("move=(\\d\\d\\d\\d[A-Z][A-Z])");
 const static regex ToryoRegex("move=%TORYO");
 const static regex NodeRegex("n=(\\d+)");
 const static regex ValueRegex("v=([+-]?\\d+)");
-const static regex PVRegex("pv=(( [+-]?\\d\\d\\d\\d[A-Z][A-Z])+)");
+const static regex PVRegex("pv=\\s*(([+-]?\\d\\d\\d\\d[A-Z][A-Z]\\s*)+)");
 
 int Client::ParseCommand(const std::string &command)
 {
@@ -172,106 +183,95 @@ int Client::ParseCommand(const std::string &command)
     smatch m;
     int pid = -1;
 
-    if (regex_match(command, m, PidRegex)) {
+    if (regex_search(command, m, PidRegex)) {
         pid = lexical_cast<int>(m.str(1));
     }
 
-    if (regex_match(command, m, LoginRegex)) {
-        m_id = m.str(1);
-        m_nthreads = lexical_cast<int>(m.str(2));
-        m_sendpv = (lexical_cast<int>(m.str(3)) != 0);
-        m_pid = 0;
+    if (regex_search(command, m, LoginRegex)) {
+        {
+            ScopedLock lock(m_guard);
 
-        LOG(Notification) << command;
-        LOG(Notification) << "init " << m_pid << " " << "";
+            m_logined = true;
+            m_id = m.str(1);
+            m_nthreads = lexical_cast<int>(m.str(2));
+            m_sendpv = (lexical_cast<int>(m.str(3)) != 0);
+            m_pid = 0;
+        }
+
+        SendCommand("init 0\n");
+
+        LOG(Notification) << "client '" << m_id << "' is logined !";
     }
     else if (pid < 0) {
         return -1;
     }
 
-    if (pid >= 0 && pid != m_pid) {
-        return 0;
+    {
+        ScopedLock lock(m_guard);
+        if (pid >= 0 && pid != m_pid) {
+            return 0;
+        }
     }
 
-    std::string move;
-    if (regex_match(command, m, MoveRegex)) move = m.str(1);
-    if (regex_match(command, m, ToryoRegex)) move = "%TORYO"; //MOVE_RESIGN
+    move_t move = MOVE_NA;
+    if (regex_search(command, m, MoveRegex)) {
+        move = m_board.InterpretCsaMove(m.str(1));
+        assert(m_board.IsValidMove(move));
+    }
+    if (regex_search(command, m, ToryoRegex)) {
+        move = MOVE_RESIGN;
+    }
 
-    int nodes = -1;
+    long nodes = -1;
     int value = INT_MAX;
-    if (regex_match(command, m, NodeRegex)) nodes = lexical_cast<int>(m.str(1));
-    if (regex_match(command, m, ValueRegex)) value = lexical_cast<int>(m.str(1));
+    if (regex_search(command, m, NodeRegex)) nodes = lexical_cast<long>(m.str(1));
+    if (regex_search(command, m, ValueRegex)) value = lexical_cast<int>(m.str(1));
 
     bool final = (command.find("final") >= 0);
     bool stable = (command.find("stable") >= 0);
 
-    if (!move.empty() && nodes > 0 && value != INT_MAX) {
-        //m_move = move;
-        m_nodes = nodes;
-        m_value = value;
-        m_final = final;
-        m_stable = stable;
-        return 0;
+    {
+        ScopedLock lock(m_guard);
+
+        if (move != MOVE_NA && nodes > 0 && value != INT_MAX) {
+            m_move = move;
+            m_nodes = nodes;
+            m_value = value;
+            m_final = final;
+            m_stable = stable;
+            return 0;
+        }
+        else if (final) m_final = final;
+        else if (nodes > 0) m_nodes = nodes;
+        else return -1;
     }
-    else if (final) m_final = final;
-    else if (nodes > 0) m_nodes = nodes;
-    else return -1;
 
     return 0;
 }
 
-static int StrToPiece(const std::string &str, std::string::size_type index)
+void Client::MakeRootMove(move_t move, int pid)
 {
-    int i;
+    assert(m_board.IsValidMove(move));
 
-    for (i = 0; i < ArraySize(astr_table_piece); ++i) {
-        if (str.compare(index, 2, astr_table_piece[i]) == 0) break;
+    if (move == MOVE_NA) return;
+
+    {
+        ScopedLock lock(m_guard);
+
+        LOG(Notification) << m_board;
+        m_board.Move(move);
+        LOG(Notification) << m_board;
+
+        m_pid = pid;
+        m_move = move;
+        m_nodes = 0;
+        m_value = 0;
+        m_final = false;
+        m_stable = false;
     }
 
-    if (i == 0 || i == piece_null || i == ArraySize(astr_table_piece)) {
-        i = -2;
-    }
-
-    return i;
-}
-
-move_t ParseMove(const std::string &str)
-{
-    int ifrom_file, ifrom_rank, ito_file, ito_rank, ipiece;
-    int ifrom, ito;
-    move_t move;
-
-    ifrom_file = str[0]-'0';
-    ifrom_rank = str[1]-'0';
-    ito_file   = str[2]-'0';
-    ito_rank   = str[3]-'0';
-
-    ito_file   = 9 - ito_file;
-    ito_rank   = ito_rank - 1;
-    ito        = ito_rank * 9 + ito_file;
-    ipiece     = StrToPiece(str, 4);
-    if (ipiece < 0) {
-        return -2;
-    }
-
-    if (ifrom_file == 0 && ifrom_rank == 0) {
-        return (To2Move(ito) | Drop2Move(ipiece));
-    }
-    else {
-        ifrom_file = 9 - ifrom_file;
-        ifrom_rank = ifrom_rank - 1;
-        ifrom      = ifrom_rank * 9 + ifrom_file;
-        /*if (abs(BOARD[ifrom]) + promote == ipiece) {
-            ipiece -= promote;
-            move    = FLAG_PROMO;
-        }
-        else {
-            move = 0;
-        }*/
-
-        return (move | To2Move(ito) | From2Move(ifrom)
-            /*| Cap2Move(abs(BOARD[ito]))*/ | Piece2Move(ipiece));
-    }
+    auto fmt = format("move %1% %2%\n") % str_CSA_move(move) % pid;
+    SendCommand(fmt.str());
 }
 
 }

@@ -1268,8 +1268,8 @@ void CONV shutdown_all( void );
 #endif
 
 #if defined(CSA_LAN)||defined(MNJ_LAN)||defined(DFPN_CLIENT)||defined(DFPN)
-int client_next_game( tree_t * restrict ptree, const char *str_addr,
-                      int iport );
+int CONV client_next_game( tree_t * restrict ptree, const char *str_addr,
+                           int iport );
 sckt_t CONV sckt_connect( const char *str_addr, int iport );
 int CONV sckt_recv_all( sckt_t sd );
 int CONV sckt_shutdown( sckt_t sd );

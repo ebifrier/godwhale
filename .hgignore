@@ -44,3 +44,6 @@ build/visualc10/client/Debug/
 build/visualc10/Debug/
 build/visualc10/server/Debug/
 build/visualc10/ipch/
+build/visualc10/client/Release/
+build/visualc10/server/Release/
+build/visualc10/Release/

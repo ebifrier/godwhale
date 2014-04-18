@@ -176,6 +176,7 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
                    | flag_nobeep | flag_nostress | flag_nopeek
                    | flag_noponder | flag_noprompt | flag_sendpv
                    | flag_nostdout | flag_nonewlog );
+  game_status |= flag_nobeep | flag_noponder | flag_sendpv;
 
   sec_b_total     = 0;
   sec_w_total     = 0;

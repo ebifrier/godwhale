@@ -42,6 +42,8 @@ public:
     
     void ClientDisconnected(shared_ptr<Client> client);
     
+    void MakeRootMove(move_t move);
+    void UnmakeRootMove();
     int Iterate(int *value, std::vector<move_t> &pvseq);
 
 private:
@@ -53,6 +55,7 @@ private:
     tcp::acceptor m_acceptor;
 
     std::list<shared_ptr<Client> > m_clientList;
+    atomic<int> m_gid;
 };
 
 }

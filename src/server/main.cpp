@@ -18,18 +18,6 @@ int main(int argc, char *argv[])
     ptree = &tree;
 #endif
 
-#if defined(CSASHOGI) && defined(_WIN32)
-    if ( argc != 2 || strcmp( argv[1], "csa_shogi" ) )
-    {
-        MessageBox(NULL,
-                   "The executable image is not intended\x0d"
-                   "as an independent program file.\x0d"
-                   "Execute CSA.EXE instead.",
-                   str_myname, MB_OK | MB_ICONINFORMATION);
-        return EXIT_FAILURE;
-    }
-#endif
-
 #if defined(USI)
     if (argc == 2 && !strcmp(argv[1], "usi")) { usi_mode = usi_on; }
     else                                      { usi_mode = usi_off; }

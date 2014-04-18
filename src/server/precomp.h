@@ -11,12 +11,14 @@
 #include <algorithm>
 
 #include <boost/cstdint.hpp>
+#include <boost/atomic.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/current_function.hpp>
 #include <boost/utility/empty_deleter.hpp>
 
 #include <boost/bind.hpp>
+#include <boost/format.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_array.hpp>

@@ -10,6 +10,8 @@ ponder( tree_t * restrict ptree )
   unsigned int move;
   int iret;
 
+  return 1;
+
   if ( ( game_status & ( mask_game_end | flag_noponder | flag_nopeek ) )
        || abs( last_root_value ) > score_max_eval
        || ! record_game.moves

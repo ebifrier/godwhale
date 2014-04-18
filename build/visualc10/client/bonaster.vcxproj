@@ -142,9 +142,8 @@ copy $(TargetPath) $(ProjectDir)..\..\..\utility\Bonako\Bonako</Command>
       <AdditionalDependencies>user32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(ProjectDir)..\
-copy $(TargetPath) $(ProjectDir)..\..\Bonako\Bonako
-copy $(TargetPath) $(ProjectDir)..\..\Bonako\Bonako.DFPN</Command>
+      <Command>copy $(TargetPath) $(ProjectDir)..\..\..\src\client
+copy $(TargetPath) $(ProjectDir)..\..\..\utility\Bonako\Bonako</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -902,7 +902,7 @@ detect_signals( tree_t * restrict ptree )
 #endif
 
 #if defined(MNJ_LAN)
-  if ( sckt_mnj != SCKT_NULL && 500U + time_last_send < tnow )
+  if ( sckt_mnj != SCKT_NULL && 10U*1000U + time_last_send < tnow )
     {
       uint64_t nodes;
       
