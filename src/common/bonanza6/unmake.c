@@ -55,9 +55,7 @@ unmake_move_b( tree_t * restrict ptree, unsigned int move, int ply )
 
       BOARD[to] = empty;
       Xor( to, BB_BOCCUPY );
-      XorFile( to, OCCUPIED_FILE );
-      XorDiag2( to, OCCUPIED_DIAG2 );
-      XorDiag1( to, OCCUPIED_DIAG1 );
+      XorOccupied( to );
     }
   else {
     const int ipiece_move = (int)I2PieceMove(move);
@@ -153,15 +151,11 @@ unmake_move_b( tree_t * restrict ptree, unsigned int move, int ply )
                             Xor( to, BB_W_RD );                   break;
           }
       Xor( to, BB_WOCCUPY );
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag1( from, OCCUPIED_DIAG1 );
-      XorDiag2( from, OCCUPIED_DIAG2 );
+      XorOccupied( from );
       }
     else {
       BOARD[to] = empty;
-      SetClearFile( from, to, OCCUPIED_FILE );
-      SetClearDiag1( from, to, OCCUPIED_DIAG1 );
-      SetClearDiag2( from, to, OCCUPIED_DIAG2 );
+      SetClearOccupied( from, to );
     }
   }
 
@@ -206,9 +200,7 @@ unmake_move_w( tree_t * restrict ptree, unsigned int move, int ply )
 
       BOARD[to] = empty;
       Xor( to, BB_WOCCUPY );
-      XorFile( to, OCCUPIED_FILE );
-      XorDiag2( to, OCCUPIED_DIAG2 );
-      XorDiag1( to, OCCUPIED_DIAG1 );
+      XorOccupied( to );
     }
   else {
     const int ipiece_move = (int)I2PieceMove(move);
@@ -304,15 +296,11 @@ unmake_move_w( tree_t * restrict ptree, unsigned int move, int ply )
                             Xor( to, BB_B_RD );                 break;
           }
         Xor( to, BB_BOCCUPY );
-        XorFile( from, OCCUPIED_FILE );
-        XorDiag1( from, OCCUPIED_DIAG1 );
-        XorDiag2( from, OCCUPIED_DIAG2 );
+        XorOccupied( from );
       }
     else {
       BOARD[to] = empty;
-      SetClearFile( from, to, OCCUPIED_FILE );
-      SetClearDiag1( from, to, OCCUPIED_DIAG1 );
-      SetClearDiag2( from, to, OCCUPIED_DIAG2 );
+      SetClearOccupied( from, to );
     }
   }
 

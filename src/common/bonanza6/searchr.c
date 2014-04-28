@@ -224,14 +224,10 @@ searchr( tree_t * restrict ptree, int alpha, int beta, int turn, int depth )
 #if defined(MNJ_LAN)
             if (1)
               {
-                char mnj_pv[1024];
-
-                make_mnj_pv( ptree, value, turn, mnj_pv, sizeof(mnj_pv) );
-                MnjOut( "3 pid=%d move=%s v=%dl n=% " PRIu64 "%s pv=%s\n",
+                MnjOut( "3 pid=%d move=%s v=%dl n=% " PRIu64 "%s\n",
                         mnj_posi_id, str_CSA_move(MOVE_CURR),
                         alpha+1, ptree->node_searched,
-                        ( mnj_depth_stable <= iteration_depth ) ? " stable" : "",
-                        mnj_pv );
+                        ( mnj_depth_stable <= iteration_depth ) ? " stable" : "" );
               }
 #endif
 

@@ -81,17 +81,13 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
   BBIni( BB_WHORSE );
   BBIni( BB_WDRAGON );
   BBIni( BB_WTGOLD );
-  BBIni( OCCUPIED_FILE );
-  BBIni( OCCUPIED_DIAG1 );
-  BBIni( OCCUPIED_DIAG2 );
+  IniOccupied();
 
   for ( sq = 0; sq < nsquare; sq++ ) {
     piece = BOARD[sq];
     if ( piece > 0 ) {
       Xor( sq, BB_BOCCUPY );
-      XorFile( sq, OCCUPIED_FILE );
-      XorDiag1( sq, OCCUPIED_DIAG1 );
-      XorDiag2( sq, OCCUPIED_DIAG2 );
+      XorOccupied( sq );
       switch ( piece )
         {
         case pawn:        Xor( sq, BB_BPAWN );        break;
@@ -112,9 +108,7 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
     }
     else if ( piece < 0 ) {
       Xor( sq, BB_WOCCUPY );
-      XorFile( sq, OCCUPIED_FILE );
-      XorDiag1( sq, OCCUPIED_DIAG1 );
-      XorDiag2( sq, OCCUPIED_DIAG2 );
+      XorOccupied( sq );
       switch ( - piece )
         {
         case pawn:        Xor( sq, BB_WPAWN );        break;
@@ -519,6 +513,12 @@ com_turn_start( tree_t * restrict ptree, int flag )
         {
           iret = sckt_out( sckt_csa, "%%TORYO\n" );
           if ( iret < 0 ) { return iret; }
+        }
+#endif
+#if defined(USI)
+      if ( usi_mode != usi_off )
+        {
+          USIOut( "bestmove resign\n" );
         }
 #endif
       OutCsaShogi( "resign\n" );

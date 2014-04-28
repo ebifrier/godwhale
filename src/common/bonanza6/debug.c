@@ -39,9 +39,11 @@ exam_bb( const tree_t *ptree )
   if ( root_turn               & ~0x0000001U ) { DOut( "root_turn" ); }
   if ( HAND_B                  & ~0x01fffffU ) { DOut( "HAND_B" ); }
   if ( HAND_W                  & ~0x01fffffU ) { DOut( "HAND_W" ); }
+#if ! defined(BITBOARD64)
   if ( BBToU(OCCUPIED_FILE)    & ~0x7ffffffU ) { DOut( "OCCUPIED_FILE" ); }
   if ( BBToU(OCCUPIED_DIAG2)   & ~0x7ffffffU ) { DOut( "OCCUPIED_DIAG2" ); }
   if ( BBToU(OCCUPIED_DIAG1)   & ~0x7ffffffU ) { DOut( "OCCUPIED_DIAG1" ); }
+#endif
 
   if ( BBToU(BB_BOCCUPY)       & ~0x7ffffffU ) { DOut( "BB_BOCCUPY" ); }
   if ( BBToU(BB_BPAWN_ATK)     & ~0x7ffffffU ) { DOut( "BB_BPAWN_ATK" ); }
@@ -217,9 +219,11 @@ exam_bb( const tree_t *ptree )
     {
       if ( BOARD[sq] ) { npiece++; }
     }
+#if ! defined(BITBOARD64)
   if ( npiece != PopuCount( OCCUPIED_FILE ) )  { DOut( "OCCUPIED_FILE" ); }
   if ( npiece != PopuCount( OCCUPIED_DIAG2 ) ) { DOut( "OCCUPIED_DIAG2" ); }
   if ( npiece != PopuCount( OCCUPIED_DIAG1 ) ) { DOut( "OCCUPIED_DIAG1" ); }
+#endif
 
 
   /* Material and Hash signature */

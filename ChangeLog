@@ -1,3 +1,12 @@
+2014-04-28  - Ver 2.0.5
+
+	* src/common/bonanza6/searchr.c: 一部の指し手を送るとき、間違った変化を
+	使っていた部分を修正しました。
+	* src/common/bonanza6/bitop.h: 高速化版ビットボードへ対応するためのオペ
+	レーションを追加しました。
+	* src/common/bonanza6/shogi.h: Puella αに導入されていた高速化された
+	ビットボードを導入しました。
+
 2014-04-28  - Ver 2.0.4
 
 	* utility/Bonako/Bonako/dist/versioninfo.xml: ボナ子のバージョンを更新

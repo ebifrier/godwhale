@@ -42,8 +42,11 @@ typedef int sckt_t;
 #  endif
 
 #  define restrict      __restrict
+#  define inline        __inline
 #  define strtok_r      strtok_s
 #  define read          _read
+#  define getpid        _getpid
+#  define unreachable() __assume(0); assert(0)
 #  define strncpy( dst, src, len ) strncpy_s( dst, len, src, _TRUNCATE )
 #  define snprintf( buf, size, fmt, ... )   \
           _snprintf_s( buf, size, _TRUNCATE, fmt, __VA_ARGS__ )
@@ -57,12 +60,14 @@ typedef volatile long lock_t;
 
 #  include <inttypes.h>
 #  define restrict __restrict
-typedef volatile int lock_t;
+#  define unreachable() __builtin_unreachable(); assert(0)
+typedef pthread_mutex_t lock_t;
 
 /* other targets. */
 #else
 
 #  include <inttypes.h>
+#  define unreachable()
 typedef struct { unsigned int p[3]; } bitboard_t;
 typedef pthread_mutex_t lock_t;
 extern unsigned char aifirst_one[512];
@@ -217,9 +222,11 @@ extern unsigned char ailast_one[512];
 #define BB_WHORSE           (ptree->posi.w_horse)
 #define BB_WDRAGON          (ptree->posi.w_dragon)
 
+#if ! defined(BITBOARD64)
 #define OCCUPIED_FILE       (ptree->posi.occupied_rl90)
 #define OCCUPIED_DIAG1      (ptree->posi.occupied_rr45)
 #define OCCUPIED_DIAG2      (ptree->posi.occupied_rl45)
+#endif
 #define BOARD               (ptree->posi.asquare)
 
 #define SQ_BKING            (ptree->posi.isquare_b_king)
@@ -319,10 +326,39 @@ typedef unsigned int move_t;
 #define From2Drop(from)         ((from)-nsquare+1)
 
 
+#if defined(BITBOARD64)
+
+// デバッグ用
+#define AttackRankE(occ,sq) abb_attacks[0][sq][           \
+    ((occ).x[0] >> ai_shift[0][sq]) & 0x7f]
+#define AttackFileE(occ,sq) abb_attacks[1][sq][           \
+    ((occ).x[1] >> ai_shift[1][sq]) & 0x7f]
+#define AttackDiag1E(occ,sq) abb_attacks[2][sq][          \
+    ((occ).x[2] >> ai_shift[2][sq]) & 0x7f]
+#define AttackDiag2E(occ,sq) abb_attacks[3][sq][          \
+    ((occ).x[3] >> ai_shift[3][sq]) & 0x7f]
+
+#define AttackRank(i)  AttackRankE(ptree->posi.occ,i)
+#define AttackFile(i)  AttackFileE(ptree->posi.occ,i)
+#define AttackDiag1(i) AttackDiag1E(ptree->posi.occ,i)
+#define AttackDiag2(i) AttackDiag2E(ptree->posi.occ,i)
+
+#else
+
+// iの筋の利き (上下の端が駒にぶつかるまで)
+// 香などの縦の利きを求めるのに使う。
+// 香が9段目にいるとして、1段目に利きが到達できるかどうかを調べるには、
+// 1段目の駒の状態は関係なく、2～8段目に駒があるかだけが問題なので結局、
+// その7bitを調べるだけで済む。要するに、
+// abb_file_attacksは[nsquare][7bit = 128個]でこと足りるという仕組み。
+// occupied_rl90は先後両方の駒が含まれる盤面を90度回転させたbitboard
 #define AttackFile(i)  (abb_file_attacks[i]                               \
                          [((ptree->posi.occupied_rl90.p[aslide[i].irl90]) \
                             >> aslide[i].srl90) & 0x7f])
 
+// iの段の利き。左右の端が駒にぶつかるまで。
+// 先後の両方の駒と判定する必要があるのでb_occupiedとw_occupiedと
+// bitwise ORをとる必要がある。
 #define AttackRank(i)  (abb_rank_attacks[i]                               \
                          [((ptree->posi.b_occupied.p[aslide[i].ir0]       \
                             |ptree->posi.w_occupied.p[aslide[i].ir0])     \
@@ -337,6 +373,9 @@ typedef unsigned int move_t;
           (abb_bishop_attacks_rl45[i]                        \
             [((ptree->posi.occupied_rl45.p[aslide[i].irl45]) \
                >> aslide[i].srl45) & 0x7f])
+
+#endif
+
 
 #define BishopAttack0(i) ( AttackDiag1(i).p[0] | AttackDiag2(i).p[0] )
 #define BishopAttack1(i) ( AttackDiag1(i).p[1] | AttackDiag2(i).p[1] )
@@ -437,6 +476,13 @@ enum { nhand = 7, nfile = 9,  nrank = 9,  nsquare = 81 };
 enum { mask_file1 = (( 1U << 18 | 1U << 9 | 1U ) << 8) };
 
 enum { flag_diag1 = b0001, flag_plus = b0010 };
+
+// abb_attacks, ai_shift, ao_bitmaskのインデックスに使います。
+enum { direc_idx_horiz = 0, // 横方向用のテーブルインデックス
+       direc_idx_vert  = 1, // 縦方向用のテーブルインデックス
+       direc_idx_diag1 = 2, // 右斜め上方向のテーブルインデックス
+       direc_idx_diag2 = 3, // 右斜め下方向のテーブルインデックス
+       direc_idx_max   = 4 };
 
 enum { score_draw     =     1,
        score_max_eval = 30000,
@@ -654,10 +700,34 @@ typedef struct {
 } slide_tbl_t;
 
 
+#if defined(BITBOARD64)
+// 駒の占有箇所を示したビットボード
+#if defined(HAVE_AVX)
+typedef union {
+  __m256 m;
+#elif defined(HAVE_SSE2)
+typedef union {
+  __m128i m[2];
+#else
+typedef struct {
+#endif
+  uint64_t x[4];  // rank, file, diag1(rl45), diag2(rr45)
+} occupied_t;
+
+extern bitboard_t abb_attacks[4][128/*81*/][128];
+extern const int ai_shift[4][81];
+extern occupied_t ao_bitmask[81];
+#endif
+
+
 typedef struct {
   uint64_t hash_key;
   bitboard_t b_occupied,     w_occupied;
+#if defined(BITBOARD64)
+  occupied_t occ;
+#else
   bitboard_t occupied_rl90,  occupied_rl45, occupied_rr45;
+#endif
   bitboard_t b_hdk,          w_hdk;
   bitboard_t b_tgold,        w_tgold;
   bitboard_t b_bh,           w_bh;
@@ -1001,6 +1071,10 @@ extern int dfpn_client_cresult_index;
 void CONV dfpn_client_start( const tree_t * restrict ptree );
 void CONV dfpn_client_check_results( void );
 int CONV dfpn_client_out( const char *fmt, ... );
+#endif
+
+#if defined(BITBOARD64)
+void CONV ini_bitboards( void );
 #endif
 
 void CONV pv_close( tree_t * restrict ptree, int ply, int type );

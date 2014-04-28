@@ -17,9 +17,7 @@ b_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
   sq_bk = SQ_BKING;
   
   Xor( sq_bk, BB_BOCCUPY );
-  XorFile( sq_bk, OCCUPIED_FILE );
-  XorDiag2( sq_bk, OCCUPIED_DIAG2 );
-  XorDiag1( sq_bk, OCCUPIED_DIAG1 );
+  XorOccupied( sq_bk );
 
   BBNotAnd( bb_desti, abb_king_attacks[sq_bk], BB_BOCCUPY );
   utemp = From2Move(sq_bk) | Piece2Move(king);
@@ -34,9 +32,7 @@ b_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
     }
   
   Xor( sq_bk, BB_BOCCUPY );
-  XorFile( sq_bk, OCCUPIED_FILE );
-  XorDiag2( sq_bk, OCCUPIED_DIAG2 );
-  XorDiag1( sq_bk, OCCUPIED_DIAG1 );
+  XorOccupied( sq_bk );
   
   bb_checker = w_attacks_to_piece( ptree, sq_bk );
   nchecker = PopuCount( bb_checker );
@@ -339,9 +335,7 @@ w_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
   sq_wk = SQ_WKING;
 
   Xor( sq_wk, BB_WOCCUPY );
-  XorFile( sq_wk, OCCUPIED_FILE );
-  XorDiag2( sq_wk, OCCUPIED_DIAG2 );
-  XorDiag1( sq_wk, OCCUPIED_DIAG1 );
+  XorOccupied( sq_wk );
 
   BBNotAnd( bb_desti, abb_king_attacks[sq_wk], BB_WOCCUPY );
   utemp = From2Move(sq_wk) | Piece2Move(king);
@@ -356,9 +350,7 @@ w_gen_evasion( tree_t * restrict ptree, unsigned int * restrict pmove )
     }
 
   Xor( sq_wk, BB_WOCCUPY );
-  XorFile( sq_wk, OCCUPIED_FILE );
-  XorDiag2( sq_wk, OCCUPIED_DIAG2 );
-  XorDiag1( sq_wk, OCCUPIED_DIAG1 );
+  XorOccupied( sq_wk );
 
   bb_checker = b_attacks_to_piece( ptree, sq_wk );
   nchecker = PopuCount( bb_checker );
@@ -659,9 +651,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
   sq_bk = SQ_BKING;
   
   Xor( sq_bk, BB_BOCCUPY );
-  XorFile( sq_bk, OCCUPIED_FILE );
-  XorDiag2( sq_bk, OCCUPIED_DIAG2 );
-  XorDiag1( sq_bk, OCCUPIED_DIAG1 );
+  XorOccupied( sq_bk );
 
   BBNotAnd( bb_desti, abb_king_attacks[sq_bk], BB_BOCCUPY );
 
@@ -678,9 +668,7 @@ int CONV b_have_evasion( tree_t * restrict ptree )
     }
 
   Xor( sq_bk, BB_BOCCUPY );
-  XorFile( sq_bk, OCCUPIED_FILE );
-  XorDiag2( sq_bk, OCCUPIED_DIAG2 );
-  XorDiag1( sq_bk, OCCUPIED_DIAG1 );
+  XorOccupied( sq_bk );
   
   if ( flag ) { return 1; }
 
@@ -882,9 +870,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
   sq_wk = SQ_WKING;
 
   Xor( sq_wk, BB_WOCCUPY );
-  XorFile( sq_wk, OCCUPIED_FILE );
-  XorDiag2( sq_wk, OCCUPIED_DIAG2 );
-  XorDiag1( sq_wk, OCCUPIED_DIAG1 );
+  XorOccupied( sq_wk );
 
   BBNotAnd( bb_desti, abb_king_attacks[sq_wk], BB_WOCCUPY );
   while ( BBTest( bb_desti ) )
@@ -900,9 +886,7 @@ int CONV w_have_evasion( tree_t * restrict ptree )
     }
 
   Xor( sq_wk, BB_WOCCUPY );
-  XorFile( sq_wk, OCCUPIED_FILE );
-  XorDiag2( sq_wk, OCCUPIED_DIAG2 );
-  XorDiag1( sq_wk, OCCUPIED_DIAG1 );
+  XorOccupied( sq_wk );
 
   if ( flag ) { return 1; }
 

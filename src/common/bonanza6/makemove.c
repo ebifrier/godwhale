@@ -92,9 +92,7 @@ make_move_b( tree_t * restrict ptree, unsigned int move, int ply )
                      Xor( to, BB_B_RD );       break;
         }
       Xor( to, BB_BOCCUPY );
-      XorFile( to, OCCUPIED_FILE );
-      XorDiag2( to, OCCUPIED_DIAG2 );
-      XorDiag1( to, OCCUPIED_DIAG1 );
+      XorOccupied( to );
     }
   else {
     const int ipiece_move = (int)I2PieceMove(move);
@@ -192,14 +190,10 @@ make_move_b( tree_t * restrict ptree, unsigned int move, int ply )
                            Xor( to, BB_W_RD );                         break;
           }
         Xor( to, BB_WOCCUPY );
-        XorFile( from, OCCUPIED_FILE );
-        XorDiag2( from, OCCUPIED_DIAG2 );
-        XorDiag1( from, OCCUPIED_DIAG1 );
+        XorOccupied( from );
       }
     else {
-      SetClearFile( from, to, OCCUPIED_FILE );
-      SetClearDiag1( from, to, OCCUPIED_DIAG1 );
-      SetClearDiag2( from, to, OCCUPIED_DIAG2 );
+      SetClearOccupied( from, to );
     }
   }
 
@@ -240,9 +234,7 @@ make_move_w( tree_t * restrict ptree, unsigned int move, int ply )
                      Xor( to, BB_W_RD );       break;
         }
       Xor( to, BB_WOCCUPY );
-      XorFile( to, OCCUPIED_FILE );
-      XorDiag2( to, OCCUPIED_DIAG2 );
-      XorDiag1( to, OCCUPIED_DIAG1 );
+      XorOccupied( to );
     }
   else {
     const int ipiece_move = (int)I2PieceMove(move);
@@ -337,14 +329,10 @@ make_move_w( tree_t * restrict ptree, unsigned int move, int ply )
                            Xor( to, BB_B_RD );                      break;
           }
         Xor( to, BB_BOCCUPY );
-        XorFile( from, OCCUPIED_FILE );
-        XorDiag1( from, OCCUPIED_DIAG1 );
-        XorDiag2( from, OCCUPIED_DIAG2 );
+        XorOccupied( from );
       }
     else {
-      SetClearFile( from, to, OCCUPIED_FILE );
-      SetClearDiag1( from, to, OCCUPIED_DIAG1 );
-      SetClearDiag2( from, to, OCCUPIED_DIAG2 );
+      SetClearOccupied( from, to );
     }
   }
 
@@ -368,7 +356,7 @@ make_move_w( tree_t * restrict ptree, unsigned int move, int ply )
  * flag_history
  */
 int CONV
-make_move_root( tree_t * restrict ptree, unsigned int move, int flag )
+make_move_root( tree_t * restrict ptree, move_t move, int flag )
 {
   int check, drawn, iret, i, n;
 
@@ -477,7 +465,7 @@ make_move_root( tree_t * restrict ptree, unsigned int move, int flag )
         }
       last_pv.length--;
       memmove( &(last_pv.a[1]), &(last_pv.a[2]),
-               last_pv.length * sizeof( unsigned int ) );
+               last_pv.length * sizeof( move_t ) );
     }
   else {
     last_pv.a[0]    = 0;

@@ -114,6 +114,39 @@ last_one1( unsigned int u1 )
 #elif defined(__GNUC__) && ( defined(__i386__) || defined(__x86_64__) )
 
 int
+first_one_mm( bitboard_t bb )
+{
+  int l0, l1, l2;
+  int x0, x1, x2;
+  l0 = _mm_cvtsi128_si32(bb.m);
+  bb.m = _mm_srli_si128(bb.m, 4);
+  l1 = _mm_cvtsi128_si32(bb.m);
+  bb.m = _mm_srli_si128(bb.m, 4);
+  l2 = _mm_cvtsi128_si32(bb.m);
+  x0 = __builtin_clz(l0)    -  5 ;
+  x1 = __builtin_clz(l1)    + 22 ;
+  x2 = __builtin_clz(l2)    + 49 ;
+  return (l0 ? x0 : l1 ? x1 : x2);
+}
+
+
+int
+last_one_mm( bitboard_t bb )
+{
+  int l0, l1, l2;
+  int x0, x1, x2;
+  l0 = _mm_cvtsi128_si32(bb.m);
+  bb.m = _mm_srli_si128(bb.m, 4);
+  l1 = _mm_cvtsi128_si32(bb.m);
+  bb.m = _mm_srli_si128(bb.m, 4);
+  l2 = _mm_cvtsi128_si32(bb.m);
+  x0 = 26 - __builtin_ctz(l0);
+  x1 = 53 - __builtin_ctz(l1);
+  x2 = 80 - __builtin_ctz(l2);
+  return (l2 ? x2 : l1 ? x1 : x0);
+}
+
+int
 first_one012( unsigned int u0, unsigned int u1, unsigned int u2 )
 {
   if ( u0 ) { return __builtin_clz( u0 ) - 5; }

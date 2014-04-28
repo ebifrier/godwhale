@@ -130,9 +130,7 @@ is_mate_b_pawn_drop( tree_t * restrict ptree, int sq_drop )
   iwk  = SQ_WKING;
   iret = 1;
   Xor( sq_drop, BB_BOCCUPY );
-  XorFile( sq_drop, OCCUPIED_FILE );
-  XorDiag2( sq_drop, OCCUPIED_DIAG2 );
-  XorDiag1( sq_drop, OCCUPIED_DIAG1 );
+  XorOccupied( sq_drop );
   
   BBNotAnd( bb_move, abb_king_attacks[iwk], BB_WOCCUPY );
   while ( BBTest( bb_move ) )
@@ -147,9 +145,7 @@ is_mate_b_pawn_drop( tree_t * restrict ptree, int sq_drop )
     }
 
   Xor( sq_drop, BB_BOCCUPY );
-  XorFile( sq_drop, OCCUPIED_FILE );
-  XorDiag2( sq_drop, OCCUPIED_DIAG2 );
-  XorDiag1( sq_drop, OCCUPIED_DIAG1 );
+  XorOccupied( sq_drop );
 
   return iret;
 }
@@ -187,9 +183,7 @@ is_mate_w_pawn_drop( tree_t * restrict ptree, int sq_drop )
   ibk  = SQ_BKING;
   iret = 1;
   Xor( sq_drop, BB_WOCCUPY );
-  XorFile( sq_drop, OCCUPIED_FILE );
-  XorDiag2( sq_drop, OCCUPIED_DIAG2 );
-  XorDiag1( sq_drop, OCCUPIED_DIAG1 );
+  XorOccupied( sq_drop );
   
   BBNotAnd( bb_move, abb_king_attacks[ibk], BB_BOCCUPY );
   while ( BBTest( bb_move ) )
@@ -204,9 +198,7 @@ is_mate_w_pawn_drop( tree_t * restrict ptree, int sq_drop )
     }
 
   Xor( sq_drop, BB_WOCCUPY );
-  XorFile( sq_drop, OCCUPIED_FILE );
-  XorDiag2( sq_drop, OCCUPIED_DIAG2 );
-  XorDiag1( sq_drop, OCCUPIED_DIAG1 );
+  XorOccupied( sq_drop );
 
   return iret;
 }

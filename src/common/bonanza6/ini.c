@@ -240,8 +240,11 @@ ini( tree_t * restrict ptree )
   ini_attack_tables();
   ini_random_table();
   ini_check_table();
-
   set_derivative_param();
+
+#if defined(BITBOARD64)
+  ini_bitboards();
+#endif
 
   if ( ini_game( ptree, &min_posi_no_handicap, flag_history, NULL, NULL ) < 0 )
     {

@@ -166,9 +166,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
     Xor( from, BB_B_HDK );
     Xor( from, BB_B_RD );
     Xor( from, BB_BOCCUPY );
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     do {
       to = FirstOne( bb_check );
@@ -188,9 +186,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
         
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       Xor( from, BB_BOCCUPY );
       Xor( from, BB_B_RD );
       Xor( from, BB_B_HDK );
@@ -198,9 +194,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
                | Cap2Move(-BOARD[to]) | Piece2Move(dragon) );
     } while ( BBTest(bb_check) );
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     Xor( from, BB_BOCCUPY );
     Xor( from, BB_B_RD );
     Xor( from, BB_B_HDK );
@@ -218,9 +212,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
 
     BB_B_RD.p[0]    ^= abb_mask[from].p[0];
     BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     do {
       to = FirstOne( bb_check );
@@ -240,18 +232,14 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
         
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
       BB_B_RD.p[0]    ^= abb_mask[from].p[0];
       return ( To2Move(to) | From2Move(from) | FLAG_PROMO
                | Cap2Move(-BOARD[to]) | Piece2Move(rook) );
     } while ( BBTest(bb_check) );
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
     BB_B_RD.p[0]    ^= abb_mask[from].p[0];
   }
@@ -276,9 +264,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
     BB_B_RD.p[2]    ^= abb_mask[from].p[2];
     BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
     BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     do {
       to = FirstOne( bb_check );
@@ -303,9 +289,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
         
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
       BB_B_RD.p[1]    ^= abb_mask[from].p[1];
@@ -315,9 +299,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
                | Cap2Move(-BOARD[to]) | Piece2Move(rook) );
     } while ( BBTest(bb_check) );
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
     BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
     BB_B_RD.p[1]    ^= abb_mask[from].p[1];
@@ -337,9 +319,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
     Xor( from, BB_B_HDK );
     Xor( from, BB_B_BH );
     Xor( from, BB_BOCCUPY );
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     do {
       to = FirstOne( bb_check );
@@ -355,9 +335,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
         
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       Xor( from, BB_BOCCUPY );
       Xor( from, BB_B_BH );
       Xor( from, BB_B_HDK );
@@ -365,9 +343,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
                | Cap2Move(-BOARD[to]) | Piece2Move(horse) );
     } while ( BBTest(bb_check) );
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     Xor( from, BB_BOCCUPY );
     Xor( from, BB_B_BH );
     Xor( from, BB_B_HDK );
@@ -385,9 +361,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
 
     BB_B_BH.p[0]    ^= abb_mask[from].p[0];
     BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     do {
       to = FirstOne( bb_check );
@@ -403,18 +377,14 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
         
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
       BB_B_BH.p[0]    ^= abb_mask[from].p[0];
       return ( To2Move(to) | From2Move(from) | FLAG_PROMO
                | Cap2Move(-BOARD[to]) | Piece2Move(bishop) );
     } while ( BBTest(bb_check) );
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
     BB_B_BH.p[0]    ^= abb_mask[from].p[0];
   }
@@ -439,9 +409,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
     BB_B_BH.p[2]    ^= abb_mask[from].p[2];
     BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
     BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     do {
       to = FirstOne( bb_check );
@@ -460,9 +428,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
         
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
       BB_B_BH.p[1]    ^= abb_mask[from].p[1];
@@ -472,9 +438,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
                | Cap2Move(-BOARD[to]) | Piece2Move(bishop) );
     } while ( BBTest(bb_check) );
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
     BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
     BB_B_BH.p[1]    ^= abb_mask[from].p[1];
@@ -492,9 +456,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
 
     Xor( from, BB_BTGOLD );
     Xor( from, BB_BOCCUPY );
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     do {
       to = FirstOne( bb_check );
@@ -508,18 +470,14 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
         
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       Xor( from, BB_BOCCUPY );
       Xor( from, BB_BTGOLD );
       return ( To2Move(to) | From2Move(from)
                | Cap2Move(-BOARD[to]) | Piece2Move(BOARD[from]) );
     } while ( BBTest(bb_check) );
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     Xor( from, BB_BOCCUPY );
     Xor( from, BB_BTGOLD );
   }
@@ -546,9 +504,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
 
     BB_BSILVER.p[0] ^= abb_mask[from].p[0];
     BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     while ( bb_check_pro.p[0] | bb_check_pro.p[1] ) {
       to = first_one01( bb_check_pro.p[0], bb_check_pro.p[1] );
@@ -563,9 +519,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
       
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
       BB_BSILVER.p[0] ^= abb_mask[from].p[0];
       return ( To2Move(to) | From2Move(from) | FLAG_PROMO
@@ -585,18 +539,14 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
       
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
       BB_BSILVER.p[0] ^= abb_mask[from].p[0];
       return ( To2Move(to) | From2Move(from)
                | Cap2Move(-BOARD[to]) | Piece2Move(silver) );
     }
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
     BB_BSILVER.p[0] ^= abb_mask[from].p[0];
   }
@@ -619,9 +569,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
 
     BB_BSILVER.p[1] ^= abb_mask[from].p[1];
     BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     while ( bb_check_pro.p[0] ) {
       to = last_one0( bb_check_pro.p[0] );
@@ -635,9 +583,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
       
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_BSILVER.p[1] ^= abb_mask[from].p[1];
       return ( To2Move(to) | From2Move(from) | FLAG_PROMO
@@ -657,18 +603,14 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
       
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_BSILVER.p[1] ^= abb_mask[from].p[1];
       return ( To2Move(to) | From2Move(from)
                | Cap2Move(-BOARD[to]) | Piece2Move(silver) );
     }
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
     BB_BSILVER.p[1] ^= abb_mask[from].p[1];
   }
@@ -689,9 +631,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
     BB_BSILVER.p[2] ^= abb_mask[from].p[2];
     BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
     BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     do {
       to = first_one12( bb_check.p[1], bb_check.p[2] );
@@ -706,9 +646,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_w_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverBK( from, to ) )                    { continue; }
         
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
       BB_BSILVER.p[1] ^= abb_mask[from].p[1];
@@ -717,9 +655,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
                | Cap2Move(-BOARD[to]) | Piece2Move(silver) );
     } while ( bb_check.p[1] | bb_check.p[2] );
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
     BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
     BB_BSILVER.p[1] ^= abb_mask[from].p[1];
@@ -739,9 +675,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       BB_BKNIGHT.p[1] ^= abb_mask[from].p[1];
       BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
       BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
 
       do {
         to = last_one0( bb_check.p[0] );
@@ -755,9 +689,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
         else if ( can_w_piece_capture( ptree, to ) )       { continue; }
         if ( IsDiscoverBK( from, to ) )                    { continue; }
       
-        XorFile( from, OCCUPIED_FILE );
-        XorDiag2( from, OCCUPIED_DIAG2 );
-        XorDiag1( from, OCCUPIED_DIAG1 );
+        XorOccupied( from );
         BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
         BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
         BB_BKNIGHT.p[0] ^= abb_mask[from].p[0];
@@ -766,9 +698,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
                  | Cap2Move(-BOARD[to]) | Piece2Move(knight) );
       } while ( bb_check.p[0] );
 
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_BOCCUPY.p[0] ^= abb_mask[from].p[0];
       BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_BKNIGHT.p[0] ^= abb_mask[from].p[0];
@@ -783,9 +713,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
         BB_BKNIGHT.p[2] ^= abb_mask[from].p[2];
         BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
         BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
-        XorFile( from, OCCUPIED_FILE );
-        XorDiag2( from, OCCUPIED_DIAG2 );
-        XorDiag1( from, OCCUPIED_DIAG1 );
+        XorOccupied( from );
         
         do {
           to = FirstOne( bb_check );
@@ -797,9 +725,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
           else if ( can_w_piece_capture( ptree, to ) )       { continue; }
           if ( IsDiscoverBK( from, to ) )                    { continue; }
       
-          XorFile( from, OCCUPIED_FILE );
-          XorDiag2( from, OCCUPIED_DIAG2 );
-          XorDiag1( from, OCCUPIED_DIAG1 );
+          XorOccupied( from );
           BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
           BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
           BB_BKNIGHT.p[1] ^= abb_mask[from].p[1];
@@ -808,9 +734,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
                    | Cap2Move(-BOARD[to]) | Piece2Move(knight) );
         } while ( BBTest(bb_check) );
 
-        XorFile( from, OCCUPIED_FILE );
-        XorDiag2( from, OCCUPIED_DIAG2 );
-        XorDiag1( from, OCCUPIED_DIAG1 );
+        XorOccupied( from );
         BB_BOCCUPY.p[1] ^= abb_mask[from].p[1];
         BB_BOCCUPY.p[2] ^= abb_mask[from].p[2];
         BB_BKNIGHT.p[1] ^= abb_mask[from].p[1];
@@ -836,9 +760,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
 
     Xor( from, BB_BLANCE );
     Xor( from, BB_BOCCUPY );
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     bb_check.p[0] &= 0x1ffU;
     if ( BBTest(bb_check) ) {
@@ -854,9 +776,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_w_piece_capture( ptree, to ) )    { goto b_lance_next; }
       if ( IsDiscoverBK( from, to ) )                 { goto b_lance_next; }
       
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       Xor( from, BB_BOCCUPY );
       Xor( from, BB_BLANCE );
       return ( To2Move(to) | From2Move(from)
@@ -877,18 +797,14 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
         else if ( can_w_piece_capture( ptree, to ) )       { continue; }
         if ( IsDiscoverBK( from, to ) )                    { continue; }
         
-        XorFile( from, OCCUPIED_FILE );
-        XorDiag2( from, OCCUPIED_DIAG2 );
-        XorDiag1( from, OCCUPIED_DIAG1 );
+        XorOccupied( from );
         Xor( from, BB_BOCCUPY );
         Xor( from, BB_BLANCE );
         return ( To2Move(to) | From2Move(from) | FLAG_PROMO
                  | Cap2Move(-BOARD[to]) | Piece2Move(lance) );
       }
     
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     Xor( from, BB_BOCCUPY );
     Xor( from, BB_BLANCE );
   }
@@ -904,9 +820,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
     BB_BPAWN_ATK.p[1] ^= abb_mask[to].p[1];
     BB_BOCCUPY.p[0]   ^= abb_mask[from].p[0];
     BB_BOCCUPY.p[1]   ^= abb_mask[from].p[1];
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     if ( ! is_white_attacked( ptree, to ) )          { goto b_pawn_pro_next; }
     bb_attacks = abb_b_gold_attacks[to];
@@ -915,9 +829,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
     else if ( can_w_piece_capture( ptree, to ) )     { goto b_pawn_pro_next; }
     if ( IsDiscoverBK( from, to ) )                  { goto b_pawn_pro_next; }
     
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_BOCCUPY.p[0]   ^= abb_mask[from].p[0];
     BB_BOCCUPY.p[1]   ^= abb_mask[from].p[1];
     BB_BPAWN_ATK.p[0] ^= abb_mask[to].p[0];
@@ -926,9 +838,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
              | Cap2Move(-BOARD[to]) | Piece2Move(pawn) );
 
   b_pawn_pro_next:
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_BOCCUPY.p[0]   ^= abb_mask[from].p[0];
     BB_BOCCUPY.p[1]   ^= abb_mask[from].p[1];
     BB_BPAWN_ATK.p[0] ^= abb_mask[to].p[0];
@@ -944,9 +854,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       BB_BPAWN_ATK.p[2] ^= abb_mask[to].p[2];
       BB_BOCCUPY.p[1]   ^= abb_mask[from].p[1];
       BB_BOCCUPY.p[2]   ^= abb_mask[from].p[2];
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       
       if ( ! is_white_attacked( ptree, to ) )          { goto b_pawn_end; }
       BBIni( bb_attacks );
@@ -954,9 +862,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
       if ( can_w_piece_capture( ptree, to ) )          { goto b_pawn_end; }
       if ( IsDiscoverBK( from, to ) )                  { goto b_pawn_end; }
       
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_BOCCUPY.p[1]   ^= abb_mask[from].p[1];
       BB_BOCCUPY.p[2]   ^= abb_mask[from].p[2];
       BB_BPAWN_ATK.p[1] ^= abb_mask[to].p[1];
@@ -965,9 +871,7 @@ is_b_mate_in_1ply( tree_t * restrict ptree )
                | Cap2Move(-BOARD[to]) | Piece2Move(pawn) );
       
     b_pawn_end:
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_BOCCUPY.p[1]   ^= abb_mask[from].p[1];
       BB_BOCCUPY.p[2]   ^= abb_mask[from].p[2];
       BB_BPAWN_ATK.p[1] ^= abb_mask[to].p[1];
@@ -1133,9 +1037,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
     Xor( from, BB_W_HDK );
     Xor( from, BB_W_RD );
     Xor( from, BB_WOCCUPY );
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     do {
       to = LastOne( bb_check );
@@ -1155,9 +1057,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
         
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       Xor( from, BB_WOCCUPY );
       Xor( from, BB_W_RD );
       Xor( from, BB_W_HDK );
@@ -1165,9 +1065,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
                | Cap2Move(BOARD[to]) | Piece2Move(dragon) );
     } while ( BBTest(bb_check) );
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     Xor( from, BB_WOCCUPY );
     Xor( from, BB_W_RD );
     Xor( from, BB_W_HDK );
@@ -1185,9 +1083,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
 
     BB_W_RD.p[2]    ^= abb_mask[from].p[2];
     BB_WOCCUPY.p[2] ^= abb_mask[from].p[2];
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     do {
       to = LastOne( bb_check );
@@ -1207,18 +1103,14 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
         
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_WOCCUPY.p[2] ^= abb_mask[from].p[2];
       BB_W_RD.p[2]    ^= abb_mask[from].p[2];
       return ( To2Move(to) | From2Move(from) | FLAG_PROMO
                | Cap2Move(BOARD[to]) | Piece2Move(rook) );
     } while ( BBTest(bb_check) );
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_WOCCUPY.p[2] ^= abb_mask[from].p[2];
     BB_W_RD.p[2]    ^= abb_mask[from].p[2];
   }
@@ -1243,9 +1135,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
     BB_W_RD.p[1]    ^= abb_mask[from].p[1];
     BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
     BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     do {
       to = LastOne( bb_check );
@@ -1269,9 +1159,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
         
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
       BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_W_RD.p[0]    ^= abb_mask[from].p[0];
@@ -1281,9 +1169,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
                | Cap2Move(BOARD[to]) | Piece2Move(rook) );
     } while ( BBTest(bb_check) );
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
     BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
     BB_W_RD.p[0]    ^= abb_mask[from].p[0];
@@ -1303,9 +1189,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
     Xor( from, BB_W_HDK );
     Xor( from, BB_W_BH );
     Xor( from, BB_WOCCUPY );
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     do {
       to = LastOne( bb_check );
@@ -1321,9 +1205,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
         
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       Xor( from, BB_WOCCUPY );
       Xor( from, BB_W_BH );
       Xor( from, BB_W_HDK );
@@ -1331,9 +1213,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
                | Cap2Move(BOARD[to]) | Piece2Move(horse) );
     } while ( BBTest(bb_check) );
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     Xor( from, BB_WOCCUPY );
     Xor( from, BB_W_BH );
     Xor( from, BB_W_HDK );
@@ -1351,9 +1231,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
 
     BB_W_BH.p[2]    ^= abb_mask[from].p[2];
     BB_WOCCUPY.p[2] ^= abb_mask[from].p[2];
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     do {
       to = LastOne( bb_check );
@@ -1369,18 +1247,14 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
         
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_WOCCUPY.p[2] ^= abb_mask[from].p[2];
       BB_W_BH.p[2]    ^= abb_mask[from].p[2];
       return ( To2Move(to) | From2Move(from) | FLAG_PROMO
                | Cap2Move(BOARD[to]) | Piece2Move(bishop) );
     } while ( BBTest(bb_check) );
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_WOCCUPY.p[2] ^= abb_mask[from].p[2];
     BB_W_BH.p[2]    ^= abb_mask[from].p[2];
   }
@@ -1405,9 +1279,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
     BB_W_BH.p[1]    ^= abb_mask[from].p[1];
     BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
     BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     do {
       to = LastOne( bb_check );
@@ -1426,9 +1298,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
         
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
       BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_W_BH.p[0]    ^= abb_mask[from].p[0];
@@ -1438,9 +1308,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
                | Cap2Move(BOARD[to]) | Piece2Move(bishop) );
     } while ( BBTest(bb_check) );
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
     BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
     BB_W_BH.p[0]    ^= abb_mask[from].p[0];
@@ -1458,9 +1326,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
 
     Xor( from, BB_WTGOLD );
     Xor( from, BB_WOCCUPY );
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     do {
       to = LastOne( bb_check );
@@ -1474,18 +1340,14 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
         
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       Xor( from, BB_WOCCUPY );
       Xor( from, BB_WTGOLD );
       return ( To2Move(to) | From2Move(from)
                | Cap2Move(BOARD[to]) | Piece2Move(-BOARD[from]) );
     } while ( BBTest(bb_check) );
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     Xor( from, BB_WOCCUPY );
     Xor( from, BB_WTGOLD );
   }
@@ -1512,9 +1374,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
 
     BB_WSILVER.p[2] ^= abb_mask[from].p[2];
     BB_WOCCUPY.p[2]  ^= abb_mask[from].p[2];
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     while ( bb_check_pro.p[1] | bb_check_pro.p[2] ) {
       to = last_one12( bb_check_pro.p[1], bb_check_pro.p[2] );
@@ -1529,9 +1389,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
       
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_WOCCUPY.p[2]  ^= abb_mask[from].p[2];
       BB_WSILVER.p[2] ^= abb_mask[from].p[2];
       return ( To2Move(to) | From2Move(from) | FLAG_PROMO
@@ -1551,18 +1409,14 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
       
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_WOCCUPY.p[2]  ^= abb_mask[from].p[2];
       BB_WSILVER.p[2] ^= abb_mask[from].p[2];
       return ( To2Move(to) | From2Move(from)
                | Cap2Move(BOARD[to]) | Piece2Move(silver) );
     }
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_WOCCUPY.p[2]  ^= abb_mask[from].p[2];
     BB_WSILVER.p[2] ^= abb_mask[from].p[2];
   }
@@ -1585,9 +1439,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
 
     BB_WSILVER.p[1] ^= abb_mask[from].p[1];
     BB_WOCCUPY.p[1]  ^= abb_mask[from].p[1];
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     while ( bb_check_pro.p[2] ) {
       to = first_one2( bb_check_pro.p[2] );
@@ -1601,9 +1453,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
       
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_WSILVER.p[1] ^= abb_mask[from].p[1];
       return ( To2Move(to) | From2Move(from) | FLAG_PROMO
@@ -1623,18 +1473,14 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
       
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_WSILVER.p[1] ^= abb_mask[from].p[1];
       return ( To2Move(to) | From2Move(from)
                | Cap2Move(BOARD[to]) | Piece2Move(silver) );
     }
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
     BB_WSILVER.p[1] ^= abb_mask[from].p[1];
   }
@@ -1656,9 +1502,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
     BB_WSILVER.p[1] ^= abb_mask[from].p[1];
     BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
     BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     do {
       to = last_one01( bb_check.p[0], bb_check.p[1] );
@@ -1673,9 +1517,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_b_piece_capture( ptree, to ) )       { continue; }
       if ( IsDiscoverWK( from, to ) )                    { continue; }
         
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
       BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_WSILVER.p[0] ^= abb_mask[from].p[0];
@@ -1684,9 +1526,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
                | Cap2Move(BOARD[to]) | Piece2Move(silver) );
     } while ( bb_check.p[0] | bb_check.p[1] );
 
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
     BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
     BB_WSILVER.p[0] ^= abb_mask[from].p[0];
@@ -1706,9 +1546,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       BB_WKNIGHT.p[2] ^= abb_mask[from].p[2];
       BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_WOCCUPY.p[2] ^= abb_mask[from].p[2];
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
 
       do {
         to = first_one2( bb_check.p[2] );
@@ -1722,9 +1560,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
         else if ( can_b_piece_capture( ptree, to ) )       { continue; }
         if ( IsDiscoverWK( from, to ) )                    { continue; }
       
-        XorFile( from, OCCUPIED_FILE );
-        XorDiag2( from, OCCUPIED_DIAG2 );
-        XorDiag1( from, OCCUPIED_DIAG1 );
+        XorOccupied( from );
         BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
         BB_WOCCUPY.p[2] ^= abb_mask[from].p[2];
         BB_WKNIGHT.p[1] ^= abb_mask[from].p[1];
@@ -1733,9 +1569,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
                  | Cap2Move(BOARD[to]) | Piece2Move(knight) );
       } while ( bb_check.p[2] );
 
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
       BB_WOCCUPY.p[2] ^= abb_mask[from].p[2];
       BB_WKNIGHT.p[1] ^= abb_mask[from].p[1];
@@ -1750,9 +1584,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
         BB_WKNIGHT.p[1] ^= abb_mask[from].p[1];
         BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
         BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
-        XorFile( from, OCCUPIED_FILE );
-        XorDiag2( from, OCCUPIED_DIAG2 );
-        XorDiag1( from, OCCUPIED_DIAG1 );
+        XorOccupied( from );
         
         do {
           to = LastOne( bb_check );
@@ -1764,9 +1596,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
           else if ( can_b_piece_capture( ptree, to ) )       { continue; }
           if ( IsDiscoverWK( from, to ) )                    { continue; }
       
-          XorFile( from, OCCUPIED_FILE );
-          XorDiag2( from, OCCUPIED_DIAG2 );
-          XorDiag1( from, OCCUPIED_DIAG1 );
+          XorOccupied( from );
           BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
           BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
           BB_WKNIGHT.p[0] ^= abb_mask[from].p[0];
@@ -1775,9 +1605,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
                    | Cap2Move(BOARD[to]) | Piece2Move(knight) );
         } while ( BBTest(bb_check) );
 
-        XorFile( from, OCCUPIED_FILE );
-        XorDiag2( from, OCCUPIED_DIAG2 );
-        XorDiag1( from, OCCUPIED_DIAG1 );
+        XorOccupied( from );
         BB_WOCCUPY.p[0] ^= abb_mask[from].p[0];
         BB_WOCCUPY.p[1] ^= abb_mask[from].p[1];
         BB_WKNIGHT.p[0] ^= abb_mask[from].p[0];
@@ -1803,9 +1631,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
 
     Xor( from, BB_WLANCE );
     Xor( from, BB_WOCCUPY );
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     bb_check.p[2] &= 0x7fc0000U;
     if ( BBTest(bb_check) ) {
@@ -1821,9 +1647,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       else if ( can_b_piece_capture( ptree, to ) )    { goto w_lance_next; }
       if ( IsDiscoverWK( from, to ) )                 { goto w_lance_next; }
       
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       Xor( from, BB_WOCCUPY );
       Xor( from, BB_WLANCE );
       return ( To2Move(to) | From2Move(from)
@@ -1844,18 +1668,14 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
         else if ( can_b_piece_capture( ptree, to ) )       { continue; }
         if ( IsDiscoverWK( from, to ) )                    { continue; }
         
-        XorFile( from, OCCUPIED_FILE );
-        XorDiag2( from, OCCUPIED_DIAG2 );
-        XorDiag1( from, OCCUPIED_DIAG1 );
+        XorOccupied( from );
         Xor( from, BB_WOCCUPY );
         Xor( from, BB_WLANCE );
         return ( To2Move(to) | From2Move(from) | FLAG_PROMO
                  | Cap2Move(BOARD[to]) | Piece2Move(lance) );
       }
     
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     Xor( from, BB_WOCCUPY );
     Xor( from, BB_WLANCE );
   }
@@ -1871,9 +1691,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
     BB_WPAWN_ATK.p[2] ^= abb_mask[to].p[2];
     BB_WOCCUPY.p[1]   ^= abb_mask[from].p[1];
     BB_WOCCUPY.p[2]   ^= abb_mask[from].p[2];
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
 
     if ( ! is_black_attacked( ptree, to ) )          { goto w_pawn_pro_next; }
     bb_attacks = abb_w_gold_attacks[to];
@@ -1882,9 +1700,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
     else if ( can_b_piece_capture( ptree, to ) )     { goto w_pawn_pro_next; }
     if ( IsDiscoverWK( from, to ) )                  { goto w_pawn_pro_next; }
     
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_WOCCUPY.p[1]   ^= abb_mask[from].p[1];
     BB_WOCCUPY.p[2]   ^= abb_mask[from].p[2];
     BB_WPAWN_ATK.p[1] ^= abb_mask[to].p[1];
@@ -1893,9 +1709,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
              | Cap2Move(BOARD[to]) | Piece2Move(pawn) );
 
   w_pawn_pro_next:
-    XorFile( from, OCCUPIED_FILE );
-    XorDiag2( from, OCCUPIED_DIAG2 );
-    XorDiag1( from, OCCUPIED_DIAG1 );
+    XorOccupied( from );
     BB_WOCCUPY.p[1]   ^= abb_mask[from].p[1];
     BB_WOCCUPY.p[2]   ^= abb_mask[from].p[2];
     BB_WPAWN_ATK.p[1] ^= abb_mask[to].p[1];
@@ -1911,9 +1725,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       BB_WPAWN_ATK.p[1] ^= abb_mask[to].p[1];
       BB_WOCCUPY.p[0]   ^= abb_mask[from].p[0];
       BB_WOCCUPY.p[1]   ^= abb_mask[from].p[1];
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       
       if ( ! is_black_attacked( ptree, to ) )          { goto w_pawn_end; }
       BBIni( bb_attacks );
@@ -1921,9 +1733,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
       if ( can_b_piece_capture( ptree, to ) )          { goto w_pawn_end; }
       if ( IsDiscoverWK( from, to ) )                  { goto w_pawn_end; }
       
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_WOCCUPY.p[0]   ^= abb_mask[from].p[0];
       BB_WOCCUPY.p[1]   ^= abb_mask[from].p[1];
       BB_WPAWN_ATK.p[0] ^= abb_mask[to].p[0];
@@ -1932,9 +1742,7 @@ is_w_mate_in_1ply( tree_t * restrict ptree )
                | Cap2Move(BOARD[to]) | Piece2Move(pawn) );
       
     w_pawn_end:
-      XorFile( from, OCCUPIED_FILE );
-      XorDiag2( from, OCCUPIED_DIAG2 );
-      XorDiag1( from, OCCUPIED_DIAG1 );
+      XorOccupied( from );
       BB_WOCCUPY.p[0]   ^= abb_mask[from].p[0];
       BB_WOCCUPY.p[1]   ^= abb_mask[from].p[1];
       BB_WPAWN_ATK.p[0] ^= abb_mask[to].p[0];
@@ -2041,14 +1849,10 @@ can_w_king_escape( tree_t * restrict ptree, int to,
   if ( !BOARD[to] )
     {
       Xor( to, BB_BOCCUPY );
-      XorFile( to, OCCUPIED_FILE );
-      XorDiag2( to, OCCUPIED_DIAG2 );
-      XorDiag1( to, OCCUPIED_DIAG1 );
+      XorOccupied( to );
     }
   Xor( SQ_WKING, BB_WOCCUPY );
-  XorFile( SQ_WKING, OCCUPIED_FILE );
-  XorDiag2( SQ_WKING, OCCUPIED_DIAG2 );
-  XorDiag1( SQ_WKING, OCCUPIED_DIAG1 );
+  XorOccupied( SQ_WKING );
 
   BBOr( bb, bb, abb_mask[to] );
   BBOr( bb, bb, BB_WOCCUPY );
@@ -2065,16 +1869,12 @@ can_w_king_escape( tree_t * restrict ptree, int to,
       Xor( iescape, bb );
     }
 
-  XorFile( SQ_WKING, OCCUPIED_FILE );
-  XorDiag2( SQ_WKING, OCCUPIED_DIAG2 );
-  XorDiag1( SQ_WKING, OCCUPIED_DIAG1 );
+  XorOccupied( SQ_WKING );
   Xor( SQ_WKING, BB_WOCCUPY );
   if ( !BOARD[to] )
     {
       Xor( to, BB_BOCCUPY );
-      XorFile( to, OCCUPIED_FILE );
-      XorDiag2( to, OCCUPIED_DIAG2 );
-      XorDiag1( to, OCCUPIED_DIAG1 );
+      XorOccupied( to );
     }
 
   return iret;
@@ -2091,15 +1891,11 @@ can_b_king_escape( tree_t * restrict ptree, int to,
   if ( !BOARD[to] )
     {
       Xor( to, BB_WOCCUPY );
-      XorFile( to, OCCUPIED_FILE );
-      XorDiag2( to, OCCUPIED_DIAG2 );
-      XorDiag1( to, OCCUPIED_DIAG1 );
+      XorOccupied( to );
     }
 
   Xor( SQ_BKING, BB_BOCCUPY );
-  XorFile( SQ_BKING, OCCUPIED_FILE );
-  XorDiag2( SQ_BKING, OCCUPIED_DIAG2 );
-  XorDiag1( SQ_BKING, OCCUPIED_DIAG1 );
+  XorOccupied( SQ_BKING );
 
   BBOr( bb, bb, abb_mask[to] );
   BBOr( bb, bb, BB_BOCCUPY );
@@ -2116,16 +1912,12 @@ can_b_king_escape( tree_t * restrict ptree, int to,
       Xor( iescape, bb );
     }
 
-  XorFile( SQ_BKING, OCCUPIED_FILE );
-  XorDiag2( SQ_BKING, OCCUPIED_DIAG2 );
-  XorDiag1( SQ_BKING, OCCUPIED_DIAG1 );
+  XorOccupied( SQ_BKING );
   Xor( SQ_BKING, BB_BOCCUPY );
 
   if ( !BOARD[to] )
     {
-      XorFile( to, OCCUPIED_FILE );
-      XorDiag2( to, OCCUPIED_DIAG2 );
-      XorDiag1( to, OCCUPIED_DIAG1 );
+      XorOccupied( to );
       Xor( to, BB_WOCCUPY );
     }
 
