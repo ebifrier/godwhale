@@ -26,5 +26,6 @@ typedef boost::recursive_mutex::scoped_lock ScopedLock;
 } // namespace godwhale
 
 #include "logger.h"
+#include "util.h"
 
 #endif

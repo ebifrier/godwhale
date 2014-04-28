@@ -135,6 +135,10 @@
     <ClCompile Include="..\..\..\src\server\server_move.cpp" />
     <ClCompile Include="..\..\..\src\server\bonanza_if.cpp" />
     <ClCompile Include="..\..\..\src\server\board.cpp" />
+    <ClCompile Include="..\..\..\src\server\util.cpp" />
+    <ClCompile Include="..\..\..\src\common\bonanza6\bbini.c">
+      <Filter>common\bonanza6</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\server\client.h" />
@@ -158,6 +162,7 @@
       <Filter>common\bonanza6</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\server\board.h" />
+    <ClInclude Include="..\..\..\src\server\util.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="common">

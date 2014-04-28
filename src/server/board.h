@@ -14,6 +14,8 @@ public:
     explicit Board();
     explicit Board(const Board &other);
 
+    Board &operator =(const Board &other);
+
     /**
      * @brief sqに駒を設定します。
      */
@@ -37,6 +39,17 @@ public:
         return Get(sq);
     }
 
+    /**
+     * @brief 今までの指し手を取得します。
+     */
+    const std::vector<move_t> &GetMoveList() const {
+        ScopedLock lock(m_guard);
+        return m_moveList;
+    }
+
+    /**
+     * @brief 連続した指し手を解釈します。
+     */
     template<class Iter>
     std::vector<move_t> InterpretCsaMoveList(Iter begin, Iter end) const {
         ScopedLock lock(m_guard);
@@ -45,17 +58,23 @@ public:
 
         for (; begin != end; ++begin) {
             move_t move = tboard.InterpretCsaMove(*begin);
-            if (move == MOVE_NA) return result;
+            if (move == MOVE_NA) {
+                return result;
+            }
+            
+            if (tboard.Move(move) != 0) {
+                return result;
+            }
 
-            tboard.Move(move);
+            result.push_back(move);
         }
 
         return result;
     }
 
     bool IsValidMove(move_t move) const;
-    void Move(move_t move);
-    void UnMove(move_t move);
+    int Move(move_t move);
+    int UnMove();
 
     move_t InterpretCsaMove(const std::string &str) const;
     void Print(std::ostream &os, move_t move=0) const;
@@ -85,6 +104,8 @@ private:
     unsigned int m_handWhite;
     int m_turn;
     int m_asquare[nsquare];
+
+    std::vector<move_t> m_moveList;
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Board &board)

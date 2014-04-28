@@ -1,3 +1,11 @@
+2014-04-28  - Ver 2.0.6
+
+	* src/server/board.cpp: 指し手の履歴を保存するようにし、かつ指し手を戻す
+	ときに手番の転換を行うようにしました。(BUG FIX)
+	* src/server/util.cpp: ユーティリティ関数を追加しました。
+	* build/visualc10/server/server.vcxproj: ファイルの追加に合わせてプロジェ
+	クトファイルを更新しました。
+
 2014-04-28  - Ver 2.0.5
 
 	* src/common/bonanza6/searchr.c: 一部の指し手を送るとき、間違った変化を

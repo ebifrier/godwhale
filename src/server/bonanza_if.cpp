@@ -27,6 +27,6 @@ int CONV server_iterate(int *value, move_t *pvseq, int *pvseq_length)
 
     std::copy(seq.begin(), seq.end(), pvseq);
 
-    *pvseq_length = seq.size();
+    *pvseq_length = seq.size() + 1;
     return status;
 }

@@ -27,7 +27,20 @@ Board::Board(const Board &other)
     m_handBlack = other.m_handBlack;
     m_handWhite = other.m_handWhite;
     m_turn = other.m_turn;
-    memcpy(m_asquare, other.m_asquare, sizeof(m_asquare));
+    m_moveList = other.m_moveList;
+    std::copy_n(other.m_asquare, (int)nsquare, m_asquare);
+}
+
+Board &Board::operator =(const Board &other)
+{
+    ScopedLock lock(other.m_guard);
+
+    m_handBlack = other.m_handBlack;
+    m_handWhite = other.m_handWhite;
+    m_turn = other.m_turn;
+    m_moveList = other.m_moveList;
+    std::copy_n(other.m_asquare, (int)nsquare, m_asquare);
+    return *this;
 }
 
 /**
@@ -78,7 +91,7 @@ bool Board::IsValidMove(move_t move) const
     return false;
 }
 
-void Board::Move(move_t move)
+int Board::Move(move_t move)
 {
     ScopedLock lock(m_guard);
     const int from = (int)I2From(move);
@@ -86,8 +99,9 @@ void Board::Move(move_t move)
     const int sign = (m_turn == black ? +1 : -1);
 
     assert(UToCap(move) != king);
-    assert(move != 0);
-    assert(IsValidMove(move));
+    if (move == MOVE_NA || !IsValidMove(move)) {
+        return -1;
+    }
 
     if (from >= nsquare) {
         // ãÓë≈ÇøÇÃèÍçá
@@ -120,11 +134,18 @@ void Board::Move(move_t move)
     }
 
     m_turn = Flip(m_turn);
+    m_moveList.push_back(move);
+    return 0;
 }
 
-void Board::UnMove(move_t move)
+int Board::UnMove()
 {
     ScopedLock lock(m_guard);
+    if (m_moveList.empty()) {
+        return -1;
+    }
+
+    const move_t move = m_moveList.back();
     const int from = (int)I2From(move);
     const int to   = (int)I2To(move);
     const int sign = (m_turn == black ? +1 : -1);
@@ -157,6 +178,10 @@ void Board::UnMove(move_t move)
         
         Set(to, ipiece_cap * sign);
     }
+
+    m_turn = Flip(m_turn);
+    m_moveList.pop_back();
+    return 0;
 }
 
 /**
