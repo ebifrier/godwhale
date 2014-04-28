@@ -107,7 +107,7 @@ namespace Bonako
             {
                 // 並列化サーバーへの接続コマンドを発行します。
                 bonanza.Connect(
-                    "garnet-alice.net",
+                    "133.242.205.114",
                     4084, 4085,
                     model.Name,
                     model.ThreadNum,

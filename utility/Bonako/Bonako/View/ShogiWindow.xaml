@@ -46,16 +46,17 @@
         </Menu>
         
         <r:VisualBackground Grid.Row="1" Grid.RowSpan="5" Grid.ColumnSpan="3"
+                            Viewport="0,0,640,480"
                             x:Name="visualBackground" />
 
         <!-- 評価値 -->
         <Viewbox Grid.Row="2" Grid.Column="2"
                  Stretch="Fill"
                  VerticalAlignment="Top">
-            <r:EvaluationControl ImageSetList="{r:ImageSetList ShogiData/Evaluation}"
+            <!--<r:EvaluationControl ImageSetList="{r:ImageSetList ShogiData/Evaluation}"
                                  PointType="ModeCustom"
                                  ModeCustomPoint="{Binding EvaluationValue,
-                                                           Converter={StaticResource toDecimalConverter}}" />
+                                                           Converter={StaticResource toDecimalConverter}}" />-->
         </Viewbox>
 
         <!-- 将棋盤 -->

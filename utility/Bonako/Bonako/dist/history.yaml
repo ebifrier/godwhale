@@ -2,6 +2,11 @@
 # リリース情報
 #
 
+- version: 2.3.0
+  date: 2014/04/06
+  content:
+  - サーバーアドレスを変更しました。
+
 - version: 2.2.7
   date: 2013/08/11
   content:

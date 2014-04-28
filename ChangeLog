@@ -1,3 +1,10 @@
+2014-04-28  - Ver 2.0.4
+
+	* utility/Bonako/Bonako/dist/versioninfo.xml: ボナ子のバージョンを更新
+	しました。
+	* utility/Bonako/Bonako/Commands.cs: クジラちゃんの接続先アドレスを変更
+	しました。
+
 2014-04-28  - Ver 2.0.3
 
 	* src/server/server.cpp: クライアントをshared_ptrではなくweak_ptrで保持
