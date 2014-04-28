@@ -21,9 +21,12 @@ Board::Board()
 }
 
 Board::Board(const Board &other)
-    : m_handBlack(other.m_handBlack), m_handWhite(other.m_handWhite)
-    , m_turn(other.m_turn)
 {
+    ScopedLock lock(other.m_guard);
+
+    m_handBlack = other.m_handBlack;
+    m_handWhite = other.m_handWhite;
+    m_turn = other.m_turn;
     memcpy(m_asquare, other.m_asquare, sizeof(m_asquare));
 }
 
@@ -159,7 +162,7 @@ void Board::UnMove(move_t move)
 /**
  * @brief CSA形式から駒の種類を判別します。
  */
-int Board::StrToPiece(const std::string &str, std::string::size_type index)
+int Board::StrToPiece(const std::string &str, std::string::size_type index) const
 {
     int i;
 
@@ -177,7 +180,7 @@ int Board::StrToPiece(const std::string &str, std::string::size_type index)
 /**
  * @brief CSA形式の指し手を内部形式に変換します。
  */
-move_t Board::InterpretCsaMove(const std::string &str)
+move_t Board::InterpretCsaMove(const std::string &str) const
 {
     ScopedLock lock(m_guard);
     int ifrom_file, ifrom_rank, ito_file, ito_rank, ipiece;
@@ -194,7 +197,7 @@ move_t Board::InterpretCsaMove(const std::string &str)
     ito        = ito_rank * 9 + ito_file;
     ipiece     = StrToPiece(str, 4);
     if (ipiece < 0) {
-        return -2;
+        return MOVE_NA;
     }
 
     if (ifrom_file == 0 && ifrom_rank == 0) {

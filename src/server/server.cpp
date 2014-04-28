@@ -36,15 +36,7 @@ Server::~Server()
     m_acceptor.cancel(error);
     m_acceptor.close(error);
 
-    // foreach中にm_clientListが変更される可能性があるため、
-    // 念のため一時変数にコピーします。
-    auto tmp = CloneClientList();
-    BOOST_FOREACH(auto client, tmp) {
-        client.reset();
-    }
-
-    {
-        ScopedLock lock(m_guard);
+    LOCK(m_guard) {
         m_clientList.clear();
     }
 
@@ -90,17 +82,23 @@ void Server::ServiceThreadMain()
  */
 std::list<shared_ptr<Client> > Server::CloneClientList()
 {
-    ScopedLock lock(m_guard);
+    LOCK(m_guard) {
+        std::list<shared_ptr<Client> > result;
 
-    return m_clientList;
-}
+        for (auto it = m_clientList.begin(); it != m_clientList.end(); ) {
+            auto client = (*it).lock();
 
-void Server::ClientDisconnected(shared_ptr<Client> client)
-{
-    if (client == NULL) return;
+            if (client != NULL) {
+                result.push_back(client);
+                ++it;
+            }
+            else {
+                it = m_clientList.erase(it);
+            }
+        }
 
-    ScopedLock lock(m_guard);
-    m_clientList.remove(client);
+        return result;
+    }
 }
 
 void Server::BeginAccept()
@@ -134,11 +132,10 @@ void Server::HandleAccept(shared_ptr<tcp::socket> socket,
         LOG(Error) << "acceptに失敗しました。(" << error.message() << ")";
     }
     else {
-        shared_ptr<Client> client(new Client(this, socket));
+        shared_ptr<Client> client(new Client(shared_from_this(), socket));
 
         // クライアントをリストに追加します。
-        {
-            ScopedLock lock(m_guard);
+        LOCK(m_guard) {
             m_clientList.push_back(client);
         }
 

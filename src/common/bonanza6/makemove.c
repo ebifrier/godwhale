@@ -521,6 +521,10 @@ int CONV unmake_move_root( tree_t * restrict ptree )
   last_root_value         = alast_root_value_save[NUM_UNMAKE-1];
   last_pv                 = alast_pv_save[NUM_UNMAKE-1];
 
+#ifdef GODWHALE_SERVER
+  unmake_move_root_hook();
+#endif
+
   ptree->nrep -= 1;
   game_status &= ~( flag_drawn | flag_mated );
   root_turn    = Flip(root_turn);

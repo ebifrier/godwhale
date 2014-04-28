@@ -36,16 +36,21 @@ int Server::Iterate(int *value, std::vector<move_t> &pvseq)
 
     while (timer.elapsed().wall < 3LL*1000*1000*1000) {
         FOREACH_CLIENT(client) {
-            /*if (client->GetNodeCount() > 1000000) {
+            if (client->GetNodeCount() > 10L * 10000) {
                 return 0;
-            }*/
+            }
         }
     }
 
     FOREACH_CLIENT(client) {
+        ScopedLock locker(client->GetGuard());
+
         if (client->GetMove() != MOVE_NA) {
-            pvseq.push_back(client->GetMove());
             *value = client->GetValue();
+            pvseq.push_back(client->GetMove());
+
+            const auto &tmpseq = client->GetPVSeq();
+            pvseq.insert(pvseq.end(), tmpseq.begin(), tmpseq.end());
             return 0;
         }
     }

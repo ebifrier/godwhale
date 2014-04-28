@@ -107,7 +107,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;MNJ_LAN;INANIWA_SHIFT;GODWHALE_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;CSA_LAN;INANIWA_SHIFT;GODWHALE_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>

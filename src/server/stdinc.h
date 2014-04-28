@@ -4,10 +4,19 @@
 #include "precomp.h"
 #include "../common/bonanza6/shogi.h"
 
+#define LOCK_IMPL(obj, lock, flag)       \
+    if (bool flag = false) {} else       \
+    for (ScopedLock lock(obj); !flag; flag = true)
+
+/** オリジナルのロック定義 */
+#define LOCK(obj) \
+    LOCK_IMPL(obj, lock_7D0B4924019B, flag_7D0B4924019B)
+
 namespace godwhale {
 namespace server {
 
 using namespace boost;
+using namespace boost::system;
 typedef boost::asio::ip::tcp tcp;
 
 typedef boost::recursive_mutex Mutex;

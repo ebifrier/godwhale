@@ -40,8 +40,6 @@ public:
 
     std::list<shared_ptr<Client> > CloneClientList();
     
-    void ClientDisconnected(shared_ptr<Client> client);
-    
     void MakeRootMove(move_t move);
     void UnmakeRootMove();
     int Iterate(int *value, std::vector<move_t> &pvseq);
@@ -54,7 +52,7 @@ private:
     volatile bool m_isAlive;
     tcp::acceptor m_acceptor;
 
-    std::list<shared_ptr<Client> > m_clientList;
+    std::list<weak_ptr<Client> > m_clientList;
     atomic<int> m_gid;
 };
 

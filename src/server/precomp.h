@@ -15,6 +15,7 @@
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/current_function.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/utility/empty_deleter.hpp>
 
 #include <boost/bind.hpp>
@@ -24,6 +25,7 @@
 #include <boost/shared_array.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/weak_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/regex.hpp>
 #include <boost/asio.hpp>

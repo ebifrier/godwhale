@@ -37,12 +37,27 @@ public:
         return Get(sq);
     }
 
+    template<class Iter>
+    std::vector<move_t> InterpretCsaMoveList(Iter begin, Iter end) const {
+        ScopedLock lock(m_guard);
+        Board tboard(*this);
+        std::vector<move_t> result;
+
+        for (; begin != end; ++begin) {
+            move_t move = tboard.InterpretCsaMove(*begin);
+            if (move == MOVE_NA) return result;
+
+            tboard.Move(move);
+        }
+
+        return result;
+    }
+
     bool IsValidMove(move_t move) const;
     void Move(move_t move);
     void UnMove(move_t move);
 
-    move_t InterpretCsaMove(const std::string &str);
-
+    move_t InterpretCsaMove(const std::string &str) const;
     void Print(std::ostream &os, move_t move=0) const;
 
 private:
@@ -60,7 +75,7 @@ private:
         return (m_turn == black ? m_handBlack : m_handWhite);
     }
 
-    int StrToPiece(const std::string &str, std::string::size_type index);
+    int StrToPiece(const std::string &str, std::string::size_type index) const;
     void PrintPiece(std::ostream &os, int piece, int sq, int ito,
                     int ifrom, int is_promote) const;
 

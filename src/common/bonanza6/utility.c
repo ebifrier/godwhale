@@ -478,7 +478,8 @@ int CONV
 com_turn_start( tree_t * restrict ptree, int flag )
 {
   const char *str_move;
-  unsigned int move, sec_total;
+  unsigned int sec_total;
+  move_t move;
   int iret, is_resign, value;
 
   if ( ! ( flag & flag_from_ponder ) )

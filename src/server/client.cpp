@@ -6,7 +6,7 @@
 namespace godwhale {
 namespace server {
 
-Client::Client(Server *server, shared_ptr<tcp::socket> socket)
+Client::Client(shared_ptr<Server> server, shared_ptr<tcp::socket> socket)
     : m_server(server), m_socket(socket), m_logined(false), m_nthreads(0)
     , m_sendpv(false), m_move(MOVE_NA), m_playedMove(MOVE_NA), m_stable(false)
     , m_final(false), m_nodes(0), m_value(0), m_pid(0)
@@ -16,29 +16,32 @@ Client::Client(Server *server, shared_ptr<tcp::socket> socket)
 
 Client::~Client()
 {
+    Close();
+}
+
+void Client::Close()
+{
+    LOCK(m_guard) {
+        m_sendList.clear();
+    }
+
     if (m_socket->is_open()) {
-        Disconnected(true);
+        system::error_code error;
+        m_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
     }
 }
 
 /**
  * @brief コネクションの切断時に呼ばれます。
  */
-void Client::Disconnected(bool destructor/*=false*/)
+void Client::Disconnected()
 {
-    {
-        ScopedLock lock(m_guard);
+    LOCK(m_guard) {
         m_sendList.clear();
     }
 
-    if (m_socket != NULL) {
-        system::error_code error;
-        m_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
+    if (m_socket->is_open()) {
         m_socket->close();
-    }
-
-    if (!destructor) {
-        m_server->ClientDisconnected(shared_from_this());
     }
 
     LOG(Notification) << "Client[" << m_id << "] が切断されました。";
@@ -89,8 +92,9 @@ void Client::PutSendCommand(const std::string &command)
         return;
     }
 
-    ScopedLock lock(m_guard);
-    m_sendList.push_back(command);
+    LOCK(m_guard) {
+        m_sendList.push_back(command);
+    }
 }
 
 /**
@@ -98,15 +102,15 @@ void Client::PutSendCommand(const std::string &command)
  */
 std::string Client::GetSendCommand()
 {
-    ScopedLock lock(m_guard);
+    LOCK(m_guard) {
+        if (m_sendList.empty()) {
+            return std::string();
+        }
 
-    if (m_sendList.empty()) {
-        return std::string();
+        auto command = m_sendList.front();
+        m_sendList.pop_front();
+        return command;
     }
-
-    auto command = m_sendList.front();
-    m_sendList.pop_front();
-    return command;
 }
 
 /**
@@ -125,21 +129,21 @@ void Client::SendCommand(const std::string &command)
  */
 void Client::BeginAsyncSend()
 {
-    ScopedLock lock(m_guard);
+    LOCK(m_guard) {
+        if (!m_sendingbuf.empty()) {
+            return;
+        }
 
-    if (!m_sendingbuf.empty()) {
-        return;
+        m_sendingbuf = GetSendCommand();
+        if (m_sendingbuf.empty()) {
+            return;
+        }
+
+        asio::async_write(
+            *m_socket, asio::buffer(m_sendingbuf),
+            bind(&Client::HandleAsyncSend, shared_from_this(),
+                 asio::placeholders::error));
     }
-
-    m_sendingbuf = GetSendCommand();
-    if (m_sendingbuf.empty()) {
-        return;
-    }
-
-    asio::async_write(
-        *m_socket, asio::buffer(m_sendingbuf),
-        bind(&Client::HandleAsyncSend, shared_from_this(),
-             asio::placeholders::error));
 }
 
 /**
@@ -153,9 +157,7 @@ void Client::HandleAsyncSend(const system::error_code &error)
         return;
     }
     
-    {
-        ScopedLock lock(m_guard);
-
+    LOCK(m_guard) {
         LOG(Debug) << "client[" << m_id << "] send: " << m_sendingbuf;
         m_sendingbuf.clear();
     }
@@ -181,16 +183,9 @@ int Client::ParseCommand(const std::string &command)
     }
 
     smatch m;
-    int pid = -1;
-
-    if (regex_search(command, m, PidRegex)) {
-        pid = lexical_cast<int>(m.str(1));
-    }
 
     if (regex_search(command, m, LoginRegex)) {
-        {
-            ScopedLock lock(m_guard);
-
+        LOCK(m_guard) {
             m_logined = true;
             m_id = m.str(1);
             m_nthreads = lexical_cast<int>(m.str(2));
@@ -199,39 +194,65 @@ int Client::ParseCommand(const std::string &command)
         }
 
         SendCommand("init 0\n");
-
         LOG(Notification) << "client '" << m_id << "' is logined !";
+        return 0;
     }
-    else if (pid < 0) {
+
+    // PID
+    if (!regex_search(command, m, PidRegex)) {
         return -1;
     }
 
-    {
-        ScopedLock lock(m_guard);
-        if (pid >= 0 && pid != m_pid) {
-            return 0;
-        }
+    int pid = lexical_cast<int>(m.str(1));
+    if (pid >= 0 && pid != GetPid()) {
+        return 0;
     }
 
+    // 指し手
+    std::string moveStr;
     move_t move = MOVE_NA;
     if (regex_search(command, m, MoveRegex)) {
-        move = m_board.InterpretCsaMove(m.str(1));
+        moveStr = m.str(1);
+        move = m_board.InterpretCsaMove(moveStr);
         assert(m_board.IsValidMove(move));
     }
-    if (regex_search(command, m, ToryoRegex)) {
+    else if (regex_search(command, m, ToryoRegex)) {
         move = MOVE_RESIGN;
     }
 
+    // ノード数
     long nodes = -1;
+    if (regex_search(command, m, NodeRegex)) {
+        nodes = lexical_cast<long>(m.str(1));
+    }
+
+    // 評価値
     int value = INT_MAX;
-    if (regex_search(command, m, NodeRegex)) nodes = lexical_cast<long>(m.str(1));
-    if (regex_search(command, m, ValueRegex)) value = lexical_cast<int>(m.str(1));
+    if (regex_search(command, m, ValueRegex)) {
+        value = lexical_cast<int>(m.str(1));
+    }
+
+    // PVノード
+    std::vector<move_t> pvseq;
+    if (!moveStr.empty() && regex_search(command, m, PVRegex)) {
+        std::vector<std::string> result;
+        split(result, m.str(1), is_any_of("+- "));
+        result.insert(result.begin(), moveStr);
+
+        // 不要な要素を消去
+        result.erase(std::remove(result.begin(), result.end(), ""), result.end());
+        pvseq = m_board.InterpretCsaMoveList(result.begin(), result.end());
+
+        // 一番最初は指し手と同じのため削除
+        pvseq.erase(pvseq.begin());
+    }
 
     bool final = (command.find("final") >= 0);
     bool stable = (command.find("stable") >= 0);
 
-    {
-        ScopedLock lock(m_guard);
+    LOCK(m_guard) {
+        // 念のためもう一度確認する。
+        if (pid != m_pid) return 0;
 
         if (move != MOVE_NA && nodes > 0 && value != INT_MAX) {
             m_move = move;
@@ -239,7 +260,7 @@ int Client::ParseCommand(const std::string &command)
             m_value = value;
             m_final = final;
             m_stable = stable;
-            return 0;
+            m_pvseq = pvseq;
         }
         else if (final) m_final = final;
         else if (nodes > 0) m_nodes = nodes;
@@ -255,9 +276,7 @@ void Client::MakeRootMove(move_t move, int pid)
 
     if (move == MOVE_NA) return;
 
-    {
-        ScopedLock lock(m_guard);
-
+    LOCK(m_guard) {
         LOG(Notification) << m_board;
         m_board.Move(move);
         LOG(Notification) << m_board;
