@@ -17,6 +17,7 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\bonanza6\bbini.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\..\src\common\bonanza6\bitop.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -202,6 +203,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precomp.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\server\move.cpp" />
     <ClCompile Include="..\..\..\src\server\precomp.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -215,6 +217,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precomp.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\server\thinktime.cpp" />
     <ClCompile Include="..\..\..\src\server\util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -226,6 +229,7 @@
     <ClInclude Include="..\..\..\src\server\board.h" />
     <ClInclude Include="..\..\..\src\server\client.h" />
     <ClInclude Include="..\..\..\src\server\logger.h" />
+    <ClInclude Include="..\..\..\src\server\move.h" />
     <ClInclude Include="..\..\..\src\server\precomp.h" />
     <ClInclude Include="..\..\..\src\server\server.h" />
     <ClInclude Include="..\..\..\src\server\stdinc.h" />
@@ -273,7 +277,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;CSA_LAN;NO_LOGGING;GODWHALE_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;CSA_LAN;NO_LOGGING;BITBOARD64;USE_FAST_BIN;GODWHALE_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>precomp.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>/Zm148 %(AdditionalOptions)</AdditionalOptions>
@@ -292,7 +296,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;USI;NO_LOGGING;GODWHALE_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSA_LAN;NO_LOGGING;BITBOARD64;USE_FAST_BIN;GODWHALE_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
       <PrecompiledHeaderFile>precomp.h</PrecompiledHeaderFile>

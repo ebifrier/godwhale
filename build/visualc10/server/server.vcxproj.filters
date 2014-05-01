@@ -139,6 +139,8 @@
     <ClCompile Include="..\..\..\src\common\bonanza6\bbini.c">
       <Filter>common\bonanza6</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\server\move.cpp" />
+    <ClCompile Include="..\..\..\src\server\thinktime.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\server\client.h" />
@@ -163,6 +165,7 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\server\board.h" />
     <ClInclude Include="..\..\..\src\server\util.h" />
+    <ClInclude Include="..\..\..\src\server\move.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="common">
