@@ -107,12 +107,12 @@ namespace Bonako
             {
                 // 並列化サーバーへの接続コマンドを発行します。
                 bonanza.Connect(
-                    "133.242.205.114",
-                    4084, 4085,
+                    Global.ServerAddress,
+                    Global.ServerPort,
                     model.Name,
                     model.ThreadNum,
                     model.HashMemSize,
-                    16,
+                    24,
                     false); //!Global.IsPublished);
             }
             catch (Exception ex)
@@ -133,7 +133,7 @@ namespace Bonako
                 return false;
             }
 
-            return (bonanza.IsMnjInited == true && !bonanza.IsConnected);
+            return (!bonanza.IsConnected && bonanza.AbortedReason == null);
         }
         #endregion
     }

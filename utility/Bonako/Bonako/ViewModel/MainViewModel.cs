@@ -7,6 +7,7 @@ using System.Text;
 
 using Ragnarok;
 using Ragnarok.ObjectModel;
+using Ragnarok.Presentation;
 using Ragnarok.Utility;
 using Ragnarok.Shogi.Bonanza;
 
@@ -42,15 +43,10 @@ namespace Bonako.ViewModel
         {
             get
             {
-                var prefix = string.Empty;
-                if (IsOutput == true)
-                {
-                    prefix = "< ";
-                }
-                else if (IsOutput == false)
-                {
-                    prefix = "> ";
-                }
+                var prefix = (
+                    IsOutput == true ? "< " :
+                    IsOutput == false ? "> " :
+                    string.Empty);
 
                 return (prefix + RawText);
             }
@@ -172,23 +168,6 @@ namespace Bonako.ViewModel
         }
 
         /// <summary>
-        /// ボナンザの初期化が終わったかどうかを取得します。
-        /// </summary>
-        [DependOnProperty(typeof(Bonanza), "IsMnjInited")]
-        public bool? IsMnjInited
-        {
-            get
-            {
-                if (this.bonanza == null)
-                {
-                    return null;
-                }
-
-                return this.bonanza.IsMnjInited;
-            }
-        }
-
-        /// <summary>
         /// 並列化サーバーに接続しているかどうかを取得します。
         /// </summary>
         [DependOnProperty(typeof(Bonanza), "IsConnected")]
@@ -206,6 +185,23 @@ namespace Bonako.ViewModel
         }
 
         /// <summary>
+        /// 並列化サーバーへの接続にエラーが発生したかどうかを取得します。
+        /// </summary>
+        [DependOnProperty(typeof(Bonanza), "AbortedReason")]
+        public AbortReason? AbortedReason
+        {
+            get
+            {
+                if (this.bonanza == null)
+                {
+                    return AbortReason.FatalError;
+                }
+
+                return this.bonanza.AbortedReason;
+            }
+        }
+
+        /// <summary>
         /// ボナンザログに出力します。
         /// </summary>
         public void AppendBonanzaLog(string log, bool? isOutput)
@@ -215,7 +211,7 @@ namespace Bonako.ViewModel
                 return;
             }
 
-            Ragnarok.Presentation.WPFUtil.UIProcess(() =>
+            WPFUtil.UIProcess(() =>
             {
                 using (LazyLock())
                 {

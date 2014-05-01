@@ -45,9 +45,9 @@ namespace Bonako
         /// <summary>
         /// PVノード数[単位=万]を取得または設定します。
         /// </summary>
-        public long ViewNodeCount
+        public double ViewNodeCount
         {
-            get { return (NodeCount / 10000); }
+            get { return ((double)NodeCount / 10000); }
         }
 
         /// <summary>

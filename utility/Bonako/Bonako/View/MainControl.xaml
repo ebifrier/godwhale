@@ -18,14 +18,17 @@
             
             <!-- 接続ボタン -->
             <Style x:Key="executeButtonStyle" TargetType="Button">
-                <Setter Property="Content" Value="ボナンザ初期化中（長いです）" />
+                <Setter Property="Content" Value="並列化サーバーに接続" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="Padding" Value="5,2,5,2" />
+                <Setter Property="Margin" Value="5" />
                 
                 <Style.Triggers>
-                    <DataTrigger Binding="{Binding IsMnjInited}" Value="True">
-                        <Setter Property="Content" Value="並列化サーバーに接続＆計算開始" />
+                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                        <Setter Property="Content" Value="接続中" />
                     </DataTrigger>
-                    <DataTrigger Binding="{Binding IsMnjInited}" Value="False">
-                        <Setter Property="Content" Value="ボナンザ初期化失敗^^" />
+                    <DataTrigger Binding="{Binding AbortedReason}" Value="FatalError">
+                        <Setter Property="Content" Value="ボナンザ初期化失敗 (入出力ログを見てください)" />
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
@@ -33,6 +36,9 @@
             <!-- 設定コントロールは接続中は使用不可にします。 -->
             <Style x:Key="connectedStyle" TargetType="FrameworkElement">
                 <Setter Property="IsEnabled" Value="True" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+                <Setter Property="MinWidth" Value="70" />
                 
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding IsConnected}" Value="True">
@@ -69,7 +75,8 @@
                        Content="名前：" />
                 <TextBox Grid.Row="0" Grid.Column="1"
                          Style="{StaticResource connectedStyle}"
-                         VerticalAlignment="Center"
+                         Padding="0,1,0,1"
+                         HorizontalAlignment="Stretch"
                          IsReadOnly="{Binding IsConnected}"
                          Text="{Binding Name}" />
 
@@ -78,9 +85,6 @@
                        Content="スレッド数：" />
                 <r:NumericUpDown Grid.Row="2" Grid.Column="1"
                                  Style="{StaticResource connectedStyle}"
-                                 MinWidth="50"
-                                 VerticalAlignment="Center"
-                                 HorizontalAlignment="Left"
                                  Minimum="1"
                                  Maximum="{Binding ThreadNumMaximum, Mode=OneWay}"
                                  Value="{Binding ThreadNum}" />
@@ -90,17 +94,12 @@
                        Content="使用メモリ量[MB]：" />
                 <ComboBox Grid.Row="3" Grid.Column="1"
                           Style="{StaticResource connectedStyle}"
-                          MinWidth="70"
-                          VerticalAlignment="Center"
-                          HorizontalAlignment="Left"
                           ItemsSource="{Binding MemSizeList}"
                           DisplayMemberPath="MemSize"
                           SelectedValue="{Binding HashMemSize}"
                           SelectedValuePath="HashValue" />
 
                 <Button Grid.Row="4" Grid.ColumnSpan="2"
-                        Margin="5"
-                        HorizontalAlignment="Left"
                         Command="{x:Static l:Commands.Connect}"
                         Style="{StaticResource executeButtonStyle}" />
             </Grid>
@@ -114,7 +113,7 @@
                         <GridViewColumn
                             HeaderContainerStyle="{StaticResource headerStyle}"
                             Header="ノード数[万]"
-                            DisplayMemberBinding="{Binding ViewNodeCount}" />
+                            DisplayMemberBinding="{Binding ViewNodeCount, StringFormat={}{0:f1}}"/>
                         <GridViewColumn
                             HeaderContainerStyle="{StaticResource headerStyle}"
                             Header="評価値"

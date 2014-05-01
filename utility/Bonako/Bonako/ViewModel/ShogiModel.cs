@@ -241,7 +241,9 @@ namespace Bonako.ViewModel
                             IsShowed = false,
                             MoveList = _.MoveList.Skip(1).ToList(),
                             Value = _.Value,
-                        });
+                            NodeCount = _.NodeCount,
+                        })
+                    .ToList();
 
                 VariationList.Clear();
                 list.ForEach(_ => VariationList.Add(_));
@@ -457,6 +459,20 @@ namespace Bonako.ViewModel
             this.lastPlayedTime = DateTime.Now;
         }
 
+        private void CurrentEvaluationValueChanged()
+        {
+            WPFUtil.UIProcess(() =>
+            {
+                var shogi = Global.ShogiControl;
+                if (shogi == null || shogi.AutoPlayState == AutoPlayState.Playing)
+                {
+                    return;
+                }
+
+                EvaluationValue = CurrentEvaluationValue;
+            });
+        }
+
         /// <summary>
         /// 受信した変化に符号をつけ足します。
         /// </summary>
@@ -591,6 +607,8 @@ namespace Bonako.ViewModel
             Board = new Board();
             VariationList = new NotifyCollection<VariationInfo>();
 
+            AddPropertyChangedHandler("CurrentEvaluationValue",
+                (_, __) => CurrentEvaluationValueChanged());
             AddPropertyChangedHandler("BlackBaseLeaveTime",
                 (_, __) => BlackLeaveTime = BlackBaseLeaveTime);
             AddPropertyChangedHandler("WhiteBaseLeaveTime",

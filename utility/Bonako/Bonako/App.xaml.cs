@@ -16,6 +16,15 @@ namespace Bonako
         public App()
         {
             DispatcherUnhandledException += App_DispatcherUnhandledException;
+
+            Global.Init();
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            base.OnExit(e);
+
+            Global.Quit();
         }
 
         void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

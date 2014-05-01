@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using Ragnarok;
 using Ragnarok.Shogi;
 using Ragnarok.Shogi.Csa;
+using Ragnarok.Presentation;
 using Ragnarok.Presentation.Shogi;
 
 namespace Bonako.ViewModel
@@ -16,23 +17,9 @@ namespace Bonako.ViewModel
     /// </summary>
     internal static class BonanzaCommandParser
     {
-        #region new
-        private static bool ParseNew(string command)
-        {
-            if (!command.StartsWith("new"))
-            {
-                return false;
-            }
-
-            Global.ShogiModel.InitBoard(new Board(), true, true);
-            Global.ShogiModel.ClearParsedCommand();
-            return true;
-        }
-        #endregion
-
         #region init
         private static readonly Regex InitRegex = new Regex(
-            @"^init\s+(\d+)\s*(([\d\w]+\s*)+)",
+            @"^init\s+(\w+)\s+(\w+)\s+(\d+)\s+(\d+)\s+(([\d\w]+\s*)+)?",
             RegexOptions.IgnoreCase);
 
         private static bool ParseInit(string command)
@@ -43,37 +30,45 @@ namespace Bonako.ViewModel
                 return false;
             }
 
-            var moveTextList = m.Groups[2].Value.Split(
-                new char[] { ' ' },
-                StringSplitOptions.RemoveEmptyEntries);
             var board = new Board();
-
-            // 初期局面から渡された手を進めます。
-            foreach (var str in moveTextList)
+            if (m.Groups[5].Success)
             {
-                var csaMove = CsaMove.Parse(str);
-                if (csaMove == null)
-                {
-                    break;
-                }
+                var moveTextList = m.Groups[5].Value.Split(
+                    new char[] { ' ' },
+                    StringSplitOptions.RemoveEmptyEntries);
 
-                var bmove = board.ConvertCsaMove(csaMove);
-                if (bmove == null || !bmove.Validate())
+                // 初期局面から渡された手を進めます。
+                foreach (var str in moveTextList)
                 {
-                    break;
-                }
+                    var csaMove = CsaMove.Parse(str);
+                    if (csaMove == null)
+                    {
+                        break;
+                    }
 
-                board.DoMove(bmove);
+                    var bmove = board.ConvertCsaMove(csaMove);
+                    if (bmove == null || !bmove.Validate())
+                    {
+                        break;
+                    }
+
+                    board.DoMove(bmove);
+                }
             }
 
-            Global.ShogiModel.InitBoard(board, true, true);
-            Global.ShogiModel.ClearParsedCommand();
+            var model = Global.ShogiModel;
+            model.BlackPlayerName = m.Groups[1].Value;
+            model.WhitePlayerName = m.Groups[2].Value;
+            model.MyTurn = (m.Groups[3].Value == "0" ? BWType.Black : BWType.White);
+
+            model.InitBoard(board, true, true);
+            model.ClearParsedCommand();
             return true;
         }
         #endregion
 
         #region game info
-        private static readonly Regex GameInfoRegex = new Regex(
+        /*private static readonly Regex GameInfoRegex = new Regex(
             @"^info gameinfo ([\+\-]) ([\w]+) ([\w]+) ([\d]+) ([\d]+)",
             RegexOptions.IgnoreCase);
 
@@ -96,7 +91,7 @@ namespace Bonako.ViewModel
             model.BlackBaseLeaveTime = time;
             model.WhiteBaseLeaveTime = time;
             return true;
-        }
+        }*/
         #endregion
 
         #region current info
@@ -112,27 +107,27 @@ namespace Bonako.ViewModel
                 return false;
             }
 
+            // ＰＣ台数
             var machineCount = int.Parse(m.Groups[1].Value);
-            var nodes = int.Parse(m.Groups[2].Value);
+
+            // NPS
+            var nps = int.Parse(m.Groups[2].Value);
+
+            // 評価値(先手有利で＋となる値)
+            var value = double.Parse(m.Groups[3].Value);
 
             var model = Global.ShogiModel;
-            model.CurrentEvaluationValue = double.Parse(m.Groups[3].Value);
+            model.CurrentEvaluationValue =
+                value * (model.MyTurn == BWType.Black ? +1 : -1);
 
             var window = Global.MainWindow;
             if (window != null)
             {
-                Ragnarok.Presentation.WPFUtil.UIProcess(() =>
+                WPFUtil.UIProcess(() =>
                 {
-                    var thinkTime =
-                        model.CurrentTurn == BWType.Black ?
-                        model.BlackBaseLeaveTime - model.BlackLeaveTime :
-                        model.WhiteBaseLeaveTime - model.WhiteLeaveTime;
-                    var thinkSeconds = Math.Max(1.0, thinkTime.TotalSeconds);
-
                     window.Title = string.Format(
-                        //"ボナ子ちゃん　ＰＣ台数:{0}　合計NPS:{1:0.00}[万]",
-                        "ボナ子ちゃん　ＰＣ台数:{0}",
-                        machineCount/*, nodes / thinkSeconds / 10000.0*/);
+                        "ボナ子ちゃん　ＰＣ台数:{0}　合計NPS:{1:0.00}[万]",
+                        machineCount, nps / 10000.0);
                 });
             }
 
@@ -140,21 +135,13 @@ namespace Bonako.ViewModel
         }
         #endregion
 
-        #region move, alter, retract
+        #region move
         private static readonly Regex MovehitRegex = new Regex(
-            @"^(ponderhit|movehit)\s+([\+\-\d\w]+)\s+(\d+)\s+(\d+)",
+            @"^movehit\s+([\d\w]+)",
             RegexOptions.IgnoreCase);
 
         private static readonly Regex MoveRegex = new Regex(
-            @"^move\s+([\d\w]+)\s+(\d+)\s+(\d+)",
-            RegexOptions.IgnoreCase);
-
-        private static readonly Regex AlterRegex = new Regex(
-            @"^alter\s+([\d\w]+)\s+(\d+)\s+(\d+)",
-            RegexOptions.IgnoreCase);
-
-        private static readonly Regex RetractRegex = new Regex(
-            @"^retract\s+(\d+)\s+([\d\w]+)\s+(\d+)\s+(\d+)",
+            @"^move\s+(\d+)\s+([\d\w]+)\s+(\d+)",
             RegexOptions.IgnoreCase);
 
         private static readonly Regex MyMoveSecondsRegex = new Regex(
@@ -166,31 +153,22 @@ namespace Bonako.ViewModel
         /// </summary>
         private static bool ParseMove(string command)
         {
+            if (command.StartsWith("pmove"))
+            {
+                return true;
+            }
+
             var m = MovehitRegex.Match(command);
             if (m.Success)
             {
-                DoCsaMove(m.Groups[2].Value, m.Groups[4].Value);
+                DoCsaMove(m.Groups[1].Value, "0");
                 return true;
             }
 
             m = MoveRegex.Match(command);
             if (m.Success)
             {
-                DoCsaMove(m.Groups[1].Value, m.Groups[3].Value);
-                return true;
-            }
-
-            m = AlterRegex.Match(command);
-            if (m.Success)
-            {
-                DoCsaMove(m.Groups[1].Value, m.Groups[3].Value);
-                return true;
-            }
-
-            m = RetractRegex.Match(command);
-            if (m.Success)
-            {
-                DoCsaMove(m.Groups[2].Value, m.Groups[4].Value);
+                DoCsaMove(m.Groups[2].Value, "0");
                 return true;
             }
 
@@ -198,8 +176,8 @@ namespace Bonako.ViewModel
             if (m.Success)
             {
                 // 自分残り時間を減らします。
-                var seconds = int.Parse(m.Groups[1].Value);
-                Global.ShogiModel.DecMyLeaveTime(seconds);
+                //var seconds = int.Parse(m.Groups[1].Value);
+                //Global.ShogiModel.DecMyLeaveTime(seconds);
                 return true;
             }
 
@@ -225,7 +203,7 @@ namespace Bonako.ViewModel
 
         #region variation
         private static readonly Regex VariationRegex = new Regex(
-            @"^info\s*((\+|\-)?([\d.]+))([\+\-\d\w* ]+)( n=(\d+))?$",
+            @"^info\s*((\+|\-)?([\d.]+))([\+\-\d\w* ]+)(\s+n=(\d+))?$",
             RegexOptions.IgnoreCase);
 
         private static bool ParseVariation(string command)
@@ -239,8 +217,10 @@ namespace Bonako.ViewModel
             var nodeCount = m.Groups[6].Success ?
                 long.Parse(m.Groups[6].Value) : 0;
 
+            // 後手番の時は評価値を反転します。
+            var sign = (Global.ShogiModel.MyTurn == BWType.Black ? +1 : -1);
             var variation = VariationInfo.Create(
-                double.Parse(m.Groups[1].Value) * 100,
+                double.Parse(m.Groups[1].Value) * sign * 100,
                 m.Groups[4].Value,
                 nodeCount);
             if (variation == null)
@@ -292,9 +272,7 @@ namespace Bonako.ViewModel
             if (ParseVariation(command)) return;
             if (ParseCurrentInfo(command)) return;
             if (ParseStats(command)) return;
-            if (ParseNew(command)) return;
             if (ParseInit(command)) return;
-            if (ParseGameInfo(command)) return;
 
             //Log.Error("不明なコマンド: {0}", command);
         }

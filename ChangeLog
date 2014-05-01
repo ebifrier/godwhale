@@ -1,3 +1,12 @@
+2014-05-01  - Ver 2.0.8
+
+	* utility/Bonako/Bonako/ViewModel/BonanzaCommandParser.cs: 新版の大合神
+	クジラちゃんに対応したコマンドを解析するようにしました。
+	* utility/Bonako/Bonako/ViewModel/ShogiModel.cs: 評価値のリアルタイムな
+	更新に対応しました。
+	* utility/Bonako/Bonako/View/MainControl.xaml: クライアントの初期化を待
+	つ必要がなくなったため、それに合わせたGUIの変更を行いました。
+
 2014-05-01  - Ver 2.0.7
 
 	* src/common/bonanza6/ini.c: fv.binの読み込み方を変更し、より高速に使え

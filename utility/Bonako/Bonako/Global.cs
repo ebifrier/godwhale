@@ -19,6 +19,21 @@ namespace Bonako
     public static class Global
     {
         /// <summary>
+        /// ボナンザの起動ファイル名を取得します。
+        /// </summary>
+        public static readonly string ClientFileName = "client.exe";
+
+        /// <summary>
+        /// 並列化サーバーのアドレスを取得します。
+        /// </summary>
+        public static readonly string ServerAddress = "localhost"; //"133.242.205.114";
+
+        /// <summary>
+        /// 並列化サーバーのポート番号を取得します。
+        /// </summary>
+        public static readonly int ServerPort = 4082;
+
+        /// <summary>
         /// 配布用ファイルかどうかを取得します。
         /// </summary>
         public static bool IsPublished
@@ -140,9 +155,9 @@ namespace Bonako
         }
 
         /// <summary>
-        /// 静的コンストラクタ。
+        /// 初期化メソッド
         /// </summary>
-        static Global()
+        public static void Init()
         {
             if (WPFUtil.IsInDesignMode)
             {
@@ -185,7 +200,7 @@ namespace Bonako
             // エラー時は自動的に再接続に行きます。
             if (reason == AbortReason.Error)
             {
-                bonanza.MnjInited += (_, __) => Commands.ExecuteConnect();
+                //bonanza.MnjInited += (_, __) => Commands.ExecuteConnect();
             }
             
             Bonanza = bonanza;
@@ -193,8 +208,7 @@ namespace Bonako
             ShogiModel.SetBonanza(bonanza);
             
             // オブジェクト設定後に初期化します。
-            bonanza.Initialize("bonaster.exe");
-            bonanza.BeginPrepareMnj();
+            bonanza.Initialize(ClientFileName);
 
             // UIをすべて更新します。
             WPFUtil.InvalidateCommand();

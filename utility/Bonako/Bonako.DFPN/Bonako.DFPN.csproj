@@ -87,20 +87,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Ragnarok\Ragnarok.Presentation\Ragnarok.Presentation.csproj">
-      <Project>{2E5515A8-7B34-44A2-9C50-F423C5F87798}</Project>
-      <Name>Ragnarok.Presentation</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Ragnarok\Ragnarok.Shogi\Ragnarok.Shogi.csproj">
-      <Project>{38ABBDA5-B22F-41B7-A415-2A909D0A6A35}</Project>
-      <Name>Ragnarok.Shogi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Ragnarok\Ragnarok\Ragnarok.csproj">
-      <Project>{A348968A-DD91-47B4-9420-C7D370A2BE92}</Project>
-      <Name>Ragnarok</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
