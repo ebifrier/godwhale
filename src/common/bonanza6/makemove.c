@@ -3,7 +3,7 @@
 #include <string.h>
 #include "shogi.h"
 
-#ifdef GODWHALE_SERVER
+#if defined(GODWHALE_SERVER)
 #include "../bonanza_if.h"
 #endif
 

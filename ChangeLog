@@ -1,3 +1,21 @@
+2014-05-01  - Ver 2.0.7
+
+	* src/common/bonanza6/ini.c: fv.binの読み込み方を変更し、より高速に使え
+	るような形に修正しました。
+	* src/common/bonanza6/proce.c: 仮指の手をちゃんと管理するようにしました。
+	また、mnjのinitで対局者名なども一緒に送るようにしました。
+	* src/server/board.cpp: Moveクラスを使うようにし、またUnmoveのバグを修
+	正しました。
+	* src/server/client.cpp: ゲーム開始時にinitで指し手や対局者名を送るよう
+	にしました。また、指し手を無視する機能も追加しました。
+	* src/server/main.cpp: ponderに対応し、相手の手番でもiterateが呼び出さ
+	れるようにしました。
+	* src/server/server.cpp: 指し手の選択や、時間管理、無視する指し手などの
+	設定機能を追加しました。
+	* src/server/move.cpp: 指し手を管理するためのクラスを追加しました。
+	* src/server/thinktime.cpp: 指し手の時間を管理するためのファイルを追加
+	しました。
+
 2014-04-28  - Ver 2.0.6
 
 	* src/server/board.cpp: 指し手の履歴を保存するようにし、かつ指し手を戻す

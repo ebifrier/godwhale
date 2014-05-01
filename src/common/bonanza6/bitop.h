@@ -1,8 +1,6 @@
 #ifndef BITOP_H
 #define BITOP_H
 
-#define BITBOARD64
-
 #ifdef HAVE_AVX
 #include <immintrin.h>
 #endif

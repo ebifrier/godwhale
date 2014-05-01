@@ -6,6 +6,9 @@
 namespace godwhale {
 namespace server {
 
+/**
+ * @brief w‚µè‚ğ•ª‚©‚è‚â‚·‚¢‚æ‚¤‚É•¶š—ñ‰»‚µ‚Ü‚·B
+ */
 std::string ToString(move_t move)
 {
     int ifrom, ito, ipiece_move, is_promote;

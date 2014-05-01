@@ -9,8 +9,8 @@ static int main_child( tree_t * restrict ptree );
 
 int main(int argc, char *argv[])
 {
-    int iret;
     tree_t * restrict ptree;
+    int iret;
 
 #if defined(TLP)
     ptree = tlp_atree_work;
@@ -25,14 +25,14 @@ int main(int argc, char *argv[])
 
     InitializeLog();
 
+    // これより前のサーバーインスタンスへのアクセスは禁止です。
+    Server::Initialize();
+
     if (ini(ptree) < 0)
     {
         LOG(Error) << "failed ini(). (" << str_error << ")";
         return EXIT_SUCCESS;
     }
-
-    // これより前のサーバーインスタンスへのアクセスは禁止です。
-    Server::Initialize();
 
     for ( ; ; ) {
         iret = main_child(ptree);
@@ -64,6 +64,7 @@ static int main_child(tree_t * restrict ptree)
 
     /* ponder a move */
     ponder_move = 0;
+#if 1
     iret = ponder(ptree);
     if (iret < 0) {
         return iret;
@@ -86,6 +87,7 @@ static int main_child(tree_t * restrict ptree)
         TlpEnd();
         show_prompt();
     }
+#endif
   
     iret = next_cmdline(1);
     if (iret < 0) {

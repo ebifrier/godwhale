@@ -10,8 +10,6 @@ ponder( tree_t * restrict ptree )
   unsigned int move;
   int iret;
 
-  return 1;
-
   if ( ( game_status & ( mask_game_end | flag_noponder | flag_nopeek ) )
        || abs( last_root_value ) > score_max_eval
        || ! record_game.moves
@@ -31,13 +29,13 @@ ponder( tree_t * restrict ptree )
 
   if ( game_status & ( flag_quit | flag_quit_ponder | flag_suspend ) )
     {
-      OutCsaShogi( "info ponder end\n" );
+      //OutCsaShogi( "info ponder end\n" );
       return 1;
     }
 
   if ( abs(last_root_value) > score_max_eval )
     {
-      OutCsaShogi( "info ponder end\n" );
+      //OutCsaShogi( "info ponder end\n" );
       return 1;
     }
 

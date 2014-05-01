@@ -109,6 +109,9 @@ client_next_game( tree_t * restrict ptree, const char *str_addr, int iport )
     return -2;
   }
 
+  client_turn   = my_turn;
+  client_ngame += 1;
+
   if ( ini_game( ptree, &min_posi_no_handicap, flag_history,
                  str_name1, str_name2 ) < 0 )
     {
@@ -116,9 +119,6 @@ client_next_game( tree_t * restrict ptree, const char *str_addr, int iport )
     }
 
   if ( get_elapsed( &time_turn_start ) < 0 ) { return -1; }
-
-  client_turn   = my_turn;
-  client_ngame += 1;
 
   Out( "Game Conditions (%dth):\n", client_ngame );
   Out( "  my turn:%c\n", ach_turn[my_turn] );

@@ -255,8 +255,14 @@ extern unsigned char ailast_one[512];
 #define ArraySize(ary)      (sizeof(ary) / sizeof((ary)[0]))
 #define Flip(turn)          ((turn)^1)
 #define Inv(sq)             (nsquare-1-sq)
-#define PcOnSq(k,i)         pc_on_sq[k][(i)*((i)+3)/2]
-#define PcPcOnSq(k,i,j)     pc_on_sq[k][(i)*((i)+1)/2+(j)]
+
+#if defined(USE_FAST_BIN)
+#  define PcOnSq(k,i)         pc_on_sq[k][i][i]
+#  define PcPcOnSq(k,i,j)     pc_on_sq[k][i][j]
+#else
+#  define PcOnSq(k,i)         pc_on_sq[k][(i)*((i)+3)/2]
+#  define PcPcOnSq(k,i,j)     pc_on_sq[k][(i)*((i)+1)/2+(j)]
+#endif
 
 /*
   xxxxxxxx xxxxxxxx xxx11111  pawn
@@ -858,9 +864,12 @@ extern int ngold_box;
 extern int nbishop_box;
 extern int nrook_box;
 
-extern unsigned int ponder_move_list[ MAX_LEGAL_MOVES ];
-extern unsigned int ponder_move;
+extern move_t ponder_move_list[ MAX_LEGAL_MOVES ];
+extern move_t ponder_move;
 extern int ponder_nmove;
+
+extern move_t played_move_list[ 128 ];
+extern int played_nmove;
 
 extern root_move_t root_move_list[ MAX_LEGAL_MOVES ];
 extern SHARE int root_abort;
@@ -920,8 +929,14 @@ extern int record_num;
 extern int p_value_ex[31];
 extern int p_value_pm[15];
 extern int p_value[31];
-extern short pc_on_sq[nsquare][fe_end*(fe_end+1)/2];
-extern short kkp[nsquare][nsquare][kkp_end];
+
+#if defined(USE_FAST_BIN)
+typedef short pconsq_t[ fe_end ][ fe_end ];
+#else
+typedef short pconsq_t[ fe_end*(fe_end+1)/2 ];
+#endif
+extern pconsq_t *pc_on_sq;
+extern short kkp[ nsquare ][ nsquare ][ kkp_end ];
 
 extern uint64_t ehash_tbl[ EHASH_MASK + 1 ];
 extern rand_work_t rand_work;
@@ -1036,6 +1051,7 @@ extern const char *str_io_error;
 extern const char *str_spaces;
 extern const char *str_no_legal_move;
 extern const char *str_king_hang;
+extern const char *str_out_of_memory;
 #if defined(CSA_LAN)
 extern const char *str_server_err;
 #endif
@@ -1107,6 +1123,7 @@ void CONV hash_store( const tree_t * restrict ptree, int ply, int depth,
 void * CONV memory_alloc( size_t nbytes );
 void CONV adjust_time( unsigned int elapsed_new, int turn );
 int CONV load_fv( void );
+int CONV close_fv( void );
 int CONV unmake_move_root( tree_t * restrict ptree );
 int CONV popu_count012( unsigned int u0, unsigned int u1, unsigned int u2 );
 int CONV first_one012( unsigned int u0, unsigned int u1, unsigned int u2 );

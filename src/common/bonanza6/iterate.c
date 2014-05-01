@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "shogi.h"
 
-#ifdef GODWHALE_SERVER
+#if defined(GODWHALE_SERVER)
 #include "../bonanza_if.h"
 #endif
 
@@ -19,13 +19,92 @@ static const char * CONV str_fail_high( int turn, int nfail_high );
 int CONV
 iterate( tree_t * restrict ptree )
 {
+#if defined(GODWHALE_SERVER)
+
+  int value, iret;
+  int right_answer_made;
+  int i, length;
+
+  /* probe the opening book */
+  /*if ( pf_book != NULL
+#if defined(USI) || defined(MNJ_LAN)
+       && moves_ignore[0] == MOVE_NA
+#endif
+       && ! rep_book_prob( ptree ) )
+    {
+      int is_book_hit, i;
+      unsigned int elapsed;
+      
+      is_book_hit = book_probe( ptree );
+      if ( is_book_hit < 0 ) { return is_book_hit; }
+      
+      iret = get_elapsed( &elapsed );
+      if ( iret < 0 ) { return iret; }
+
+      Out( "- opening book is probed. (%ss)\n",
+           str_time_symple( elapsed - time_start ) );
+      if ( is_book_hit )
+        {
+          pv_close( ptree, 2, book_hit );
+          last_pv         = ptree->pv[1];
+          last_root_value = 0;
+          if ( ! ( game_status & flag_puzzling ) )
+            {
+              for ( i = 0; i < (int)HIST_SIZE; i++ )
+                {
+                  ptree->hist_good[i]  /= 256U;
+                  ptree->hist_tried[i] /= 256U;
+                }
+            }
+          MnjOut( "pid=%d move=%s n=0 v=0e final%s\n",
+                  mnj_posi_id, str_CSA_move(ptree->pv[1].a[1]),
+                  ( mnj_depth_stable == INT_MAX ) ? "" : " stable" );
+
+
+#if defined(USI)
+          if ( usi_mode != usi_off )
+            {
+              char str_usi[6];
+              csa2usi( ptree, str_CSA_move(ptree->pv[1].a[1]), str_usi );
+              USIOut( "info depth 1 score cp 0 nodes 0 pv %s\n", str_usi );
+            }                      
+#endif
+
+          return 1;
+        }
+    }*/
+
+  game_status &= ~( flag_move_now | flag_suspend
+                    | flag_quit_ponder | flag_search_error );
+
+  server_iterate( ptree, &value, &last_pv.a[1], &length );
+  last_pv.length = length;
+  ptree->pv[0].length = length;
+  for ( i = 1; i < length; i++ )
+    {
+      ptree->pv[0].a[i] = last_pv.a[i];
+    }
+  last_root_value = (last_pv.a[1] != MOVE_NA) ? last_root_value :
+    (!root_turn ? -score_bound : score_bound);
+
+  right_answer_made = 0;
+  if ( ( game_status & flag_problem ) )
+    {
+      if ( is_answer_right( ptree->pv[0].a[1] ) )
+        right_answer_made = 1;
+      else { right_answer_made = 0; }
+    }
+
+  if ( ( game_status & flag_problem ) && ! right_answer_made ) { iret = 0; }
+  else                                                         { iret = 1; }
+
+  return iret;
+
+#else
+
   int value, iret, ply;
   unsigned int cpu_start;
   int right_answer_made;
-
-#ifdef GODWHALE_SERVER
-  int i, length;
-#endif
 
 #if defined(MNJ_LAN)
   if ( mnj_posi_id < 0 ) return 1;
@@ -79,35 +158,6 @@ iterate( tree_t * restrict ptree )
           return 1;
         }
     }
-
-  // server用のコード
-#ifdef GODWHALE_SERVER
-  game_status &= ~( flag_move_now | flag_suspend
-                    | flag_quit_ponder | flag_search_error );
-
-  server_iterate( &value, &last_pv.a[1], &length );
-  last_pv.length = length;
-  ptree->pv[0].length = length;
-  for ( i = 1; i < length; i++ )
-    {
-      ptree->pv[0].a[i] = last_pv.a[i];
-    }
-  last_root_value = (last_pv.a[1] != MOVE_NA) ? last_root_value :
-    (!root_turn ? -score_bound : score_bound);
-
-  right_answer_made = 0;
-  if ( ( game_status & flag_problem ) )
-    {
-      if ( is_answer_right( ptree->pv[0].a[1] ) )
-        right_answer_made = 1;
-      else { right_answer_made = 0; }
-    }
-
-  if ( ( game_status & flag_problem ) && ! right_answer_made ) { iret = 0; }
-  else                                                         { iret = 1; }
-
-  return iret;
-#endif
 
   /* detect inaniwa tactics */
 #if defined(INANIWA_SHIFT)
@@ -569,10 +619,12 @@ iterate( tree_t * restrict ptree )
           Out( " 1.%c%s [%s?]\n", ach_turn[root_turn], str_move, str );
           if ( game_status & flag_pondering )
             {
+#if ! defined(GODWHALE_CLIENT)
               OutCsaShogi( "info %+.2f %c%s %c%s [%s?]\n",
                            dvalue / 100.0, ach_turn[Flip(root_turn)],
                            str_CSA_move(ponder_move),
                            ach_turn[root_turn], str_move, str );
+#endif
             }
           else {
             OutCsaShogi( "info %+.2f %c%s [%s?]\n", dvalue / 100.0,
@@ -878,6 +930,7 @@ iterate( tree_t * restrict ptree )
   else                                                         { iret = 1; }
 
   return iret;
+#endif
 }
 
 

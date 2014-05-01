@@ -73,7 +73,7 @@ void Client::HandleAsyncReceive(const system::error_code &error)
     std::string line;
 
     while (std::getline(is, line, '\n')) {
-        LOG(Debug) << "client[" << m_id << "] recv: " << line;
+        //LOG(Debug) << "client[" << m_id << "] recv: " << line;
         
         if (ParseCommand(line) < 0) {
             LOG(Error) << "parse error: " << line;
@@ -139,6 +139,10 @@ void Client::BeginAsyncSend()
             return;
         }
 
+        if (m_sendingbuf.back() != '\n') {
+            m_sendingbuf.append("\n");
+        }
+
         asio::async_write(
             *m_socket, asio::buffer(m_sendingbuf),
             bind(&Client::HandleAsyncSend, shared_from_this(),
@@ -158,6 +162,7 @@ void Client::HandleAsyncSend(const system::error_code &error)
     }
     
     LOCK(m_guard) {
+        m_sendingbuf.pop_back(); // 改行コードを削除
         LOG(Debug) << "client[" << m_id << "] send: " << m_sendingbuf;
         m_sendingbuf.clear();
     }
@@ -190,11 +195,17 @@ int Client::ParseCommand(const std::string &command)
             m_id = m.str(1);
             m_nthreads = lexical_cast<int>(m.str(2));
             m_sendpv = (lexical_cast<int>(m.str(3)) != 0);
-            m_pid = 0;
+            m_board = m_server->GetBoard();
+            m_pid = m_server->GetGid();
         }
 
-        SendCommand("init 0\n");
+        m_server->ClientLogined(shared_from_this());
+        SendInitGameInfo();
         LOG(Notification) << "client '" << m_id << "' is logined !";
+        return 0;
+    }
+
+    if (!m_logined) {
         return 0;
     }
 
@@ -209,12 +220,9 @@ int Client::ParseCommand(const std::string &command)
     }
 
     // 指し手
-    std::string moveStr;
-    move_t move = MOVE_NA;
+    Move move = MOVE_NA;
     if (regex_search(command, m, MoveRegex)) {
-        moveStr = m.str(1);
-        move = m_board.InterpretCsaMove(moveStr);
-        assert(m_board.IsValidMove(move));
+        move = m_board.InterpretCsaMove(m.str(1));
     }
     else if (regex_search(command, m, ToryoRegex)) {
         move = MOVE_RESIGN;
@@ -233,18 +241,14 @@ int Client::ParseCommand(const std::string &command)
     }
 
     // PVノード
-    std::vector<move_t> pvseq;
-    if (!moveStr.empty() && regex_search(command, m, PVRegex)) {
+    std::vector<Move> pvseq;
+    if (regex_search(command, m, PVRegex)) {
         std::vector<std::string> result;
         split(result, m.str(1), is_any_of("+- "));
-        result.insert(result.begin(), moveStr);
 
         // 不要な要素を消去
         result.erase(std::remove(result.begin(), result.end(), ""), result.end());
         pvseq = m_board.InterpretCsaMoveList(result.begin(), result.end());
-
-        // 一番最初は指し手と同じのため削除
-        pvseq.erase(pvseq.begin());
     }
 
     bool final = (command.find("final") >= 0);
@@ -252,15 +256,29 @@ int Client::ParseCommand(const std::string &command)
 
     LOCK(m_guard) {
         // 念のためもう一度確認する。
-        if (pid != m_pid) return 0;
+        if (pid != m_pid) {
+            return 0;
+        }
+        if (move != MOVE_NA && move != MOVE_RESIGN &&
+            !m_board.IsValidMove(move)) {
+            LOG(Error) << "Client::ParseCommand: '" << move << "' is invalid.";
+            return 0;
+        }
 
         if (move != MOVE_NA && nodes > 0 && value != INT_MAX) {
-            m_move = move;
-            m_nodes = nodes;
-            m_value = value;
-            m_final = final;
+            m_move   = move;
+            m_nodes  = nodes;
+            m_value  = value * (client_turn == black ? +1 : -1);
+            m_final  = final;
             m_stable = stable;
-            m_pvseq = pvseq;
+            m_pvseq  = pvseq;
+
+            if (!m_playedMove.IsEmpty()) {
+                m_pvseq.insert(m_pvseq.begin(), m_playedMove);
+            }
+            else if (m_pvseq.empty()) {
+                m_pvseq.push_back(move);
+            }
         }
         else if (final) m_final = final;
         else if (nodes > 0) m_nodes = nodes;
@@ -270,28 +288,181 @@ int Client::ParseCommand(const std::string &command)
     return 0;
 }
 
-void Client::MakeRootMove(move_t move, int pid)
+/**
+ * @brief 今までの指し手履歴を取得します。
+ */
+void Client::SendInitGameInfo()
 {
-    assert(m_board.IsValidMove(move));
+    std::string name1 = record_game.str_name1;
+    std::string name2 = record_game.str_name2;
 
-    if (move == MOVE_NA) return;
+    auto fmt = format("init %1% %2% %3% %4% %5%")
+        % (name1.empty() ? "dummy1" : name1)
+        % (name2.empty() ? "dummy2" : name2)
+        % (client_turn == black ? "0" : "1")
+        % m_pid % GetMoveHistory();
 
-    LOCK(m_guard) {
-        LOG(Notification) << m_board;
-        m_board.Move(move);
-        LOG(Notification) << m_board;
+    auto str = fmt.str();
+    SendCommand(str);
+}
 
-        m_pid = pid;
-        m_move = move;
-        m_nodes = 0;
-        m_value = 0;
-        m_final = false;
-        m_stable = false;
+/**
+ * @brief 今までの指し手履歴を取得します。
+ */
+std::string Client::GetMoveHistory() const
+{
+    ScopedLock locker(m_guard);
+    const auto &moveList = m_board.GetMoveList();
+    std::vector<std::string> v;
+
+    std::transform(
+        moveList.begin(), moveList.end(),
+        std::back_inserter(v),
+        [](move_t _) { return ToString(_); });
+
+    return algorithm::join(v, " ");
+}
+
+void Client::InitGame(const min_posi_t *posi)
+{
+    ScopedLock locker(m_guard);
+
+    // 平手、初期局面以外は未対応とします。
+    if (memcmp(&min_posi_no_handicap, posi, sizeof(min_posi_t)) != 0) {
+        Close();
+        return;
     }
 
-    auto fmt = format("move %1% %2%\n") % str_CSA_move(move) % pid;
+    m_board      = *posi;
+    m_pid        = 0;
+    m_move       = MOVE_NA;
+    m_playedMove = MOVE_NA;
+    m_stable     = false;
+    m_final      = false;
+    m_nodes      = 0;
+    m_value      = 0;
+    m_pvseq.clear();
+    m_ignoreMoves.clear();
+
+    SendInitGameInfo();
+}
+
+void Client::MakeRootMove(Move move, int pid, bool isActualMove/*=true*/)
+{
+    ScopedLock locker(m_guard);
+
+    if (move.IsEmpty()) {
+        return;
+    }
+
+    bool needAlter = false;
+    if (isActualMove && m_playedMove != MOVE_NA) {
+        if (m_playedMove == move) {
+            m_pid = pid;
+            m_playedMove = MOVE_NA;
+            m_pvseq.clear();
+            m_ignoreMoves.clear();
+
+            if (m_move != MOVE_NA) {
+                m_pvseq.push_back(m_move);
+            }
+
+            SendCommand(format("movehit %1%") % move);
+            return;
+        }
+        else {
+            LOG(Debug) << m_board;
+            needAlter = true;
+            m_board.DoUnmove();
+        }
+    }
+
+    //LOG(Debug) << "next move: " << move << ", ID:" << pid;
+    //LOG(Debug) << m_board;
+    if (!m_board.IsValidMove(move)) {
+        LOG(Error) << "Client::MakeRootMove: '" << move << "' is invalid.";
+        LOG(Error) << m_board;
+        Close();
+        return;
+    }
+
+    //LOG(Notification) << m_board;
+    m_board.DoMove(move);
+    //LOG(Notification) << m_board;
+
+    m_pid = pid;
+    m_move = MOVE_NA;
+    m_nodes = 0;
+    m_value = 0;
+    m_final = false;
+    m_stable = false;
+    m_pvseq.clear();
+    m_ignoreMoves.clear();
+
+    if (isActualMove) {
+        m_playedMove = MOVE_NA;
+    }
+    else {
+        m_playedMove = move;
+        m_pvseq.push_back(m_playedMove);
+    }
+
+    auto fmt = format("%1% %2% %3%")
+        % (needAlter ? "alter" : (isActualMove ? "move" : "pmove"))
+        % move % pid;
     SendCommand(fmt.str());
 }
 
+void Client::SetPlayedMove(Move move)
+{
+    ScopedLock locker(m_guard);
+    int pid = m_pid + 1;
+
+    if (m_playedMove != MOVE_NA) {
+        return;
+    }
+
+    if (!m_board.IsValidMove(move)) {
+        LOG(Error) << "Client::SetPlayedMove: '" << move << "' is invalid.";
+        Close();
+        return;
+    }
+
+    // 実際に局面を進めます。
+    MakeRootMove(move, pid, false);
 }
+
+void Client::AddIgnoreMove(Move move)
+{
+    ScopedLock locker(m_guard);
+
+    if (move == MOVE_NA) {
+        return;
+    }
+
+    auto it = std::find(m_ignoreMoves.begin(), m_ignoreMoves.end(), move);
+    if (it != m_ignoreMoves.end()) {
+        return;
+    }
+
+    m_ignoreMoves.push_back(move);
+
+    std::vector<std::string> v;
+    std::transform(m_ignoreMoves.begin(), m_ignoreMoves.end(),
+                   std::back_inserter(v),
+                   [](Move _) { return _.String(); });
+    SendCommand(format("ignore %1% %2%") % GetPid() % join(v, " "));
 }
+
+void Client::SendCurrentInfo(int machineCount, long nps, int value)
+{
+    auto fmt =
+        format("info current %1% %2% %3%")
+        % machineCount % nps % value;
+    auto str = fmt.str();
+
+    SendCommand(str);
+}
+
+} // namespace server
+} // namespace godwhale

@@ -855,7 +855,7 @@ detect_signals( tree_t * restrict ptree )
         }
     }
 
-#ifdef GODWHALE_SERVER
+#if defined(GODWHALE_SERVER)
   return 0;  // when master, just input check.  time check done by master()
 #endif
 

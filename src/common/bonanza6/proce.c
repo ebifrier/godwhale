@@ -44,7 +44,7 @@ static int CONV cmd_mnjignore( tree_t *restrict ptree, char **lasts );
 static int CONV cmd_mnj( char **lasts );
 static int CONV cmd_mnjinit( tree_t * restrict ptree, char **lasts );
 static int CONV cmd_mnjmove( tree_t * restrict ptree, char **lasts,
-                             int num_alter );
+                             int actual_move, int num_alter );
 #endif
 
 #if defined(USI)
@@ -257,13 +257,11 @@ static int CONV proce_mnj( tree_t * restrict ptree )
   token = strtok_r( str_cmdline, str_delimiters, &last );
   if ( token == NULL ) { return 1; }
 
-  MnjLocalOut( "%s %s\n", str_cmdline, last );
-
+  if ( ! strcmp( token, "quit" ) )   { MnjLocalOut( "quit\n" ); return cmd_quit(); }
+  if ( ! strcmp( token, "idle" ) )   { MnjLocalOut( "idle\n" ); return cmd_suspend(); }
   if ( ! strcmp( token, "init" ) )   { return cmd_mnjinit( ptree, &last ); }
-  if ( ! strcmp( token, "quit" ) )   { return cmd_quit(); }
   if ( ! strcmp( token, "ignore" ) ) { return cmd_mnjignore( ptree, &last ); }
-  if ( ! strcmp( token, "idle" ) )   { return cmd_suspend(); }
-  if ( ! strcmp( token, "alter" ) )  { return cmd_mnjmove( ptree, &last, 1 ); }
+  if ( ! strcmp( token, "alter" ) )  { return cmd_mnjmove( ptree, &last, 1, 1 ); }
   if ( ! strcmp( token, "retract" ) )
     {
       long l;
@@ -281,13 +279,22 @@ static int CONV proce_mnj( tree_t * restrict ptree )
           return -1;
         }
       
-      return cmd_mnjmove( ptree, &last, (int)l );
+      return cmd_mnjmove( ptree, &last, 1, (int)l );
     }
-  if ( ! strcmp( token, "pmove" ) )     { return cmd_mnjmove( ptree, &last, 0 ); }
-  if ( ! strcmp( token, "move" ) )      { return cmd_mnjmove( ptree, &last, 0 ); }
-  if ( ! strcmp( token, "ponderhit" ) ) { return 1; }
-  if ( ! strcmp( token, "movehit" ) )   { return 1; }
-  if ( ! strcmp( token, "info" ) )      { return 1; }
+  if ( ! strcmp( token, "pmove" ) )   { return cmd_mnjmove( ptree, &last, 0, 0 ); }
+  if ( ! strcmp( token, "move" ) )    { return cmd_mnjmove( ptree, &last, 1, 0 ); }
+  if ( ! strcmp( token, "movehit" ) )
+    {
+      MnjLocalOut( "%s %s\n", token, last );
+      played_nmove -= 1;
+      memmove( &played_move_list[0], &played_move_list[1], sizeof(move_t) * played_nmove );      
+      return 1;
+    }
+  if ( ! strcmp( token, "info" ) )
+    {
+      MnjLocalOut( "%s %s\n", token, last );
+      return 1;
+    }
 
   str_error = str_bad_cmdline;
   return -2;
@@ -299,10 +306,46 @@ cmd_mnjinit( tree_t *restrict ptree, char **lasts )
 {
   const char *token;
   char *ptr, str[ SIZE_CMDLINE ], *tlasts;
-  int i, iret;
+  char name1[ 128 ], name2[ 128 ];
+  int i, iret, my_turn;
   move_t move;
   long lid;
 
+  MnjLocalOut( "init %s\n", *lasts );
+
+  // 先手番の名前
+  token = strtok_r( NULL, str_delimiters, lasts );
+  if ( token == NULL )
+    {
+      str_error = str_bad_cmdline;
+      return -1;
+    }
+  strcpy_s( name1, sizeof(name1), token );
+  
+  // 後手番の名前
+  token = strtok_r( NULL, str_delimiters, lasts );
+  if ( token == NULL )
+    {
+      str_error = str_bad_cmdline;
+      return -1;
+    }
+  strcpy_s( name2, sizeof(name2), token );
+
+  // 自分の手番
+  token = strtok_r( NULL, str_delimiters, lasts );
+  if ( token == NULL )
+    {
+      str_error = str_bad_cmdline;
+      return -1;
+    }
+  my_turn = strtol( token, &ptr, 0 );
+  if ( ptr == token )
+    {
+      str_error = str_bad_cmdline;
+      return -1;
+    }
+
+  // 局面ID
   token = strtok_r( NULL, str_delimiters, lasts );
   if ( token == NULL )
     {
@@ -381,15 +424,15 @@ cmd_mnjignore( tree_t *restrict ptree, char **lasts )
       str_error = str_bad_cmdline;
       return -1;
     }
+
   mnj_posi_id     = (int)lid;
   moves_ignore[i] = MOVE_NA;
-
   return analyze( ptree );
 }
 
 
 static int CONV
-cmd_mnjmove( tree_t * restrict ptree, char **lasts, int num_alter )
+cmd_mnjmove( tree_t * restrict ptree, char **lasts, int actual_move, int num_alter )
 {
   const char *str1 = strtok_r( NULL, str_delimiters, lasts );
   const char *str2 = strtok_r( NULL, str_delimiters, lasts );
@@ -436,7 +479,19 @@ cmd_mnjmove( tree_t * restrict ptree, char **lasts, int num_alter )
   if ( iret < 0 ) { return iret; }
 #  endif
 
-  //OutCsaShogi( "move %s %d %d\n", str1, num_alter, mnj_posi_id );
+  MnjLocalOut( "%s %d %s %ld\n",
+               ( actual_move ? "move" : "pmove" ),
+               num_alter, str_CSA_move( move ), lid );
+
+  if ( actual_move )
+    {
+      played_nmove = 0;
+    }
+  else
+    {
+      // 自分だけが先読みのために指した手を設定します。
+      played_move_list[ played_nmove++ ] = move;
+    }
 
   moves_ignore[0] = MOVE_NA;
   return analyze( ptree );

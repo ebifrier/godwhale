@@ -57,7 +57,7 @@ set_search_limit_time( int turn )
 #endif
 
   /* not punctual to the time */
-  if ( ! sec_limit && ( game_status & flag_time_extendable ) )
+  if ( sec_limit == 0 && ( game_status & flag_time_extendable ) )
     {
       u0 = sec_limit_up;
       u1 = sec_limit_up * 5U;

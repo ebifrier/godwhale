@@ -4,6 +4,8 @@
 namespace godwhale {
 namespace server {
 
+extern bool IsThinkEnd(tree_t *restrict ptree, unsigned int turnTimeMS);
+
 extern std::string ToString(move_t move);
 
 } // namespace server

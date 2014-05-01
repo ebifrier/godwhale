@@ -22,32 +22,113 @@ static void ini_tables( void );
 static void ini_attack_tables( void );
 static void ini_random_table( void );
 
+#if defined(USE_FAST_BIN)
+typedef short buffer_pconsq_t[ fe_end*(fe_end+1)/2 ];
+#define BufPcPcOnSq(k,i,j)  table_buffer[k][(i)*((i)+1)/2+(j)]
+#endif
 
-int CONV load_fv( void )
+
+static int CONV
+load_pconsq_table( pconsq_t *table, FILE *pf )
+{
+  size_t size = nsquare * pos_n;
+
+#if defined(USE_FAST_BIN)
+  buffer_pconsq_t *table_buffer;
+  int ksq;
+
+  // fv.binの一時的な読み込み用バッファ
+  table_buffer = (buffer_pconsq_t *)malloc( sizeof(short) * size );
+  if ( table_buffer == NULL )
+    {
+      str_error = str_out_of_memory;
+      return -2;
+    }
+  
+  ksq = fread( table_buffer, sizeof(short), size, pf );
+  if ( ksq != size )
+    {
+      str_error = str_io_error;
+      free( table_buffer );
+      return -2;
+    }
+
+  for ( ksq = 0; ksq < nsquare; ksq++ )
+    {
+      int i, j;
+      for ( i = 0; i < fe_end; i++ )
+        {
+          table[ksq][i][i] = BufPcPcOnSq(ksq, i, i);
+          for ( j = 0; j < i; j++)
+            {
+              table[ksq][i][j] =
+              table[ksq][j][i] = BufPcPcOnSq(ksq, i, j);
+            }
+        }
+    }
+
+  free( table_buffer );
+
+#else
+
+  if ( fread( table, sizeof(short), size, pf ) != size )
+    {
+      str_error = str_io_error;
+      return -2;
+    }
+
+#endif
+
+  return 1;
+}
+
+
+int CONV
+load_fv( void )
 {
   FILE *pf;
+  pconsq_t *table;
   size_t size;
   int iret;
 
   pf = file_open( str_fv, "rb" );
   if ( pf == NULL ) { return -2; }
 
+#if defined(USE_FAST_BIN)
+  size = nsquare * fe_end * fe_end;
+#else
   size = nsquare * pos_n;
-  if ( fread( pc_on_sq, sizeof(short), size, pf ) != size )
+#endif
+
+  // kppテーブルのメモリ確保
+  table = (pconsq_t *)malloc( sizeof(short) * size );
+  if ( table == NULL )
     {
-      str_error = str_io_error;
+      str_error = str_out_of_memory;
       return -2;
+    }
+
+  iret = load_pconsq_table( table, pf );
+  if ( iret < 0 )
+    {
+      free( table );
+      return iret;
     }
 
   size = nsquare * nsquare * kkp_end;
   if ( fread( kkp, sizeof(short), size, pf ) != size )
     {
       str_error = str_io_error;
+      free( table );
       return -2;
     }
 
   iret = file_close( pf );
-  if ( iret < 0 ) { return iret; }
+  if ( iret < 0 )
+    {
+      free( table );
+      return iret;
+    }
 
 #if 0
 #  define X0 -10000
@@ -77,6 +158,20 @@ int CONV load_fv( void )
 #  undef x0
 #  undef x1
 #endif
+
+  pc_on_sq = table;
+  return 1;
+}
+
+
+int CONV
+close_fv( void )
+{
+  if ( pc_on_sq != NULL)
+    {
+      free( pc_on_sq );
+      pc_on_sq = NULL;
+    }
 
   return 1;
 }
@@ -324,6 +419,8 @@ fin( void )
 #if ! defined(NO_LOGGING)
   if ( file_close( pf_log ) < 0 ) { return -1; }
 #endif
+
+  close_fv();
 
   ShutdownAll();
   return 1;

@@ -2,8 +2,18 @@
 #ifndef GODWHALE_SERVER_BOARD_H
 #define GODWHALE_SERVER_BOARD_H
 
+#include "move.h"
+
 namespace godwhale {
 namespace server {
+
+const unsigned int HandTable[] =
+{
+    0,                flag_hand_pawn, flag_hand_lance,  flag_hand_knight,
+    flag_hand_silver, flag_hand_gold, flag_hand_bishop, flag_hand_rook,
+    0,                flag_hand_pawn, flag_hand_lance,  flag_hand_knight,
+    flag_hand_silver, 0,              flag_hand_bishop, flag_hand_rook,
+};
 
 /**
  * @brief 局面の管理に使います。
@@ -13,8 +23,10 @@ class Board
 public:
     explicit Board();
     explicit Board(const Board &other);
+    explicit Board(const min_posi_t &posi);
 
     Board &operator =(const Board &other);
+    Board &operator =(const min_posi_t &posi);
 
     /**
      * @brief sqに駒を設定します。
@@ -51,18 +63,18 @@ public:
      * @brief 連続した指し手を解釈します。
      */
     template<class Iter>
-    std::vector<move_t> InterpretCsaMoveList(Iter begin, Iter end) const {
+    std::vector<Move> InterpretCsaMoveList(Iter begin, Iter end) const {
         ScopedLock lock(m_guard);
         Board tboard(*this);
-        std::vector<move_t> result;
+        std::vector<Move> result;
 
         for (; begin != end; ++begin) {
-            move_t move = tboard.InterpretCsaMove(*begin);
+            Move move = tboard.InterpretCsaMove(*begin);
             if (move == MOVE_NA) {
                 return result;
             }
             
-            if (tboard.Move(move) != 0) {
+            if (tboard.DoMove(move) != 0) {
                 return result;
             }
 
@@ -72,31 +84,25 @@ public:
         return result;
     }
 
-    bool IsValidMove(move_t move) const;
-    int Move(move_t move);
-    int UnMove();
+    bool IsValidMove(Move move) const;
+    int DoMove(Move move);
+    int DoUnmove();
 
-    move_t InterpretCsaMove(const std::string &str) const;
-    void Print(std::ostream &os, move_t move=0) const;
+    Move InterpretCsaMove(const std::string &str) const;
+    void Print(std::ostream &os) const;
 
 private:
-    /**
-     * @brief 現在手番の持ち駒を取得します。
-     */
-    unsigned int &GetCurrentHand() {
-        return (m_turn == black ? m_handBlack : m_handWhite);
-    }
-
-    /**
-     * @brief 現在手番の持ち駒を取得します。
-     */
-    unsigned int GetCurrentHand() const {
-        return (m_turn == black ? m_handBlack : m_handWhite);
-    }
+    unsigned int GetCurrentHand() const;
+    void AddCurrentHand(int capture);
+    void SubCurrentHand(int capture);
 
     int StrToPiece(const std::string &str, std::string::size_type index) const;
     void PrintPiece(std::ostream &os, int piece, int sq, int ito,
                     int ifrom, int is_promote) const;
+    void PrintHand(std::ostream &os, unsigned int hand,
+                   const std::string &prefix) const;
+    void PrintHand(std::ostream &os, int n, const std::string &prefix,
+                   const std::string &str) const;
 
 private:
     mutable Mutex m_guard;

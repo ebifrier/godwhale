@@ -64,17 +64,33 @@ public:
     /**
      * @brief 次の指し手を取得します。
      */
-    move_t GetMove() const {
+    Move GetMove() const {
         ScopedLock locker(m_guard);
         return m_move;
     }
 
     /**
+     * @brief 指し手があるかどうかを取得します。
+     */
+    bool HasMove() const {
+        ScopedLock locker(m_guard);
+        return (!m_move.IsEmpty() || !m_playedMove.IsEmpty());
+    }
+
+    /**
      * @brief このクライアントの思考が開始された手を取得します。
      */
-    move_t GetPlayedMove() const {
+    Move GetPlayedMove() const {
         ScopedLock locker(m_guard);
         return m_playedMove;
+    }
+
+    /**
+     * @brief 現局面とは別に、クライアントの思考が開始された手があるか取得します。
+     */
+    bool HasPlayedMove() const {
+        ScopedLock locker(m_guard);
+        return (m_playedMove != MOVE_NA);
     }
 
     /**
@@ -112,7 +128,7 @@ public:
     /**
      * @brief PVノードを取得します。
      */
-    const std::vector<move_t> &GetPVSeq() const {
+    const std::vector<Move> &GetPVSeq() const {
         ScopedLock locker(m_guard);
         return m_pvseq;
     }
@@ -120,16 +136,27 @@ public:
     /**
      * @brief 無視する指し手を取得します。
      */
-    const std::vector<move_t> &GetIgnoreMoves() const {
+    const std::vector<Move> &GetIgnoreMoves() const {
         ScopedLock locker(m_guard);
         return m_ignoreMoves;
+    }
+
+    /**
+     * @brief コマンドを送信します。
+     */
+    void SendCommand(const format &fmt) {
+        SendCommand(fmt.str());
     }
 
     void Close();
     void BeginAsyncReceive();
     void SendCommand(const std::string &command);
 
-    void MakeRootMove(move_t move, int pid);
+    void InitGame(const min_posi_t *posi);
+    void MakeRootMove(Move move, int pid, bool isActualMove=true);
+    void SetPlayedMove(Move move);
+    void AddIgnoreMove(Move move);
+    void SendCurrentInfo(int machineCount, long nps, int value);
 
 private:
     void Disconnected();
@@ -143,6 +170,8 @@ private:
     void HandleAsyncSend(const error_code &error);
 
     int ParseCommand(const std::string &command);
+    void SendInitGameInfo();
+    std::string GetMoveHistory() const;
 
 private:
     shared_ptr<Server> m_server;
@@ -160,15 +189,15 @@ private:
     bool m_sendpv;
 
     int m_pid;
-    move_t m_move;
-    move_t m_playedMove;
+    Move m_move;
+    Move m_playedMove;
     bool m_stable;
     bool m_final;
     long m_nodes;
     int m_value;
-    std::vector<move_t> m_pvseq;
+    std::vector<Move> m_pvseq;
 
-    std::vector<move_t> m_ignoreMoves;
+    std::vector<Move> m_ignoreMoves;
 };
 
 } // namespace server

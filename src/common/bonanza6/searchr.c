@@ -349,11 +349,24 @@ out_pv( tree_t * restrict ptree, int value, int turn, unsigned int time )
       str    = str_time_symple( time );
       dvalue = (double)( turn ? -value : value ) / 100.0;
       OutCsaShogi( "info%+.2f", dvalue );
+
+#if defined(GODWHALE_CLIENT)
+      {
+        int i, temp_turn = turn;
+        for ( i = 0; i < played_nmove; ++i )
+          {
+            temp_turn = Flip(temp_turn);
+            OutCsaShogi( " %c%s", ach_turn[temp_turn],
+                         str_CSA_move(played_move_list[i]) );            
+        }
+      }
+#else
       if ( game_status & flag_pondering )
         {
           OutCsaShogi( " %c%s", ach_turn[Flip(turn)],
                        str_CSA_move(ponder_move) );
         }
+#endif
 
       if ( ptree->pv[0].length )
         {
@@ -474,11 +487,9 @@ out_pv( tree_t * restrict ptree, int value, int turn, unsigned int time )
       UnMakeMove( tt, ptree->pv[0].a[ply], ply );
     }
 
-  OutCsaShogi( " n=%" PRIu64, ptree->node_searched );
-
   if ( is_out )
     {
-      OutCsaShogi( "\n" );
+      OutCsaShogi( " n=%" PRIu64 "\n", ptree->node_searched );
       Out( "\n" );
       USIOut( "info depth %d score cp %d nodes %" PRIu64 " pv%s\n",
               iteration_depth, value, ptree->node_searched, str_pv );
@@ -497,17 +508,15 @@ make_mnj_pv( tree_t * restrict ptree, int value, int turn,
   mnj_idx   = 0;
   mnj_pv[0] = '\0';
 
-  // 指し手に続く手をPVとして送ります。
-  for ( ply = 2; ply <= ptree->pv[0].length; ply++ )
+  // 指し手からの変化をPVとして送ります。
+  for ( ply = 1; ply <= ptree->pv[0].length; ply++ )
     {
-      turn  = Flip(turn);
-
       str = str_CSA_move( ptree->pv[0].a[ply] );
       mnj_idx += snprintf( &mnj_pv[mnj_idx], mnj_pv_size - mnj_idx,
-        "%c%s ", ach_turn[turn], str );
+                           "%c%s ", ach_turn[turn], str );
+      turn = Flip(turn);
     }
   
-#if 0
   if ( ptree->pv[0].type == hash_hit )
     {
       unsigned int dummy;
@@ -517,11 +526,11 @@ make_mnj_pv( tree_t * restrict ptree, int value, int turn,
         {
           dummy = 0;
           ptree->amove_hash[ply] = 0;
-          value_type = hash_probe( ptree, ply, 0, tt, -score_bound,
+          value_type = hash_probe( ptree, ply, 0, turn, -score_bound,
                                    score_bound, &dummy );
           if ( ! ( value_type == value_exact
                    && value   == HASH_VALUE
-                   && is_move_valid( ptree, ptree->amove_hash[ply], tt ) ) )
+                   && is_move_valid( ptree, ptree->amove_hash[ply], turn ) ) )
             {
               break;
             }
@@ -530,22 +539,21 @@ make_mnj_pv( tree_t * restrict ptree, int value, int turn,
             if ( ptree->pv[0].a[i] == ptree->pv[0].a[ply] ) { goto rep_esc; }
           
           str = str_CSA_move(ptree->pv[0].a[ply]);
-          mnj_idx += snprintf( &mnj_pv[mnj_idx], 1024 - mnj_idx,
-            " %c%s", ach_turn[tt], str );
+          mnj_idx += snprintf( &mnj_pv[mnj_idx], mnj_pv_size - mnj_idx,
+                               " %c%s", ach_turn[turn], str );
           
-          MakeMove( tt, ptree->pv[0].a[ply], ply );
-          if ( InCheck(tt) )
+          MakeMove( turn, ptree->pv[0].a[ply], ply );
+          if ( InCheck(turn) )
             {
-              UnMakeMove( tt, ptree->amove_hash[ply], ply );
+              UnMakeMove( turn, ptree->amove_hash[ply], ply );
               break;
             }
           ptree->pv[0].length++;
-          tt    = Flip(tt);
+          turn  = Flip(turn);
           value = -value;
         }
     }
 rep_esc:;
-#endif
 }
 
 

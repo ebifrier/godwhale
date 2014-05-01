@@ -6,6 +6,10 @@
 #include <limits.h>
 #include "shogi.h"
 
+#if defined(GODWHALE_SERVER)
+#include "../bonanza_if.h"
+#endif
+
 
 int CONV
 ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
@@ -25,11 +29,18 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
     }
 #endif
 
+  // クライアントはログ出力が不要なので
+#if ! defined(GODWHALE_CLIENT)
   if ( flag & flag_history )
     {
       iret = open_history( str_name1, str_name2 );
       if ( iret < 0 ) { return iret; }
     }
+#endif
+
+#if defined(GODWHALE_SERVER)
+  init_game_hook( pmin_posi );
+#endif
 
   if ( ! ( flag & flag_nofmargin ) )
     {
@@ -170,7 +181,15 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
                    | flag_nobeep | flag_nostress | flag_nopeek
                    | flag_noponder | flag_noprompt | flag_sendpv
                    | flag_nostdout | flag_nonewlog );
+
+#if defined(GODWHALE_SERVER)
+  game_status |= flag_nobeep; // | flag_noponder
+#endif
+
+#if defined(GODWHALE_CLIENT)
   game_status |= flag_nobeep | flag_noponder | flag_sendpv;
+  played_nmove = 0;
+#endif
 
   sec_b_total     = 0;
   sec_w_total     = 0;

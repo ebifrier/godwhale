@@ -36,10 +36,6 @@ Server::~Server()
     m_acceptor.cancel(error);
     m_acceptor.close(error);
 
-    LOCK(m_guard) {
-        m_clientList.clear();
-    }
-
     if (m_thread != NULL) {
         m_thread->join();
         m_thread.reset();
@@ -78,27 +74,56 @@ void Server::ServiceThreadMain()
 }
 
 /**
- * @brief クライアントのリストを安全にコピーします。
+ * @brief クライアントがログインしたときに呼ばれます。
  */
-std::list<shared_ptr<Client> > Server::CloneClientList()
+void Server::ClientLogined(shared_ptr<Client> client)
 {
-    LOCK(m_guard) {
-        std::list<shared_ptr<Client> > result;
+    ScopedLock locker(m_guard);
 
-        for (auto it = m_clientList.begin(); it != m_clientList.end(); ) {
-            auto client = (*it).lock();
+    m_clientList.push_back(client);
 
-            if (client != NULL) {
-                result.push_back(client);
-                ++it;
-            }
-            else {
-                it = m_clientList.erase(it);
-            }
+    // 性能順にソートします。
+    std::stable_sort(m_clientList.begin(), m_clientList.end(),
+                     [] (weak_ptr<Client> x, weak_ptr<Client> y) -> bool {
+                         auto px = x.lock();
+                         auto py = y.lock();
+
+                         if (px == NULL) {
+                             return false;
+                         }
+                         else if (py == NULL) {
+                             return true;
+                         }
+                         else {
+                            return (px->GetThreadCount() > py->GetThreadCount());
+                         }
+                     });
+}
+
+/**
+ * @brief 不要なクライアントを削除し、生きているオブジェクトのみを取り出します。
+ */
+std::vector<shared_ptr<Client> > Server::GetClientList()
+{
+    ScopedLock locker(m_guard);
+    std::vector<shared_ptr<Client> > result;
+
+    // ちょっとした高速化
+    result.reserve(m_clientList.size());
+
+    for (auto it = m_clientList.begin(); it != m_clientList.end(); ) {
+        auto client = (*it).lock();
+
+        if (client != NULL) {
+            result.push_back(client);
+            ++it;
         }
-
-        return result;
+        else {
+            it = m_clientList.erase(it);
+        }
     }
+
+    return result;
 }
 
 void Server::BeginAccept()
@@ -135,9 +160,9 @@ void Server::HandleAccept(shared_ptr<tcp::socket> socket,
         shared_ptr<Client> client(new Client(shared_from_this(), socket));
 
         // クライアントをリストに追加します。
-        LOCK(m_guard) {
+        /*LOCK(m_guard) {
             m_clientList.push_back(client);
-        }
+        }*/
 
         client->BeginAsyncReceive();
         LOG(Notification) << "クライアントを受理しました。";
