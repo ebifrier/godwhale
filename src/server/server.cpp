@@ -23,6 +23,9 @@ Server::Server()
     : m_isAlive(true), m_acceptor(m_service), m_gid(0)
 {
     m_acceptor.open(tcp::v4());
+    asio::socket_base::reuse_address option(true);
+    m_acceptor.set_option(option);
+
     m_acceptor.bind(tcp::endpoint(tcp::v4(), 4082));
     m_acceptor.listen(100);
 }
@@ -73,6 +76,25 @@ void Server::ServiceThreadMain()
     }
 }
 
+struct Compare
+{
+    bool operator()(weak_ptr<Client> x, weak_ptr<Client> y) const
+    {
+        auto px = x.lock();
+        auto py = y.lock();
+
+        if (px == NULL) {
+            return false;
+        }
+        else if (py == NULL) {
+            return true;
+        }
+        else {
+            return (px->GetThreadCount() > py->GetThreadCount());
+        }
+    }
+};
+
 /**
  * @brief クライアントがログインしたときに呼ばれます。
  */
@@ -83,21 +105,8 @@ void Server::ClientLogined(shared_ptr<Client> client)
     m_clientList.push_back(client);
 
     // 性能順にソートします。
-    std::stable_sort(m_clientList.begin(), m_clientList.end(),
-                     [] (weak_ptr<Client> x, weak_ptr<Client> y) -> bool {
-                         auto px = x.lock();
-                         auto py = y.lock();
-
-                         if (px == NULL) {
-                             return false;
-                         }
-                         else if (py == NULL) {
-                             return true;
-                         }
-                         else {
-                            return (px->GetThreadCount() > py->GetThreadCount());
-                         }
-                     });
+    //std::stable_sort(m_clientList.begin(), m_clientList.end(), Compare());
+    m_clientList.sort(Compare());
 }
 
 /**

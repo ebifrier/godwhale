@@ -61,7 +61,8 @@ typedef volatile long lock_t;
 #  include <inttypes.h>
 #  define restrict __restrict
 #  define unreachable() __builtin_unreachable(); assert(0)
-typedef pthread_mutex_t lock_t;
+typedef int lock_t;
+//typedef pthread_mutex_t lock_t;
 
 /* other targets. */
 #else

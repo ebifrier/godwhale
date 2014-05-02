@@ -1,9 +1,9 @@
-OBJS =data.o main.o io.o proce.o utility.o ini.o attack.o book.o makemove.o \
+OBJS =data.o io.o proce.o utility.o ini.o attack.o book.o makemove.o \
       unmake.o time.o csa.o valid.o bitop.o iterate.o searchr.o search.o \
       quiesrch.o evaluate.o swap.o  hash.o root.o next.o movgenex.o \
       genevasn.o gencap.o gennocap.o gendrop.o mate1ply.o rand.o learn1.o \
       learn2.o evaldiff.o problem.o ponder.o thread.o sckt.o debug.o mate3.o \
-      genchk.o phash.o dfpn.o dfpnhash.o
+      genchk.o phash.o dfpn.o dfpnhash.o bbini.o
 
 # Compile Options
 #
@@ -36,7 +36,10 @@ help:
 	@echo "  icc-ampl"
 
 gcc:
-	$(MAKE) CC=gcc CFLAGS='-std=gnu99 -O2 -Wall $(OPT)' LDFLAG1='-lm -lpthread' bonanza
+	$(MAKE) CC=gcc CFLAGS='-std=gnu99 -g -O2 -Wall $(OPT)' LDFLAG1='-lm -lpthread' bonanza
+
+gcc-godwhale:
+	$(MAKE) CC=gcc CFLAGS='-std=gnu99 -g -O2 -Wall $(BNZ_OPT)' LDFLAG1='-lm -lpthread' godwhale
 
 gcc-pgo:
 	$(MAKE) clean
@@ -57,6 +60,8 @@ icc-pgo:
 	$(MAKE) run-prof
 	touch *.[ch]
 	$(MAKE) CC=icc CFLAGS='-w2 $(OPT) -std=gnu99 -O2 -ipo -prof_use -prof_dir ./profdir' LDFLAG1='-static -ipo -pthread' bonanza
+
+godwhale : $(OBJS)
 
 bonanza : $(OBJS)
 	$(CC) $(LDFLAG1) -o bonanza $(OBJS) $(LDFLAG2)

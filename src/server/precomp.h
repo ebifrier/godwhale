@@ -16,7 +16,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/current_function.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/utility/empty_deleter.hpp>
+//#include <boost/utility/empty_deleter.hpp>
 
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
@@ -35,5 +35,6 @@
 #include <boost/log/common.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
+#include <boost/log/utility/empty_deleter.hpp>
 
 #endif

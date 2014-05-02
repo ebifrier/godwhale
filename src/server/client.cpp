@@ -8,8 +8,8 @@ namespace server {
 
 Client::Client(shared_ptr<Server> server, shared_ptr<tcp::socket> socket)
     : m_server(server), m_socket(socket), m_logined(false), m_nthreads(0)
-    , m_sendpv(false), m_move(MOVE_NA), m_playedMove(MOVE_NA), m_stable(false)
-    , m_final(false), m_nodes(0), m_value(0), m_pid(0)
+    , m_sendpv(false), m_pid(0), m_move(MOVE_NA), m_playedMove(MOVE_NA)
+    , m_stable(false), m_final(false), m_nodes(0), m_value(0)
 {
     LOG(Notification) << m_board;
 }
@@ -243,7 +243,8 @@ int Client::ParseCommand(const std::string &command)
     std::vector<Move> pvseq;
     if (regex_search(command, m, PVRegex)) {
         std::vector<std::string> result;
-        split(result, m.str(1), is_any_of("+- "));
+        std::string str = m.str(1);
+        split(result, str, is_any_of("+- "));
 
         // ïsóvÇ»óvëfÇè¡ãé
         result.erase(std::remove(result.begin(), result.end(), ""), result.end());
@@ -278,6 +279,9 @@ int Client::ParseCommand(const std::string &command)
             else if (m_pvseq.empty()) {
                 m_pvseq.push_back(move);
             }
+
+            LOG(Notification) << "client[" << m_id << "]: updated move! "
+                              << "move=" << m_move << ", nodes=" << m_nodes;
         }
         else if (nodes > 0) m_nodes = nodes;
         else return -1;
@@ -358,7 +362,10 @@ void Client::MakeRootMove(Move move, int pid, bool isActualMove/*=true*/)
     if (isActualMove && m_playedMove != MOVE_NA) {
         if (m_playedMove == move) {
             m_pid = pid;
+            m_move = MOVE_NA;
             m_playedMove = MOVE_NA;
+            m_final  = false;
+            m_stable = false;
             m_pvseq.clear();
             m_ignoreMoves.clear();
 
@@ -366,7 +373,7 @@ void Client::MakeRootMove(Move move, int pid, bool isActualMove/*=true*/)
                 m_pvseq.push_back(m_move);
             }
 
-            SendCommand(format("movehit %1%") % move);
+            SendCommand(format("movehit %1% %2%") % pid % move);
             return;
         }
         else {

@@ -84,7 +84,7 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
             auto client = clientList[i];
             ScopedLock locker(client->GetGuard());
 
-            if (client->GetNodeCount() > 1L * 10000 &&
+            if (client->GetNodeCount() > 30 * 10000 &&
                 !client->HasPlayedMove() &&
                 client->GetMove() != MOVE_NA) {
                 Move move = client->GetMove();
@@ -113,6 +113,11 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
                 }
             }
 
+            /*if (client->HasMove() && client->IsFinal()) {
+                score.Set(client);
+                break;
+            }*/
+
             // 評価値が高く、ノード数がそこまで低くない手を選びます。
             // （ノード数の判定ってこれでいいのか…？ｗ）
             bool flag1 = (client->GetNodeCount() > score.MaxNodes * 0.7 &&
@@ -132,7 +137,7 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
     } while (!score.IsValid || !IsEndIterate(ptree, timer));
 
     if (score.IsValid) {
-        LOG(Notification) << "  my move: " << score.Move;
+        LOG(Notification) << "  my move: " << score.GetMove();
         LOG(Notification) << "real move: " << score.PVSeq[0];
 
         *value = score.Value;

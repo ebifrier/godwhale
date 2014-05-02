@@ -16,7 +16,7 @@ struct Score
 public:
     explicit Score()
         : IsValid(false), TotalNodes(0), MaxNodes(0)
-        , Move(MOVE_NA), Nodes(-1), Value(0) {
+        , m_move(MOVE_NA), Nodes(-1), Value(0) {
     }
 
     void MakeInvalid() {
@@ -38,12 +38,16 @@ public:
     }
 
     void Set(const shared_ptr<Client> &client) {
-        Move = (client->HasPlayedMove() ?
+        m_move = (client->HasPlayedMove() ?
             client->GetPlayedMove() : client->GetMove());
         Nodes = client->GetNodeCount();
         Value = client->GetValue();
         PVSeq = client->GetPVSeq();
         IsValid = true;
+    }
+
+    Move GetMove() const {
+        return m_move;
     }
 
 public:
@@ -52,7 +56,7 @@ public:
     long MaxNodes;
     long Nps;
 
-    Move Move;
+    Move m_move;
     long Nodes;
     int Value;
     std::vector<server::Move> PVSeq;
