@@ -264,7 +264,7 @@ int Client::ParseCommand(const std::string &command)
             return 0;
         }
 
-        if (move != MOVE_NA && nodes > 0 && value != INT_MAX) {
+        if (move != MOVE_NA && nodes >= 0 && value != INT_MAX) {
             m_move   = move;
             m_nodes  = nodes;
             m_value  = value * (client_turn == black ? +1 : -1);
@@ -279,7 +279,6 @@ int Client::ParseCommand(const std::string &command)
                 m_pvseq.push_back(move);
             }
         }
-        else if (final) m_final = final;
         else if (nodes > 0) m_nodes = nodes;
         else return -1;
     }

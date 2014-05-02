@@ -58,7 +58,11 @@ client_next_game( tree_t * restrict ptree, const char *str_addr, int iport )
   for ( ;; ) {
 
     str_buffer_cmdline[0] = '\0';
+#if defined(CSA_LAN_ACCEPT)
+    sckt_csa = sckt_accept( iport );
+#else
     sckt_csa = sckt_connect( str_addr, iport );
+#endif
     if ( sckt_csa == SCKT_NULL ) { return -2; }
       
     str_name1 = str_name2 = NULL;
@@ -134,7 +138,7 @@ client_next_game( tree_t * restrict ptree, const char *str_addr, int iport )
 #endif
 
 
-#if defined(CSA_LAN)||defined(MNJ_LAN)|| defined(DFPN_CLIENT)|| defined(DFPN)
+#if defined(CSA_LAN) || defined(MNJ_LAN)|| defined(DFPN_CLIENT)|| defined(DFPN)
 sckt_t CONV
 sckt_connect( const char *str_addr, int iport )
 {
@@ -155,6 +159,16 @@ sckt_connect( const char *str_addr, int iport )
   }
 #endif
 
+  sd = socket( AF_INET, SOCK_STREAM, 0 );
+  if ( sd == SCKT_NULL )
+    {
+      str_error = str_WSAError( "socket() faild." );
+#if defined(_WIN32)
+      WSACleanup();
+#endif
+      return SCKT_NULL;
+    }
+
   ul_addr = inet_addr( str_addr );
   if ( ul_addr == INADDR_NONE )
     {
@@ -168,16 +182,6 @@ sckt_connect( const char *str_addr, int iport )
           return SCKT_NULL;
         }
       ul_addr = *( (u_long *)phe->h_addr_list[0] );
-    }
-
-  sd = socket( AF_INET, SOCK_STREAM, 0 );
-  if ( sd == SCKT_NULL )
-    {
-      str_error = str_WSAError( "socket() faild." );
-#if defined(_WIN32)
-      WSACleanup();
-#endif
-      return SCKT_NULL;
     }
 
   for ( count = 0;; count += 1 ) {
@@ -201,6 +205,82 @@ sckt_connect( const char *str_addr, int iport )
   if ( count ) { Out( "\n" ); }
 
   return sd;
+}
+
+
+sckt_t CONV
+sckt_accept( int iport )
+{
+  struct sockaddr_in sin, new_sin;
+  int iret, new_len, count;
+  sckt_t sd, new_sd;
+
+#if defined(_WIN32)
+  {
+    WSADATA wsaData;
+    if ( WSAStartup( MAKEWORD(1,1), &wsaData ) )
+      {
+        str_error = str_WSAError( "WSAStartup() failed." );
+        return SCKT_NULL;
+      }
+  }
+#endif
+
+  sd = socket( AF_INET, SOCK_STREAM, 0 );
+  if ( sd == SCKT_NULL )
+    {
+      str_error = str_WSAError( "socket() faild." );
+#if defined(_WIN32)
+      WSACleanup();
+#endif
+      return SCKT_NULL;
+    }
+
+  memset( &sin, 0, sizeof(sin) );
+  sin.sin_family      = AF_INET;
+  sin.sin_addr.s_addr = htonl( INADDR_ANY );
+  sin.sin_port        = htons( (u_short)iport );
+
+  iret = bind( sd, (struct sockaddr *)&sin, sizeof(sin) );
+  if ( iret < 0 )
+    {
+      str_error = str_WSAError( "bind() faild." );
+#if defined(_WIN32)
+      WSACleanup();
+#endif
+      return SCKT_NULL;
+    }
+
+  iret = listen( sd, 5 );
+  if ( iret < 0 )
+    {
+      str_error = str_WSAError( "listen() faild." );
+#if defined(_WIN32)
+      WSACleanup();
+#endif
+      return SCKT_NULL;
+    }
+
+  for ( count = 0;; count += 1 ) {
+    new_len = sizeof(new_sin);
+    new_sd = accept( sd, (struct sockaddr *)&new_sin, &new_len );
+    if ( new_sd != SOCKET_ERROR )
+      {
+        break;
+      }
+    
+    if ( ! count ) { Out( "accept() failed.  try again " ); }
+    else           { Out( "." ); }
+#  if defined(_WIN32)
+    Sleep( 10000 );
+#  else
+    sleep( 10 );
+#  endif
+  }
+  if ( count ) { Out( "\n" ); }
+  
+  closesocket( sd );
+  return new_sd;
 }
 
 

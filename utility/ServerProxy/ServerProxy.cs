@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -71,6 +72,15 @@ namespace ServerProxy
         private readonly Stream[] streams = new Stream[2];
 
         /// <summary>
+        /// スレッドを強制終了させるかどうかを取得または設定します。
+        /// </summary>
+        public bool Aborted
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// 入出力スレッドを取得します。
         /// </summary>
         public Thread[] Threads
@@ -104,14 +114,32 @@ namespace ServerProxy
         }
 
         /// <summary>
+        /// すべての処理を強制的に終了させます。
+        /// </summary>
+        public void Abort()
+        {
+            Aborted = true;
+            CloseStreams();
+
+            foreach (var th in Threads)
+            {
+                th.Join();
+            }
+        }
+
+        /// <summary>
         /// サーバーへの接続、受信、送信などの中継処理を行います。
         /// </summary>
         private void ProxyThread(object state)
         {
             var data = (ThreadData)state;
+            var timer = new Stopwatch();
             BinarySplitReader reader = null;
 
-            while (true)
+            this.streams[data.Index] = CreateStream(data);
+            timer.Start();
+
+            while (!Aborted)
             {
                 if (reader == null)
                 {
@@ -121,7 +149,17 @@ namespace ServerProxy
                 var stream = this.streams[data.Index];
                 if (stream == null || !stream.CanRead)
                 {
+                    if (Aborted)
+                    {
+                        break;
+                    }
+                    else if (timer.Elapsed < TimeSpan.FromSeconds(5))
+                    {
+                        continue;
+                    }
+
                     this.streams[data.Index] = CreateStream(data);
+                    timer.Restart();
                     continue;
                 }
 
@@ -131,17 +169,7 @@ namespace ServerProxy
                     Log.Info("{0}: disconnected", data.Name);
 
                     // 戻り値がnullの場合はストリームを閉じます。
-                    stream.Close();
-                    this.streams[data.Index] = null;
-
-                    // 片方が閉じたならもう片方も閉じているはずなので。
-                    /*stream = this.streams[data.CoIndex];
-                    if (stream != null)
-                    {
-                        stream.Dispose();
-                        this.streams[data.CoIndex] = null;
-                    }*/
-
+                    CloseStreams();
                     reader = null;
                     continue;
                 }
@@ -156,6 +184,18 @@ namespace ServerProxy
 
                 // 書き込み先ソケットに出力します。
                 WriteBytes(this.streams[data.CoIndex], bytes);
+            }
+        }
+
+        private void CloseStreams()
+        {
+            for (var i = 0; i < this.streams.Count(); ++i)
+            {
+                if (this.streams[i] != null)
+                {
+                    this.streams[i].Close();
+                    this.streams[i] = null;
+                }
             }
         }
 
