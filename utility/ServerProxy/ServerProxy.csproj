@@ -45,15 +45,15 @@
     <Compile Include="WithConsoleStream.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Ragnarok\Ragnarok\Ragnarok.csproj">
-      <Project>{A348968A-DD91-47B4-9420-C7D370A2BE92}</Project>
-      <Name>Ragnarok</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Ragnarok\Ragnarok\Ragnarok.csproj">
+      <Project>{A348968A-DD91-47B4-9420-C7D370A2BE92}</Project>
+      <Name>Ragnarok</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

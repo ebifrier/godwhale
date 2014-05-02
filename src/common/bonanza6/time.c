@@ -6,6 +6,10 @@
 #endif
 #include "shogi.h"
 
+#if defined(GODWHALE_SERVER)
+#include "../bonanza_if.h"
+#endif
+
 
 void CONV
 set_search_limit_time( int turn )
@@ -168,6 +172,10 @@ adjust_time( unsigned int elapsed_new, int turn )
       }
     else { sec_b_total = sec_b_total + elapsed_new - sec_elapsed; };
   }
+
+#if defined(GODWHALE_SERVER)
+  adjust_time_hook( turn );
+#endif
 }
 
 

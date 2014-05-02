@@ -73,7 +73,7 @@ void Client::HandleAsyncReceive(const system::error_code &error)
     std::string line;
 
     while (std::getline(is, line, '\n')) {
-        //LOG(Debug) << "client[" << m_id << "] recv: " << line;
+        LOG(Debug) << "client[" << m_id << "] recv: " << line;
         
         if (ParseCommand(line) < 0) {
             LOG(Error) << "parse error: " << line;
@@ -86,39 +86,39 @@ void Client::HandleAsyncReceive(const system::error_code &error)
 /**
  * @brief コマンドリストに送信用のコマンドを追加します。
  */
-void Client::PutSendCommand(const std::string &command)
+void Client::PutSendPacket(const SendPacket &packet)
 {
-    if (command.empty()) {
+    if (packet.IsEmpty()) {
         return;
     }
 
     LOCK(m_guard) {
-        m_sendList.push_back(command);
+        m_sendList.push_back(packet);
     }
 }
 
 /**
  * @brief もし未送信のコマンドがあればそれをリストから削除し返します。
  */
-std::string Client::GetSendCommand()
+SendPacket Client::GetSendPacket()
 {
     LOCK(m_guard) {
         if (m_sendList.empty()) {
-            return std::string();
+            return SendPacket();
         }
 
-        auto command = m_sendList.front();
+        auto packet = m_sendList.front();
         m_sendList.pop_front();
-        return command;
+        return packet;
     }
 }
 
 /**
  * @brief コマンドを送信します。
  */
-void Client::SendCommand(const std::string &command)
+void Client::SendCommand(const std::string &command, bool isOutLog/*= true*/)
 {
-    PutSendCommand(command);
+    PutSendPacket(SendPacket(command, isOutLog));
 
     // 次の送信処理に移ります。
     BeginAsyncSend();
@@ -130,21 +130,22 @@ void Client::SendCommand(const std::string &command)
 void Client::BeginAsyncSend()
 {
     LOCK(m_guard) {
-        if (!m_sendingbuf.empty()) {
+        if (!m_sendingbuf.IsEmpty()) {
             return;
         }
 
-        m_sendingbuf = GetSendCommand();
-        if (m_sendingbuf.empty()) {
+        m_sendingbuf = GetSendPacket();
+        if (m_sendingbuf.IsEmpty()) {
             return;
         }
 
-        if (m_sendingbuf.back() != '\n') {
-            m_sendingbuf.append("\n");
+        if (m_sendingbuf.IsOutLog()) {
+            LOG(Debug) << "client[" << m_id << "] send: " << m_sendingbuf.GetCommand();
         }
 
+        m_sendingbuf.AppendDelimiter();
         asio::async_write(
-            *m_socket, asio::buffer(m_sendingbuf),
+            *m_socket, asio::buffer(m_sendingbuf.GetCommand()),
             bind(&Client::HandleAsyncSend, shared_from_this(),
                  asio::placeholders::error));
     }
@@ -160,11 +161,9 @@ void Client::HandleAsyncSend(const system::error_code &error)
         Disconnected();
         return;
     }
-    
+
     LOCK(m_guard) {
-        m_sendingbuf.pop_back(); // 改行コードを削除
-        LOG(Debug) << "client[" << m_id << "] send: " << m_sendingbuf;
-        m_sendingbuf.clear();
+        m_sendingbuf.Clear();
     }
 
     // 次の送信処理に移ります。
@@ -296,10 +295,11 @@ void Client::SendInitGameInfo()
     std::string name1 = record_game.str_name1;
     std::string name2 = record_game.str_name2;
 
-    auto fmt = format("init %1% %2% %3% %4% %5%")
+    auto fmt = format("init %1% %2% %3% %4% %5% %6% %7%")
         % (name1.empty() ? "dummy1" : name1)
         % (name2.empty() ? "dummy2" : name2)
         % (client_turn == black ? "0" : "1")
+        % sec_limit % sec_limit_up
         % m_pid % GetMoveHistory();
 
     auto str = fmt.str();
@@ -452,16 +452,6 @@ void Client::AddIgnoreMove(Move move)
                    std::back_inserter(v),
                    [](Move _) { return _.String(); });
     SendCommand(format("ignore %1% %2%") % GetPid() % join(v, " "));
-}
-
-void Client::SendCurrentInfo(int machineCount, long nps, int value)
-{
-    auto fmt =
-        format("info current %1% %2% %3%")
-        % machineCount % nps % value;
-    auto str = fmt.str();
-
-    SendCommand(str);
 }
 
 } // namespace server

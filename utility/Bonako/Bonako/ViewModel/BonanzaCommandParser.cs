@@ -19,7 +19,7 @@ namespace Bonako.ViewModel
     {
         #region init
         private static readonly Regex InitRegex = new Regex(
-            @"^init\s+(\w+)\s+(\w+)\s+(\d+)\s+(\d+)\s+(([\d\w]+\s*)+)?",
+            @"^init\s+(\w+)\s+(\w+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(([\d\w]+\s*)+)?",
             RegexOptions.IgnoreCase);
 
         private static bool ParseInit(string command)
@@ -31,9 +31,9 @@ namespace Bonako.ViewModel
             }
 
             var board = new Board();
-            if (m.Groups[5].Success)
+            if (m.Groups[7].Success)
             {
-                var moveTextList = m.Groups[5].Value.Split(
+                var moveTextList = m.Groups[7].Value.Split(
                     new char[] { ' ' },
                     StringSplitOptions.RemoveEmptyEntries);
 
@@ -61,37 +61,53 @@ namespace Bonako.ViewModel
             model.WhitePlayerName = m.Groups[2].Value;
             model.MyTurn = (m.Groups[3].Value == "0" ? BWType.Black : BWType.White);
 
+            // 残り時間を設定します（切れ負けのみ対応）
+            var seconds = int.Parse(m.Groups[4].Value);
+            var byoyomi = int.Parse(m.Groups[5].Value);
+            model.TotalTime = TimeSpan.FromSeconds(seconds);
+            model.ByoyomiTime = TimeSpan.FromSeconds(byoyomi);
+
+            model.BlackBaseLeaveTime = model.TotalTime;
+            model.WhiteBaseLeaveTime = model.TotalTime;
+
             model.InitBoard(board, true, true);
             model.ClearParsedCommand();
             return true;
         }
         #endregion
 
-        #region game info
-        /*private static readonly Regex GameInfoRegex = new Regex(
-            @"^info gameinfo ([\+\-]) ([\w]+) ([\w]+) ([\d]+) ([\d]+)",
+        #region time info
+        private static readonly Regex TimeInfoRegex = new Regex(
+            @"^info (bt|wt) ([\d]+)",
             RegexOptions.IgnoreCase);
 
-        private static bool ParseGameInfo(string command)
+        private static bool ParseTimeInfo(string command)
         {
-            var m = GameInfoRegex.Match(command);
+            var m = TimeInfoRegex.Match(command);
             if (!m.Success)
             {
                 return false;
             }
 
-            var model = Global.ShogiModel;
-            model.MyTurn = (m.Groups[1].Value == "+" ? BWType.Black : BWType.White);
-            model.BlackPlayerName = m.Groups[2].Value;
-            model.WhitePlayerName = m.Groups[3].Value;
+            var isBlack = (m.Groups[1].Value == "bt");
+            var seconds = int.Parse(m.Groups[2].Value);
+            var time = TimeSpan.FromSeconds(seconds);
 
             // 残り時間を設定します（切れ負けのみ対応）
-            var seconds = int.Parse(m.Groups[4].Value);
-            var time = TimeSpan.FromSeconds(seconds);
-            model.BlackBaseLeaveTime = time;
-            model.WhiteBaseLeaveTime = time;
+            var model = Global.ShogiModel;
+            var remainTime = MathEx.Max(TimeSpan.Zero, model.TotalTime - time);
+
+            if (isBlack)
+            {
+                model.BlackBaseLeaveTime = remainTime;
+            }
+            else
+            {
+                model.WhiteBaseLeaveTime = remainTime;
+            }
+            
             return true;
-        }*/
+        }
         #endregion
 
         #region current info
@@ -272,6 +288,7 @@ namespace Bonako.ViewModel
             if (ParseVariation(command)) return;
             if (ParseCurrentInfo(command)) return;
             if (ParseStats(command)) return;
+            if (ParseTimeInfo(command)) return;
             if (ParseInit(command)) return;
 
             //Log.Error("不明なコマンド: {0}", command);

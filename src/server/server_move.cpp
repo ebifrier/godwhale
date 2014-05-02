@@ -23,6 +23,9 @@ void Server::InitGame(const min_posi_t *posi)
 
     m_board = *posi;
     m_gid = 0;
+
+    sec_limit = 900;
+    sec_limit_up = 0;
 }
 
 void Server::MakeRootMove(move_t move)
@@ -46,41 +49,16 @@ void Server::UnmakeRootMove()
     LOG(Notification) << "root unmove";
 }
 
-struct Score
+void Server::AdjustTimeHook(int turn)
 {
-    bool IsValid;
-    long TotalNodes;
-    long MaxNodes;
-    Move Move;
-    long Nodes;
-    int Value;
-    std::vector<server::Move> PVSeq;
+    auto sec = turn ? sec_w_total : sec_b_total;
+    auto fmt = format("info %1% %2%") % (turn ? "wt" : "bt") % sec;
+    auto str = fmt.str();
 
-    explicit Score()
-        : IsValid(false), TotalNodes(0), MaxNodes(0)
-        , Move(MOVE_NA), Nodes(-1), Value(0) {
+    FOREACH_CLIENT(client) {
+        client->SendCommand(str);
     }
-
-    void MakeInvalid() {
-        IsValid = false;
-        TotalNodes = 0;
-        MaxNodes = 0;
-    }
-
-    void UpdateNodes(shared_ptr<Client> client) {
-        TotalNodes += client->GetNodeCount();
-        MaxNodes    = std::max(MaxNodes, client->GetNodeCount());
-    }
-
-    void Set(const shared_ptr<Client> &client) {
-        Move = (client->HasPlayedMove() ?
-            client->GetPlayedMove() : client->GetMove());
-        Nodes = client->GetNodeCount();
-        Value = client->GetValue();
-        PVSeq = client->GetPVSeq();
-        IsValid = true;
-    }
-};
+}
 
 int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvseq)
 {
@@ -90,20 +68,20 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
 
     do {
         if (!first) {
-            this_thread::yield();
-            //this_thread::sleep(posix_time::milliseconds(100));
+            //this_thread::yield();
+            this_thread::sleep(posix_time::milliseconds(10));
             score.MakeInvalid();
         }
         first = false;
 
-        auto list = GetClientList();
-        BOOST_FOREACH(auto client, list) {
+        auto clientList = GetClientList();
+        BOOST_FOREACH(auto client, clientList) {
             score.UpdateNodes(client);
         }
 
-        int size = list.size();
+        int size = clientList.size();
         for (int i = 0; i < size; ++i) {
-            auto client = list[i];
+            auto client = clientList[i];
             ScopedLock locker(client->GetGuard());
 
             if (client->GetNodeCount() > 1L * 10000 &&
@@ -120,7 +98,7 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
                 int chunk = 5;
                 int start = i % chunk;
                 for (int j = start; j < size; ++j) {
-                    auto client2 = list[j];
+                    auto client2 = clientList[j];
 
                     if (client2->HasPlayedMove()) {
                         continue;
@@ -144,15 +122,9 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
             }
         }
 
+        score.SetNps(timer);
         if (sendTimer.elapsed().wall > 5LL*1000*1000*1000) {
-            auto ns  = timer.elapsed().wall;
-            auto nps = (long)(score.TotalNodes / ((double)ns/1000/1000/1000));
-
-            BOOST_FOREACH(auto client, list) {
-                // 評価値は先手を+とした数字を送ります。
-                client->SendCurrentInfo(list.size(), nps,
-                                        score.Value * (client_turn == black ? +1 : -1));
-            }
+            SendCurrentInfo(clientList, score);
 
             // これで時間がリセットされます。
             sendTimer.start();
@@ -160,8 +132,8 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
     } while (!score.IsValid || !IsEndIterate(ptree, timer));
 
     if (score.IsValid) {
-        LOG(Notification) << "  my move: " << ToString(score.Move);
-        LOG(Notification) << "real move: " << ToString(score.PVSeq[0]);
+        LOG(Notification) << "  my move: " << score.Move;
+        LOG(Notification) << "real move: " << score.PVSeq[0];
 
         *value = score.Value;
 
@@ -182,10 +154,27 @@ bool Server::IsEndIterate(tree_t *restrict ptree, timer::cpu_timer &timer)
 
     if (!(game_status & flag_puzzling)) {
         auto ms = (unsigned int)(timer.elapsed().wall / 1000 / 1000);
-        return IsThinkEnd(ptree, ms);
+        return IsThinkEnd(ptree, ms); //(ms > 10*1000);
     }
 
     return false;
+}
+
+void Server::SendCurrentInfo(std::vector<shared_ptr<Client> > &clientList,
+                             Score &score)
+{
+    // 評価値は先手を+とした数字を送ります。
+    auto fmt = format("info current %1% %2% %3%")
+                % clientList.size()
+                % score.Nps
+                % (score.Value * (client_turn == black ? +1 : -1));
+    auto str = fmt.str();
+
+    LOG(Notification) << str;
+
+    BOOST_FOREACH(auto client, clientList) {
+        client->SendCommand(str, false);
+    }
 }
 
 } // namespace server

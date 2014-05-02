@@ -8,6 +8,44 @@ namespace server {
 
 class Server;
 
+class SendPacket
+{
+public:
+    explicit SendPacket()
+        : m_isOutLog(false) {
+    }
+
+    explicit SendPacket(const std::string &command, bool isOutLog)
+        : m_command(command), m_isOutLog(isOutLog) {
+    }
+
+    bool IsEmpty() const {
+        return m_command.empty();
+    }
+
+    void Clear() {
+        m_command.clear();
+    }
+
+    const std::string &GetCommand() const {
+        return m_command;
+    }
+
+    bool IsOutLog() const {
+        return m_isOutLog;
+    }
+
+    void AppendDelimiter() {
+        if (m_command.empty() || m_command.back() != '\n') {
+            m_command.append("\n");
+        }
+    }
+
+private:
+    std::string m_command;
+    bool m_isOutLog;
+};
+
 /**
  * @brief リスナーＰＣによるクライアントを管理します。
  */
@@ -144,27 +182,26 @@ public:
     /**
      * @brief コマンドを送信します。
      */
-    void SendCommand(const format &fmt) {
-        SendCommand(fmt.str());
+    void SendCommand(const format &fmt, bool isOutLog = true) {
+        SendCommand(fmt.str(), isOutLog);
     }
 
     void Close();
     void BeginAsyncReceive();
-    void SendCommand(const std::string &command);
+    void SendCommand(const std::string &command, bool isOutLog = true);
 
     void InitGame(const min_posi_t *posi);
     void MakeRootMove(Move move, int pid, bool isActualMove=true);
     void SetPlayedMove(Move move);
     void AddIgnoreMove(Move move);
-    void SendCurrentInfo(int machineCount, long nps, int value);
 
 private:
     void Disconnected();
     
     void HandleAsyncReceive(const error_code &error);
 
-    void PutSendCommand(const std::string &command);
-    std::string GetSendCommand();
+    void PutSendPacket(const SendPacket &packet);
+    SendPacket GetSendPacket();
 
     void BeginAsyncSend();
     void HandleAsyncSend(const error_code &error);
@@ -179,8 +216,8 @@ private:
     mutable Mutex m_guard;
     asio::streambuf m_streambuf;
 
-    std::list<std::string> m_sendList;
-    std::string m_sendingbuf;
+    std::list<SendPacket> m_sendList;
+    SendPacket m_sendingbuf;
 
     Board m_board;
     bool m_logined;

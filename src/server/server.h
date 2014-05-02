@@ -3,14 +3,64 @@
 #define GODWHALE_SERVER_SERVER_H
 
 #include "board.h"
+#include "client.h"
 
 namespace godwhale {
 namespace server {
 
-class Client;
+/**
+ * @brief 評価値やノード数などを保持します。
+ */
+struct Score
+{
+public:
+    explicit Score()
+        : IsValid(false), TotalNodes(0), MaxNodes(0)
+        , Move(MOVE_NA), Nodes(-1), Value(0) {
+    }
+
+    void MakeInvalid() {
+        IsValid = false;
+        TotalNodes = 0;
+        MaxNodes = 0;
+        Nps = 0;
+    }
+
+    void UpdateNodes(shared_ptr<Client> client) {
+        TotalNodes += client->GetNodeCount();
+        MaxNodes    = std::max(MaxNodes, client->GetNodeCount());
+    }
+
+    void SetNps(timer::cpu_timer &timer) {
+        auto ns  = timer.elapsed().wall;
+
+        Nps = (long)(TotalNodes / ((double)ns/1000/1000/1000));
+    }
+
+    void Set(const shared_ptr<Client> &client) {
+        Move = (client->HasPlayedMove() ?
+            client->GetPlayedMove() : client->GetMove());
+        Nodes = client->GetNodeCount();
+        Value = client->GetValue();
+        PVSeq = client->GetPVSeq();
+        IsValid = true;
+    }
+
+public:
+    bool IsValid;
+    long TotalNodes;
+    long MaxNodes;
+    long Nps;
+
+    Move Move;
+    long Nodes;
+    int Value;
+    std::vector<server::Move> PVSeq;
+};
+
 
 /**
- *
+ * @brief 大合神クジラちゃんのサーバークラスです。
  */
 class Server : public enable_shared_from_this<Server>
 {
@@ -27,18 +77,6 @@ public:
     {
         return ms_instance;
     }
-
-private:
-    static shared_ptr<Server> ms_instance;
-
-    explicit Server();
-
-    void StartThread();
-    void ServiceThreadMain();
-
-    void BeginAccept();
-    void HandleAccept(shared_ptr<tcp::socket> socket,
-                      const system::error_code &error);
 
 public:
     ~Server();
@@ -64,9 +102,25 @@ public:
     void InitGame(const min_posi_t *posi);
     void MakeRootMove(move_t move);
     void UnmakeRootMove();
+    void AdjustTimeHook(int turn);
 
     int Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvseq);
     bool IsEndIterate(tree_t *restrict ptree, timer::cpu_timer &timer);
+
+private:
+    static shared_ptr<Server> ms_instance;
+
+    explicit Server();
+
+    void StartThread();
+    void ServiceThreadMain();
+
+    void BeginAccept();
+    void HandleAccept(shared_ptr<tcp::socket> socket,
+                      const system::error_code &error);
+
+    void SendCurrentInfo(std::vector<shared_ptr<Client> > &clientList,
+                         Score &score);
 
 private:
     mutable Mutex m_guard;

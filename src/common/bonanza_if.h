@@ -6,14 +6,11 @@
 extern "C" {
 #endif
 
-// for search()
-//extern int detectSignalSlave();
-
-// for server
-#ifdef GODWHALE_SERVER
+#if defined(GODWHALE_SERVER)
 extern void CONV init_game_hook(const min_posi_t *posi);
 extern void CONV make_move_root_hook(move_t move);
 extern void CONV unmake_move_root_hook();
+extern void CONV adjust_time_hook(int turn);
 extern int CONV server_iterate(tree_t *restrict ptree, int *value,
                                move_t *pvseq, int *pvseq_length);
 #endif

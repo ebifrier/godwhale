@@ -90,6 +90,24 @@ namespace Bonako.ViewModel
         }
 
         /// <summary>
+        /// 持ち時間を取得または設定します。
+        /// </summary>
+        public TimeSpan TotalTime
+        {
+            get { return GetValue<TimeSpan>("TotalTime"); }
+            set { SetValue("TotalTime", value); }
+        }
+
+        /// <summary>
+        /// 秒読み時間を取得または設定します。
+        /// </summary>
+        public TimeSpan ByoyomiTime
+        {
+            get { return GetValue<TimeSpan>("ByoyomiTime"); }
+            set { SetValue("ByoyomiTime", value); }
+        }
+
+        /// <summary>
         /// 先手の対局者名を取得または設定します。
         /// </summary>
         public string BlackPlayerName

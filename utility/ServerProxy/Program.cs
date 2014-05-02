@@ -47,14 +47,17 @@ namespace ServerProxy
         {
             var proxy = new ServerProxy();
 
+            // 将棋サーバーのアドレスとポートです。
+            string ShogiServerAddress = "192.168.20.1";
+            int ShogiServerPort = 4081;
+
+            // 大合神クジラちゃんのアドレスとポートです。
+            string GodWhaleServerAddress = "54.178.196.154";
+            int GodWhaleServerPort = 4090;
+
             proxy.Start(
-                //"CSA", _ => Connect(_, "wdoor.c.u-tokyo.ac.jp", 4081),
-                //"CSA", _ => Connect(_, "garnet-alice.net", 4081),
-                "CSA", _ => Connect(_, "192.168.20.1", 4081),
-                "god", _ => Connect(_, "garnet-alice.net", 4090));
-            /*proxy.Start(
-                () => Connect("localhost", 10000),
-                () => new ConsoleStream());*/
+                "CSA", _ => Connect(_, ShogiServerAddress, ShogiServerPort),
+                "god", _ => Connect(_, GodWhaleServerAddress, GodWhaleServerPort));
 
             foreach (var th in proxy.Threads)
             {

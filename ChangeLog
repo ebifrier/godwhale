@@ -1,3 +1,15 @@
+2014-05-02  - Ver 2.0.9
+
+	* src/common/bonanza6/proce.c: initに持ち時間などの情報が追加されました
+	。
+	* src/common/bonanza6/time.c: 時間調整時にそれをクライアントに送信する
+	ようにしました。
+	* src/server/server_move.cpp: 時間や指し手の管理を調整しました。
+	* utility/Bonako/Bonako/ViewModel/BonanzaCommandParser.cs: initコマンド
+	を修正し、また先手・後手の時間変化コマンドを受信するようにしました。
+	* utility/ServerProxy/ServerProxy: コンパイルできるようにライブラリの位
+	置を変更しました。
+
 2014-05-01  - Ver 2.0.8
 
 	* utility/Bonako/Bonako/ViewModel/BonanzaCommandParser.cs: 新版の大合神

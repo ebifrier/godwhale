@@ -307,7 +307,7 @@ cmd_mnjinit( tree_t *restrict ptree, char **lasts )
   const char *token;
   char *ptr, str[ SIZE_CMDLINE ], *tlasts;
   char name1[ 128 ], name2[ 128 ];
-  int i, iret, my_turn;
+  int i, iret, my_turn, think_time, byoyomi;
   move_t move;
   long lid;
 
@@ -339,6 +339,34 @@ cmd_mnjinit( tree_t *restrict ptree, char **lasts )
       return -1;
     }
   my_turn = strtol( token, &ptr, 0 );
+  if ( ptr == token )
+    {
+      str_error = str_bad_cmdline;
+      return -1;
+    }
+
+  // ‚¿ŠÔ
+  token = strtok_r( NULL, str_delimiters, lasts );
+  if ( token == NULL )
+    {
+      str_error = str_bad_cmdline;
+      return -1;
+    }
+  think_time = strtol( token, &ptr, 0 );
+  if ( ptr == token )
+    {
+      str_error = str_bad_cmdline;
+      return -1;
+    }
+
+  // •b“Ç‚İŠÔ
+  token = strtok_r( NULL, str_delimiters, lasts );
+  if ( token == NULL )
+    {
+      str_error = str_bad_cmdline;
+      return -1;
+    }
+  byoyomi = strtol( token, &ptr, 0 );
   if ( ptr == token )
     {
       str_error = str_bad_cmdline;

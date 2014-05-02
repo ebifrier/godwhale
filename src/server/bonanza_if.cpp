@@ -21,6 +21,11 @@ void CONV unmake_move_root_hook()
     Server::GetInstance()->UnmakeRootMove();
 }
 
+void CONV adjust_time_hook( int turn)
+{
+    Server::GetInstance()->AdjustTimeHook(turn);
+}
+
 int CONV server_iterate(tree_t *restrict ptree, int *value,
                         move_t *pvseq, int *pvseq_length)
 {
