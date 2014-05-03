@@ -24,7 +24,7 @@ void Server::InitGame(const min_posi_t *posi)
     m_board = *posi;
     m_gid = 0;
 
-    sec_limit = 900;
+    sec_limit = 1500;
     sec_limit_up = 0;
 }
 
@@ -127,9 +127,32 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
             }
         }
 
+        
+
         score.SetNps(timer);
         if (sendTimer.elapsed().wall > 5LL*1000*1000*1000) {
             SendCurrentInfo(clientList, score);
+
+            if (score.IsValid) {
+                std::vector<std::string> v;
+
+                std::transform(
+                    score.PVSeq.begin(), score.PVSeq.end(),
+                    std::back_inserter(v),
+                    [](Move _) { return _.String(); });
+
+                auto fmt = format("info %1% %2% n=%3%")
+                    % ((double)score.Value / 100.0)
+                    % algorithm::join(v, " ")
+                    % score.Nodes;
+                std::string command = fmt.str();
+
+                BOOST_FOREACH(auto client, clientList) {
+                    if (client->IsSendPV()) {
+                        client->SendCommand(command);
+                    }
+                }
+            }
 
             // これで時間がリセットされます。
             sendTimer.start();
@@ -168,11 +191,10 @@ bool Server::IsEndIterate(tree_t *restrict ptree, timer::cpu_timer &timer)
 void Server::SendCurrentInfo(std::vector<shared_ptr<Client> > &clientList,
                              Score &score)
 {
-    // 評価値は先手を+とした数字を送ります。
+    // 評価値はクジラちゃんからみた数字を送ります。
     auto fmt = format("info current %1% %2% %3%")
                 % clientList.size()
-                % score.Nps
-                % (score.Value * (client_turn == black ? +1 : -1));
+                % score.Nps % score.Value;
     auto str = fmt.str();
 
     LOG(Notification) << str;

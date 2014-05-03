@@ -3,4 +3,6 @@
 #book narrow
 
 #connect wdoor.c.u-tokyo.ac.jp 4081 TestWhale4 floodgate-900-0,mytrip 1
-connect 133.242.205.114 4081 TestWhale5 test-900-0-w 10
+#connect 133.242.205.114 4081 TestWhale5 test-900-0-w 10
+
+connect localhost 4081 godwhale password01

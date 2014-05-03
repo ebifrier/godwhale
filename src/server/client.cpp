@@ -268,7 +268,7 @@ int Client::ParseCommand(const std::string &command)
         if (move != MOVE_NA && nodes >= 0 && value != INT_MAX) {
             m_move   = move;
             m_nodes  = nodes;
-            m_value  = value * (client_turn == black ? +1 : -1);
+            m_value  = value * (m_playedMove.IsEmpty() ? +1 : -1);
             m_final  = final;
             m_stable = stable;
             m_pvseq  = pvseq;
