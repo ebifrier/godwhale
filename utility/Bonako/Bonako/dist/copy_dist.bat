@@ -1,2 +1,2 @@
-ruby -Ku -I"..\..\..\..\Ragnarok\Ragnarok\Update" build.rb copy
+ruby -Ku -I"..\..\..\..\..\Ragnarok\Ragnarok\Update" build.rb copy
 pause

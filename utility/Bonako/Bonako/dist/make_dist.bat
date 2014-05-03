@@ -1,2 +1,2 @@
-ruby -Ku -I"..\..\..\..\Ragnarok\Ragnarok\Update" build.rb make
+ruby -Ku -I"..\..\..\..\..\Ragnarok\Ragnarok\Update" build.rb make
 pause

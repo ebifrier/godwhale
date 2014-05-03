@@ -26,7 +26,7 @@ namespace Bonako
         /// <summary>
         /// 並列化サーバーのアドレスを取得します。
         /// </summary>
-        public static readonly string ServerAddress = "localhost"; //"133.242.205.114";
+        public static readonly string ServerAddress = "54.178.196.154";
 
         /// <summary>
         /// 並列化サーバーのポート番号を取得します。
@@ -196,12 +196,6 @@ namespace Bonako
             var bonanza = new Bonanza();
             bonanza.PropertyChanged += (_, __) => WPFUtil.InvalidateCommand();
             bonanza.Aborted += (_, e) => ResetBonanza(e.Reason);
-
-            // エラー時は自動的に再接続に行きます。
-            if (reason == AbortReason.Error)
-            {
-                //bonanza.MnjInited += (_, __) => Commands.ExecuteConnect();
-            }
             
             Bonanza = bonanza;
             MainViewModel.SetBonanza(bonanza);
@@ -212,6 +206,12 @@ namespace Bonako
 
             // UIをすべて更新します。
             WPFUtil.InvalidateCommand();
+
+            // エラー時は自動的に再接続に行きます。
+            if (reason == AbortReason.Error)
+            {
+                Commands.ExecuteConnect();
+            }
         }
 
         /// <summary>

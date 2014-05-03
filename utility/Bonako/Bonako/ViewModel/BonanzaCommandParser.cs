@@ -129,12 +129,11 @@ namespace Bonako.ViewModel
             // NPS
             var nps = int.Parse(m.Groups[2].Value);
 
-            // 評価値(先手有利で＋となる値)
+            // 評価値(クジラちゃんから見た評価値)
             var value = double.Parse(m.Groups[3].Value);
 
             var model = Global.ShogiModel;
-            model.CurrentEvaluationValue =
-                value * (model.MyTurn == BWType.Black ? +1 : -1);
+            model.CurrentEvaluationValue = value;
 
             var window = Global.MainWindow;
             if (window != null)
@@ -153,15 +152,11 @@ namespace Bonako.ViewModel
 
         #region move
         private static readonly Regex MovehitRegex = new Regex(
-            @"^movehit\s+([\d\w]+)",
+            @"^movehit\s+(\d+)\s+([\d\w]+)",
             RegexOptions.IgnoreCase);
 
         private static readonly Regex MoveRegex = new Regex(
             @"^move\s+(\d+)\s+([\d\w]+)\s+(\d+)",
-            RegexOptions.IgnoreCase);
-
-        private static readonly Regex MyMoveSecondsRegex = new Regex(
-            @"^info mymove (\d+)",
             RegexOptions.IgnoreCase);
 
         /// <summary>
@@ -177,7 +172,7 @@ namespace Bonako.ViewModel
             var m = MovehitRegex.Match(command);
             if (m.Success)
             {
-                DoCsaMove(m.Groups[1].Value, "0");
+                DoCsaMove(m.Groups[2].Value, "0");
                 return true;
             }
 
@@ -185,15 +180,6 @@ namespace Bonako.ViewModel
             if (m.Success)
             {
                 DoCsaMove(m.Groups[2].Value, "0");
-                return true;
-            }
-
-            m = MyMoveSecondsRegex.Match(command);
-            if (m.Success)
-            {
-                // 自分残り時間を減らします。
-                //var seconds = int.Parse(m.Groups[1].Value);
-                //Global.ShogiModel.DecMyLeaveTime(seconds);
                 return true;
             }
 
