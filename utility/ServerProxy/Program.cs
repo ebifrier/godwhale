@@ -37,15 +37,13 @@ namespace ServerProxy
             SetConsoleCtrlHandler(OnExit, true);
 
             // 将棋サーバーのアドレスとポートです。
-            //string ShogiServerAddress = "192.168.20.1";
-            //int ShogiServerPort = 4081;
-            string ShogiServerAddress = "133.242.205.114";
+            string ShogiServerAddress = "192.168.20.1";
+            //string ShogiServerAddress = "133.242.205.114";
             int ShogiServerPort = 4081;
 
             // 大合神クジラちゃんのアドレスとポートです。
-            //string GodWhaleServerAddress = "54.178.196.154";
-            //int GodWhaleServerPort = 4090;
-            string GodWhaleServerAddress = "localhost";
+            string GodWhaleServerAddress = "54.178.196.154";
+            //string GodWhaleServerAddress = "localhost";
             int GodWhaleServerPort = 4081;
 
             proxy.Start(
