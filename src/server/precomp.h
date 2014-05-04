@@ -9,6 +9,7 @@
 #include <vector>
 #include <list>
 #include <algorithm>
+#include <fstream>
 
 #include <boost/cstdint.hpp>
 #include <boost/atomic.hpp>

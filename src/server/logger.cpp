@@ -34,18 +34,34 @@ BOOST_LOG_GLOBAL_LOGGER_INIT(Logger, sources::severity_logger_mt<SeverityLevel>)
     return std::move(r);
 }
 
+static std::string GetLogName()
+{
+    posix_time::time_facet *f = new posix_time::time_facet("%Y%m%d_%H%M%S.log");
+
+    std::ostringstream oss;
+    oss.imbue(std::locale(oss.getloc(), f));
+
+    oss << posix_time::second_clock::local_time();
+    return oss.str();
+}
+
 void InitializeLog()
 {
     typedef sinks::text_ostream_backend text_backend;
     auto backend = make_shared<text_backend>();
-    
+    backend->auto_flush(true);
+
     auto os = shared_ptr<std::ostream>(&std::cout, empty_deleter());
     backend->add_stream(os);
-    backend->auto_flush(true);
+
+    auto logpath = "log/" + GetLogName();
+    auto fs = shared_ptr<std::ostream>(new std::ofstream(logpath));
+    backend->add_stream(fs);
     
     auto frontend = make_shared< sinks::synchronous_sink<text_backend> >(backend);
     //frontend->set_filter(Severity >= Notification);
 
+    core::get()->remove_all_sinks();
     core::get()->add_sink(frontend);
 }
 

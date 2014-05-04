@@ -26,7 +26,7 @@ iterate( tree_t * restrict ptree )
   int i, length;
 
   /* probe the opening book */
-  /*if ( pf_book != NULL
+  if ( pf_book != NULL
 #if defined(USI) || defined(MNJ_LAN)
        && moves_ignore[0] == MOVE_NA
 #endif
@@ -70,9 +70,10 @@ iterate( tree_t * restrict ptree )
             }                      
 #endif
 
+          game_status |= flag_quit_ponder;
           return 1;
         }
-    }*/
+    }
 
   game_status &= ~( flag_move_now | flag_suspend
                     | flag_quit_ponder | flag_search_error );

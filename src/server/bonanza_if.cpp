@@ -8,6 +8,8 @@ using namespace godwhale::server;
 
 void CONV init_game_hook(const min_posi_t *posi)
 {
+    InitializeLog();
+
     Server::GetInstance()->InitGame(posi);
 }
 
