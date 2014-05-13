@@ -82,7 +82,9 @@ namespace server {
    (THINK_TIME==10800&& BYOYOMI_TIME==60) ? maxtime180_60_ms(timeleft,root_nrep) : \
                                             1800    )
 
-// 時間制御ルーチン。思考打ち切りの場合は1を返します。
+/**
+ * @brief 時間制御ルーチン。思考打ち切りの場合は1を返します。
+ */
 bool IsThinkEnd(tree_t *restrict ptree, unsigned int turnTimeMS)
 {
     // 問題を解いているときは時間無制限

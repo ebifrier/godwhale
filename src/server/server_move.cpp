@@ -68,8 +68,8 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
 
     do {
         if (!first) {
-            //this_thread::yield();
-            this_thread::sleep(posix_time::milliseconds(10));
+            this_thread::yield();
+            //this_thread::sleep(posix_time::milliseconds(10));
             score.MakeInvalid();
         }
         first = false;
@@ -113,11 +113,6 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
                 }
             }
 
-            /*if (client->HasMove() && client->IsFinal()) {
-                score.Set(client);
-                break;
-            }*/
-
             // 評価値が高く、ノード数がそこまで低くない手を選びます。
             // （ノード数の判定ってこれでいいのか…？ｗ）
             bool flag1 = (client->GetNodeCount() > score.MaxNodes * 0.7 &&
@@ -130,27 +125,7 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
         score.SetNps(timer);
         if (sendTimer.elapsed().wall > 5LL*1000*1000*1000) {
             SendCurrentInfo(clientList, score);
-
-            if (score.IsValid) {
-                std::vector<std::string> v;
-
-                std::transform(
-                    score.PVSeq.begin(), score.PVSeq.end(),
-                    std::back_inserter(v),
-                    [] (Move _) { return _.String(); });
-
-                auto fmt = format("info %1% %2% n=%3%")
-                    % ((double)score.Value / 100.0)
-                    % algorithm::join(v, " ")
-                    % score.Nodes;
-                std::string command = fmt.str();
-
-                BOOST_FOREACH(auto client, clientList) {
-                    if (client->IsSendPV()) {
-                        client->SendCommand(command);
-                    }
-                }
-            }
+            SendPV(clientList, score);
 
             // これで時間がリセットされます。
             sendTimer.start();
@@ -191,14 +166,40 @@ void Server::SendCurrentInfo(std::vector<shared_ptr<Client> > &clientList,
 {
     // 評価値はクジラちゃんからみた数字を送ります。
     auto fmt = format("info current %1% %2% %3%")
-                % clientList.size()
-                % score.Nps % score.Value;
+        % clientList.size()
+        % score.Nps % score.Value;
     auto str = fmt.str();
 
     LOG(Notification) << str;
 
     BOOST_FOREACH(auto client, clientList) {
         client->SendCommand(str, false);
+    }
+}
+
+void Server::SendPV(std::vector<shared_ptr<Client> > &clientList,
+                    Score &score)
+{
+    if (!score.IsValid) {
+        return;
+    }
+
+    std::vector<std::string> v;
+    std::transform(
+        score.PVSeq.begin(), score.PVSeq.end(),
+        std::back_inserter(v),
+        [](Move _) { return _.String(); });
+
+    auto fmt = format("info %1% %2% n=%3%")
+        % ((double)score.Value / 100.0)
+        % algorithm::join(v, " ")
+        % score.Nodes;
+    std::string command = fmt.str();
+
+    BOOST_FOREACH(auto client, clientList) {
+        if (client->IsSendPV()) {
+            client->SendCommand(command);
+        }
     }
 }
 

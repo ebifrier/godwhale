@@ -132,7 +132,7 @@ std::vector<shared_ptr<Client> > Server::GetClientList()
         }
     }
 
-    return result;
+    return std::move(result);
 }
 
 void Server::BeginAccept()

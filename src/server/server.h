@@ -125,6 +125,8 @@ private:
 
     void SendCurrentInfo(std::vector<shared_ptr<Client> > &clientList,
                          Score &score);
+    void SendPV(std::vector<shared_ptr<Client> > &clientList,
+                Score &score);
 
 private:
     mutable Mutex m_guard;

@@ -15,7 +15,9 @@ namespace server {
 
 using namespace boost::log;
 
-/// グローバルロガーを設定する
+/**
+ * @brief グローバルロガーを設定する。
+ */
 BOOST_LOG_GLOBAL_LOGGER_INIT(Logger, sources::severity_logger_mt<SeverityLevel>)
 {
     //ログレコードの属性を設定する
@@ -34,6 +36,9 @@ BOOST_LOG_GLOBAL_LOGGER_INIT(Logger, sources::severity_logger_mt<SeverityLevel>)
     return std::move(r);
 }
 
+/**
+ * @brief ログファイル名にはタイムスタンプを使います。
+ */
 static std::string GetLogName()
 {
     posix_time::time_facet *f = new posix_time::time_facet("%Y%m%d_%H%M%S.log");
@@ -45,15 +50,20 @@ static std::string GetLogName()
     return oss.str();
 }
 
+/**
+ * @brief 対局開始毎にログファイルの初期化を行います。
+ */
 void InitializeLog()
 {
     typedef sinks::text_ostream_backend text_backend;
     auto backend = make_shared<text_backend>();
     backend->auto_flush(true);
 
+    // コンソール出力
     auto os = shared_ptr<std::ostream>(&std::cout, empty_deleter());
     backend->add_stream(os);
 
+    // ファイル出力
     auto logpath = "log/" + GetLogName();
     auto fs = shared_ptr<std::ostream>(new std::ofstream(logpath));
     backend->add_stream(fs);

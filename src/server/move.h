@@ -123,15 +123,8 @@ public:
      * @brief w‚µè‚ğ•ª‚©‚è‚â‚·‚¢‚æ‚¤‚É•¶š—ñ‰»‚µ‚Ü‚·B
      */
     std::string String() const {
-        return ToString(m_move);
+        return std::move(ToString(m_move));
     }
-
-/*    #define To2Move(to)             ((unsigned int)(to)   <<  0)
-#define From2Move(from)         ((unsigned int)(from) <<  7)
-#define Drop2Move(piece)        ((nsquare-1+(piece))  <<  7)
-#define Drop2From(piece)         (nsquare-1+(piece))
-#define Piece2Move(piece)       ((piece)              << 15)
-#define Cap2Move(piece)         ((piece)              << 19)*/
 
 private:
     move_t m_move;
