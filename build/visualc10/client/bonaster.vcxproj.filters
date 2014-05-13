@@ -157,10 +157,4 @@
       <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\src\client\bonanza.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\..\..\src\client\bonanza.rc" />
-  </ItemGroup>
 </Project>

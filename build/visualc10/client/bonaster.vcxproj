@@ -63,12 +63,6 @@
     <ClInclude Include="..\..\..\src\common\bonanza6\shogi.h" />
     <ClInclude Include="..\..\..\src\common\bonanza_if.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\src\client\bonanza.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\..\..\src\client\bonanza.rc" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7078F53B-EC21-49D5-9197-9AAA5BAB4107}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
