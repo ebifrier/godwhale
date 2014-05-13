@@ -285,7 +285,26 @@ static int CONV proce_mnj( tree_t * restrict ptree )
   if ( ! strcmp( token, "move" ) )    { return cmd_mnjmove( ptree, &last, 1, 0 ); }
   if ( ! strcmp( token, "movehit" ) )
     {
-      MnjLocalOut( "%s %s\n", token, last );
+      char *ptr;
+      long lid;
+
+      // ‹Ç–ÊID
+      token = strtok_r( NULL, str_delimiters, &last );
+      if ( token == NULL )
+        {
+          str_error = str_bad_cmdline;
+          return -1;
+        }
+      lid = strtol( token, &ptr, 0 );
+      if ( ptr == token || lid == LONG_MAX || lid < 0 )
+        {
+          str_error = str_bad_cmdline;
+          return -1;
+        }
+
+      MnjLocalOut( "movehit %ld %s\n", lid, last );
+
+      mnj_posi_id   = (int)lid;
       played_nmove -= 1;
       memmove( &played_move_list[0], &played_move_list[1], sizeof(move_t) * played_nmove );      
       return 1;

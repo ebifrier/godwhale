@@ -127,8 +127,6 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
             }
         }
 
-        
-
         score.SetNps(timer);
         if (sendTimer.elapsed().wall > 5LL*1000*1000*1000) {
             SendCurrentInfo(clientList, score);
@@ -139,7 +137,7 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
                 std::transform(
                     score.PVSeq.begin(), score.PVSeq.end(),
                     std::back_inserter(v),
-                    [](Move _) { return _.String(); });
+                    [] (Move _) { return _.String(); });
 
                 auto fmt = format("info %1% %2% n=%3%")
                     % ((double)score.Value / 100.0)

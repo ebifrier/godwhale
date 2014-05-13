@@ -56,9 +56,9 @@ iterate( tree_t * restrict ptree )
                   ptree->hist_tried[i] /= 256U;
                 }
             }
-          MnjOut( "pid=%d move=%s n=0 v=0e final%s\n",
+          /*MnjOut( "pid=%d move=%s n=0 v=0e final%s\n",
                   mnj_posi_id, str_CSA_move(ptree->pv[1].a[1]),
-                  ( mnj_depth_stable == INT_MAX ) ? "" : " stable" );
+                  ( mnj_depth_stable == INT_MAX ) ? "" : " stable" );*/
 
 
 #if defined(USI)

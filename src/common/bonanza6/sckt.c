@@ -214,7 +214,11 @@ sckt_accept( int iport )
   struct sockaddr_in sin, new_sin;
   int iret, count, yes;
   sckt_t sd, new_sd;
+#if defined(_WIN32)
+  int new_len;
+#else
   socklen_t new_len;
+#endif
 
 #if defined(_WIN32)
   {
@@ -243,7 +247,7 @@ sckt_accept( int iport )
   sin.sin_port        = htons( (u_short)iport );
 
   yes = 1;
-  setsockopt( sd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes) );
+  setsockopt( sd, SOL_SOCKET, SO_REUSEADDR, (const char *)&yes, sizeof(yes) );
 
   iret = bind( sd, (struct sockaddr *)&sin, sizeof(sin) );
   if ( iret < 0 )
