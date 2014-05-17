@@ -93,7 +93,7 @@ bool IsThinkEnd(tree_t *restrict ptree, unsigned int turnTimeMS)
     }
 
     // 自分の残り時間[s]
-    int myTimeLeft = sec_limit - (client_turn == black ? sec_b_total : sec_w_total);
+    int myTimeLeft = std::max(0U, sec_limit - (root_turn == black ? sec_b_total : sec_w_total));
 
     // ３秒モードに移行する場合の残り時間
     /*int isMinimumMode = (BYOYOMI_TIME == 0 && myTimeLeft < THINK_TIME / 5);
@@ -103,6 +103,7 @@ bool IsThinkEnd(tree_t *restrict ptree, unsigned int turnTimeMS)
 
     // １手に使える思考の最大時間
     int maxSpent = maxtime_ms(myTimeLeft, ptree->nrep);
+    LOG(Debug) << "max spent time: " << maxSpent;
     return (turnTimeMS >= maxSpent);
 }
 

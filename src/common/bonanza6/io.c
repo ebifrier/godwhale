@@ -290,6 +290,8 @@ open_history( const char *str_name1, const char *str_name2 )
     }
   else
     {
+      const char *fileprefix;
+
       iret = file_close( pf_log );
       if ( iret < 0 ) { return -1; }
       
@@ -306,9 +308,17 @@ open_history( const char *str_name1, const char *str_name2 )
           if ( iret < 0 ) { return -1; }
         }
       record_num = i;
-      
-      snprintf( str_file, SIZE_FILENAME, "%s/n%03d.log",
-                str_dir_logs, i );
+
+      fileprefix =
+#if defined(GODWHALE_SERVER)
+          "server";
+#elif defined(GODWHALE_CLIENT)
+          "client";
+#else
+          "n";
+#endif
+      snprintf( str_file, SIZE_FILENAME, "%s/%s%03d.log",
+                str_dir_logs, fileprefix, i );
       pf_log = file_open( str_file, "w" );
       if ( pf_log == NULL ) { return -1; }
       

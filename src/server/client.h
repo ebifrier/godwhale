@@ -190,7 +190,8 @@ public:
     void BeginAsyncReceive();
     void SendCommand(const std::string &command, bool isOutLog = true);
 
-    void InitGame(const min_posi_t *posi);
+    void InitGame();
+    void ResetPosition(const min_posi_t *posi);
     void MakeRootMove(Move move, int pid, bool isActualMove=true);
     void SetPlayedMove(Move move);
     void AddIgnoreMove(Move move);

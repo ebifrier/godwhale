@@ -301,7 +301,11 @@ void Client::SendInitGameInfo()
     auto fmt = format("init %1% %2% %3% %4% %5% %6% %7%")
         % (name1.empty() ? "dummy1" : name1)
         % (name2.empty() ? "dummy2" : name2)
+#if defined(CSA_LAN)
         % (client_turn == black ? "0" : "1")
+#else
+        % "0"
+#endif
         % sec_limit % sec_limit_up
         % m_pid % GetMoveHistory();
 
@@ -326,17 +330,11 @@ std::string Client::GetMoveHistory() const
     return algorithm::join(v, " ");
 }
 
-void Client::InitGame(const min_posi_t *posi)
+void Client::InitGame()
 {
     ScopedLock locker(m_guard);
 
-    // 平手、初期局面以外は未対応とします。
-    if (memcmp(&min_posi_no_handicap, posi, sizeof(min_posi_t)) != 0) {
-        Close();
-        return;
-    }
-
-    m_board      = *posi;
+    m_board      = Board();
     m_pid        = 0;
     m_move       = MOVE_NA;
     m_playedMove = MOVE_NA;
@@ -348,6 +346,29 @@ void Client::InitGame(const min_posi_t *posi)
     m_ignoreMoves.clear();
 
     SendInitGameInfo();
+}
+
+void Client::ResetPosition(const min_posi_t *posi)
+{
+    ScopedLock locker(m_guard);
+
+    // 平手、初期局面以外は未対応とします。
+    if (memcmp(&min_posi_no_handicap, posi, sizeof(min_posi_t)) != 0) {
+        Close();
+        return;
+    }
+
+    m_board      = *posi;
+    m_move       = MOVE_NA;
+    m_playedMove = MOVE_NA;
+    m_stable     = false;
+    m_final      = false;
+    m_nodes      = 0;
+    m_value      = 0;
+    m_pvseq.clear();
+    m_ignoreMoves.clear();
+
+    SendCommand("new");
 }
 
 void Client::MakeRootMove(Move move, int pid, bool isActualMove/*=true*/)

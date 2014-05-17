@@ -15,17 +15,26 @@ namespace server {
     auto BOOST_PP_CAT(temp, __LINE__) = std::move(GetClientList());  \
     BOOST_FOREACH(auto VAR, BOOST_PP_CAT(temp, __LINE__))
 
-void Server::InitGame(const min_posi_t *posi)
+void Server::InitGame()
 {
     FOREACH_CLIENT(client) {
-        client->InitGame(posi);
+        client->InitGame();
+    }
+
+    m_board = Board();
+    m_gid = 0;
+
+    //sec_limit = 1500;
+    //sec_limit_up = 0;
+}
+
+void Server::ResetPosition(const min_posi_t *posi)
+{
+    FOREACH_CLIENT(client) {
+        client->ResetPosition(posi);
     }
 
     m_board = *posi;
-    m_gid = 0;
-
-    sec_limit = 1500;
-    sec_limit_up = 0;
 }
 
 void Server::MakeRootMove(move_t move)
@@ -63,20 +72,15 @@ void Server::AdjustTimeHook(int turn)
 int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvseq)
 {
     timer::cpu_timer timer, sendTimer;
-    Score score;
-    bool first = true;
 
-    do {
-        if (!first) {
-            this_thread::yield();
-            //this_thread::sleep(posix_time::milliseconds(10));
-            score.MakeInvalid();
-        }
-        first = false;
+    for ( ; ; ) {
+        Score score;
 
         auto clientList = GetClientList();
         BOOST_FOREACH(auto client, clientList) {
-            score.UpdateNodes(client);
+            if (client->HasMove()) {
+                score.UpdateNodes(client);
+            }
         }
 
         int size = clientList.size();
@@ -130,17 +134,19 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
             // これで時間がリセットされます。
             sendTimer.start();
         }
-    } while (!score.IsValid || !IsEndIterate(ptree, timer));
 
-    if (score.IsValid) {
-        LOG(Notification) << "  my move: " << score.GetMove();
-        LOG(Notification) << "real move: " << score.PVSeq[0];
+        if (score.IsValid && IsEndIterate(ptree, timer)) {
+            LOG(Notification) << "  my move: " << score.GetMove();
+            LOG(Notification) << "real move: " << score.PVSeq[0];
 
-        *value = score.Value;
+            *value = score.Value;
 
-        const auto &tmpseq = score.PVSeq;
-        pvseq.insert(pvseq.end(), tmpseq.begin(), tmpseq.end());
-        return 0;
+            const auto &tmpseq = score.PVSeq;
+            pvseq.insert(pvseq.end(), tmpseq.begin(), tmpseq.end());
+            return 0;
+        }
+
+        this_thread::yield();
     }
 
     *value = 0;

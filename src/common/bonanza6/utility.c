@@ -39,7 +39,7 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
 #endif
 
 #if defined(GODWHALE_SERVER)
-  init_game_hook( pmin_posi );
+  reset_position_hook( pmin_posi );
 #endif
 
   if ( ! ( flag & flag_nofmargin ) )

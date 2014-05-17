@@ -6,11 +6,16 @@
 
 using namespace godwhale::server;
 
-void CONV init_game_hook(const min_posi_t *posi)
+void CONV init_game_hook()
 {
     InitializeLog();
 
-    Server::GetInstance()->InitGame(posi);
+    Server::GetInstance()->InitGame();
+}
+
+void CONV reset_position_hook(const min_posi_t *posi)
+{
+    Server::GetInstance()->ResetPosition(posi);
 }
 
 void CONV make_move_root_hook(move_t move)

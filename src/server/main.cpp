@@ -19,8 +19,7 @@ int main(int argc, char *argv[])
 #endif
 
 #if defined(USI)
-    if (argc == 2 && !strcmp(argv[1], "usi")) { usi_mode = usi_on; }
-    else                                      { usi_mode = usi_off; }
+    usi_mode = usi_on;
 #endif
 
     InitializeLog();

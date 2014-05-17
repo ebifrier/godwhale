@@ -19,7 +19,7 @@ public:
         , m_move(MOVE_NA), Nodes(-1), Value(0) {
     }
 
-    void MakeInvalid() {
+    void Invalidate() {
         IsValid = false;
         TotalNodes = 0;
         MaxNodes = 0;
@@ -103,7 +103,8 @@ public:
     void ClientLogined(shared_ptr<Client> client);
     std::vector<shared_ptr<Client> > GetClientList();
     
-    void InitGame(const min_posi_t *posi);
+    void InitGame();
+    void ResetPosition(const min_posi_t *posi);
     void MakeRootMove(move_t move);
     void UnmakeRootMove();
     void AdjustTimeHook(int turn);

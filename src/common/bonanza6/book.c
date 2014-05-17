@@ -65,8 +65,10 @@ book_on( void )
   int iret = file_close( pf_book );
   if ( iret < 0 ) { return iret; }
 
+#if ! defined(GODWHALE_CLIENT)
   pf_book = file_open( str_book, "rb+" );
   if ( pf_book == NULL ) { return -2; }
+#endif
 
   return 1;
 }

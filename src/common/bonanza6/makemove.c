@@ -421,8 +421,10 @@ make_move_root( tree_t * restrict ptree, move_t move, int flag )
   /* detect checkmate */
   if ( check && is_mate( ptree, 1 ) ) { game_status |= flag_mated; }
 
+#if ! defined(GODWHALE_CLIENT)
   /* save history */
   if ( flag & flag_history ) { out_CSA( ptree, &record_game, move ); }
+#endif
 
   /* renew repetition table */
   n = ptree->nrep;
