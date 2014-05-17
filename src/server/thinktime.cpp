@@ -103,7 +103,7 @@ bool IsThinkEnd(tree_t *restrict ptree, unsigned int turnTimeMS)
 
     // １手に使える思考の最大時間
     int maxSpent = maxtime_ms(myTimeLeft, ptree->nrep);
-    LOG(Debug) << "max spent time: " << maxSpent;
+    //LOG(Debug) << "max spent time: " << maxSpent;
     return (turnTimeMS >= maxSpent);
 }
 

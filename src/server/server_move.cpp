@@ -43,7 +43,7 @@ void Server::MakeRootMove(move_t move)
     m_gid += 10;
 
     LOG(Notification) << "root move: " << ToString(move);
-    LOG(Notification) << m_board;
+    //LOG(Notification) << m_board;
 
     FOREACH_CLIENT(client) {
         client->MakeRootMove(move, m_gid);
@@ -71,8 +71,13 @@ void Server::AdjustTimeHook(int turn)
 
 int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvseq)
 {
-    timer::cpu_timer timer, sendTimer;
+    LOG(Notification) << std::endl << std::endl;
+    LOG(Notification) << "------------------ Begin Iterate.";
+    LOG(Notification) << "thinking: " << ((game_status & flag_thinking) != 0);
+    LOG(Notification) << "puzzling: " << ((game_status & flag_puzzling) != 0);
+    LOG(Notification) << "pondering: " << ((game_status & flag_pondering) != 0);
 
+    timer::cpu_timer timer, sendTimer;
     for ( ; ; ) {
         Score score;
 

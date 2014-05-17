@@ -72,8 +72,10 @@ void Client::HandleAsyncReceive(const system::error_code &error)
     std::istream is(&m_streambuf);
     std::string line;
 
+    // std::getline‚Í '\n' or '\0'‚ð‹æØ‚è‚Æ‚µ‚Äˆµ‚¤B
+    pbuf->sgetn(contents, size);
     while (std::getline(is, line, '\n')) {
-        LOG(Debug) << "client[" << m_id << "] recv: " << line;
+        //LOG(Debug) << "client[" << m_id << "] recv: " << line;
         
         if (ParseCommand(line) < 0) {
             LOG(Error) << "parse error: " << line;
