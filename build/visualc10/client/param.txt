@@ -4,5 +4,5 @@ tlp num 1
 #connect wdoor.c.u-tokyo.ac.jp 4081 TestWhale4 floodgate-900-0,mytrip 1
 #connect 133.242.205.114 4081 TestWhale4 test-900-0
 
-mnj localhost 4082 test 1 -1 1
-#mnj 54.178.196.154 4082 test 1 -1 1
+#mnj localhost 4082 test 1 -1 1
+mnj 133.242.205.114 4082 test 1 -1 1

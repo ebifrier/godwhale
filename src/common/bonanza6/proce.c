@@ -301,7 +301,7 @@ static int CONV proce_mnj( tree_t * restrict ptree )
 
   if ( ! strcmp( token, "quit" ) )   { MnjLocalOut( "quit\n" ); return cmd_quit(); }
   if ( ! strcmp( token, "idle" ) )   { MnjLocalOut( "idle\n" ); return cmd_suspend(); }
-  if ( ! strcmp( token, "new" ) )    { return cmd_new( ptree, &last ); }
+  if ( ! strcmp( token, "new" ) )    { MnjLocalOut( "new\n" ); return cmd_new( ptree, &last ); }
   if ( ! strcmp( token, "init" ) )   { return cmd_mnjinit( ptree, &last ); }
   if ( ! strcmp( token, "ignore" ) ) { return cmd_mnjignore( ptree, &last ); }
   if ( ! strcmp( token, "alter" ) )  { return cmd_mnjmove( ptree, &last, 1, 1 ); }
@@ -595,8 +595,6 @@ static int CONV proce_usi( tree_t * restrict ptree )
   const char *token;
   char *lasts;
   int iret;
-
-  Out( "usi: %s\n", str_cmdline );
 
   token = strtok_r( str_cmdline, str_delimiters, &lasts );
   if ( token == NULL ) { return 1; }

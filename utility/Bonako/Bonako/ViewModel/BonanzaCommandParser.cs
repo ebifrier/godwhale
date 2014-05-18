@@ -17,6 +17,27 @@ namespace Bonako.ViewModel
     /// </summary>
     internal static class BonanzaCommandParser
     {
+        #region new
+        private static readonly Regex NewRegex = new Regex(
+            @"^new",
+            RegexOptions.IgnoreCase);
+
+        private static bool ParseNew(string command)
+        {
+            var m = NewRegex.Match(command);
+            if (!m.Success)
+            {
+                return false;
+            }
+
+            var model = Global.ShogiModel;
+            model.CurrentEvaluationValue = 0;
+
+            model.InitBoard(new Board(), true, true);
+            return true;
+        }
+        #endregion
+
         #region init
         private static readonly Regex InitRegex = new Regex(
             @"^init\s+(\w+)\s+(\w+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(([\d\w]+\s*)+)?",
@@ -60,6 +81,7 @@ namespace Bonako.ViewModel
             model.BlackPlayerName = m.Groups[1].Value;
             model.WhitePlayerName = m.Groups[2].Value;
             model.MyTurn = (m.Groups[3].Value == "0" ? BWType.Black : BWType.White);
+            model.CurrentEvaluationValue = 0;
 
             // 残り時間を設定します（切れ負けのみ対応）
             var seconds = int.Parse(m.Groups[4].Value);
@@ -275,6 +297,7 @@ namespace Bonako.ViewModel
             if (ParseCurrentInfo(command)) return;
             if (ParseStats(command)) return;
             if (ParseTimeInfo(command)) return;
+            if (ParseNew(command)) return;
             if (ParseInit(command)) return;
 
             //Log.Error("不明なコマンド: {0}", command);

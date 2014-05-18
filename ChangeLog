@@ -1,3 +1,10 @@
+2014-05-18  - Ver 2.1.5
+
+	* src/common/bonanza6/proce.c: 局面を初期化するための'new'コマンドを追
+	加しました。
+	* utility/Bonako/Bonako/ViewModel/BonanzaCommandParser.cs: ボナ子側で
+	'new'コマンドを解析するようにしました。
+
 2014-05-18  - Ver 2.1.4
 
 	* src/common/bonanza6/utility.c: ini_gameでinit_game_hookを呼び出すよう
