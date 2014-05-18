@@ -2,6 +2,11 @@
 # リリース情報
 #
 
+- version: 2.4.4
+  date: 2014/05/17
+  content:
+  - サーバーアドレスをDDNSで設定するようにしました。
+
 - version: 2.4.3
   date: 2014/05/04
   content:

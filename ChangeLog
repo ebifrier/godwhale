@@ -1,3 +1,8 @@
+2014-05-18  - Ver 2.1.6
+
+	* utility/Bonako/Bonako/dist/history.yaml: ボナ子のバージョンを2.4.4に
+	更新しました。
+
 2014-05-18  - Ver 2.1.5
 
 	* src/common/bonanza6/proce.c: 局面を初期化するための'new'コマンドを追
