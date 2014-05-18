@@ -1,3 +1,12 @@
+2014-05-18  - Ver 2.1.4
+
+	* src/common/bonanza6/utility.c: ini_gameでinit_game_hookを呼び出すよう
+	にしました。
+        * src/server/client.cpp: ボナ子から送られてきたpidと、サーバー側のpid
+	がずっと違うようであれば接続を切断するようにしました。
+	* src/server/server_move.cpp: 局面の更新時にpidも更新するようにしまし
+	た。
+
 2014-05-13  - Ver 2.1.3
 
 	* src/server/server_move.cpp: 少しリファクタリングしました。

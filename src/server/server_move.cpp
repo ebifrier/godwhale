@@ -24,8 +24,8 @@ void Server::InitGame()
     m_board = Board();
     m_gid = 0;
 
-    //sec_limit = 1500;
-    //sec_limit_up = 0;
+    sec_limit = 0;
+    sec_limit_up = 9;
 }
 
 void Server::ResetPosition(const min_posi_t *posi)
@@ -34,6 +34,7 @@ void Server::ResetPosition(const min_posi_t *posi)
         client->ResetPosition(posi);
     }
 
+    m_gid = 0;
     m_board = *posi;
 }
 

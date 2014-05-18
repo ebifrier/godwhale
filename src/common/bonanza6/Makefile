@@ -23,8 +23,7 @@ OBJS =data.o io.o proce.o utility.o ini.o attack.o book.o makemove.o \
 # -DDFPN             build the DFPN worker of mate-problems server.
 # -DDFPN_CLIENT      enables the client-mode of mate-problem server.
 
-OPT =-DNDEBUG -DMINIMUM -DHAVE_SSE4 -msse4.1 -DDFPN -DTLP -DDFPN_CLIENT -DINANIWA_SHIFT -DMNJ_LAN -DUSI
-#-DCSA_LAN
+OPT =-DNDEBUG -DMINIMUM -DHAVE_SSE4 -msse4.1 -DDFPN -DTLP -DDFPN_CLIENT -DINANIWA_SHIFT -DMNJ_LAN -DCSA_LAN
 
 help:
 	@echo "try targets as:"

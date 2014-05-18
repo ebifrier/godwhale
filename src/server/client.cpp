@@ -7,10 +7,13 @@ namespace godwhale {
 namespace server {
 
 Client::Client(shared_ptr<Server> server, shared_ptr<tcp::socket> socket)
-    : m_server(server), m_socket(socket), m_logined(false), m_nthreads(0)
-    , m_sendpv(false), m_pid(0), m_move(MOVE_NA), m_playedMove(MOVE_NA)
+    : m_server(server), m_socket(socket), m_lineIndex(0)
+    , m_logined(false), m_nthreads(0), m_sendpv(false), m_pid(0)
+    , m_pidErrorCount(0), m_move(MOVE_NA), m_playedMove(MOVE_NA)
     , m_stable(false), m_final(false), m_nodes(0), m_value(0)
 {
+    memset(m_line, 0, sizeof(m_line));
+
     LOG(Notification) << m_board;
 }
 
@@ -69,17 +72,21 @@ void Client::HandleAsyncReceive(const system::error_code &error)
         return;
     }
 
-    std::istream is(&m_streambuf);
-    std::string line;
+    while (m_streambuf.in_avail()) {
+        char ch = m_streambuf.sbumpc();
+        if (ch == '\n') {
+            std::string line(&m_line[0], &m_line[m_lineIndex]);
+            m_lineIndex = 0;
 
-    // std::getline‚Í '\n' or '\0'‚ð‹æØ‚è‚Æ‚µ‚Äˆµ‚¤B
-    pbuf->sgetn(contents, size);
-    while (std::getline(is, line, '\n')) {
-        //LOG(Debug) << "client[" << m_id << "] recv: " << line;
-        
-        if (ParseCommand(line) < 0) {
-            LOG(Error) << "parse error: " << line;
+            //LOG(Debug) << "client[" << m_id << "] recv: " << line;
+
+            if (ParseCommand(line) < 0) {
+                LOG(Error) << "parse error: " << line;
+            }
+            break;
         }
+
+        m_line[m_lineIndex++] = ch;
     }
 
     BeginAsyncReceive();
@@ -217,6 +224,14 @@ int Client::ParseCommand(const std::string &command)
 
     int pid = lexical_cast<int>(m.str(1));
     if (pid >= 0 && pid != GetPid()) {
+        if (abs(pid - GetPid()) > 10) {
+            LOG(Error) << "unmatch new pid:" << pid << ", pid:" << GetPid();
+            m_pidErrorCount += 1;
+            if (m_pidErrorCount > 5) {
+                Close();
+                m_pidErrorCount = 0;
+            }
+        }
         return 0;
     }
 
@@ -344,6 +359,7 @@ void Client::InitGame()
     m_final      = false;
     m_nodes      = 0;
     m_value      = 0;
+    m_pidErrorCount = 0;
     m_pvseq.clear();
     m_ignoreMoves.clear();
 
@@ -360,6 +376,7 @@ void Client::ResetPosition(const min_posi_t *posi)
         return;
     }
 
+    m_pid        = 0;
     m_board      = *posi;
     m_move       = MOVE_NA;
     m_playedMove = MOVE_NA;
@@ -367,6 +384,7 @@ void Client::ResetPosition(const min_posi_t *posi)
     m_final      = false;
     m_nodes      = 0;
     m_value      = 0;
+    m_pidErrorCount = 0;
     m_pvseq.clear();
     m_ignoreMoves.clear();
 
@@ -389,6 +407,7 @@ void Client::MakeRootMove(Move move, int pid, bool isActualMove/*=true*/)
             m_playedMove = MOVE_NA;
             m_final  = false;
             m_stable = false;
+            m_pidErrorCount = 0;
             m_pvseq.clear();
             m_ignoreMoves.clear();
 
@@ -420,6 +439,7 @@ void Client::MakeRootMove(Move move, int pid, bool isActualMove/*=true*/)
     //LOG(Notification) << m_board;
 
     m_pid = pid;
+    m_pidErrorCount = 0;
     m_move = MOVE_NA;
     m_nodes = 0;
     m_value = 0;

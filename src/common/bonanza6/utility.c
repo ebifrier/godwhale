@@ -39,6 +39,9 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
 #endif
 
 #if defined(GODWHALE_SERVER)
+#if defined(CSA_LAN)
+  init_game_hook();
+#endif
   reset_position_hook( pmin_posi );
 #endif
 

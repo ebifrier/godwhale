@@ -215,7 +215,10 @@ private:
     shared_ptr<Server> m_server;
     shared_ptr<tcp::socket> m_socket;
     mutable Mutex m_guard;
+
     asio::streambuf m_streambuf;
+    char m_line[2048];
+    int m_lineIndex;
 
     std::list<SendPacket> m_sendList;
     SendPacket m_sendingbuf;
@@ -227,6 +230,7 @@ private:
     bool m_sendpv;
 
     int m_pid;
+    int m_pidErrorCount;
     Move m_move;
     Move m_playedMove;
     bool m_stable;
