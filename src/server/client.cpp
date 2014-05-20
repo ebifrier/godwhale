@@ -47,7 +47,7 @@ void Client::Disconnected()
         m_socket->close();
     }
 
-    LOG(Notification) << "Client[" << m_id << "] ‚ªØ’f‚³‚ê‚Ü‚µ‚½B";
+    LOG(Notification) << "Client[" << m_id << "] is disconnected.";
 }
 
 /**
@@ -67,7 +67,8 @@ void Client::BeginAsyncReceive()
 void Client::HandleAsyncReceive(const system::error_code &error)
 {
     if (error) {
-        LOG(Error) << "commandŽóM‚ÉŽ¸”s‚µ‚Ü‚µ‚½B(" << error.message() << ")";
+        LOG(Error) << "Client[" << m_id << "]: failed to recv command. ("
+                   << error.message() << ")";
         Disconnected();
         return;
     }
@@ -224,14 +225,16 @@ int Client::ParseCommand(const std::string &command)
 
     int pid = lexical_cast<int>(m.str(1));
     if (pid >= 0 && pid != GetPid()) {
+#if 0
         if (abs(pid - GetPid()) > 10) {
-            LOG(Error) << "unmatch new pid:" << pid << ", pid:" << GetPid();
+            LOG(Error) << "unmatch passed pid:" << pid << ", pid:" << GetPid();
             m_pidErrorCount += 1;
-            if (m_pidErrorCount > 5) {
-                Close();
+            if (m_pidErrorCount > 20) {
+                //Close();
                 m_pidErrorCount = 0;
             }
         }
+#endif
         return 0;
     }
 

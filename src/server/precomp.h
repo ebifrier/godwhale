@@ -36,6 +36,6 @@
 #include <boost/log/common.hpp>
 #include <boost/log/expressions.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
-#include <boost/log/utility/empty_deleter.hpp>
+//#include <boost/log/utility/empty_deleter.hpp>
 
 #endif

@@ -1,4 +1,6 @@
 #tlp num 1
 book narrow
+
 #connect wdoor.c.u-tokyo.ac.jp 4081 TestWhale4 floodgate-900-0,mytrip 1
-connect 133.242.205.114 4081 GodWhale test-0-20
+connect localhost 4081 GodWhale test-0-5
+#99999-99999

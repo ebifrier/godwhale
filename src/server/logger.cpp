@@ -51,6 +51,15 @@ static std::string GetLogName()
 }
 
 /**
+ * @brief 何もしないdeleterです。
+ */
+struct empty_deleter
+{
+    typedef void result_type;
+    void operator() (const volatile void*) const {}
+};
+
+/**
  * @brief 対局開始毎にログファイルの初期化を行います。
  */
 void InitializeLog()

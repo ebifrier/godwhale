@@ -25,7 +25,7 @@ void Server::InitGame()
     m_gid = 0;
 
     sec_limit = 0;
-    sec_limit_up = 9;
+    sec_limit_up = 3;
 }
 
 void Server::ResetPosition(const min_posi_t *posi)
