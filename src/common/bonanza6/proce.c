@@ -382,7 +382,7 @@ cmd_mnjinit( tree_t *restrict ptree, char **lasts )
       str_error = str_bad_cmdline;
       return -1;
     }
-  strcpy_s( name1, sizeof(name1), token );
+  strcpy( name1, token );
   
   // ŒãŽè”Ô‚Ì–¼‘O
   token = strtok_r( NULL, str_delimiters, lasts );
@@ -391,7 +391,7 @@ cmd_mnjinit( tree_t *restrict ptree, char **lasts )
       str_error = str_bad_cmdline;
       return -1;
     }
-  strcpy_s( name2, sizeof(name2), token );
+  strcpy( name2, token );
 
   // Ž©•ª‚ÌŽè”Ô
   token = strtok_r( NULL, str_delimiters, lasts );

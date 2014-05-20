@@ -647,7 +647,7 @@ out_CSA_header( const tree_t * restrict ptree, record_t *pr )
 {
   time_t t;
 
-  fprintf( pr->pf, "'Bonanza version " BNZ_VER "\n" );
+  fprintf( pr->pf, "'" BNZ_NAME " version " BNZ_VER "\n" );
 
   if ( pr->str_name1[0] != '\0' )
     {

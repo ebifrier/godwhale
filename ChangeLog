@@ -1,3 +1,13 @@
+2014-05-20  - Ver 2.1.7
+
+	* src/client/Makefile, src/server/Makefile, src/Makefile-common:
+	Makefileを整理しました。
+	* src/common/bonanza6/data.c: ソフト名をBonanzaからGodWhaleに変更しまし
+	た。
+	* src/common/bonanza6/proce.c, src/common/bonanza6/shogi.h: 指し手を過
+	剰に送らないようにするため、指し手に変化があった場合に手を送るようにし
+	ました。
+
 2014-05-18  - Ver 2.1.6
 
 	* utility/Bonako/Bonako/dist/history.yaml: ボナ子のバージョンを2.4.4に

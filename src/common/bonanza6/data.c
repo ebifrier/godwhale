@@ -255,13 +255,9 @@ unsigned char ailast_one[512];
 #endif
 
 #if defined(NDEBUG)
-#  if ! defined(CSASHOGI)
-const char *str_myname = ( "Bonanza " BNZ_VER );
-#  else
-const char *str_myname = ( "Bonanza " BNZ_VER );
-#  endif
+const char *str_myname = ( BNZ_NAME " " BNZ_VER );
 #else
-const char *str_myname = ( "Bonanza " BNZ_VER " Debug Build ("
+const char *str_myname = ( BNZ_NAME " " BNZ_VER " Debug Build ("
                            __TIME__ " " __DATE__ ")" );
 #endif
 

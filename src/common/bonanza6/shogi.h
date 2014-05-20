@@ -112,7 +112,15 @@ extern unsigned char ailast_one[512];
 #define SEC_KEEP_ALIVE          180U
 #define TIME_RESPONSE           200U
 #define RESIGN_THRESHOLD       ( ( MT_CAP_DRAGON * 5 ) /  8 )
-#define BNZ_VER                 "6.0"
+
+#if defined(GODWHALE_SERVER)
+#define BNZ_NAME "GodWhale Server"
+#elif defined(GODWHALE_CLIENT)
+#define BNZ_NAME "GodWhale Client"
+#else
+#define BNZ_NAME "Bonanza"
+#endif
+#define BNZ_VER                 "1.0"
 
 #define REP_MAX_PLY             32
 #define REP_HIST_LEN            256
