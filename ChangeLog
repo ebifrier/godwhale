@@ -1,7 +1,18 @@
-2014-05-20  - Ver 2.1.7
+2014-05-20  - Ver 2.1.9
 
 	* src/client/Makefile, src/server/Makefile, src/Makefile-common:
 	Makefileを整理しました。
+	* src/client/Makefile: ファイルの配布用環境を整えました。
+
+2014-05-20  - Ver 2.1.8
+
+	* src/client/client.cpp: 局面IDが違うだけでは接続を切らないようにしまし
+	た。(指し手が早いときはIDがずれやすいため)
+	* src/client/logger.cpp, src/client/precomp.h: インクルード関係でエラー
+	が起きやすいempty_deleterを自前で用意しました。
+
+2014-05-20  - Ver 2.1.7
+
 	* src/common/bonanza6/data.c: ソフト名をBonanzaからGodWhaleに変更しまし
 	た。
 	* src/common/bonanza6/proce.c, src/common/bonanza6/shogi.h: 指し手を過

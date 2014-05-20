@@ -1,0 +1,15 @@
+
+# tlp num [thread-num]
+tlp num 1
+
+# hash [hash-num]
+# num:19 -> hash-size:254MB
+# num:20 -> hash-size:278MB
+# num:21 -> hash-size:326MB
+# num:22 -> hash-size:422MB
+# num:23 -> hash-size:614MB
+# num:24 -> hash-size:998MB
+hash 23
+
+# mnj [ip] [port] [name] [thread-num] [depth:-1] [sendpv:0]
+mnj godwhale.noip.me 4082 meijin_124 1 -1 0

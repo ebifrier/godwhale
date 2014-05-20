@@ -1,0 +1,36 @@
+#
+# Common Makefile
+#
+
+SSE2_OPT = -DHAVE_SSE2 -msse2
+SSE4_OPT = -DHAVE_SSE4 -msse4.1
+#AVX_OPT = -DHAVE_AVX -mavx
+
+OPT = -DNDEBUG -DMINIMUM -DTLP -DINANIWA_SHIFT \
+      -DCSASHOGI -DBITBOARD64 -DNO_LOGGING \
+      -DUSE_FAST_BIN $(SSE2_OPT) $(SSE4_OPT) $(AVX_OPT)
+
+INCLUDES = -I. -I/usr/include $(OPT_INCLUDES)
+CPPFLAGS = $(OPT) $(OPT_CPPFLAGS)
+CFLAGS   = -std=gnu99 -Wall -O3 -g $(OPT_CFLAGS)
+CXXFLAGS = -std=c++11 -Wall -O3 -g $(OPT_CXXFLAGS)
+LIBS     = $(OPT_LIBS) -pthread -lm
+
+BNZ_DIR  = ../common/bonanza6
+BNZ_FILES = data.c io.c proce.c utility.c ini.c attack.c book.c makemove.c \
+      unmake.c time.c csa.c valid.c bitop.c iterate.c searchr.c search.c \
+      quiesrch.c evaluate.c swap.c hash.c root.c next.c movgenex.c \
+      genevasn.c gencap.c gennocap.c gendrop.c mate1ply.c rand.c learn1.c \
+      learn2.c evaldiff.c problem.c ponder.c thread.c sckt.c debug.c mate3.c \
+      genchk.c phash.c dfpn.c dfpnhash.c bbini.c
+BNZ_SRCS = $(BNZ_FILES:%.c=$(BNZ_DIR)/%.c)
+BNZ_OBJS = $(BNZ_FILES:%.c=%.o)
+
+%.o: $(BNZ_DIR)/%.c
+	$(CC) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+common-clean:
+	rm -f $(BNZ_OBJS)
+
+$(BNZ_OBJS): $(BNZ_DIR)/shogi.h $(BNZ_DIR)/param.h $(BNZ_DIR)/bitop.h
+dfpnhash.o dfpn.o: $(BNZ_DIR)/dfpn.h
