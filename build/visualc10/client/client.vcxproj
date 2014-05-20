@@ -102,7 +102,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;NO_LOGGING;CSASHOGI;MNJ_LAN;INANIWA_SHIFT;BITBOARD64;USE_FAST_BIN;GODWHALE_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;MNJ_LAN;INANIWA_SHIFT;BITBOARD64;USE_FAST_BIN;GODWHALE_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -112,7 +112,9 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(ProjectDir)..\..\..\src\client
+      <Command>copy $(SolutionDir)..\..\src\server\param.txt $(ProjectDir)
+
+copy $(TargetPath) $(ProjectDir)..\..\..\src\client
 copy $(TargetPath) $(ProjectDir)..\..\..\utility\Bonako\Bonako</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -137,7 +139,9 @@ copy $(TargetPath) $(ProjectDir)..\..\..\utility\Bonako\Bonako</Command>
       <AdditionalDependencies>user32.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(ProjectDir)..\..\..\src\client
+      <Command>copy $(SolutionDir)..\..\src\server\param.txt $(ProjectDir)
+
+copy $(TargetPath) $(ProjectDir)..\..\..\src\client
 copy $(TargetPath) $(ProjectDir)..\..\..\utility\Bonako\Bonako</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

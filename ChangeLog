@@ -1,3 +1,10 @@
+2014-05-21  - Ver 2.1.10
+
+	* build/visualc10/godwhale.sln: ソリューション名をserver.slnから
+	godwhale.slnに変更しました。
+	* build/visualc10/client/client.vcxproj: プロジェクト名を
+	bonaster.vcxprojからclient.vcxprojに変更しました。
+
 2014-05-20  - Ver 2.1.9
 
 	* src/client/Makefile, src/server/Makefile, src/Makefile-common:
