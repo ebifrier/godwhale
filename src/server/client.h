@@ -8,6 +8,9 @@ namespace server {
 
 class Server;
 
+/**
+ * @brief クライアントへのコマンド送信に使います。
+ */
 class SendPacket
 {
 public:
@@ -19,22 +22,37 @@ public:
         : m_command(command), m_isOutLog(isOutLog) {
     }
 
+    /**
+     * @brief コマンドが空かどうかを取得します。
+     */
     bool IsEmpty() const {
         return m_command.empty();
     }
 
+    /**
+     * @brief コマンドをクリアします。
+     */
     void Clear() {
         m_command.clear();
     }
 
+    /**
+     * @brief コマンドを取得します。
+     */
     const std::string &GetCommand() const {
         return m_command;
     }
 
+    /**
+     * @brief コマンド送信をログに記録するかどうかを取得します。
+     */
     bool IsOutLog() const {
         return m_isOutLog;
     }
 
+    /**
+     * @brief コマンドの区切り記号を追加します。
+     */
     void AppendDelimiter() {
         if (m_command.empty() || m_command.back() != '\n') {
             m_command.append("\n");
@@ -45,6 +63,7 @@ private:
     std::string m_command;
     bool m_isOutLog;
 };
+
 
 /**
  * @brief リスナーＰＣによるクライアントを管理します。
@@ -230,7 +249,6 @@ private:
     bool m_sendpv;
 
     int m_pid;
-    int m_pidErrorCount;
     Move m_move;
     Move m_playedMove;
     bool m_stable;

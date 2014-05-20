@@ -15,51 +15,60 @@ struct Score
 {
 public:
     explicit Score()
-        : IsValid(false), TotalNodes(0), MaxNodes(0)
-        , m_move(MOVE_NA), Nodes(-1), Value(0) {
+        : m_move(MOVE_NA), m_nodes(0), m_value(0) {
     }
 
-    void Invalidate() {
-        IsValid = false;
-        TotalNodes = 0;
-        MaxNodes = 0;
-        Nps = 0;
-    }
-
-    void UpdateNodes(shared_ptr<Client> client) {
-        TotalNodes += client->GetNodeCount();
-        MaxNodes    = std::max(MaxNodes, client->GetNodeCount());
-    }
-
-    void SetNps(timer::cpu_timer &timer) {
-        auto ns  = timer.elapsed().wall;
-
-        Nps = (long)(TotalNodes / ((double)ns/1000/1000/1000));
-    }
-
+    /**
+     * @brief 指し手や評価値を設定します。
+     */
     void Set(const shared_ptr<Client> &client) {
         m_move = (client->HasPlayedMove() ?
             client->GetPlayedMove() : client->GetMove());
-        Nodes = client->GetNodeCount();
-        Value = client->GetValue();
-        PVSeq = client->GetPVSeq();
-        IsValid = true;
+        m_nodes = client->GetNodeCount();
+        m_value = client->GetValue();
+        m_pvseq = client->GetPVSeq();
     }
 
+    /**
+     * @brief 指し手が設定されたか取得します。
+     */
+    bool IsValid() const {
+        return (m_move != MOVE_NA);
+    }
+
+    /**
+     * @brief 指し手を取得します。
+     */
     Move GetMove() const {
         return m_move;
     }
 
-public:
-    bool IsValid;
-    long TotalNodes;
-    long MaxNodes;
-    long Nps;
+    /**
+     * @brief 探索ノード数を取得します。
+     */
+    long GetNodes() const {
+        return m_nodes;
+    }
 
+    /**
+     * @brief 評価値を取得します。
+     */
+    int GetValue() const {
+        return m_value;
+    }
+
+    /**
+     * @brief 指し手に付随するPVを取得します。
+     */
+    const std::vector<Move> GetPVSeq() const {
+        return m_pvseq;
+    }
+
+public:
     Move m_move;
-    long Nodes;
-    int Value;
-    std::vector<server::Move> PVSeq;
+    long m_nodes;
+    int m_value;
+    std::vector<Move> m_pvseq;
 };
 
 
@@ -100,12 +109,20 @@ public:
         return m_gid;
     }
 
+    /**
+     * @brief 現在、対局中かどうかを取得します。
+     */
+    bool IsPlaying() const {
+        return m_isPlaying;
+    }
+
     void ClientLogined(shared_ptr<Client> client);
     std::vector<shared_ptr<Client> > GetClientList();
     
     void InitGame();
+    void QuitGame();
     void ResetPosition(const min_posi_t *posi);
-    void MakeRootMove(move_t move);
+    void MakeRootMove(Move move);
     void UnmakeRootMove();
     void AdjustTimeHook(int turn);
 
@@ -119,15 +136,16 @@ private:
 
     void StartThread();
     void ServiceThreadMain();
+    void UpdateInfo();
 
     void BeginAccept();
     void HandleAccept(shared_ptr<tcp::socket> socket,
                       const system::error_code &error);
 
     void SendCurrentInfo(std::vector<shared_ptr<Client> > &clientList,
-                         Score &score);
+                         long nps);
     void SendPV(std::vector<shared_ptr<Client> > &clientList,
-                Score &score);
+                int value, long nodes, const std::vector<Move> &pvseq);
 
 private:
     mutable Mutex m_guard;
@@ -140,6 +158,11 @@ private:
     std::list<weak_ptr<Client> > m_clientList;
     Board m_board;
     atomic<int> m_gid;
+    bool m_isPlaying;
+
+    timer::cpu_timer m_turnTimer;
+    timer::cpu_timer m_sendTimer;
+    int m_currentValue;
 };
 
 }

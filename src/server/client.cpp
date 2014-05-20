@@ -9,7 +9,7 @@ namespace server {
 Client::Client(shared_ptr<Server> server, shared_ptr<tcp::socket> socket)
     : m_server(server), m_socket(socket), m_lineIndex(0)
     , m_logined(false), m_nthreads(0), m_sendpv(false), m_pid(0)
-    , m_pidErrorCount(0), m_move(MOVE_NA), m_playedMove(MOVE_NA)
+    , m_move(MOVE_NA), m_playedMove(MOVE_NA)
     , m_stable(false), m_final(false), m_nodes(0), m_value(0)
 {
     memset(m_line, 0, sizeof(m_line));
@@ -30,7 +30,7 @@ void Client::Close()
 
     if (m_socket->is_open()) {
         system::error_code error;
-        m_socket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, error);
+        m_socket->shutdown(tcp::socket::shutdown_both, error);
     }
 }
 
@@ -209,7 +209,10 @@ int Client::ParseCommand(const std::string &command)
         }
 
         m_server->ClientLogined(shared_from_this());
-        SendInitGameInfo();
+        if (m_server->IsPlaying()) {
+            SendInitGameInfo();
+        }
+
         LOG(Notification) << "client '" << m_id << "' is logined !";
         return 0;
     }
@@ -301,9 +304,11 @@ int Client::ParseCommand(const std::string &command)
             }
 
             LOG(Notification) << "client[" << m_id << "]: updated move! "
-                              << "move=" << m_move << ", nodes=" << m_nodes;
+                              << "move=" << m_move << ", value=" << m_value
+                              << ", nodes=" << m_nodes;
         }
         else if (nodes > 0) m_nodes = nodes;
+        else if (final) m_final = final;
         else return -1;
     }
 
@@ -362,7 +367,6 @@ void Client::InitGame()
     m_final      = false;
     m_nodes      = 0;
     m_value      = 0;
-    m_pidErrorCount = 0;
     m_pvseq.clear();
     m_ignoreMoves.clear();
 
@@ -387,7 +391,6 @@ void Client::ResetPosition(const min_posi_t *posi)
     m_final      = false;
     m_nodes      = 0;
     m_value      = 0;
-    m_pidErrorCount = 0;
     m_pvseq.clear();
     m_ignoreMoves.clear();
 
@@ -410,7 +413,6 @@ void Client::MakeRootMove(Move move, int pid, bool isActualMove/*=true*/)
             m_playedMove = MOVE_NA;
             m_final  = false;
             m_stable = false;
-            m_pidErrorCount = 0;
             m_pvseq.clear();
             m_ignoreMoves.clear();
 
@@ -442,7 +444,6 @@ void Client::MakeRootMove(Move move, int pid, bool isActualMove/*=true*/)
     //LOG(Notification) << m_board;
 
     m_pid = pid;
-    m_pidErrorCount = 0;
     m_move = MOVE_NA;
     m_nodes = 0;
     m_value = 0;
