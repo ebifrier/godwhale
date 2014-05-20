@@ -278,9 +278,10 @@ ini( tree_t * restrict ptree )
 #endif
 
 #if defined(MNJ_LAN)
-  sckt_mnj              = SCKT_NULL;
-  mnj_posi_id           = -1;
-  time_last_send        = 0U;
+  sckt_mnj           = SCKT_NULL;
+  mnj_posi_id        = -1;
+  mnj_last_send_move = MOVE_NA;
+  time_last_send     = 0U;
 #endif
 
 #if defined(TLP) || defined(DFPN_CLIENT)

@@ -1124,8 +1124,6 @@ void ini_rand( unsigned int s );
 void out_CSA( tree_t * restrict ptree, record_t *pr, move_t move );
 void CONV out_pv( tree_t * restrict ptree, int value, int turn,
                   unsigned int time );
-void CONV make_mnj_pv( tree_t * restrict ptree, int value, int turn,
-                       char *mnj_pv, size_t mnj_pv_size );
 void CONV hash_store( const tree_t * restrict ptree, int ply, int depth,
                       int turn, int value_type, int value, unsigned int move,
                       unsigned int state_node );
@@ -1417,8 +1415,10 @@ extern move_t moves_ignore[MAX_LEGAL_MOVES];
 extern sckt_t sckt_mnj;
 extern int mnj_posi_id;
 extern int mnj_depth_stable;
+extern move_t mnj_last_send_move;
+void CONV mnj_send_move( tree_t * restrict ptree, int value, int turn,
+                         move_t move, int send_pv );
 void CONV mnj_check_results( void );
-//int CONV mnj_reset_tbl( int sd, unsigned int seed );
 int CONV mnj_reset_tbl( void );
 int analyze( tree_t * restrict ptree );
 #else

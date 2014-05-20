@@ -16,6 +16,11 @@ static void CONV mpv_out( tree_t * restrict ptree, int turn,
                           unsigned int time );
 #endif
 
+#if defined(MNJ_LAN)
+static void CONV make_mnj_pv( tree_t * restrict ptree, int value, int turn,
+                              char *mnj_pv, size_t mnj_pv_size );
+#endif
+
 #if defined(NO_STDOUT) && defined(NO_LOGGING)
 #  define NextRootMove(a,b) next_root_move(a)
 static int CONV next_root_move( tree_t * restrict ptree );
@@ -222,13 +227,7 @@ searchr( tree_t * restrict ptree, int alpha, int beta, int turn, int depth )
 #endif
 
 #if defined(MNJ_LAN)
-            if (1)
-              {
-                MnjOut( "3 pid=%d move=%s v=%dl n=% " PRIu64 "%s\n",
-                        mnj_posi_id, str_CSA_move(MOVE_CURR),
-                        alpha+1, ptree->node_searched,
-                        ( mnj_depth_stable <= iteration_depth ) ? " stable" : "" );
-              }
+            mnj_send_move( ptree, alpha+1, root_turn, MOVE_CURR, 0 );
 #endif
 
 #if defined(USI)
@@ -497,7 +496,8 @@ out_pv( tree_t * restrict ptree, int value, int turn, unsigned int time )
 }
 
 
-void CONV
+#if defined(MNJ_LAN)
+static void CONV
 make_mnj_pv( tree_t * restrict ptree, int value, int turn,
              char *mnj_pv, size_t mnj_pv_size )
 {
@@ -508,7 +508,7 @@ make_mnj_pv( tree_t * restrict ptree, int value, int turn,
   mnj_idx   = 0;
   mnj_pv[0] = '\0';
 
-  // 指し手からの変化をPVとして送ります。
+  // 指し手を含めた変化をPVとして送ります。
   for ( ply = 1; ply <= ptree->pv[0].length; ply++ )
     {
       str = str_CSA_move( ptree->pv[0].a[ply] );
@@ -557,6 +557,48 @@ rep_esc:;
 }
 
 
+void CONV
+mnj_send_move( tree_t * restrict ptree, int value, int turn,
+               move_t move, int send_pv )
+{
+    char mnj_pv[1024];
+    unsigned int current;
+
+    // 探索ノード数が少なすぎる場合は、指し手を送りません。
+    // ただ、投了の場合もあり得るので一つ目の指し手は必ず送ります。
+    if ( mnj_last_send_move != MOVE_NA && ptree->node_searched < 1000 )
+      {
+        return;
+      }
+
+    get_elapsed( &current );
+    if ( mnj_last_send_move != move ||
+         current > time_last_send + 5000)
+      {
+        if (send_pv)
+          {
+            if ( move != ptree->pv[0].a[1] ) return;
+
+            make_mnj_pv( ptree, value, turn, mnj_pv, sizeof(mnj_pv) );
+            MnjOut( "pid=%d move=%s v=%de n=%" PRIu64 "%s pv=%s\n",
+                    mnj_posi_id, str_CSA_move(move),
+                    value, ptree->node_searched,
+                    ( mnj_depth_stable <= iteration_depth ) ? " stable" : "",
+                    mnj_pv );
+          }
+        else {
+          MnjOut( "pid=%d move=%s v=%de n=%" PRIu64 "%s\n",
+                  mnj_posi_id, str_CSA_move(move),
+                  value, ptree->node_searched,
+                  ( mnj_depth_stable <= iteration_depth ) ? " stable" : "");
+        }
+
+        mnj_last_send_move = move;
+      }
+}
+#endif
+
+
 static int CONV
 save_result( tree_t * restrict ptree, int value, int beta, int turn )
 {
@@ -596,20 +638,10 @@ save_result( tree_t * restrict ptree, int value, int beta, int turn )
         }
 #endif
 #if defined(MNJ_LAN)
-      if ( 1 /*500U + time_last_send < time_last_result*/ )
-        {
-          char mnj_pv[1024];
-
-          make_mnj_pv( ptree, value, turn, mnj_pv, sizeof(mnj_pv) );
-          MnjOut( "4 pid=%d move=%s v=%de n=%" PRIu64 "%s pv=%s\n",
-                  mnj_posi_id, str_CSA_move(ptree->pv[1].a[1]),
-                  value, ptree->node_searched,
-                  ( mnj_depth_stable <= iteration_depth ) ? " stable" : "",
-                  mnj_pv );
-        }
+      mnj_send_move( ptree, value, root_turn, ptree->pv[0].a[1], 1 );
 #endif
 
-        out_pv( ptree, value, turn, time_last_result - time_start );
+      out_pv( ptree, value, turn, time_last_result - time_start );
     }
 
   return 1;

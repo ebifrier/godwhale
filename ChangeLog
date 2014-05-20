@@ -1,3 +1,13 @@
+2014-05-21  - Ver 2.1.11
+
+	* src/common/bonanza6/iterate.c, src/common/bonanza6/searchr.c: クライ
+	アントがサーバーに候補手を送りすぎないようにしました(最善手が変化した場
+	合や、時間がたった場合のみ手を送るようにしました)。また、送信する手は次
+	善手ではなく最善手を送るようにしました。
+	* src/common/bonanza6/ponder.c: 不要なログ出力を削除しました。
+	* src/common/bonanza6/proce.c: 指し手の送信に関する変更を行うと同時に、
+	サーバーに対局終了の通知を送るようにしました。
+
 2014-05-21  - Ver 2.1.10
 
 	* build/visualc10/godwhale.sln: ソリューション名をserver.slnから

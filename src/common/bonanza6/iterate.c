@@ -410,14 +410,7 @@ iterate( tree_t * restrict ptree )
 #endif
 
 #if defined(MNJ_LAN)
-  {
-    char mnj_pv[1024];
-
-    make_mnj_pv( ptree, root_value, root_turn, mnj_pv, sizeof(mnj_pv) );
-    MnjOut( "1 pid=%d move=%s v=%de n=%" PRIu64 " pv=%s\n",
-            mnj_posi_id, str_CSA_move(ptree->pv[0].a[1]),
-            root_value, ptree->node_searched, mnj_pv );
-  }
+  mnj_send_move( ptree, root_value, root_turn, ptree->pv[0].a[1], 1 );
 #endif
 
 #if defined(USI)
@@ -545,16 +538,7 @@ iterate( tree_t * restrict ptree )
             }
 #endif
 #if defined(MNJ_LAN)
-          {
-            char mnj_pv[1024];
-
-            make_mnj_pv( ptree, root_value, root_turn, mnj_pv, sizeof(mnj_pv) );
-            MnjOut( "2 pid=%d move=%s v=%dl n=%" PRIu64 "%s pv=%s\n",
-                  mnj_posi_id, str_CSA_move(ptree->pv[1].a[1]),
-                  root_beta, ptree->node_searched,
-                  ( mnj_depth_stable <= iteration_depth ) ? " stable" : "",
-                  mnj_pv );
-          }
+          mnj_send_move( ptree, root_beta, root_turn, ptree->pv[0].a[1], 1 );
 #endif
 #if defined(USI)
           if ( usi_mode != usi_off )

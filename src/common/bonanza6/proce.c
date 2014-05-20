@@ -278,6 +278,10 @@ static int CONV proce_csalan( tree_t * restrict ptree )
       if ( sckt_out( sckt_csa, "LOGOUT\n" ) < 0 ) { return -1; }
       if ( sckt_recv_all( sckt_csa )        < 0 ) { return -1; }
 
+#if defined(GODWHALE_SERVER)
+      quit_game_hook();
+#endif
+
       ShutdownAll();
       
       if ( client_ngame == client_max_game ) { return cmd_quit(); }
@@ -470,8 +474,9 @@ cmd_mnjinit( tree_t *restrict ptree, char **lasts )
       if ( iret < 0 ) { return iret; }
     }
 
-  mnj_posi_id = (int)lid;
-  moves_ignore[0] = MOVE_NA;
+  mnj_posi_id        = (int)lid;
+  mnj_last_send_move = MOVE_NA;
+  moves_ignore[0]    = MOVE_NA;
   return analyze( ptree );
 }
 
@@ -515,8 +520,9 @@ cmd_mnjignore( tree_t *restrict ptree, char **lasts )
       return -1;
     }
 
-  mnj_posi_id     = (int)lid;
-  moves_ignore[i] = MOVE_NA;
+  mnj_posi_id        = (int)lid;
+  mnj_last_send_move = MOVE_NA;
+  moves_ignore[i]    = MOVE_NA;
   return analyze( ptree );
 }
 
@@ -583,7 +589,8 @@ cmd_mnjmove( tree_t * restrict ptree, char **lasts, int actual_move, int num_alt
       played_move_list[ played_nmove++ ] = move;
     }
 
-  moves_ignore[0] = MOVE_NA;
+  mnj_last_send_move = MOVE_NA;
+  moves_ignore[0]    = MOVE_NA;
   return analyze( ptree );
 }
 #endif

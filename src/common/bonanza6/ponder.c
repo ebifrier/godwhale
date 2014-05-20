@@ -20,7 +20,7 @@ ponder( tree_t * restrict ptree )
   if ( get_elapsed( &time_start ) < 0 ) { return -1; }
 
   Out( "\nSearch a move to ponder\n\n" );
-  OutCsaShogi( "info ponder start\n" );
+  //OutCsaShogi( "info ponder start\n" );
 
   game_status |= flag_puzzling;
   iret         = iterate( ptree );
