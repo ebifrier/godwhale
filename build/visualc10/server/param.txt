@@ -2,5 +2,7 @@
 #tlp num 1
 book narrow
 
+limit time 0 3 -1
+
 #connect wdoor.c.u-tokyo.ac.jp 4081 TestWhale4 floodgate-900-0,mytrip 1
-connect 133.242.205.114 4081 TestWhale5 test-900-0-w 10
+connect godwhale.noip.me 4081 TestWhale5 test-99999-99999 10

@@ -26,7 +26,7 @@ namespace Bonako
         /// <summary>
         /// 並列化サーバーのアドレスを取得します。
         /// </summary>
-        public static readonly string ServerAddress = "godwhale.noip.me";            
+        public static readonly string ServerAddress = "godwhale.noip.me";
 
         /// <summary>
         /// 並列化サーバーのポート番号を取得します。
