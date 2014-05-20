@@ -30,7 +30,7 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
 #endif
 
   // クライアントはログ出力が不要なので
-#if ! defined(GODWHALE_CLIENT)
+#if ! ( defined(GODWHALE_CLIENT) && defined(NO_LOGGING) )
   if ( flag & flag_history )
     {
       iret = open_history( str_name1, str_name2 );
@@ -39,9 +39,6 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
 #endif
 
 #if defined(GODWHALE_SERVER)
-#if defined(CSA_LAN)
-  init_game_hook();
-#endif
   reset_position_hook( pmin_posi );
 #endif
 

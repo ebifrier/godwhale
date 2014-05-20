@@ -1,3 +1,11 @@
+2014-05-21  - Ver 2.1.12
+
+	* src/common/bonanza6/sckt.c: CSAの対局開始時にサーバーのinit_gameを呼
+	び出すようにしました。(以前は局面の初期化時に送っていました)
+	* src/common/bonanza6/utility.c: クライアントのログを出すようにしました。
+	* src/common/bonanza_if.h, src/server/bonanza_if.cpp: 対局終了を知らせ
+	るフックを追加しました。
+
 2014-05-21  - Ver 2.1.11
 
 	* src/common/bonanza6/iterate.c, src/common/bonanza6/searchr.c: クライ

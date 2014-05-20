@@ -13,6 +13,11 @@ void CONV init_game_hook()
     Server::GetInstance()->InitGame();
 }
 
+void CONV quit_game_hook()
+{
+    Server::GetInstance()->QuitGame();
+}
+
 void CONV reset_position_hook(const min_posi_t *posi)
 {
     Server::GetInstance()->ResetPosition(posi);
@@ -28,7 +33,7 @@ void CONV unmake_move_root_hook()
     Server::GetInstance()->UnmakeRootMove();
 }
 
-void CONV adjust_time_hook( int turn)
+void CONV adjust_time_hook(int turn)
 {
     Server::GetInstance()->AdjustTimeHook(turn);
 }

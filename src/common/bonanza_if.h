@@ -8,6 +8,7 @@ extern "C" {
 
 #if defined(GODWHALE_SERVER)
 extern void CONV init_game_hook();
+extern void CONV quit_game_hook();
 extern void CONV reset_position_hook(const min_posi_t *posi);
 extern void CONV make_move_root_hook(move_t move);
 extern void CONV unmake_move_root_hook();
