@@ -1,3 +1,11 @@
+2014-05-21  - Ver 2.1.14
+
+	* utility/Bonako/Bonako/Commands.cs: 基準深さを変更しました。
+	* utility/Bonako/Bonako/dist/history.yaml: ボナ子の更新履歴を更新しまし
+	た。
+	* utility/Bonako/Bonako/Properties/AssemblyInfo.cs: ボナ子のバージョン
+	を2.4.5に更新しました。
+
 2014-05-21  - Ver 2.1.13
 
 	* src/server/client.cpp: 送信データと局面IDの不一致を調べ、不一致回数が

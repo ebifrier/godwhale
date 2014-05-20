@@ -112,7 +112,7 @@ namespace Bonako
                     model.Name,
                     model.ThreadNum,
                     model.HashMemSize,
-                    24,
+                    -1,
                     !Global.IsPublished);
             }
             catch (Exception ex)
