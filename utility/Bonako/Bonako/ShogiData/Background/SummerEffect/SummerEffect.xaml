@@ -11,7 +11,7 @@
 
     <f:LineZone x:Key="positionCloudZone"
                 Point1="840, -100"
-                Point2="840, 580" />
+                Point2="840, 460" />
     <f:DiscSectorZone x:Key="speedCloudZone"
                       InnerRadius="60" OuterRadius="120"
                       MinAngle="180" MaxAngle="180" />
@@ -21,8 +21,8 @@
                         MaterialType="Diffuse"
                         Opacity="0.7"
                         Duration="Forever"
-                        Coord="320,240,0"
-                        BaseScale="640,480,1" />
+                        Coord="320,180,0"
+                        BaseScale="640,360,1" />
         
         <r:EffectObject.Emitters>
             <f:Emitter>

@@ -16,9 +16,9 @@
                 <DoubleAnimationUsingKeyFrames
                         r:Scenario.TargetProperty="Opacity"
                         RepeatBehavior="Forever">
-                    <LinearDoubleKeyFrame KeyTime="0:0:0.0" Value="0.1" />
-                    <LinearDoubleKeyFrame KeyTime="0:0:3.0" Value="0.4" />
-                    <LinearDoubleKeyFrame KeyTime="0:0:6.0" Value="0.1" />
+                    <LinearDoubleKeyFrame KeyTime="0:0:0.0" Value="0.05" />
+                    <LinearDoubleKeyFrame KeyTime="0:0:3.0" Value="0.20" />
+                    <LinearDoubleKeyFrame KeyTime="0:0:6.0" Value="0.05" />
                 </DoubleAnimationUsingKeyFrames>
             </r:Scenario>
         </r:EffectObject.Scenario>

@@ -4,16 +4,16 @@
                     xmlns:r="http://schemas.garnet-alice.net/ragnarok/xaml/presentation">
 
     <Vector3D x:Key="backgroundCoord"
-              X="320" Y="240" Z="{x:Static r:ShogiControl.PreEffectZ}" />
+              X="320" Y="180" Z="{x:Static r:ShogiUIElement3D.PreEffectZ}" />
     <Vector3D x:Key="foregroundCoord"
-              X="320" Y="240" Z="{x:Static r:ShogiControl.PostEffectZ}" />
+              X="320" Y="180" Z="{x:Static r:ShogiUIElement3D.PostEffectZ}" />
     <f:DiscZone x:Key="particlePositionZone"
                 Center="0,0" InnerRadius="4.0" OuterRadius="6.0" />
 
     <r:EffectObject x:Key="Effect">
         <r:EffectObject Duration="0:0:6.0"
                         MaterialType="Diffuse"
-                        Scale="640,480,1"
+                        Scale="640,360,1"
                         Coord="{StaticResource backgroundCoord}"
                         Color="Black"
                         Mesh="{r:MakeMesh}">
@@ -60,7 +60,7 @@
             <r:EffectObject.Emitters>
                 <f:Emitter>
                     <f:Emitter.Counter>
-                        <f:TimePeriod Duration="2.0" NumParticles="800"
+                        <f:TimePeriod Duration="2.0" NumParticles="300"
                                       EaseType="In" Category="Quadratic" />
                     </f:Emitter.Counter>
                     <f:Emitter.Initializers>
@@ -68,11 +68,11 @@
                         <f:Position Zone="{StaticResource particlePositionZone}" />
                         <f:ColorInit Color="#00fbec35" />
                         <f:Lifetime MinLifetime="0.5" MaxLifetime="1.0" />
-                        <f:ScaleInit MinScale="0.2" MaxScale="0.5" />
+                        <f:ScaleInit MinScale="0.3" MaxScale="0.7" />
                     </f:Emitter.Initializers>
                     <f:Emitter.Behaviours>
                         <f:Age IsAutoDead="False" />
-                        <f:Fade StartAlpha="0.2" EndAlpha="1.0" />
+                        <f:Fade StartAlpha="0.1" EndAlpha="1.0" />
                         <!--<f:Move />-->
                         <f:TweenTargetPosition VelocityLength="0.13" />
                     </f:Emitter.Behaviours>
@@ -84,7 +84,7 @@
             <r:EffectObject Duration="0:0:3"
                             Color="White"
                             MaterialType="Diffuse"
-                            Scale="640,480,1"
+                            Scale="640,360,1"
                             Coord="{StaticResource backgroundCoord}">
                 <r:EffectObject.Scenario>
                     <r:Scenario>
@@ -102,7 +102,7 @@
             <r:EffectObject Duration="0:0:3"
                             BaseScale="{r:Binding BaseScale}"
                             Coord="{StaticResource foregroundCoord}"
-                            Scale="20,20,1"
+                            Scale="25,25,1"
                             ImageUri="Thunder.png"
                             AnimationType="Random"
                             AnimationImageCount="8"
@@ -123,7 +123,7 @@
             <r:EffectObject Duration="0:0:3"
                             BaseScale="{r:Binding BaseScale}"
                             Coord="{StaticResource foregroundCoord}"
-                            Scale="8,5,1"
+                            Scale="10,6,1"
                             ImageUri="Resign.png">
                 <r:EffectObject.Scenario>
                     <r:Scenario>

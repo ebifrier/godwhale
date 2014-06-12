@@ -1,0 +1,11 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:r="http://schemas.garnet-alice.net/ragnarok/xaml/presentation">
+    <r:EffectObject x:Key="Effect"
+                    Opacity="1.0"
+                    MaterialType="Diffuse"
+                    Duration="Forever"
+                    Coord="320,180,0"
+                    BaseScale="640,360,1"
+                    ImageUri="{r:Binding ImageUri}" />
+</ResourceDictionary>

@@ -1,4 +1,9 @@
-2014-05-21  - Ver 2.1.14
+2014-06-13  - Ver 2.4.5.2
+
+	* utility/Bonako/Bonako/ShogiData/Background: 画面の想定解像度を変更し
+	ました。
+
+2014-05-21  - Ver 2.4.5.0
 
 	* utility/Bonako/Bonako/Commands.cs: 基準深さを変更しました。
 	* utility/Bonako/Bonako/dist/history.yaml: ボナ子の更新履歴を更新しまし

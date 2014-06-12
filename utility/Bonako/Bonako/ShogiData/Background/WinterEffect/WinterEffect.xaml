@@ -5,14 +5,14 @@
     
     <f:LineZone x:Key="positionZone"
                 Point1="660, -60"
-                Point2="660, 500" />
+                Point2="660, 380" />
     <f:DiscSectorZone x:Key="speedZone"
                       InnerRadius="300" OuterRadius="400"
                       MinAngle="150" MaxAngle="175" />
 
     <f:LineZone x:Key="positionCloudZone"
                 Point1="840, -100"
-                Point2="840, 580" />
+                Point2="840, 460" />
     <f:DiscSectorZone x:Key="speedCloudZone"
                       InnerRadius="200" OuterRadius="300"
                       MinAngle="180" MaxAngle="180" />
@@ -22,8 +22,8 @@
                         MaterialType="Diffuse"
                         Opacity="0.9"
                         Duration="Forever"
-                        Coord="320,240,0"
-                        BaseScale="640,480,1" />
+                        Coord="320,180,0"
+                        BaseScale="640,360,1" />
 
         <r:EffectObject.Emitters>
             <f:Emitter>

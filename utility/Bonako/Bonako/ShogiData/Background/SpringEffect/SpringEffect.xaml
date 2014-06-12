@@ -14,8 +14,8 @@
                         Opacity="1.0"
                         MaterialType="Diffuse"
                         Duration="Forever"
-                        Coord="320,240,0"
-                        BaseScale="640,480,1"
+                        Coord="320,180,0"
+                        BaseScale="640,360,1"
                         Color="White" />
         
         <r:EffectObject.Emitters>
