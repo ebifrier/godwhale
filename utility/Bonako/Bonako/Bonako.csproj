@@ -322,6 +322,10 @@
       <Project>{8EBDC79A-607B-4B56-A298-1471CD6753DB}</Project>
       <Name>Ragnarok.Extra</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Ragnarok\Ragnarok.Presentation.Extra\Ragnarok.Presentation.Extra.csproj">
+      <Project>{1CD9A242-E0E3-453C-9E49-57FC37FF675A}</Project>
+      <Name>Ragnarok.Presentation.Extra</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\..\Ragnarok\Ragnarok.Presentation.Shogi\Ragnarok.Presentation.Shogi.csproj">
       <Project>{DDF48C77-8221-4469-8A4C-8865096AAB06}</Project>
       <Name>Ragnarok.Presentation.Shogi</Name>

@@ -6,6 +6,10 @@
         x:Name="shogi">
     <Window.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Ragnarok.Presentation.Shogi;component/View/ShogiUIElement3D.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            
             <r:ValueToDecimalConverter x:Key="toDecimalConverter" />
             
             <BitmapImage x:Key="pieceImage"
@@ -18,14 +22,33 @@
             <ImageBrush x:Key="komadaiBrush"
                         Opacity="0.6"
                         ImageSource="pack://application:,,,/Ragnarok.Presentation.Shogi;component/Resources/Image/komadai/komadai1.jpg" />
+
+            <!-- 投票結果 -->
+            <r:EvaluationControl x:Key="evaluationControl"
+                                 ImageSetList="{r:ImageSetList ShogiData/Evaluation}"
+                                 PointType="User"
+                                 UserPoint="{Binding EvaluationValue,
+                                                     Converter={StaticResource toDecimalConverter}}" />
+
+            <DiffuseMaterial x:Key="evaluationControlMaterial">
+                <DiffuseMaterial.Brush>
+                    <VisualBrush Visual="{StaticResource evaluationControl}"
+                                 RenderOptions.CachingHint="Cache" />
+                </DiffuseMaterial.Brush>
+            </DiffuseMaterial>
+            
+            <!-- 右上の隙間の位置 -->
+            <Transform3DGroup x:Key="Space0Transform">
+                <ScaleTransform3D ScaleX="135" ScaleY="151" ScaleZ="1.0" />
+                <TranslateTransform3D OffsetX="{r:Calc 320+245}" OffsetY="{r:Calc (10/2+151/2)}" />
+            </Transform3DGroup>
         </ResourceDictionary>
     </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="0.01*" />
-            <RowDefinition Height="1.00*" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <Menu>
@@ -37,57 +60,48 @@
                                                      RelativeSource={RelativeSource Self}}"/>
             </MenuItem>
         </Menu>
-        
-        <r:VisualBackground Grid.Row="1" Grid.RowSpan="2"
-                            Viewport="0,0,640,480"
-                            x:Name="visualBackground" />
 
-        <Viewbox Grid.Row="2"
-                 Stretch="Fill">
-            <Grid Width="600" Height="360">
-                <Grid>
-                    <!-- 5 120 5 340 5 120 5 -->
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="5*" />
-                        <RowDefinition Height="174*" />
-                        <RowDefinition Height="2*" />
-                        <RowDefinition Height="174*" />
-                        <RowDefinition Height="5*" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="5*" />
-                        <ColumnDefinition Width="120*" />
-                        <ColumnDefinition Width="350*" />
-                        <ColumnDefinition Width="120*" />
-                        <ColumnDefinition Width="5*" />
-                    </Grid.ColumnDefinitions>
+        <Viewbox Grid.Row="1" Stretch="Fill">
+            <Viewport3D Width="640" Height="360"
+                        RenderOptions.EdgeMode="Unspecified">
+                <Viewport3D.Camera>
+                    <OrthographicCamera
+                            Width="640"
+                            LookDirection="0,0,1"
+                            Position="320,180,-500"
+                            UpDirection="0.000000,-1.000000,0.000000"
+                            NearPlaneDistance="1" FarPlaneDistance="1000" />
+                </Viewport3D.Camera>
 
-                    <!-- 評価値 -->                
-                    <Viewbox Grid.Row="1" Grid.RowSpan="2" Grid.Column="3"
-                             Stretch="Uniform"
-                             VerticalAlignment="Top">
-                        <r:EvaluationControl ImageSetList="{r:ImageSetList ShogiData/Evaluation}"
-                                             PointType="User"
-                                             UserPoint="{Binding EvaluationValue,
-                                                                 Converter={StaticResource toDecimalConverter}}" />
-                    </Viewbox>
-                </Grid>
+                <r:BackgroundUIElement3D x:Name="visualBackground" />
+
+                <ModelUIElement3D IsHitTestVisible="False">
+                    <Model3DGroup>
+                        <AmbientLight Color="White" />
+
+                        <!-- 評価値 -->
+                        <GeometryModel3D Geometry="{StaticResource squareMesh}"
+                                         Transform="{StaticResource Space0Transform}"
+                                         Material="{StaticResource evaluationControlMaterial}">
+                        </GeometryModel3D>
+                    </Model3DGroup>
+                </ModelUIElement3D>
 
                 <!-- 将棋盤 -->
-                <r:ShogiControl x:Name="ShogiControl"
-                                x:FieldModifier="public"
-                                EditMode="NoEdit"
-                                EffectManager="{Binding EffectManager, ElementName=shogi}"
-                                Board="{Binding Board}"
-                                ViewSide="{Binding MyTurn}"
-                                BlackPlayerName="{Binding BlackPlayerName}"
-                                WhitePlayerName="{Binding WhitePlayerName}"
-                                BlackLeaveTime="{Binding BlackLeaveTime}"
-                                WhiteLeaveTime="{Binding WhiteLeaveTime}"
-                                PieceImage="{StaticResource pieceImage}"
-                                BanBrush="{StaticResource banBrush}"
-                                PieceBoxBrush="{StaticResource komadaiBrush}" />
-            </Grid>
+                <r:ShogiUIElement3D x:Name="ShogiControl"
+                                    x:FieldModifier="public"
+                                    EditMode="NoEdit"
+                                    EffectManager="{Binding EffectManager, ElementName=shogi}"
+                                    Board="{Binding Board}"
+                                    ViewSide="{Binding MyTurn}"
+                                    BlackPlayerName="{Binding BlackPlayerName}"
+                                    WhitePlayerName="{Binding WhitePlayerName}"
+                                    BlackLeaveTime="{Binding BlackLeaveTime}"
+                                    WhiteLeaveTime="{Binding WhiteLeaveTime}"
+                                    PieceImage="{StaticResource pieceImage}"
+                                    BanBrush="{StaticResource banBrush}"
+                                    PieceBoxBrush="{StaticResource komadaiBrush}" />
+            </Viewport3D>
         </Viewbox>
     </Grid>
 </Window>

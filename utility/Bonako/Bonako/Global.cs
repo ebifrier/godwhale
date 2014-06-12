@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using Ragnarok;
 using Ragnarok.Presentation;
 using Ragnarok.Presentation.Update;
-using Ragnarok.Presentation.Shogi.Effects;
+using Ragnarok.Presentation.Extra.Effect;
 using Ragnarok.Presentation.Shogi.View;
 using Ragnarok.Shogi.Bonanza;
 
@@ -141,7 +141,7 @@ namespace Bonako
         /// <summary>
         /// 将棋用のコントロールを取得します。
         /// </summary>
-        internal static ShogiControl ShogiControl
+        internal static ShogiUIElement3D ShogiControl
         {
             get
             {

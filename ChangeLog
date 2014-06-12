@@ -1,3 +1,10 @@
+2014-06-13  - Ver 2.4.5.4
+
+	* utility/Bonako/Bonako/Bonako.csproj: Ragnarok.Presentation.Extraを追
+	加しました。
+	* utility/Bonako/Bonako/View/ShogiWindow.xaml: 将棋盤のコントロールを
+	UIElement3Dベースのものに変更しました。
+
 2014-06-13  - Ver 2.4.5.3
 
 	* utility/Bonako/Bonako/ViewModel/EffectContext.cs,
