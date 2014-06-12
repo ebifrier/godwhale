@@ -12,9 +12,9 @@ using Ragnarok;
 using Ragnarok.Shogi;
 using Ragnarok.ObjectModel;
 using Ragnarok.Presentation;
-using Ragnarok.Presentation.VisualObject.Control;
+using Ragnarok.Presentation.Extra.Effect;
+using Ragnarok.Presentation.Extra.Element;
 using Ragnarok.Presentation.Shogi;
-using Ragnarok.Presentation.Shogi.Effects;
 using Ragnarok.Presentation.Shogi.View;
 
 namespace Bonako.ViewModel
@@ -85,7 +85,7 @@ namespace Bonako.ViewModel
         /// <summary>
         /// エフェクトを表示するオブジェクトを取得または設定します。
         /// </summary>
-        public ShogiControl Container
+        public ShogiUIElement3D Container
         {
             get;
             set;
@@ -94,7 +94,7 @@ namespace Bonako.ViewModel
         /// <summary>
         /// 背景エフェクトを表示するコントロールを取得または設定します。
         /// </summary>
-        public VisualBackground Background
+        public BackgroundUIElement3D Background
         {
             get;
             set;
@@ -171,10 +171,10 @@ namespace Bonako.ViewModel
         /// 通常のデータコンテキストを作成します。
         /// </summary>
         private EffectContext CreateContext(
-            Position position,
-            double z = ShogiControl.EffectZ)
+            Square square,
+            double z = ShogiUIElement3D.EffectZ)
         {
-            var p = Container.GetPiecePos(position);
+            var p = Container.GetPiecePos(square);
             var s = Container.CellSize;
 
             return new EffectContext()
@@ -188,38 +188,38 @@ namespace Bonako.ViewModel
         /// セルエフェクトのコンテキストを作成します。
         /// </summary>
         private CellEffectContext CreateCellContext(
-            Position position,
-            Position cellPosition = null,
-            double z = ShogiControl.BanEffectZ)
+            Square square,
+            Square cellSquare = null,
+            double z = ShogiUIElement3D.BanEffectZ)
         {
-            return CreateCellContext(new[] { position }, cellPosition, z);
+            return CreateCellContext(new[] { square }, cellSquare, z);
         }
 
         /// <summary>
         /// セルエフェクトのコンテキストを作成します。
         /// </summary>
         private CellEffectContext CreateCellContext(
-            IEnumerable<Position> positions,
-            Position cellPosition = null,
-            double z = ShogiControl.BanEffectZ)
+            IEnumerable<Square> squares,
+            Square cellSquare = null,
+            double z = ShogiUIElement3D.BanEffectZ)
         {
             var bp = Container.BanBounds.TopLeft;
             var bs = Container.BanBounds.Size;
             var s = Container.CellSize;
 
-            var flipPosition =
-                (cellPosition == null || Container.ViewSide == BWType.Black
-                ? cellPosition
-                : cellPosition.Flip());
-            var flipPositions =
-                (positions == null || Container.ViewSide == BWType.Black
-                ? positions
-                : positions.Where(_ => _ != null).Select(_ => _.Flip()));
+            var flipSquare =
+                (cellSquare == null || Container.ViewSide == BWType.Black
+                ? cellSquare
+                : cellSquare.Flip());
+            var flipSquares =
+                (squares == null || Container.ViewSide == BWType.Black
+                ? squares
+                : squares.Where(_ => _ != null).Select(_ => _.Flip()));
 
             return new CellEffectContext()
             {
-                CellPosition = flipPosition,
-                CellPositions = flipPositions.ToArray(),
+                CellSquare = flipSquare,
+                CellSquares = flipSquares.ToArray(),
                 BanCoord = new Vector3D(bp.X, bp.Y, z),
                 BanScale = new Vector3D(bs.Width, bs.Height, 1.0),
                 BaseScale = new Vector3D(s.Width, s.Height, 1.0),
@@ -247,7 +247,7 @@ namespace Bonako.ViewModel
             var board = (Container != null ? Container.Board : null);
             if (board != null && board.LastMove != null)
             {
-                var position = board.LastMove.NewPosition;
+                var position = board.LastMove.DstSquare;
 
                 var cell = EffectTable.PrevMovedCell.LoadEffect();
                 if (cell != null)
@@ -263,7 +263,7 @@ namespace Bonako.ViewModel
         /// <summary>
         /// 駒を動かせる位置を光らせます。
         /// </summary>
-        private void UpdateMovableCell(Position position, BoardPiece piece)
+        private void UpdateMovableCell(Square square, Piece piece)
         {
             if (this.movableCell != null)
             {
@@ -283,26 +283,26 @@ namespace Bonako.ViewModel
             }
 
             // 移動可能もしくは駒打ち可能な全マスを取得します。
-            var isMove = (position != null);
-            var movePositions =
+            var isMove = (square != null);
+            var moveSquares =
                 from file in Enumerable.Range(1, Board.BoardSize)
                 from rank in Enumerable.Range(1, Board.BoardSize)
                 let move = new BoardMove()
                 {
-                    OldPosition = position,
-                    NewPosition = new Position(file, rank),
+                    DstSquare = square,
+                    SrcSquare = new Square(file, rank),
                     BWType = piece.BWType,
                     ActionType = (isMove ? ActionType.None : ActionType.Drop),
                     DropPieceType = (isMove ? PieceType.None : piece.PieceType),
                 }
                 where board.CanMove(move)
-                select move.NewPosition;
+                select move.DstSquare;
 
             // 移動可能なマスにエフェクトをかけます。
             var movableCell = EffectTable.MovableCell.LoadEffect();
             if (movableCell != null)
             {
-                movableCell.DataContext = CreateCellContext(movePositions, position);
+                movableCell.DataContext = CreateCellContext(moveSquares, square);
 
                 Container.AddBanEffect(movableCell);
                 this.movableCell = movableCell;
@@ -340,7 +340,7 @@ namespace Bonako.ViewModel
                     teban = teban.Toggle();
                 }
 
-                tebanCell.DataContext = CreateCellContext((Position)null)
+                tebanCell.DataContext = CreateCellContext((Square)null)
                     .Apply(_ => _.BWType = teban);
 
                 Container.AddBanEffect(tebanCell);
@@ -427,7 +427,7 @@ namespace Bonako.ViewModel
         /// <summary>
         /// エフェクトを追加します。
         /// </summary>
-        private void AddEffect(EffectObject effect, Position position)
+        private void AddEffect(EffectObject effect, Square square)
         {
             if (effect == null)
             {
@@ -449,7 +449,7 @@ namespace Bonako.ViewModel
 
             WPFUtil.UIProcess(() =>
             {
-                effect.DataContext = CreateContext(position);
+                effect.DataContext = CreateContext(square);
 
                 Container.AddEffect(effect);
             });
@@ -458,11 +458,11 @@ namespace Bonako.ViewModel
         /// <summary>
         /// エフェクトを追加します。
         /// </summary>
-        private void AddEffect(EffectInfo effectInfo, Position position)
+        private void AddEffect(EffectInfo effectInfo, Square square)
         {
             var effect = effectInfo.LoadEffect();
 
-            AddEffect(effect, position);
+            AddEffect(effect, square);
         }
 
         /// <summary>
@@ -476,7 +476,7 @@ namespace Bonako.ViewModel
         /// <summary>
         /// 駒を動かしたときのエフェクトです。
         /// </summary>
-        private void AddMoveEffect(Position position, BoardMove move)
+        private void AddMoveEffect(Square square, BoardMove move)
         {
             var table = new Dictionary<string, object>
             {
@@ -484,16 +484,16 @@ namespace Bonako.ViewModel
             };
 
             var effect = EffectTable.PieceMove.LoadEffect(table);
-            AddEffect(effect, position);
+            AddEffect(effect, square);
         }
 
         /// <summary>
         /// 駒取りエフェクトです。
         /// </summary>
-        private void AddTookEffect(Position position, BoardPiece tookPiece)
+        private void AddTookEffect(Square square, Piece tookPiece)
         {
             var bwType = tookPiece.BWType.Toggle();
-            var bp = Container.GetPiecePos(position);
+            var bp = Container.GetPiecePos(square);
             var ep = Container.GetCapturedPiecePos(bwType, tookPiece.PieceType);
             var d = Vector3D.Subtract(ep, bp);
             var rad = Math.Atan2(d.Y, d.X) + Math.PI;
@@ -506,7 +506,7 @@ namespace Bonako.ViewModel
             };
 
             var effect = EffectTable.PieceTook.LoadEffect(table);
-            AddEffect(effect, position);
+            AddEffect(effect, square);
         }
         #endregion
 
@@ -545,14 +545,14 @@ namespace Bonako.ViewModel
         /// <summary>
         /// 駒の移動を開始したときに呼ばれます。
         /// </summary>
-        void IEffectManager.BeginMove(Position position, BoardPiece piece)
+        void IEffectManager.BeginMove(Square square, Piece piece)
         {
             if (Container == null)
             {
                 return;
             }
 
-            UpdateMovableCell(position, piece);
+            UpdateMovableCell(square, piece);
         }
 
         /// <summary>
@@ -571,22 +571,22 @@ namespace Bonako.ViewModel
         /// <summary>
         /// 玉の位置を取得します。
         /// </summary>
-        private Position FindGyoku(Board board, BWType bwType)
+        private Square FindGyoku(Board board, BWType bwType)
         {
-            var positions =
+            var squares =
                 from file in Enumerable.Range(1, Board.BoardSize)
                 from rank in Enumerable.Range(1, Board.BoardSize)
                 let piece = board[file, rank]
                 where piece != null &&
                       piece.PieceType == PieceType.Gyoku &&
                       piece.BWType == bwType
-                select new Position(file, rank);
-            if (positions.Count() != 1)
+                select new Square(file, rank);
+            if (squares.Count() != 1)
             {
                 return null;
             }
 
-            return positions.FirstOrDefault();
+            return squares.FirstOrDefault();
         }
 
         /// <summary>
@@ -637,10 +637,10 @@ namespace Bonako.ViewModel
             // アンドゥ時
             if (isUndo)
             {
-                if (move.OldPosition != null &&
+                if (move.SrcSquare != null &&
                     HasEffectFlag(EffectFlag.Piece))
                 {
-                    AddMoveEffect(move.OldPosition, move);
+                    AddMoveEffect(move.SrcSquare, move);
                 }
 
                 UpdateTeban(move.BWType);
@@ -653,19 +653,19 @@ namespace Bonako.ViewModel
             {
                 if (move.TookPiece != null)
                 {
-                    AddTookEffect(move.NewPosition, move.TookPiece);
+                    AddTookEffect(move.DstSquare, move.TookPiece);
                 }
 
                 if (move.ActionType == ActionType.Drop)
                 {
-                    AddEffect(EffectTable.PieceDrop, move.NewPosition);
+                    AddEffect(EffectTable.PieceDrop, move.DstSquare);
                 }
                 else if (move.ActionType == ActionType.Promote)
                 {
-                    AddEffect(EffectTable.Promote, move.NewPosition);
+                    AddEffect(EffectTable.Promote, move.DstSquare);
                 }
 
-                AddMoveEffect(move.NewPosition, move);
+                AddMoveEffect(move.DstSquare, move);
             }
         }
         #endregion

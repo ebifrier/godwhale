@@ -12,8 +12,7 @@ using System.Windows.Media.Media3D;
 using System.Xml;
 
 using Ragnarok.Shogi;
-using Ragnarok.Presentation.Shogi;
-using Ragnarok.Presentation.Shogi.Effects;
+using Ragnarok.Presentation.Extra.Effect;
 
 namespace Bonako.ViewModel
 {

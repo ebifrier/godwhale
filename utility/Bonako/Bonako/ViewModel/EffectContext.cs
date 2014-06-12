@@ -70,7 +70,7 @@ namespace Bonako.ViewModel
         /// <summary>
         /// 中心のマスの位置を取得または設定します。
         /// </summary>
-        public Position CellPosition
+        public Square CellSquare
         {
             get;
             set;
@@ -79,7 +79,7 @@ namespace Bonako.ViewModel
         /// <summary>
         /// 各マスの位置を取得または設定します。
         /// </summary>
-        public Position[] CellPositions
+        public Square[] CellSquares
         {
             get;
             set;

@@ -1,3 +1,9 @@
+2014-06-13  - Ver 2.4.5.3
+
+	* utility/Bonako/Bonako/ViewModel/EffectContext.cs,
+	  utility/Bonako/Bonako/ViewModel/EffectManager.cs: 型名をPositionから 
+	Squareに修正しました。
+
 2014-06-13  - Ver 2.4.5.2
 
 	* utility/Bonako/Bonako/ShogiData/Background: 画面の想定解像度を変更し
