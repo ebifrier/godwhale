@@ -1,3 +1,8 @@
+2014-06-14  - Ver 2.4.5.6
+
+	* utility/Bonako/Bonako/ShogiData: プロパティ名などを修正しました。また、
+	一部のエフェクトをDiffuseからEmissiveに変更しました。
+
 2014-06-13  - Ver 2.4.5.5
 
 	* src/common/bonanza6/shogi.h: 最大スレッド数を12から32に引き上げました

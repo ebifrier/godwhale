@@ -10,7 +10,7 @@
                         Color="Purple"
                         Duration="Forever"
                         BaseScale="{r:Binding BaseScale}"
-                        Mesh="{r:Binding CellPosition,
+                        Mesh="{r:Binding CellSquare,
                                          Converter={StaticResource cellMeshConv}}">
             <r:EffectObject.Scenario>
                 <r:Scenario>

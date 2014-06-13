@@ -10,7 +10,7 @@
                     Opacity="0.3"
                     Coord="{r:Binding BanCoord}"
                     BaseScale="{r:Binding BaseScale}"
-                    Mesh="{r:Binding CellPositions,
+                    Mesh="{r:Binding CellSquares,
                                      Converter={StaticResource cellMeshConv}}">
         <!--<r:EffectObject.Scenario>
             <r:Scenario>

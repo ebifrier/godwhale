@@ -50,7 +50,7 @@
                     <f:Steady RateMin="0.7" RateMax="1.3" />
                 </f:Emitter.Counter>
                 <f:Emitter.Initializers>
-                    <f:SharedImage ImageUri="../Image/Cloud.png" MaterialType="Diffuse" />
+                    <f:SharedImage ImageUri="../Image/Cloud.png" MaterialType="Emissive" />
                     <f:Position Zone="{StaticResource positionCloudZone}" />
                     <f:Velocity Zone="{StaticResource speedCloudZone}" />
                     <f:AlphaInit MinAlpha="0.3" MaxAlpha="0.4" />
