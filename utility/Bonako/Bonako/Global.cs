@@ -8,6 +8,7 @@ using Ragnarok;
 using Ragnarok.Presentation;
 using Ragnarok.Presentation.Update;
 using Ragnarok.Presentation.Extra.Effect;
+using Ragnarok.Presentation.Shogi;
 using Ragnarok.Presentation.Shogi.View;
 using Ragnarok.Shogi.Bonanza;
 
@@ -164,8 +165,7 @@ namespace Bonako
                 return;
             }
 
-            WPFUtil.Init();
-            FlintSharp.Utils.ScreenSize = new Size(640, 480);
+            ShogiInitializer.Initialize();
 
             Settings = Settings.CreateSettings<Settings>();
             MainViewModel = new ViewModel.MainViewModel();

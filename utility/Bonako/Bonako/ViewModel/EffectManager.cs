@@ -606,13 +606,13 @@ namespace Bonako.ViewModel
             }
 
             // 投了時は玉の位置にエフェクトをかけます。
-            var position = FindGyoku(board, board.Turn);
-            if (position == null)
+            var square = FindGyoku(board, board.Turn);
+            if (square == null)
             {
                 return;
             }
 
-            AddEffect(EffectTable.Win, position);
+            AddEffect(EffectTable.Win, square);
         }
 
         /// <summary>

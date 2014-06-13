@@ -113,7 +113,7 @@ namespace Bonako
                     model.ThreadNum,
                     model.HashMemSize,
                     -1,
-                    !Global.IsPublished);
+                    true); //!Global.IsPublished);
             }
             catch (Exception ex)
             {
@@ -125,15 +125,16 @@ namespace Bonako
         /// <summary>
         /// 並列化サーバーへの接続コマンドが実行可能か調べます。
         /// </summary>
-        private static bool CanExecuteConnect()
+        private static void CanExecuteConnect(object sender, CanExecuteRelayEventArgs e)
         {
             var bonanza = Global.Bonanza;
             if (bonanza == null)
             {
-                return false;
+                e.CanExecute = false;
+                return;
             }
 
-            return (!bonanza.IsConnected && bonanza.AbortedReason == null);
+            e.CanExecute = (!bonanza.IsConnected && bonanza.AbortedReason == null);
         }
         #endregion
     }
