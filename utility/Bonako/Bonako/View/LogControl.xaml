@@ -41,12 +41,12 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <TextBox Grid.Row="0" Grid.Column="0"
+                <!--<TextBox Grid.Row="0" Grid.Column="0"
                          x:Name="bonanzaWriteTextBox" />
                 <Button Grid.Row="0" Grid.Column="1"
                         Content="コマンド送信"
                         Command="{x:Static l:Commands.WriteBonanza}"
-                        CommandParameter="{Binding Text, ElementName=bonanzaWriteTextBox}" />
+                        CommandParameter="{Binding Text, ElementName=bonanzaWriteTextBox}" />-->
 
                 <ListBox Grid.Row="1" Grid.ColumnSpan="2"
                          ScrollViewer.VerticalScrollBarVisibility="Auto"

@@ -1,3 +1,10 @@
+2014-06-14  - Ver 2.4.5.7
+
+	* utility/Bonako/Bonako/View/StarWidthConverter.cs: 不要なファイルを削
+	除しました。
+	* utility/Bonako/Bonako/View/MainControl.xaml: 不要なコンバータを削除し
+	ました。
+
 2014-06-14  - Ver 2.4.5.6
 
 	* utility/Bonako/Bonako/ShogiData: プロパティ名などを修正しました。また、

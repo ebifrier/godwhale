@@ -72,7 +72,6 @@
     <Compile Include="View\ShogiWindow.xaml.cs">
       <DependentUpon>ShogiWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\StarWidthConverter.cs" />
     <Content Include="client.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

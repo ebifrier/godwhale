@@ -10,8 +10,6 @@
              d:DesignHeight="297" d:DesignWidth="347">
     <UserControl.Resources>
         <ResourceDictionary>
-            <v:StarWidthConverter x:Key="starWidthConverter" />
-
             <Style x:Key="headerStyle" TargetType="GridViewColumnHeader">
                 <Setter Property="HorizontalContentAlignment" Value="Left" />
             </Style>
