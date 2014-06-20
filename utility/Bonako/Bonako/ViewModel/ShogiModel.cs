@@ -514,7 +514,7 @@ namespace Bonako.ViewModel
             var color = variation.MoveList[i].Side;
             while (--i >= 0)
             {
-                color = color.Toggle();
+                color = color.Flip();
                 variation.MoveList[i].Side = color;
             }
         }
