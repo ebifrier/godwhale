@@ -165,7 +165,8 @@ namespace Bonako
                 return;
             }
 
-            ShogiInitializer.Initialize();
+            ShogiInitializer.Initialize(
+                System.Reflection.Assembly.GetEntryAssembly());
 
             Settings = Settings.CreateSettings<Settings>();
             MainViewModel = new ViewModel.MainViewModel();

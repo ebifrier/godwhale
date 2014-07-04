@@ -263,7 +263,7 @@ namespace Bonako.ViewModel
         /// <summary>
         /// 駒を動かせる位置を光らせます。
         /// </summary>
-        private void UpdateMovableCell(Square square, BoardPiece piece)
+        private void UpdateMovableCell(Square square, Piece piece)
         {
             if (this.movableCell != null)
             {
@@ -292,12 +292,11 @@ namespace Bonako.ViewModel
                     DstSquare = square,
                     SrcSquare = new Square(file, rank),
                     BWType = piece.BWType,
+                    ActionType = (isMove ? ActionType.None : ActionType.Drop),
                     DropPieceType = (isMove ? PieceType.None : piece.PieceType),
                 }
-                let move2 = (Board.IsPromoteForce(move) ?
-                    move.Apply(_ => _.IsPromote = true) : move)
-                where board.CanMove(move2)
-                select move2.DstSquare;
+                where board.CanMove(move)
+                select move.DstSquare;
 
             // 移動可能なマスにエフェクトをかけます。
             var movableCell = EffectTable.MovableCell.LoadEffect();
@@ -338,7 +337,7 @@ namespace Bonako.ViewModel
             {
                 if (Container.ViewSide != BWType.Black)
                 {
-                    teban = teban.Flip();
+                    teban = teban.Toggle();
                 }
 
                 tebanCell.DataContext = CreateCellContext((Square)null)
@@ -491,10 +490,11 @@ namespace Bonako.ViewModel
         /// <summary>
         /// 駒取りエフェクトです。
         /// </summary>
-        private void AddTookEffect(Square square, Piece tookPiece, BWType bwType)
+        private void AddTookEffect(Square square, Piece tookPiece)
         {
+            var bwType = tookPiece.BWType.Toggle();
             var bp = Container.GetPiecePos(square);
-            var ep = Container.GetCapturedPiecePos(tookPiece.PieceType, bwType);
+            var ep = Container.GetCapturedPiecePos(bwType, tookPiece.PieceType);
             var d = Vector3D.Subtract(ep, bp);
             var rad = Math.Atan2(d.Y, d.X) + Math.PI;
 
@@ -545,7 +545,7 @@ namespace Bonako.ViewModel
         /// <summary>
         /// 駒の移動を開始したときに呼ばれます。
         /// </summary>
-        void IEffectManager.BeginMove(Square square, BoardPiece piece)
+        void IEffectManager.BeginMove(Square square, Piece piece)
         {
             if (Container == null)
             {
@@ -647,13 +647,13 @@ namespace Bonako.ViewModel
                 return;
             }
 
-            UpdateTeban(move.BWType.Flip());
+            UpdateTeban(move.BWType.Toggle());
 
             if (HasEffectFlag(EffectFlag.Piece))
             {
                 if (move.TookPiece != null)
                 {
-                    AddTookEffect(move.DstSquare, move.TookPiece, move.BWType);
+                    AddTookEffect(move.DstSquare, move.TookPiece);
                 }
 
                 if (move.ActionType == ActionType.Drop)

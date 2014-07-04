@@ -1,0 +1,7 @@
+build/visualc10/client/Debug/
+build/visualc10/client/Release/
+build/visualc10/server/Debug/
+build/visualc10/server/Release/
+utility/Bonako/Bonako.DFPN/obj/
+utility/Bonako/Bonako/dist/Bonako_
+utility/Bonako/Bonako/dist/Bonako_*/

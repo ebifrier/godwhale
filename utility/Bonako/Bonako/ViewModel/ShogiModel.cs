@@ -443,6 +443,8 @@ namespace Bonako.ViewModel
         private void PlayVariation(VariationInfo variation,
                                    IEnumerable<BoardMove> bmoveList)
         {
+            if (true) return;
+
             var shogi = Global.ShogiControl;
             if (shogi == null || shogi.AutoPlayState == AutoPlayState.Playing)
             {
@@ -514,7 +516,7 @@ namespace Bonako.ViewModel
             var color = variation.MoveList[i].Side;
             while (--i >= 0)
             {
-                color = color.Flip();
+                color = color.Toggle();
                 variation.MoveList[i].Side = color;
             }
         }
