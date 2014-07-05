@@ -1,29 +1,29 @@
-# README #
+# 大合神クジラちゃん #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+これは大合神クジラちゃんという将棋ソフトのリポジトリです。
+このソフトは以下の特徴を持っています。
 
-### What is this repository for? ###
+* ボランティアクラスタ（＝各パソコンで指し手を計算）を採用しています。
+* 局面を表示するGUIを付属しています。
+* 読売新聞に記事が載りました。
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+### サーバーのコンパイルと実行方法 ###
 
-### How do I get set up? ###
++ cd src/server
++ make
++ ./godwhale < param.txt
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+対局時間などの必要な設定はparam.txtから行ってください。
 
-### Contribution guidelines ###
+### クライアントのコンパイルと実行方法 ###
 
-* Writing tests
-* Code review
-* Other guidelines
++ cd src/client
++ make
++ ./one_godwhale < param.txt
+ 
+スレッド数などの設定はparam.txtから行ってください。
 
-### Who do I talk to? ###
+### ライセンス ###
 
-* Repo owner or admin
-* Other community or team contact
+* ボナンザ部分(src/common/bonanza6以下)に関しては、商業利用不可のボナンザライセンスを適用します。
+* それ以外のソース、素材についてはGPL v3.0を適用します。
