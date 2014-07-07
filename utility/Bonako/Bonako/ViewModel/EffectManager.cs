@@ -285,14 +285,14 @@ namespace Bonako.ViewModel
             // 移動可能もしくは駒打ち可能な全マスを取得します。
             var isMove = (square != null);
             var moveSquares =
-                from file in Enumerable.Range(1, Board.BoardSize)
-                from rank in Enumerable.Range(1, Board.BoardSize)
+                from sq in Board.AllSquares()
                 let move = new BoardMove()
                 {
                     DstSquare = square,
-                    SrcSquare = new Square(file, rank),
-                    BWType = piece.BWType,
+                    SrcSquare = sq,
+                    MovePiece = (isMove ? piece.Piece : null),
                     DropPieceType = (isMove ? PieceType.None : piece.PieceType),
+                    BWType = piece.BWType,
                 }
                 let move2 = (Board.IsPromoteForce(move) ?
                     move.Apply(_ => _.IsPromote = true) : move)

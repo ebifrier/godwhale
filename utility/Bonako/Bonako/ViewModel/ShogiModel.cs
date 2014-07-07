@@ -443,6 +443,8 @@ namespace Bonako.ViewModel
         private void PlayVariation(VariationInfo variation,
                                    IEnumerable<BoardMove> bmoveList)
         {
+            if (true) return;
+
             var shogi = Global.ShogiControl;
             if (shogi == null || shogi.AutoPlayState == AutoPlayState.Playing)
             {
