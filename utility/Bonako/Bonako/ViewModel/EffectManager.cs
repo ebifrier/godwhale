@@ -174,7 +174,7 @@ namespace Bonako.ViewModel
             Square square,
             double z = ShogiUIElement3D.EffectZ)
         {
-            var p = Container.GetPiecePos(square);
+            var p = Container.SquareToPoint(square);
             var s = Container.CellSize;
 
             return new EffectContext()
@@ -493,8 +493,8 @@ namespace Bonako.ViewModel
         /// </summary>
         private void AddTookEffect(Square square, Piece tookPiece, BWType bwType)
         {
-            var bp = Container.GetPiecePos(square);
-            var ep = Container.GetCapturedPiecePos(tookPiece.PieceType, bwType);
+            var bp = Container.SquareToPoint(square);
+            var ep = Container.CapturedPieceToPoint(tookPiece.PieceType, bwType);
             var d = Vector3D.Subtract(ep, bp);
             var rad = Math.Atan2(d.Y, d.X) + Math.PI;
 

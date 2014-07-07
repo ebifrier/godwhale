@@ -100,7 +100,7 @@
                                     WhiteLeaveTime="{Binding WhiteLeaveTime}"
                                     PieceImage="{StaticResource pieceImage}"
                                     BanBrush="{StaticResource banBrush}"
-                                    PieceBoxBrush="{StaticResource komadaiBrush}" />
+                                    CapturedPieceBoxBrush="{StaticResource komadaiBrush}" />
             </Viewport3D>
         </Viewbox>
     </Grid>
