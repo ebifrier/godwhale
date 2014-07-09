@@ -25,15 +25,15 @@
 
 ### クライアントGUIのビルド方法 ###
 
-1. Ragnarokライブラリ(https://github.com/ebifrier/Ragnarok)をダウンロード
+1. Ragnarok(<https://github.com/ebifrier/Ragnarok>)をダウンロード
 2. godwhaleとRangarokを同じディレクトリに配置
 3. godwhale/utility/Bonako/Bonako.sln をビルド
 
 ### ライセンス ###
 
 * ボナンザ部分(src/common/bonanza6以下)に関しては、商業利用不可のボナンザライセンスを適用します。
-* それ以外のソース、素材についてはGPL v3.0を適用します。
+* それ以外のソースについてはGPL v3.0を適用します。
 
 ### 謝辞 ###
 
-* ボナンザには非常にお世話になっております。作者の保木氏には感謝致します。
+* 内部で使っている将棋ソフトのBonanzaには大変お世話になっております。作者の保木氏に深く感謝致します。
