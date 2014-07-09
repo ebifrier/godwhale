@@ -7,7 +7,7 @@
 * 局面を表示するGUIを付属しています。
 * 読売新聞に記事が載りました。
 
-### サーバーのコンパイルと実行方法 ###
+### サーバーのビルドと実行方法 ###
 
 1. cd src/server
 2. make
@@ -15,13 +15,19 @@
 
 対局時間などの必要な設定はparam.txtから行ってください。
 
-### クライアントのコンパイルと実行方法 ###
+### クライアントのビルドと実行方法 ###
 
 1. cd src/client
 2. make
 3. ./one_godwhale < param.txt
  
 スレッド数などの設定はparam.txtから行ってください。
+
+### クライアントGUIのビルド方法 ###
+
+1. Ragnarokライブラリ(https://github.com/ebifrier/Ragnarok)をダウンロード
+2. godwhaleとRangarokを同じディレクトリに配置
+3. godwhale/utility/Bonako/Bonako.sln をビルド
 
 ### ライセンス ###
 
