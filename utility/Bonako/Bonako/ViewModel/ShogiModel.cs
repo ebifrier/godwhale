@@ -218,27 +218,26 @@ namespace Bonako.ViewModel
         /// <summary>
         /// 現局面の指し手を進めます。
         /// </summary>
-        public void DoMove(CsaMove csaMove, int seconds)
+        public void DoMove(BoardMove bmove, int seconds)
         {
             var prevCurrentBoard = CurrentBoard.Clone();
 
             // 符号は設定されていないことがあります。
-            csaMove.Side = CurrentBoard.Turn;
+            //csaMove.Side = CurrentBoard.Turn;
 
-            var bmove = CurrentBoard.ConvertCsaMove(csaMove);
+            /*var bmove = CurrentBoard.ConvertCsaMove(csaMove);
             if (bmove == null || !bmove.Validate())
             {
                 Log.Error("{0}手目 {1}を変換できませんでした。",
                     CurrentBoard.MoveCount,
                     csaMove.ToPersonalString());
                 return;
-            }
+            }*/
 
             if (!CurrentBoard.DoMove(bmove))
             {
                 Log.Error("{0}手目 {1}を指せませんでした。",
-                    CurrentBoard.MoveCount,
-                    csaMove.ToPersonalString());
+                    CurrentBoard.MoveCount, bmove);
                 return;
             }
 
@@ -252,7 +251,7 @@ namespace Bonako.ViewModel
                 // 実際に指した手と一致する変化は残します。
                 var list = VariationList
                     .Where(_ => _.MoveList.Count() >= 2)
-                    .Where(_ => csaMove.Equals(_.MoveList[0]))
+                    .Where(_ => bmove.Equals(_.MoveList[0]))
                     .Select(_ =>
                         new VariationInfo
                         {
@@ -303,14 +302,8 @@ namespace Bonako.ViewModel
             var board = CurrentBoard.Clone();
             var bmoveList = new List<BoardMove>();
 
-            foreach (var csaMove in variation.MoveList)
+            foreach (var bmove in variation.MoveList)
             {
-                var bmove = board.ConvertCsaMove(csaMove);
-                if (bmove == null)
-                {
-                    break;
-                }
-
                 if (!board.DoMove(bmove))
                 {
                     break;
@@ -505,7 +498,7 @@ namespace Bonako.ViewModel
         private void SetMoveColor(VariationInfo variation)
         {
             var i = variation.MoveList.FindIndex(
-                _ => _.Side != BWType.None);
+                _ => _.BWType != BWType.None);
             if (i <= 0)
             {
                 // 符号が最初の指し手からついている場合や、
@@ -513,11 +506,11 @@ namespace Bonako.ViewModel
                 return;
             }
 
-            var color = variation.MoveList[i].Side;
+            var color = variation.MoveList[i].BWType;
             while (--i >= 0)
             {
                 color = color.Flip();
-                variation.MoveList[i].Side = color;
+                variation.MoveList[i].BWType = color;
             }
         }
 

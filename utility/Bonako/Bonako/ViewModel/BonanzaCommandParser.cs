@@ -61,13 +61,7 @@ namespace Bonako.ViewModel
                 // 初期局面から渡された手を進めます。
                 foreach (var str in moveTextList)
                 {
-                    var csaMove = CsaMove.Parse(str);
-                    if (csaMove == null)
-                    {
-                        break;
-                    }
-
-                    var bmove = board.ConvertCsaMove(csaMove);
+                    var bmove = board.CsaToMove(str);
                     if (bmove == null || !bmove.Validate())
                     {
                         break;
@@ -213,15 +207,15 @@ namespace Bonako.ViewModel
         /// </summary>
         private static void DoCsaMove(string moveText, string secondsText)
         {
-            var csaMove = CsaMove.Parse(moveText);
-            if (csaMove == null)
+            var move = Global.ShogiModel.CurrentBoard.CsaToMove(moveText);
+            if (move == null)
             {
                 Log.Error("{0}: 指し手ではありません。", moveText);
                 return;
             }
 
             var seconds = int.Parse(secondsText);
-            Global.ShogiModel.DoMove(csaMove, seconds);
+            Global.ShogiModel.DoMove(move, seconds);
         }
         #endregion
 
@@ -238,19 +232,22 @@ namespace Bonako.ViewModel
                 return false;
             }
 
-            var nodeCount = m.Groups[6].Success ?
-                long.Parse(m.Groups[6].Value) : 0;
-
-            // 後手番の時は評価値を反転します。
-            var sign = (Global.ShogiModel.MyTurn == BWType.Black ? +1 : -1);
+            // 変化を棋譜に変換します。
             var variation = VariationInfo.Create(
-                double.Parse(m.Groups[1].Value) * sign * 100,
-                m.Groups[4].Value,
-                nodeCount);
+                Global.ShogiModel.CurrentBoard,
+                m.Groups[4].Value);
             if (variation == null)
             {
                 return false;
             }
+
+            // 後手番の時は評価値を反転します。
+            var sign = (Global.ShogiModel.MyTurn == BWType.Black ? +1 : -1);
+            variation.Value = double.Parse(m.Groups[1].Value) * sign * 100;
+
+            // ノードカウント
+            variation.NodeCount = m.Groups[6].Success ?
+                long.Parse(m.Groups[6].Value) : 0;
 
             Global.ShogiModel.AddVariation(variation);
             return true;

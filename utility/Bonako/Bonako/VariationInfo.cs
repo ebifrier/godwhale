@@ -27,7 +27,7 @@ namespace Bonako
         /// <summary>
         /// 指し手のリストを取得または設定します。
         /// </summary>
-        public List<CsaMove> MoveList
+        public List<BoardMove> MoveList
         {
             get;
             set;
@@ -70,18 +70,18 @@ namespace Bonako
         /// <summary>
         /// info-6.01 -5142OU +5968OU -7162GI +8822UM -3122GI +7988GI
         /// </summary>
-        public static VariationInfo Create(double value, string moveStr, long nodeCount)
+        public static VariationInfo Create(Board board, string moveStr)
         {
             if (string.IsNullOrEmpty(moveStr))
             {
                 return null;
             }
 
-            var moveList = moveStr
+            var moveStrList = moveStr
                 .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
-                .Where(_ => !string.IsNullOrEmpty(_))
-                .Select(_ => CsaMove.Parse(_))
-                .Where(_ => _ != null)
+                .Where(_ => !string.IsNullOrEmpty(_));
+            var moveList = board
+                .CsaToMoveList(moveStrList)
                 .ToList();
             if (!moveList.Any())
             {
@@ -90,9 +90,7 @@ namespace Bonako
 
             return new VariationInfo()
             {
-                Value = value,
                 MoveList = moveList,
-                NodeCount = nodeCount,
             };
         }
     }
