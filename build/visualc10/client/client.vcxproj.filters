@@ -1,160 +1,160 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\common\bonanza6\attack.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\attack.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\valid.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\bbini.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\bitop.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\bitop.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\book.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\book.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\csa.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\csa.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\data.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\data.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\debug.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\debug.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\dfpn.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\dfpn.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\dfpnhash.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\dfpnhash.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\evaldiff.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\evaldiff.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\evaluate.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\evaluate.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\gencap.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\gencap.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\genchk.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\genchk.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\gendrop.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\gendrop.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\genevasn.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\genevasn.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\gennocap.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\gennocap.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\hash.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\hash.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\ini.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\ini.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\io.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\io.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\iterate.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\iterate.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\learn1.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\learn1.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\learn2.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\learn2.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\makemove.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\makemove.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\mate1ply.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\mate1ply.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\mate3.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\mate3.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\movgenex.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\movgenex.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\next.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\next.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\phash.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\phash.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\ponder.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\ponder.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\problem.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\problem.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\proce.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\proce.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\quiesrch.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\quiesrch.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\rand.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\rand.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\root.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\root.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\sckt.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\sckt.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\search.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\search.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\searchr.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\searchr.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\swap.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\swap.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\thread.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\thread.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\time.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\time.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\unmake.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\unmake.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\common\bonanza6\utility.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\utility.c">
+      <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\client\main.c" />
-    <ClCompile Include="..\..\..\src\common\bonanza6\bbini.c">
-      <Filter>common\bonanza6</Filter>
+    <ClCompile Include="..\..\..\src\bonanza6\valid.c">
+      <Filter>bonanza6</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\client\main.c">
+      <Filter>client</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="common">
-      <UniqueIdentifier>{ca9bec4e-c5db-4f66-949f-e9c51400c0fc}</UniqueIdentifier>
+    <Filter Include="bonanza6">
+      <UniqueIdentifier>{b165d43d-14f1-42b1-b944-becd35ab9bc9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="common\bonanza6">
-      <UniqueIdentifier>{2146cc52-138a-4022-8010-0067845db249}</UniqueIdentifier>
+    <Filter Include="client">
+      <UniqueIdentifier>{394aa323-6f9c-4a13-819a-fc7f4319d749}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\common\bonanza6\bitop.h">
-      <Filter>common\bonanza6</Filter>
+    <ClInclude Include="..\..\..\src\bonanza6\bitop.h">
+      <Filter>bonanza6</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\common\bonanza6\dfpn.h">
-      <Filter>common\bonanza6</Filter>
+    <ClInclude Include="..\..\..\src\bonanza6\dfpn.h">
+      <Filter>bonanza6</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\common\bonanza6\param.h">
-      <Filter>common\bonanza6</Filter>
+    <ClInclude Include="..\..\..\src\bonanza6\param.h">
+      <Filter>bonanza6</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\common\bonanza6\shogi.h">
-      <Filter>common\bonanza6</Filter>
+    <ClInclude Include="..\..\..\src\bonanza6\shogi.h">
+      <Filter>bonanza6</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\common\bonanza_if.h">
-      <Filter>common</Filter>
-    </ClInclude>
+    <ClInclude Include="..\..\..\src\bonanza_if.h" />
   </ItemGroup>
 </Project>

@@ -2,7 +2,7 @@
 #define GODWHALE_SERVER_STDINC_H
 
 #include "precomp.h"
-#include "../common/bonanza6/shogi.h"
+#include "../bonanza6/shogi.h"
 
 #define LOCK_IMPL(obj, lock, flag)       \
     if (bool flag = false) {} else       \

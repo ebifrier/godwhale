@@ -2,7 +2,7 @@
 #include "precomp.h"
 #include "stdinc.h"
 #include "server.h"
-#include "../common/bonanza_if.h"
+#include "../bonanza_if.h"
 
 using namespace godwhale::server;
 

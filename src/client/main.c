@@ -4,7 +4,7 @@
 #if defined(_WIN32)
 #  include <fcntl.h>
 #endif
-#include "../common/bonanza6/shogi.h"
+#include "../bonanza6/shogi.h"
 
 static int main_child( tree_t * restrict ptree );
 
