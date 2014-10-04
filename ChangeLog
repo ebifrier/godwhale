@@ -1,3 +1,10 @@
+2014-10-04  - Ver 2.4.7.3
+
+	* src/server/*: サーバー・クライアントに共通のファイルをsrcディレクトリ
+	に移動しました。
+	* src/position.cpp: BoardクラスをPositionクラスに改名しました。
+	* src/logger.cpp: ログ出力に時間などを出すようにしました。
+
 2014-09-28  - Ver 2.4.7.2
 
 	* src/bonanza6: src/common/bonanza6からディレクトリを移動しました。
