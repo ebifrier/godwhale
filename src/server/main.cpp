@@ -3,9 +3,14 @@
 #include "stdinc.h"
 #include "server.h"
 
+using namespace godwhale;
 using namespace godwhale::server;
 
 static int main_child( tree_t * restrict ptree );
+
+namespace godwhale { namespace server {
+extern void doRoot(tree_t *restrict ptree);
+}}
 
 int main(int argc, char *argv[])
 {
@@ -29,19 +34,21 @@ int main(int argc, char *argv[])
 
     if (ini(ptree) < 0)
     {
-        LOG(Error) << "failed ini(). (" << str_error << ")";
+        LOG_ERROR() << "failed ini(). (" << str_error << ")";
         return EXIT_SUCCESS;
     }
+
+    doRoot(ptree);
 
     for ( ; ; ) {
         iret = main_child(ptree);
         if (iret == -1) {
-            LOG(Error) << "failed main_child(). (" << str_error << ")";
+            LOG_ERROR() << "failed main_child(). (" << str_error << ")";
             ShutdownAll();
             break;
         }
         else if (iret == -2) {
-            LOG(Warning) << "warned main_child(). (" << str_error << ")";
+            LOG_WARNING() << "warned main_child(). (" << str_error << ")";
             ShutdownAll();
             continue;
         }
@@ -51,7 +58,7 @@ int main(int argc, char *argv[])
     }
 
     if (fin() < 0) {
-        LOG(Error) << "failed fin(). (" << str_error << ")";
+        LOG_ERROR() << "failed fin(). (" << str_error << ")";
     }
 
     return EXIT_SUCCESS;

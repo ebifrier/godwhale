@@ -3,6 +3,7 @@
 
 #include "server.h"
 #include "client.h"
+#include "commandpacket.h"
 
 namespace godwhale {
 namespace server {
@@ -228,7 +229,7 @@ void Server::SendCurrentInfo(std::vector<shared_ptr<Client> > &clientList,
         client->SendCommand(command, false);
     }
 
-    LOG(Notification) << "Send Current Info: " << command;
+    //LOG(Notification) << "Send Current Info: " << command;
 }
 
 /**
@@ -241,7 +242,7 @@ void Server::SendPV(std::vector<shared_ptr<Client> > &clientList,
     std::transform(
         pvseq.begin(), pvseq.end(),
         std::back_inserter(v),
-        [](Move _) { return _.String(); });
+        [](Move _) { return _.str(); });
 
     auto fmt = format("info %1% %2% n=%3%")
         % ((double)value / 100.0)

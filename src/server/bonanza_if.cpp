@@ -4,6 +4,7 @@
 #include "server.h"
 #include "../bonanza_if.h"
 
+using namespace godwhale;
 using namespace godwhale::server;
 
 void CONV init_game_hook()

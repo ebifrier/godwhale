@@ -244,7 +244,7 @@ int Client::ParseCommand(const std::string &command)
     // 指し手
     Move move = MOVE_NA;
     if (regex_search(command, m, MoveRegex)) {
-        move = m_board.InterpretCsaMove(m.str(1));
+        move = m_board.interpretCsaMove(m.str(1));
     }
     else if (regex_search(command, m, ToryoRegex)) {
         move = MOVE_RESIGN;
@@ -271,7 +271,7 @@ int Client::ParseCommand(const std::string &command)
 
         // 不要な要素を消去
         result.erase(std::remove(result.begin(), result.end(), ""), result.end());
-        pvseq = m_board.InterpretCsaMoveList(result.begin(), result.end());
+        pvseq = m_board.interpretCsaMoveList(result.begin(), result.end());
     }
 
     bool final = (command.find("final") >= 0);
@@ -283,7 +283,7 @@ int Client::ParseCommand(const std::string &command)
             return 0;
         }
         if (move != MOVE_NA && move != MOVE_RESIGN &&
-            !m_board.IsValidMove(move)) {
+            !m_board.isValidMove(move)) {
             LOG(Error) << "Client::ParseCommand: '" << move << "' is invalid.";
             return 0;
         }
@@ -291,12 +291,12 @@ int Client::ParseCommand(const std::string &command)
         if (move != MOVE_NA && nodes >= 0 && value != INT_MAX) {
             m_move   = move;
             m_nodes  = nodes;
-            m_value  = value * (m_playedMove.IsEmpty() ? +1 : -1);
+            m_value  = value * (m_playedMove.isEmpty() ? +1 : -1);
             m_final  = final;
             m_stable = stable;
             m_pvseq  = pvseq;
 
-            if (!m_playedMove.IsEmpty()) {
+            if (!m_playedMove.isEmpty()) {
                 m_pvseq.insert(m_pvseq.begin(), m_playedMove);
             }
             else if (m_pvseq.empty()) {
@@ -344,13 +344,13 @@ void Client::SendInitGameInfo()
 std::string Client::GetMoveHistory() const
 {
     ScopedLock locker(m_guard);
-    const auto &moveList = m_board.GetMoveList();
+    const auto &moveList = m_board.getMoveList();
     std::vector<std::string> v;
 
     std::transform(
         moveList.begin(), moveList.end(),
         std::back_inserter(v),
-        [](move_t _) { return ToString(_); });
+        [](move_t _) { return toString(_); });
 
     return algorithm::join(v, " ");
 }
@@ -359,7 +359,7 @@ void Client::InitGame()
 {
     ScopedLock locker(m_guard);
 
-    m_board      = Board();
+    m_board      = Position();
     m_pid        = 0;
     m_move       = MOVE_NA;
     m_playedMove = MOVE_NA;
@@ -401,7 +401,7 @@ void Client::MakeRootMove(Move move, int pid, bool isActualMove/*=true*/)
 {
     ScopedLock locker(m_guard);
 
-    if (move.IsEmpty()) {
+    if (move.isEmpty()) {
         return;
     }
 
@@ -426,13 +426,13 @@ void Client::MakeRootMove(Move move, int pid, bool isActualMove/*=true*/)
         else {
             LOG(Debug) << m_board;
             needAlter = true;
-            m_board.DoUnmove();
+            m_board.unmakeMove();
         }
     }
 
     //LOG(Debug) << "next move: " << move << ", ID:" << pid;
     //LOG(Debug) << m_board;
-    if (!m_board.IsValidMove(move)) {
+    if (!m_board.isValidMove(move)) {
         LOG(Error) << "Client::MakeRootMove: '" << move << "' is invalid.";
         LOG(Error) << m_board;
         Close();
@@ -440,7 +440,7 @@ void Client::MakeRootMove(Move move, int pid, bool isActualMove/*=true*/)
     }
 
     //LOG(Notification) << m_board;
-    m_board.DoMove(move);
+    m_board.makeMove(move);
     //LOG(Notification) << m_board;
 
     m_pid = pid;
@@ -475,7 +475,7 @@ void Client::SetPlayedMove(Move move)
         return;
     }
 
-    if (!m_board.IsValidMove(move)) {
+    if (!m_board.isValidMove(move)) {
         LOG(Error) << "Client::SetPlayedMove: '" << move << "' is invalid.";
         Close();
         return;
@@ -503,7 +503,7 @@ void Client::AddIgnoreMove(Move move)
     std::vector<std::string> v;
     std::transform(m_ignoreMoves.begin(), m_ignoreMoves.end(),
                    std::back_inserter(v),
-                   [](Move _) { return _.String(); });
+                   [](Move _) { return _.str(); });
     SendCommand(format("ignore %1% %2%") % GetPid() % join(v, " "));
 }
 

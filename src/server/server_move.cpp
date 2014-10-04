@@ -11,6 +11,8 @@
 namespace godwhale {
 namespace server {
 
+extern bool IsThinkEnd(tree_t *restrict ptree, unsigned int turnTimeMS);
+
 #define FOREACH_CLIENT(VAR) \
     auto BOOST_PP_CAT(temp, __LINE__) = std::move(GetClientList());  \
     BOOST_FOREACH(auto VAR, BOOST_PP_CAT(temp, __LINE__))
@@ -23,7 +25,7 @@ void Server::InitGame()
         client->InitGame();
     }
 
-    m_board = Board();
+    m_board = Position();
     m_gid = 0;
     m_isPlaying = true;
     m_currentValue = 0;
@@ -56,7 +58,7 @@ void Server::ResetPosition(const min_posi_t *posi)
 
 void Server::MakeRootMove(Move move)
 {
-    m_board.DoMove(move);
+    m_board.makeMove(move);
     m_gid += 10;
 
     LOG(Notification) << "root move: " << move;
@@ -71,7 +73,7 @@ void Server::MakeRootMove(Move move)
 
 void Server::UnmakeRootMove()
 {
-    m_board.DoUnmove();
+    m_board.unmakeMove();
     m_gid += 10; // ‹Ç–Ê‚ð–ß‚µ‚½ê‡‚àAID‚Íi‚ß‚Ü‚·B
 
     LOG(Notification) << "root unmove";

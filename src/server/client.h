@@ -1,7 +1,7 @@
 #ifndef GODWHALE_SERVER_CLIENT_H
 #define GODWHALE_SERVER_CLIENT_H
 
-#include "board.h"
+#include "position.h"
 
 namespace godwhale {
 namespace server {
@@ -131,7 +131,7 @@ public:
      */
     bool HasMove() const {
         ScopedLock locker(m_guard);
-        return (!m_move.IsEmpty() || !m_playedMove.IsEmpty());
+        return (!m_move.isEmpty() || !m_playedMove.isEmpty());
     }
 
     /**
@@ -242,7 +242,7 @@ private:
     std::list<SendPacket> m_sendList;
     SendPacket m_sendingbuf;
 
-    Board m_board;
+    Position m_board;
     bool m_logined;
     std::string m_id;
     int m_nthreads;

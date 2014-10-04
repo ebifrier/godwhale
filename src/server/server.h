@@ -2,7 +2,7 @@
 #ifndef GODWHALE_SERVER_SERVER_H
 #define GODWHALE_SERVER_SERVER_H
 
-#include "board.h"
+#include "position.h"
 #include "client.h"
 
 namespace godwhale {
@@ -97,7 +97,7 @@ public:
     /**
      * @brief åªã«ñ ÇéÊìæÇµÇ‹Ç∑ÅB
      */
-    const Board &GetBoard() const {
+    const Position &GetBoard() const {
         ScopedLock locker(m_guard);
         return m_board;
     }
@@ -156,7 +156,7 @@ private:
     tcp::acceptor m_acceptor;
 
     std::list<weak_ptr<Client> > m_clientList;
-    Board m_board;
+    Position m_board;
     atomic<int> m_gid;
     bool m_isPlaying;
 
