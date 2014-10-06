@@ -159,7 +159,10 @@ procedure( tree_t * restrict ptree )
 #endif
 
 #if defined(USI)
-  if ( usi_mode != usi_off ) { return proce_usi( ptree ); }
+  if ( usi_mode != usi_off )
+    {
+      return proce_usi( ptree );
+    }
 #endif
 
   return proce_cui( ptree );

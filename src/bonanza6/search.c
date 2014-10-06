@@ -62,7 +62,7 @@ search( tree_t * restrict ptree, int alpha, int beta, int turn, int depth,
 #if defined(TLP)
       if ( ! ptree->tlp_id )
 #endif
-        if ( node_next_signal < ++node_last_check && detect_signals( ptree ) )
+        if ( node_next_signal < ++node_last_check && 0 /*&& detect_signals( ptree )*/ )
           {
             root_abort = 1;
             return 0;

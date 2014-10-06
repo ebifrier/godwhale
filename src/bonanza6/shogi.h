@@ -268,9 +268,11 @@ extern unsigned char ailast_one[512];
 #if defined(USE_FAST_BIN)
 #  define PcOnSq(k,i)         pc_on_sq[k][i][i]
 #  define PcPcOnSq(k,i,j)     pc_on_sq[k][i][j]
+#  define PcPcOnSqAny(k,i,j)  PcPcOnSq(k,i,j)
 #else
 #  define PcOnSq(k,i)         pc_on_sq[k][(i)*((i)+3)/2]
 #  define PcPcOnSq(k,i,j)     pc_on_sq[k][(i)*((i)+1)/2+(j)]
+#  define PcPcOnSqAny(k,i,j)  ( i >= j ? PcPcOnSq(k,i,j) : PcPcOnSq(k,j,i) )
 #endif
 
 /*
@@ -476,6 +478,8 @@ enum { A9 = 0, B9, C9, D9, E9, F9, G9, H9, I9,
            A2, B2, C2, D2, E2, F2, G2, H2, I2,
            A1, B1, C1, D1, E1, F1, G1, H1, I1 };
 
+typedef int piece_t;
+
 enum { promote = 8, empty = 0,
        pawn, lance, knight, silver, gold, bishop, rook, king, pro_pawn,
        pro_lance, pro_knight, pro_silver, piece_null, horse, dragon };
@@ -535,7 +539,7 @@ enum { no_rep = 0, four_fold_rep, perpetual_check, perpetual_check2,
 enum { record_misc, record_eof, record_next, record_resign, record_drawn,
        record_error };
 
-enum { black = 0, white = 1 };
+enum { black = 0, white = 1, turn_none = 2 };
 
 enum { direc_misc           = b0000,
        direc_file           = b0010, /* | */

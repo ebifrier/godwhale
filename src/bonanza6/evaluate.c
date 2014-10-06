@@ -4,8 +4,6 @@
 #include <limits.h>
 #include "shogi.h"
 
-#define PcPcOnSqAny(k,i,j) ( i >= j ? PcPcOnSq(k,i,j) : PcPcOnSq(k,j,i) )
-
 static int CONV doacapt( const tree_t * restrict ptree, int pc, int turn,
                          int hand_index, const int list0[52],
                          const int list1[52], int nlist );
