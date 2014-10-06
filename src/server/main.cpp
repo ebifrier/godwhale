@@ -3,17 +3,28 @@
 #include "stdinc.h"
 #include "server.h"
 
+#if defined(USE_GTEST)
+#include <gtest/gtest.h>
+
+#if defined(_DEBUG) || defined(DEBUG)
+#pragma comment(lib, "gtestd.lib")
+#else
+#pragma comment(lib, "gtest.lib")
+#endif
+#endif
+
 using namespace godwhale;
 using namespace godwhale::server;
 
 static int main_child( tree_t * restrict ptree );
 
-namespace godwhale { namespace server {
-extern void doRoot(tree_t *restrict ptree);
-}}
-
 int main(int argc, char *argv[])
 {
+#if 0 && defined(USE_GTEST)
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+
+#else
     tree_t * restrict ptree;
     int iret;
 
@@ -38,7 +49,7 @@ int main(int argc, char *argv[])
         return EXIT_SUCCESS;
     }
 
-    doRoot(ptree);
+    //doRoot(ptree);
 
     for ( ; ; ) {
         iret = main_child(ptree);
@@ -62,6 +73,7 @@ int main(int argc, char *argv[])
     }
 
     return EXIT_SUCCESS;
+#endif
 }
 
 static int main_child(tree_t * restrict ptree)

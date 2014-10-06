@@ -11,6 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\commandio.cpp" />
+    <ClCompile Include="..\..\..\src\io_csa.cpp" />
+    <ClCompile Include="..\..\..\src\movenode.cpp" />
+    <ClCompile Include="..\..\..\src\position.cpp" />
     <ClCompile Include="..\..\..\src\bonanza6\attack.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -140,9 +144,10 @@
     <ClCompile Include="..\..\..\src\bonanza6\valid.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\server\board.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precomp.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    <ClCompile Include="..\..\..\src\logger.cpp" />
+    <ClCompile Include="..\..\..\src\move.cpp" />
+    <ClCompile Include="..\..\..\src\precomp.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\..\src\server\bonanza_if.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precomp.h</PrecompiledHeaderFile>
@@ -151,21 +156,11 @@
     <ClCompile Include="..\..\..\src\server\client.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precomp.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\server\genmove.cpp" />
-    <ClCompile Include="..\..\..\src\server\logger.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precomp.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="..\..\..\src\server\usi.cpp" />
     <ClCompile Include="..\..\..\src\server\main.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precomp.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\server\move.cpp" />
-    <ClCompile Include="..\..\..\src\server\precomp.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precomp.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="..\..\..\src\server\server.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precomp.h</PrecompiledHeaderFile>
@@ -176,22 +171,31 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\..\src\server\thinktime.cpp" />
-    <ClCompile Include="..\..\..\src\server\util.cpp" />
+    <ClCompile Include="..\..\..\src\io_sfen.cpp" />
+    <ClCompile Include="..\..\..\src\util.cpp" />
+    <ClCompile Include="sfen_test.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\commandio.h" />
+    <ClInclude Include="..\..\..\src\io_csa.h" />
+    <ClInclude Include="..\..\..\src\exceptions.h" />
+    <ClInclude Include="..\..\..\src\movenode.h" />
+    <ClInclude Include="..\..\..\src\position.h" />
     <ClInclude Include="..\..\..\src\bonanza6\bitop.h" />
     <ClInclude Include="..\..\..\src\bonanza6\dfpn.h" />
     <ClInclude Include="..\..\..\src\bonanza6\param.h" />
     <ClInclude Include="..\..\..\src\bonanza6\shogi.h" />
     <ClInclude Include="..\..\..\src\bonanza_if.h" />
-    <ClInclude Include="..\..\..\src\server\board.h" />
+    <ClInclude Include="..\..\..\src\commandpacket.h" />
+    <ClInclude Include="..\..\..\src\logger.h" />
+    <ClInclude Include="..\..\..\src\move.h" />
+    <ClInclude Include="..\..\..\src\precomp.h" />
     <ClInclude Include="..\..\..\src\server\client.h" />
-    <ClInclude Include="..\..\..\src\server\logger.h" />
-    <ClInclude Include="..\..\..\src\server\move.h" />
-    <ClInclude Include="..\..\..\src\server\precomp.h" />
+    <ClInclude Include="..\..\..\src\server\usi.h" />
     <ClInclude Include="..\..\..\src\server\server.h" />
-    <ClInclude Include="..\..\..\src\server\stdinc.h" />
-    <ClInclude Include="..\..\..\src\server\util.h" />
+    <ClInclude Include="..\..\..\src\io_sfen.h" />
+    <ClInclude Include="..\..\..\src\stdinc.h" />
+    <ClInclude Include="..\..\..\src\util.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{13B7D4C2-BD6B-4FBC-A470-10E94AB2E61B}</ProjectGuid>
@@ -222,8 +226,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>E:\programs\cpp\boost_1_55_0;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\programs\cpp\boost_1_55_0\stage\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)..\..\..\boost_1_55_0;$(SolutionDir)..\..\..\gtest-1.7.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\..\..\boost_1_55_0\stage\lib;$(SolutionDir)..\..\..\gtest-1.7.0\msvc\gtest\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -235,11 +239,12 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_SCL_SECURE_NO_WARNINGS;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;CSA_LAN;NO_LOGGING;BITBOARD64;USE_FAST_BIN;GODWHALE_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_SCL_SECURE_NO_WARNINGS;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;CSA_LAN;NO_LOGGING;BITBOARD64;USE_FAST_BIN;GODWHALE_SERVER;USE_GTEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>precomp.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>/Zm148 %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
