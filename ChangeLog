@@ -1,3 +1,9 @@
+2014-10-07  - Ver 2.4.7.9
+
+	* src/commandio.cpp: コマンドの通信クラスを追加しました。
+	* src/commandpacket.h: server/client間の通信用コマンドデータクラスを追
+	加しました。
+
 2014-10-07  - Ver 2.4.7.8
 
 	* src/position.cpp: operator==()など追加し、テストにて発見されたソース
