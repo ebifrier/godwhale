@@ -4,17 +4,6 @@
 
 namespace godwhale {
 
-const char *PieceStrTable[16]  = {
-    "〇", "歩", "香", "桂", "銀", "金",
-    "角", "飛", "王", "ト", "杏", "NK",
-    "NG", "×", "馬", "竜"
-};
-
-const char *TurnStrTable[] =
-{
-    "▲", "△", ""
-};
-
 /**
  * @brief 指し手を分かりやすいように文字列化します。
  */

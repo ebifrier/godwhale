@@ -12,13 +12,18 @@ const unsigned int Position::HandTable[] =
     flag_hand_silver, 0,              flag_hand_bishop, flag_hand_rook,
 };
 
-Position::Position()
+Position::Position(bool init/*=true*/)
     : m_turn(black)
 {
     memset(m_hand, 0, sizeof(m_hand));
 
-    // m_asquareとmin_posi_t.asquareは型が違う。
-    std::copy_n(min_posi_no_handicap.asquare, (int)nsquare, m_asquare);
+    if (init) {
+        // m_asquareとmin_posi_t.asquareは型が違う。
+        std::copy_n(min_posi_no_handicap.asquare, (int)nsquare, m_asquare);
+    }
+    else {
+        std::memset(m_asquare, 0, sizeof(m_asquare));
+    }
 }
 
 Position::Position(Position const & other)
@@ -96,14 +101,73 @@ Position &Position::operator =(min_posi_t const & posi)
     return *this;
 }
 
+bool operator==(Position const & lhs, Position const & rhs)
+{
+    if (lhs.m_hand[black] != rhs.m_hand[black] ||
+        lhs.m_hand[white] != rhs.m_hand[white] ||
+        lhs.m_turn != rhs.m_turn) {
+        return false;
+    }
+
+    if (memcmp(lhs.m_asquare, rhs.m_asquare, sizeof(lhs.m_asquare)) != 0) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief 持ち駒の数を取得します。
+ */
+int Position::getHand(int turn, int piece) const
+{
+    assert(turn == black || turn == white);
+    assert(piece > 0);
+    int hand = m_hand[turn];
+
+    switch (piece) {
+    case pawn:   return I2HandPawn(hand);
+    case knight: return I2HandKnight(hand);
+    case lance:  return I2HandLance(hand);
+    case silver: return I2HandSilver(hand);
+    case gold:   return I2HandGold(hand);
+    case bishop: return I2HandBishop(hand);
+    case rook:   return I2HandRook(hand);
+    default:     unreachable(); break;
+    }
+}
+
+/**
+ * @brief 持ち駒の数を設定します。
+ */
+void Position::setHand(int turn, int piece, int count)
+{
+    assert(turn == black || turn == white);
+    assert(piece > 0 && count >= 0);
+    int hand = m_hand[turn];
+
+    switch (piece) {
+    case pawn:   hand&=~IsHandPawn(~0);   hand|=(flag_hand_pawn   * count); break;
+    case knight: hand&=~IsHandKnight(~0); hand|=(flag_hand_knight * count); break;
+    case lance:  hand&=~IsHandLance(~0);  hand|=(flag_hand_lance  * count); break;
+    case silver: hand&=~IsHandSilver(~0); hand|=(flag_hand_silver * count); break;
+    case gold:   hand&=~IsHandGold(~0);   hand|=(flag_hand_gold   * count); break;
+    case bishop: hand&=~IsHandBishop(~0); hand|=(flag_hand_bishop * count); break;
+    case rook:   hand&=~IsHandRook(~0);   hand|=(flag_hand_rook   * count); break;
+    default:     unreachable(); break;
+    }
+
+    m_hand[turn] = hand;
+}
+
 /**
  * @brief 指し手が正しい指し手かどうか調べます。
  */
 bool Position::isValidMove(Move move) const
 {
     ScopedLock lock(m_guard);
-    const int from = move.getFrom();
-    const int to   = move.getTo();
+    int from = move.getFrom();
+    int to   = move.getTo();
 
     if (move.isEmpty()) {
         return false;
@@ -150,7 +214,7 @@ bool Position::isValidMove(Move move) const
 int Position::makeMove(Move move)
 {
     ScopedLock lock(m_guard);
-    const int sign = (m_turn == black ? +1 : -1);
+    int sign = (m_turn == black ? +1 : -1);
 
     if (move.getCapture() == king) {
         LOG_ERROR() << move << " " << move.getCapture() << " is invalid.";
@@ -164,7 +228,7 @@ int Position::makeMove(Move move)
         // 駒打ちの場合
         assert(abs(get(move.getTo())) == 0);
 
-        const int ipiece_drop = move.getDrop();
+        int ipiece_drop = move.getDrop();
         m_hand[m_turn] -= HandTable[ipiece_drop];
         set(move.getTo(), ipiece_drop * sign);
     }
@@ -182,7 +246,7 @@ int Position::makeMove(Move move)
         }
         set(move.getTo(), ipiece_move * sign);
 
-        const int ipiece_cap = move.getCapture();
+        int ipiece_cap = move.getCapture();
         if (ipiece_cap != 0) {
             m_hand[m_turn] += HandTable[ipiece_cap];
         }
@@ -208,7 +272,7 @@ int Position::unmakeMove()
         // 駒打ちの場合
         assert(abs(get(move.getTo())) == move.getDrop());
 
-        const int ipiece_drop = move.getDrop();
+        int ipiece_drop = move.getDrop();
         m_hand[m_turn] += HandTable[ipiece_drop];
         set(move.getTo(), 0);
     }
@@ -218,7 +282,7 @@ int Position::unmakeMove()
         assert(abs(get(move.getTo())) ==
                (move.getPiece() | (move.isPromote() ? promote : 0)));
 
-        const int sign = (m_turn == black ? +1 : -1);
+        int sign = (m_turn == black ? +1 : -1);
 
         // piece には成った場合は成る前の駒が入っています。
         set(move.getFrom(), move.getPiece() * sign);
@@ -233,66 +297,6 @@ int Position::unmakeMove()
 
     m_moveList.pop_back();
     return 0;
-}
-
-/**
- * @brief CSA形式から駒の種類を判別します。
- */
-int Position::strToPiece(const std::string &str, std::string::size_type index) const
-{
-    int i;
-
-    for (i = 0; i < ArraySize(astr_table_piece); ++i) {
-        if (str.compare(index, 2, astr_table_piece[i]) == 0) break;
-    }
-
-    if (i == 0 || i == piece_null || i == ArraySize(astr_table_piece)) {
-        i = -2;
-    }
-
-    return i;
-}
-
-/**
- * @brief CSA形式の指し手を内部形式に変換します。
- */
-Move Position::interpretCsaMove(const std::string &str) const
-{
-    ScopedLock lock(m_guard);
-    int ifrom_file, ifrom_rank, ito_file, ito_rank, ipiece;
-    int ifrom, ito;
-    bool is_promote;
-
-    ifrom_file = str[0]-'0';
-    ifrom_rank = str[1]-'0';
-    ito_file   = str[2]-'0';
-    ito_rank   = str[3]-'0';
-
-    ito_file   = 9 - ito_file;
-    ito_rank   = ito_rank - 1;
-    ito        = ito_rank * 9 + ito_file;
-    ipiece     = strToPiece(str, 4);
-    if (ipiece < 0) {
-        return MOVE_NA;
-    }
-
-    if (ifrom_file == 0 && ifrom_rank == 0) {
-        return Move::createDrop(ito, ipiece);
-    }
-    else {
-        ifrom_file = 9 - ifrom_file;
-        ifrom_rank = ifrom_rank - 1;
-        ifrom      = ifrom_rank * 9 + ifrom_file;
-        if (abs(get(ifrom)) + promote == ipiece) {
-            ipiece    -= promote;
-            is_promote = true;
-        }
-        else {
-            is_promote = false;
-        }
-
-        return Move::create(ifrom, ito, ipiece, abs(get(ito)), is_promote);
-    }
 }
 
 void Position::print(std::ostream &os) const
@@ -327,7 +331,7 @@ void Position::printPiece(std::ostream &os, int piece, int sq, int ito,
 {
     if (piece != 0) {
         char ch = (piece < 0 ? '-' : '+');
-        os << ch << astr_table_piece[abs(piece)];
+        os << ch << PieceStrTable[abs(piece)];
     }
     else {
         os << " * ";

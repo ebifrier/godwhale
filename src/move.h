@@ -9,7 +9,7 @@ namespace godwhale {
  */
 extern std::string toString(move_t move, int turn = turn_none);
 
-inline int makeSquare(int file, int rank)
+inline int SQ(int file, int rank)
 {
     return ((rank-1) * 9 + (9-file));
 }

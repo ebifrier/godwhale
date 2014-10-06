@@ -15,27 +15,26 @@ private:
     const static unsigned int HandTable[];
 
 public:
-    explicit Position();
-    explicit Position(Position const & other);
-    explicit Position(Position && other);
+    explicit Position(bool init=true);
     explicit Position(min_posi_t const & posi);
+    Position(Position const & other);
+    Position(Position && other);
 
     Position &operator =(Position const & other);
     Position &operator =(Position && other);
     Position &operator =(min_posi_t const & posi);
 
-    /**
-     * @brief sqに駒を設定します。
-     */
-    void set(int sq, int piece) {
-        ScopedLock lock(m_guard);
-        m_asquare[sq] = (char)piece;
+    friend bool operator==(Position const & lhs, Position const & rhs);
+    friend bool operator!=(Position const & lhs, Position const & rhs)
+    {
+        return !(lhs == rhs);
     }
 
     /**
      * @brief sqにある駒を取得します。
      */
-    int get(int sq) const {
+    int get(int sq) const
+    {
         ScopedLock lock(m_guard);
         return m_asquare[sq];
     }
@@ -43,52 +42,72 @@ public:
     /**
      * @brief sqにある駒を取得します。
      */
-    int operator[](int sq) const {
+    int get(int file, int rank) const
+    {
+        return get(SQ(file, rank));
+    }
+
+    /**
+     * @brief sqに駒を設定します。
+     */
+    void set(int sq, int piece)
+    {
+        ScopedLock lock(m_guard);
+        m_asquare[sq] = (char)piece;
+    }
+
+    /**
+     * @brief sqに駒を設定します。
+     */
+    void set(int file, int rank, int piece)
+    {
+        set(SQ(file, rank), piece);
+    }
+
+    /**
+     * @brief sqにある駒を取得します。
+     */
+    int operator[](int sq) const
+    {
         return get(sq);
+    }
+
+    /**
+     * @brief 手番を取得します。
+     */
+    int getTurn() const
+    {
+        ScopedLock lock(m_guard);
+        return m_turn;
+    }
+
+    /**
+     * @brief 手番を設定します。
+     */
+    void setTurn(int turn)
+    {
+        ScopedLock lock(m_guard);
+        m_turn = turn;
     }
 
     /**
      * @brief 今までの指し手を取得します。
      */
-    std::vector<move_t> const &getMoveList() const {
-        ScopedLock lock(m_guard);
+    std::vector<Move> const &getMoveList() const
+    {
         return m_moveList;
     }
 
-    /**
-     * @brief 連続した指し手を解釈します。
-     */
-    template<class Iter>
-    std::vector<Move> interpretCsaMoveList(Iter begin, Iter end) const {
-        ScopedLock lock(m_guard);
-        Position tmp(*this);
-        std::vector<Move> result;
-
-        for (; begin != end; ++begin) {
-            Move move = tmp.interpretCsaMove(*begin);
-            if (move == MOVE_NA) {
-                return result;
-            }
-            
-            if (tmp.makeMove(move) != 0) {
-                return result;
-            }
-
-            result.push_back(move);
-        }
-
-        return result;
-    }
+    int getHand(int turn, int piece) const;
+    void setHand(int turn, int piece, int count);
 
     bool isValidMove(Move move) const;
     int makeMove(Move move);
     int unmakeMove();
 
-    Move interpretCsaMove(std::string const & str) const;
     void print(std::ostream &os) const;
 
 private:
-    int strToPiece(std::string const & str, std::string::size_type index) const;
     void printPiece(std::ostream &os, int piece, int sq, int ito,
                     int ifrom, int is_promote) const;
     void printHand(std::ostream &os, unsigned int hand,
@@ -102,7 +121,7 @@ private:
     int m_turn;
     int m_asquare[nsquare];
 
-    std::vector<move_t> m_moveList;
+    std::vector<Move> m_moveList;
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Position &pos)

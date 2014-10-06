@@ -1,3 +1,17 @@
+2014-10-07  - Ver 2.4.7.8
+
+	* src/position.cpp: operator==()など追加し、テストにて発見されたソース
+	中のバグを修正しました。
+
+2014-10-07  - Ver 2.4.7.7
+
+	* src/server/main.cpp: gtestを使うようにし、gtest.libへの参照を行うよう
+	にしました。
+	* src/io_sfen.cpp: SFEN形式の指し手などを扱うためのファイルを追加しまし
+	た。
+	* src/io_csa.cpp: CSA形式の指し手を扱うためのファイルを追加しました。
+	* src/test/sfen_test.cpp: SFEN用のテストケースを追加しました。
+
 2014-10-07  - Ver 2.4.7.6
 
 	* src/stdinc.h: boostのusing宣言をやめ、必要なクラスごとにusingするよう
