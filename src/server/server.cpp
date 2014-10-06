@@ -8,6 +8,9 @@
 namespace godwhale {
 namespace server {
 
+using namespace boost;
+typedef boost::asio::ip::tcp tcp;
+
 shared_ptr<Server> Server::ms_instance;
 
 /**

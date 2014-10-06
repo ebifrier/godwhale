@@ -1,3 +1,10 @@
+2014-10-07  - Ver 2.4.7.6
+
+	* src/stdinc.h: boostのusing宣言をやめ、必要なクラスごとにusingするよう
+	にしました。
+	* src/server/server.h, src/server/client.h: コンパイルが通るように修正
+	しました。
+
 2014-10-07  - Ver 2.4.7.5
 
 	* src/bonanza6/*: Bonanza関連のファイルを少し修正しました。

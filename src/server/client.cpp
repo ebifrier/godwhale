@@ -6,6 +6,8 @@
 namespace godwhale {
 namespace server {
 
+using namespace boost;
+
 Client::Client(shared_ptr<Server> server, shared_ptr<tcp::socket> socket)
     : m_server(server), m_socket(socket), m_lineIndex(0)
     , m_logined(false), m_nthreads(0), m_sendpv(false), m_pid(0)
@@ -225,7 +227,7 @@ int Client::ParseCommand(const std::string &command)
     if (!regex_search(command, m, PidRegex)) {
         return -1;
     }
-
+    
     int pid = lexical_cast<int>(m.str(1));
     if (pid >= 0 && pid != GetPid()) {
 #if 0
@@ -244,7 +246,7 @@ int Client::ParseCommand(const std::string &command)
     // 指し手
     Move move = MOVE_NA;
     if (regex_search(command, m, MoveRegex)) {
-        move = m_board.interpretCsaMove(m.str(1));
+        //move = m_board.interpretCsaMove(m.str(1));
     }
     else if (regex_search(command, m, ToryoRegex)) {
         move = MOVE_RESIGN;
@@ -267,11 +269,11 @@ int Client::ParseCommand(const std::string &command)
     if (regex_search(command, m, PVRegex)) {
         std::vector<std::string> result;
         std::string str = m.str(1);
-        split(result, str, is_any_of("+- "));
+        split(result, str, boost::is_any_of("+- "));
 
         // 不要な要素を消去
         result.erase(std::remove(result.begin(), result.end(), ""), result.end());
-        pvseq = m_board.interpretCsaMoveList(result.begin(), result.end());
+        //pvseq = m_board.interpretCsaMoveList(result.begin(), result.end());
     }
 
     bool final = (command.find("final") >= 0);
@@ -323,7 +325,7 @@ void Client::SendInitGameInfo()
     std::string name1 = record_game.str_name1;
     std::string name2 = record_game.str_name2;
 
-    auto fmt = format("init %1% %2% %3% %4% %5% %6% %7%")
+    auto fmt = F("init %1% %2% %3% %4% %5% %6% %7%")
         % (name1.empty() ? "dummy1" : name1)
         % (name2.empty() ? "dummy2" : name2)
 #if defined(CSA_LAN)

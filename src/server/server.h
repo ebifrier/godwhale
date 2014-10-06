@@ -127,7 +127,7 @@ public:
     void AdjustTimeHook(int turn);
 
     int Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvseq);
-    bool IsEndIterate(tree_t *restrict ptree, timer::cpu_timer &timer);
+    bool IsEndIterate(tree_t *restrict ptree, boost::timer::cpu_timer &timer);
 
 private:
     static shared_ptr<Server> ms_instance;
@@ -140,7 +140,7 @@ private:
 
     void BeginAccept();
     void HandleAccept(shared_ptr<tcp::socket> socket,
-                      const system::error_code &error);
+                      const boost::system::error_code &error);
 
     void SendCurrentInfo(std::vector<shared_ptr<Client> > &clientList,
                          long nps);
@@ -149,19 +149,19 @@ private:
 
 private:
     mutable Mutex m_guard;
-    asio::io_service m_service;
-    shared_ptr<thread> m_thread;
+    boost::asio::io_service m_service;
+    shared_ptr<boost::thread> m_thread;
 
     volatile bool m_isAlive;
-    tcp::acceptor m_acceptor;
+    boost::asio::ip::tcp::acceptor m_acceptor;
 
     std::list<weak_ptr<Client> > m_clientList;
     Position m_board;
-    atomic<int> m_gid;
+    boost::atomic<int> m_gid;
     bool m_isPlaying;
 
-    timer::cpu_timer m_turnTimer;
-    timer::cpu_timer m_sendTimer;
+    boost::timer::cpu_timer m_turnTimer;
+    boost::timer::cpu_timer m_sendTimer;
     int m_currentValue;
 };
 

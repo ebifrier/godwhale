@@ -10,6 +10,8 @@
 
 namespace godwhale {
 namespace server {
+    
+using namespace boost;
 
 extern bool IsThinkEnd(tree_t *restrict ptree, unsigned int turnTimeMS);
 
@@ -82,7 +84,7 @@ void Server::UnmakeRootMove()
 void Server::AdjustTimeHook(int turn)
 {
     auto sec = turn ? sec_w_total : sec_b_total;
-    auto fmt = format("info %1% %2%") % (turn ? "wt" : "bt") % sec;
+    auto fmt = F("info %1% %2%") % (turn ? "wt" : "bt") % sec;
     auto str = fmt.str();
 
     FOREACH_CLIENT(client) {

@@ -12,12 +12,15 @@
 #define LOCK(obj) \
     LOCK_IMPL(obj, lock_7D0B4924019B, flag_7D0B4924019B)
 
+#define F(fmt) ::boost::format(fmt)
+
 namespace godwhale {
 
-using namespace boost;
-using namespace boost::system;
-typedef boost::asio::ip::tcp tcp;
+using boost::shared_ptr;
+using boost::weak_ptr;
+using boost::enable_shared_from_this;
 
+typedef boost::asio::ip::tcp tcp;
 typedef boost::recursive_mutex Mutex;
 typedef boost::recursive_mutex::scoped_lock ScopedLock;
 

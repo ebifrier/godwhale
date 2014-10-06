@@ -201,7 +201,7 @@ public:
     /**
      * @brief コマンドを送信します。
      */
-    void SendCommand(const format &fmt, bool isOutLog = true) {
+    void SendCommand(const boost::format &fmt, bool isOutLog = true) {
         SendCommand(fmt.str(), isOutLog);
     }
 
@@ -218,13 +218,13 @@ public:
 private:
     void Disconnected();
     
-    void HandleAsyncReceive(const error_code &error);
+    void HandleAsyncReceive(const boost::system::error_code &error);
 
     void PutSendPacket(const SendPacket &packet);
     SendPacket GetSendPacket();
 
     void BeginAsyncSend();
-    void HandleAsyncSend(const error_code &error);
+    void HandleAsyncSend(const boost::system::error_code &error);
 
     int ParseCommand(const std::string &command);
     void SendInitGameInfo();
@@ -235,7 +235,7 @@ private:
     shared_ptr<tcp::socket> m_socket;
     mutable Mutex m_guard;
 
-    asio::streambuf m_streambuf;
+    boost::asio::streambuf m_streambuf;
     char m_line[2048];
     int m_lineIndex;
 
