@@ -47,14 +47,41 @@
     <ClCompile Include="..\..\..\src\bonanza6\root.c" />
     <ClCompile Include="..\..\..\src\bonanza6\sckt.c" />
     <ClCompile Include="..\..\..\src\bonanza6\search.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\searchr.c" />
+    <ClCompile Include="..\..\..\src\bonanza6\searchr.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\bonanza6\swap.c" />
     <ClCompile Include="..\..\..\src\bonanza6\thread.c" />
     <ClCompile Include="..\..\..\src\bonanza6\time.c" />
     <ClCompile Include="..\..\..\src\bonanza6\unmake.c" />
     <ClCompile Include="..\..\..\src\bonanza6\utility.c" />
     <ClCompile Include="..\..\..\src\bonanza6\valid.c" />
-    <ClCompile Include="..\..\..\src\client\main.c" />
+    <ClCompile Include="..\..\..\src\client\client_main.cpp" />
+    <ClCompile Include="..\..\..\src\commandio.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">precomp.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\logger.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">precomp.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\move.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">precomp.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\movenode.cpp" />
+    <ClCompile Include="..\..\..\src\position.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">precomp.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\precomp.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">precomp.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\util.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">precomp.h</PrecompiledHeaderFile>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\bonanza6\bitop.h" />
@@ -62,6 +89,15 @@
     <ClInclude Include="..\..\..\src\bonanza6\param.h" />
     <ClInclude Include="..\..\..\src\bonanza6\shogi.h" />
     <ClInclude Include="..\..\..\src\bonanza_if.h" />
+    <ClInclude Include="..\..\..\src\commandio.h" />
+    <ClInclude Include="..\..\..\src\exceptions.h" />
+    <ClInclude Include="..\..\..\src\logger.h" />
+    <ClInclude Include="..\..\..\src\move.h" />
+    <ClInclude Include="..\..\..\src\movenode.h" />
+    <ClInclude Include="..\..\..\src\position.h" />
+    <ClInclude Include="..\..\..\src\precomp.h" />
+    <ClInclude Include="..\..\..\src\stdinc.h" />
+    <ClInclude Include="..\..\..\src\util.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7078F53B-EC21-49D5-9197-9AAA5BAB4107}</ProjectGuid>
@@ -93,17 +129,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(SolutionDir)..\..\..\boost_1_55_0;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\..\..\boost_1_55_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;MNJ_LAN;INANIWA_SHIFT;BITBOARD64;USE_FAST_BIN;GODWHALE_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\src;</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4819</DisableSpecificWarnings>
+      <AdditionalOptions>/Zm160 %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeaderFile>precomp.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,6 +172,8 @@ copy $(TargetPath) $(ProjectDir)..\..\..\utility\Bonako\Bonako</Command>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4819</DisableSpecificWarnings>
+      <AdditionalOptions>/Zm160 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

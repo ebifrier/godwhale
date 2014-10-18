@@ -156,12 +156,9 @@
     <ClCompile Include="..\..\..\src\server\client.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precomp.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\server\rootsearch.cpp" />
+    <ClCompile Include="..\..\..\src\server\server_main.cpp" />
     <ClCompile Include="..\..\..\src\server\usi.cpp" />
-    <ClCompile Include="..\..\..\src\server\main.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precomp.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\server\server.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precomp.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
@@ -172,8 +169,10 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\server\thinktime.cpp" />
     <ClCompile Include="..\..\..\src\io_sfen.cpp" />
+    <ClCompile Include="..\..\..\src\stdinc.cpp" />
+    <ClCompile Include="..\..\..\src\syncposition.cpp" />
+    <ClCompile Include="..\..\..\src\test\sfen_test.cpp" />
     <ClCompile Include="..\..\..\src\util.cpp" />
-    <ClCompile Include="sfen_test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\commandio.h" />
@@ -191,10 +190,12 @@
     <ClInclude Include="..\..\..\src\move.h" />
     <ClInclude Include="..\..\..\src\precomp.h" />
     <ClInclude Include="..\..\..\src\server\client.h" />
+    <ClInclude Include="..\..\..\src\server\rootsearch.h" />
     <ClInclude Include="..\..\..\src\server\usi.h" />
     <ClInclude Include="..\..\..\src\server\server.h" />
     <ClInclude Include="..\..\..\src\io_sfen.h" />
     <ClInclude Include="..\..\..\src\stdinc.h" />
+    <ClInclude Include="..\..\..\src\syncposition.h" />
     <ClInclude Include="..\..\..\src\util.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -264,6 +265,7 @@
       <PrecompiledHeaderFile>precomp.h</PrecompiledHeaderFile>
       <AdditionalOptions>-Zm200 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_SCL_SECURE_NO_WARNINGS;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;CSA_LAN;NO_LOGGING;BITBOARD64;USE_FAST_BIN;GODWHALE_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\src;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

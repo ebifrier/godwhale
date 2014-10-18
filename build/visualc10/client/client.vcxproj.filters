@@ -130,7 +130,14 @@
     <ClCompile Include="..\..\..\src\bonanza6\valid.c">
       <Filter>bonanza6</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\client\main.c">
+    <ClCompile Include="..\..\..\src\precomp.cpp" />
+    <ClCompile Include="..\..\..\src\logger.cpp" />
+    <ClCompile Include="..\..\..\src\move.cpp" />
+    <ClCompile Include="..\..\..\src\position.cpp" />
+    <ClCompile Include="..\..\..\src\util.cpp" />
+    <ClCompile Include="..\..\..\src\commandio.cpp" />
+    <ClCompile Include="..\..\..\src\movenode.cpp" />
+    <ClCompile Include="..\..\..\src\client\client_main.cpp">
       <Filter>client</Filter>
     </ClCompile>
   </ItemGroup>
@@ -156,5 +163,14 @@
       <Filter>bonanza6</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\bonanza_if.h" />
+    <ClInclude Include="..\..\..\src\precomp.h" />
+    <ClInclude Include="..\..\..\src\stdinc.h" />
+    <ClInclude Include="..\..\..\src\logger.h" />
+    <ClInclude Include="..\..\..\src\move.h" />
+    <ClInclude Include="..\..\..\src\position.h" />
+    <ClInclude Include="..\..\..\src\util.h" />
+    <ClInclude Include="..\..\..\src\exceptions.h" />
+    <ClInclude Include="..\..\..\src\commandio.h" />
+    <ClInclude Include="..\..\..\src\movenode.h" />
   </ItemGroup>
 </Project>

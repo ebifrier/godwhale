@@ -7,9 +7,6 @@
     <ClCompile Include="..\..\..\src\server\client.cpp">
       <Filter>server</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\server\main.cpp">
-      <Filter>server</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\server\server.cpp">
       <Filter>server</Filter>
     </ClCompile>
@@ -156,13 +153,21 @@
     <ClCompile Include="..\..\..\src\io_csa.cpp" />
     <ClCompile Include="..\..\..\src\io_sfen.cpp" />
     <ClCompile Include="..\..\..\src\commandio.cpp" />
-    <ClCompile Include="sfen_test.cpp">
-      <Filter>test</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\server\usi.cpp">
       <Filter>server</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\movenode.cpp" />
+    <ClCompile Include="..\..\..\src\test\sfen_test.cpp">
+      <Filter>test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\server\server_main.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\server\rootsearch.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\stdinc.cpp" />
+    <ClCompile Include="..\..\..\src\syncposition.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\server\client.h">
@@ -199,6 +204,10 @@
       <Filter>server</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\movenode.h" />
+    <ClInclude Include="..\..\..\src\server\rootsearch.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\syncposition.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="server">

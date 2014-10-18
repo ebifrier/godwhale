@@ -1,3 +1,10 @@
+2014-10-18  - Ver 2.4.7.12
+
+	* src/client/client_main.cpp: server用のファイルと名前がかぶるため、
+	main.cppからリネームしました。
+	* src/server/server_main.cpp: client用のファイルと名前がかぶるため、
+	main.cppからリネームしました。
+
 2014-10-18  - Ver 2.4.7.11
 
 	* src/stdinc.cpp: 共通オブジェクトの定義用ファイルを追加しました。
