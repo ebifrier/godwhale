@@ -14,6 +14,10 @@
 
 #define F(fmt) ::boost::format(fmt)
 
+#define state_node ( \
+    node_do_mate | node_do_null | node_do_futile | \
+    node_do_recap | node_do_recursion | node_do_hashcut)
+
 namespace godwhale {
 
 using boost::shared_ptr;
@@ -23,6 +27,8 @@ using boost::enable_shared_from_this;
 typedef boost::asio::ip::tcp tcp;
 typedef boost::recursive_mutex Mutex;
 typedef boost::recursive_mutex::scoped_lock ScopedLock;
+
+extern tree_t * g_ptree;
 
 } // namespace godwhale
 

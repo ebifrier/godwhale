@@ -26,10 +26,10 @@
 #include <boost/make_shared.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/weak_ptr.hpp>
-#include <boost/thread.hpp>
-#include <boost/regex.hpp>
 #include <boost/asio.hpp>
 #include <boost/timer/timer.hpp>
+#include <boost/thread/thread.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 
 #include <boost/log/core.hpp>
 #include <boost/log/common.hpp>
