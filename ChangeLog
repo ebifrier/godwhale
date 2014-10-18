@@ -1,3 +1,9 @@
+2014-10-18  - Ver 2.4.7.13
+
+	* src/move.cpp: 文字出力に関するバグを修正しました。
+	* src/syncposition.cpp: bonanzaの局面とPVを同期するためのシングルトンク
+	ラスを追加しました。
+
 2014-10-18  - Ver 2.4.7.12
 
 	* src/client/client_main.cpp: server用のファイルと名前がかぶるため、

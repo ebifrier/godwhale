@@ -29,9 +29,9 @@ std::string toString(move_t move, int turn/*=turn_none*/)
         // ó·) 87çÅ(67)
         snprintf(str, sizeof(str), "%s%d%d%s(%d%d)",
                  turnStr,
-                 9-aifile[ifrom], airank[ifrom]+1,
+                 9-aifile[ito],   airank[ito]  +1,
                  PieceStrTable[ipiece_move],
-                 9-aifile[ito],   airank[ito]  +1);
+                 9-aifile[ifrom], airank[ifrom]+1);
     }
     else {
         // ó·) 99îÚë≈
