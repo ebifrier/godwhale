@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\commandio.cpp" />
+    <ClCompile Include="..\..\..\src\commandpacket.cpp" />
     <ClCompile Include="..\..\..\src\io_csa.cpp" />
     <ClCompile Include="..\..\..\src\movenode.cpp" />
     <ClCompile Include="..\..\..\src\position.cpp" />

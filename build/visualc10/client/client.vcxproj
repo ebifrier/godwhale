@@ -11,51 +11,135 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\bonanza6\attack.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\bbini.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\bitop.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\book.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\csa.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\data.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\debug.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\dfpn.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\dfpnhash.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\evaldiff.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\evaluate.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\gencap.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\genchk.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\gendrop.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\genevasn.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\gennocap.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\hash.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\ini.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\io.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\iterate.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\learn1.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\learn2.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\makemove.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\mate1ply.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\mate3.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\movgenex.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\next.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\phash.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\ponder.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\problem.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\proce.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\quiesrch.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\rand.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\root.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\sckt.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\search.c" />
+    <ClCompile Include="..\..\..\src\bonanza6\attack.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\bbini.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\bitop.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\book.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\csa.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\data.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\debug.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\dfpn.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\dfpnhash.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\evaldiff.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\evaluate.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\gencap.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\genchk.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\gendrop.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\genevasn.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\gennocap.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\hash.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\ini.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\io.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\iterate.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\learn1.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\learn2.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\makemove.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\mate1ply.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\mate3.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\movgenex.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\next.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\phash.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\ponder.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\problem.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\proce.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\quiesrch.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\rand.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\root.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\sckt.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\search.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\bonanza6\searchr.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\bonanza6\swap.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\thread.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\time.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\unmake.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\utility.c" />
-    <ClCompile Include="..\..\..\src\bonanza6\valid.c" />
+    <ClCompile Include="..\..\..\src\bonanza6\swap.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\thread.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\time.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\unmake.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\utility.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\bonanza6\valid.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\client\client_main.cpp" />
     <ClCompile Include="..\..\..\src\commandio.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
@@ -140,7 +224,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;MNJ_LAN;INANIWA_SHIFT;BITBOARD64;USE_FAST_BIN;GODWHALE_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;_CRT_SECURE_NO_WARNINGS;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;MNJ_LAN;INANIWA_SHIFT;BITBOARD64;USE_FAST_BIN;GODWHALE_CLIENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)..\..\src;</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>

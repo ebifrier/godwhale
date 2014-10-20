@@ -1,11 +1,10 @@
 #ifndef GODWHALE_COMMANDPACKET_H
 #define GODWHALE_COMMANDPACKET_H
 
+#include <boost/tokenizer.hpp>
 #include "position.h"
 
 namespace godwhale {
-
-using namespace boost;
 
 /**
  * @brief コマンド識別子です。
@@ -15,18 +14,58 @@ using namespace boost;
  */
 enum CommandType
 {
+    /**
+     * @brief 特になし
+     */
     COMMAND_NONE,
-    COMMAND_SETROOT,
-    COMMAND_MAKEMOVE,
-    COMMAND_UNMAKEMOVE,
-
+    /**
+     * @brief ルート局面を設定します。
+     */
+    COMMAND_SETPOSITION,
+    /**
+     * @brief PVを設定します。
+     */
+    COMMAND_SETPV,
+    /**
+     * @brief 担当する指し手を設定します。
+     */
     COMMAND_SETMOVELIST,
-    COMMAND_SHRINK,
-    COMMAND_EXTEND,
+    /*COMMAND_SHRINK,
+    COMMAND_EXTEND,*/
+    /**
+     * @brief サーバーとクライアントの状態が一致しているか確認します。
+     */
     COMMAND_VERIFY,
+    /**
+     * クライアントを停止します。
+     */
     COMMAND_STOP,
-
+    /**
+     * @brief クライアントを終了させます。
+     */
     COMMAND_QUIT,
+};
+
+/**
+ * @brief 返答コマンドの識別子です。
+ *
+ * 返答コマンドとはクライアントからサーバーに送られる
+ * インストラクションです。
+ */
+enum ReplyType
+{
+    /**
+     * @brief 特になし。
+     */
+    REPLY_NONE,
+    /**
+     * @brief α値の更新の可能性があるとき、探索時間の調整などに使います。
+     */
+    REPLY_RETRYED,
+    /**
+     * @brief α値の更新が行われたときに使います。
+     */
+    REPLY_VALUEUPDATED,
 };
 
 /**
@@ -34,61 +73,115 @@ enum CommandType
  */
 class CommandPacket
 {
-public:
-    /// 拡張USIをパースし、コマンドに直します。
-    static shared_ptr<CommandPacket> Parse(std::string const & exusi);
+private:
+    typedef boost::char_separator<char> CharSeparator;
+    typedef boost::tokenizer<CharSeparator> Tokenizer;
+
+    static const CharSeparator ms_separator;
 
 public:
     explicit CommandPacket(CommandType type);
     explicit CommandPacket(CommandPacket const & other);
     explicit CommandPacket(CommandPacket && other);
 
-    /// コマンドタイプを取得します。
+    /**
+     * @brief コマンドタイプを取得します。
+     */
     CommandType getType() const
     {
         return m_type;
     }
 
-    /// コマンドの実行優先順位を取得します。
-    int getPriority() const;
-
-    /// 局面IDを取得します。
+    /**
+     * @brief 局面IDを取得します。
+     */
     int getPositionId() const
     {
         return m_positionId;
     }
 
-    /// 局面IDを設定します。
+    /**
+     * @brief 局面IDを設定します。
+     */
     void setPositionId(int id)
     {
         m_positionId = id;
     }
 
-    /// 局面を取得します。
+    /**
+     * @brief 反復深化の探索深さを取得します。
+     */
+    int getIterationDepth() const
+    {
+        return m_iterationDepth;
+    }
+
+    /**
+     * @brief ルート局面から思考局面までの手の深さを取得します。
+     */
+    int getPlyDepth() const
+    {
+        return m_plyDepth;
+    }
+
+    /**
+     * @brief 局面を取得します。
+     */
     Position const &getPosition() const
     {
         return m_position;
     }
 
-    /// 局面を設定します。
+    /**
+     * @brief 局面を設定します。
+     */
     void setPosition(Position const & position)
     {
         m_position = position;
     }
 
-    /// 指し手のリスト(手の一覧やＰＶなど)を取得します。
+    /**
+     * @brief 指し手のリスト(手の一覧やＰＶなど)を取得します。
+     */
     std::vector<Move> const &getMoveList() const
     {
         return m_moveList;
     }
 
-    /// コマンドを拡張USIに変換します。
-    std::string ToExUsi();
+    int getPriority() const;
+
+    static shared_ptr<CommandPacket> parse(std::string const & rsi);
+    std::string toRsi() const;
+
+private:
+    static bool isToken(std::string const & str, std::string const & target);
+
+    // setposition
+    static shared_ptr<CommandPacket> parse_SetPosition(std::string const & rsi,
+                                                       Tokenizer & tokens);
+    std::string toRsi_SetPosition() const;
+
+    // setmovelist
+    static shared_ptr<CommandPacket> parse_SetMoveList(std::string const & rsi,
+                                                       Tokenizer & tokens);
+    std::string toRsi_SetMoveList() const;
+
+    // stop
+    static shared_ptr<CommandPacket> parse_Stop(std::string const & rsi,
+                                                Tokenizer & tokens);
+    std::string toRsi_Stop() const;
+
+    // quit
+    static shared_ptr<CommandPacket> parse_Quit(std::string const & rsi,
+                                                Tokenizer & tokens);
+    std::string toRsi_Quit() const;
 
 private:
     CommandType m_type;
 
     int m_positionId;
+    int m_iterationDepth;
+    int m_plyDepth;
     Position m_position;
     std::vector<Move> m_moveList;
 };

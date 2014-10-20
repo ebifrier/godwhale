@@ -40,6 +40,36 @@ private:
     std::string m_message;
 };
 
+
+/**
+ * @brief コマンドのparseに失敗したときに使われます。
+ */
+class ParseException : public std::exception
+{
+public:
+    explicit ParseException(std::string const & message)
+        : m_message(message)
+    {
+    }
+
+    explicit ParseException(boost::format & fmt)
+        : m_message(fmt.str())
+    {
+    }
+
+    virtual ~ParseException() throw()
+    {
+    }
+
+    virtual const char* what() const throw()
+    {
+        return m_message.c_str();
+    }
+
+private:
+    std::string m_message;
+};
+
 } // namespace godwhale
 
 #endif

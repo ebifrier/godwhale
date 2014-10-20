@@ -168,6 +168,7 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\stdinc.cpp" />
     <ClCompile Include="..\..\..\src\syncposition.cpp" />
+    <ClCompile Include="..\..\..\src\commandpacket.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\server\client.h">
