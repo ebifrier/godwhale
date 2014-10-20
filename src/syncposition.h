@@ -42,7 +42,8 @@ public:
     void rewind();
     void resetFromRoot(const std::vector<Move> & pv);
 
-    std::vector<Move> getMoveList(Move exclude, bool firstMoveOnly);
+    void extendPV();
+    void getMoveList(Move exclude, bool firstMoveOnly, std::vector<Move> * result);
 
 private:
     static shared_ptr<SyncPosition> ms_instance;

@@ -102,6 +102,8 @@ public:
     void setHand(int turn, int piece, int count);
 
     bool isValidMove(Move move) const;
+    bool isInitial() const;
+
     int makeMove(Move move);
     int unmakeMove();
 

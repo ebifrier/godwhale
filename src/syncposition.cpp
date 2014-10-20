@@ -11,8 +11,6 @@ SyncPosition::SyncPosition()
 {
     memset(m_moveList, 0, sizeof(m_moveList));
     memset(m_checksList, 0, sizeof(m_checksList));
-
-    initialize();
 }
 
 /**
@@ -104,6 +102,10 @@ void SyncPosition::resetFromRoot(const std::vector<Move> & pv)
     }
 }
 
+void SyncPosition::extendPV()
+{
+}
+
 // copied from searchr.c, modified
 static int next_root_move(tree_t * restrict ptree)
 {
@@ -123,11 +125,11 @@ static int next_root_move(tree_t * restrict ptree)
 /**
  * @brief ある局面で着手可能な指し手をリストアップします。
  */
-std::vector<Move> SyncPosition::getMoveList(Move exclude, bool firstMoveOnly)
+void SyncPosition::getMoveList(Move exclude, bool firstMoveOnly,
+                               std::vector<Move> * result)
 {
-    tree_t* restrict ptree = g_ptree; 
+    tree_t * restrict ptree = g_ptree; 
     
-    std::vector<Move> result;
     int ply = m_moveSize + 1;
     int turn = countFlip(root_turn, ply-1);
     int i = 0;
@@ -149,11 +151,9 @@ std::vector<Move> SyncPosition::getMoveList(Move exclude, bool firstMoveOnly)
         assert(is_move_valid(g_ptree, MOVE_CURR, turn));
 
         if (MOVE_CURR == exclude) continue;
-        result.push_back(MOVE_CURR);
+        result->push_back(MOVE_CURR);
         //if (firstMoveOnly && result.size() >= 2) break;
     }
-
-    return result;
 }
 
 } // namespace godwhale

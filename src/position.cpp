@@ -211,6 +211,29 @@ bool Position::isValidMove(Move move) const
     }
 }
 
+/**
+ * @brief èâä˙ã«ñ Ç©Ç«Ç§Ç©í≤Ç◊Ç‹Ç∑ÅB
+ */
+bool Position::isInitial() const
+{
+    ScopedLock lock(m_guard);
+
+    if (m_turn != black || !m_moveList.empty()) {
+        return false;
+    }
+
+    if (m_hand[0] != 0 || m_hand[1] != 0) {
+        return false;
+    }
+
+    if (!std::equal(boost::begin(m_asquare), boost::end(m_asquare),
+                    min_posi_no_handicap.asquare)) {
+        return false;
+    }
+
+    return true;
+}
+
 int Position::makeMove(Move move)
 {
     ScopedLock lock(m_guard);

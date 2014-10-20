@@ -12,3 +12,4 @@ build/visualc10/ipch/
 *.sdf
 *.opensdf
 *.userprefs
+utility/Bonako/Bonako/dist/Bonako_*.zip

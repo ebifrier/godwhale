@@ -1,5 +1,6 @@
 
 #include "precomp.h"
+#include "stdinc.h"
 #include "logger.h"
 
 #include <boost/log/sinks.hpp>
@@ -12,8 +13,8 @@
 
 namespace godwhale {
 
-using namespace boost;
 using namespace boost::log;
+using namespace boost::posix_time;
 
 /**
  * @brief グローバルロガーを設定する。
@@ -66,12 +67,12 @@ std::string getLogFuncName(const std::string &funcname)
  */
 static std::string GetLogName()
 {
-    posix_time::time_facet *f = new posix_time::time_facet("%Y%m%d_%H%M%S.log");
+    time_facet *f = new time_facet("%Y%m%d_%H%M%S.log");
 
     std::ostringstream oss;
     oss.imbue(std::locale(oss.getloc(), f));
 
-    oss << posix_time::second_clock::local_time();
+    oss << second_clock::local_time();
     return oss.str();
 }
 
@@ -106,7 +107,7 @@ void InitializeLog()
     //frontend->set_filter(Severity >= Notification);
     frontend->set_formatter
         ( expressions::format("[%1%]:%2%(%3%):%4%:%5%: %6%")
-        % expressions::format_date_time<posix_time::ptime>
+        % expressions::format_date_time<ptime>
             ("TimeStamp", "%Y-%m-%d %H:%M:%S")
         % expressions::attr<std::string>("SrcFile")
         % expressions::attr<int>("RecordLine")
