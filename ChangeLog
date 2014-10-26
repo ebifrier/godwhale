@@ -1,3 +1,7 @@
+2014-10-27  - Ver 2.4.7.20
+
+	* src/client/*: クライアント用のファイルをいくつか追加しました。
+
 2014-10-27  - Ver 2.4.7.19
 
 	* src/rsiservice.cpp: RSI(remote shogi protocol)を処理するための通信用

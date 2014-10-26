@@ -135,11 +135,26 @@
     <ClCompile Include="..\..\..\src\move.cpp" />
     <ClCompile Include="..\..\..\src\position.cpp" />
     <ClCompile Include="..\..\..\src\util.cpp" />
-    <ClCompile Include="..\..\..\src\commandio.cpp" />
     <ClCompile Include="..\..\..\src\movenode.cpp" />
-    <ClCompile Include="..\..\..\src\client\client_main.cpp">
+    <ClCompile Include="..\..\..\src\client\client.cpp">
       <Filter>client</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\stdinc.cpp" />
+    <ClCompile Include="..\..\..\src\syncposition.cpp" />
+    <ClCompile Include="..\..\..\src\commandpacket.cpp" />
+    <ClCompile Include="..\..\..\src\io_csa.cpp" />
+    <ClCompile Include="..\..\..\src\io_sfen.cpp" />
+    <ClCompile Include="..\..\..\src\client\main_client.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\client\client_proce.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\client\client_mainloop.cpp">
+      <Filter>client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\rsiservice.cpp" />
+    <ClCompile Include="..\..\..\src\replypacket.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="bonanza6">
@@ -170,7 +185,15 @@
     <ClInclude Include="..\..\..\src\position.h" />
     <ClInclude Include="..\..\..\src\util.h" />
     <ClInclude Include="..\..\..\src\exceptions.h" />
-    <ClInclude Include="..\..\..\src\commandio.h" />
     <ClInclude Include="..\..\..\src\movenode.h" />
+    <ClInclude Include="..\..\..\src\client\client.h">
+      <Filter>client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\syncposition.h" />
+    <ClInclude Include="..\..\..\src\commandpacket.h" />
+    <ClInclude Include="..\..\..\src\io_csa.h" />
+    <ClInclude Include="..\..\..\src\io_sfen.h" />
+    <ClInclude Include="..\..\..\src\rsiservice.h" />
+    <ClInclude Include="..\..\..\src\replypacket.h" />
   </ItemGroup>
 </Project>
