@@ -6,22 +6,18 @@ namespace godwhale {
 /**
  * @brief コマンドの受信などに使われるリスナーです。
  */
-class ICommandListener
+class IRSIListener
 {
 public:
     /**
      * @brief コマンド受信時に呼ばれます。
      */
-    virtual void OnCommandReceived(std::string const & command)
-    {
-    }
+    virtual void onRSIReceived(std::string const & rsi) = 0;
 
     /**
      * @brief 接続が切断されたときに呼ばれます。
      */
-    virtual void OnDisconnected()
-    {
-    }
+    virtual void onDisconnected() = 0;
 };
 
 
@@ -56,7 +52,7 @@ public:
     }
 
     /**
-     * @brief コマンドの区切り記号を追加します。
+     * @brief コマンドが空かどうか調べます。
      */
     bool isEmpty() const
     {
@@ -64,7 +60,7 @@ public:
     }
 
     /**
-     * @brief コマンドの区切り記号を追加します。
+     * @brief コマンドを初期化します。
      */
     void clear()
     {
@@ -88,42 +84,53 @@ private:
 
 
 /**
- * @brief リスナーＰＣによるクライアントを管理します。
+ * @brief RSI(remote shogi protocol)の送受信を行うクラスです。
  */
-class CommandIO : public enable_shared_from_this<CommandIO>
+class RSIService : public enable_shared_from_this<RSIService>
 {
 public:
-    explicit CommandIO(shared_ptr<tcp::socket> socket,
-                       shared_ptr<ICommandListener> listener);
-    ~CommandIO();
+    explicit RSIService(weak_ptr<IRSIListener> listener);
+    virtual ~RSIService();
+
+    /**
+     * @brief ソケットが接続中か調べます。
+     */
+    bool isOpened() const
+    {
+        auto socket = m_socket;
+        return (socket != nullptr && socket->is_open());
+    }
 
     /**
      * @brief コマンドを送信します。
      */
-    void SendCommand(boost::format const & fmt, bool isOutLog = true)
+    void sendRSI(boost::format const & fmt, bool isOutLog = true)
     {
-        SendCommand(fmt.str(), isOutLog);
+        sendRSI(fmt.str(), isOutLog);
     }
 
-    void Close();
-    void StartReceive();
-    void SendCommand(std::string const & command, bool isOutLog = true);
+    void startReceive(shared_ptr<tcp::socket> socket);
+    void close();
+    void sendRSI(std::string const & rsi, bool isOutLog = true);
 
 private:
-    void Disconnected();
-    
-    void HandleAsyncReceive(const boost::system::error_code &error);
+    void onDisconnected();
 
-    void PutSendPacket(SendData const & packet);
-    SendData GetSendPacket();
+    void startReceive();
+    void handleAsyncReceive(boost::system::error_code const & error);
 
-    void BeginAsyncSend();
-    void HandleAsyncSend(const boost::system::error_code &error);
+    void putSendPacket(SendData const & packet);
+    SendData getSendPacket();
+
+    void beginAsyncSend();
+    void handleAsyncSend(boost::system::error_code const & error);
 
 private:
-    shared_ptr<ICommandListener> m_listener;
-    shared_ptr<tcp::socket> m_socket;
     mutable Mutex m_guard;
+    shared_ptr<tcp::socket> m_socket;
+    weak_ptr<IRSIListener> m_listener;
+
+    volatile bool m_isShutdown;
 
     boost::asio::streambuf m_streamBuf;
     char m_line[2048];

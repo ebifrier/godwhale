@@ -1,3 +1,8 @@
+2014-10-27  - Ver 2.4.7.19
+
+	* src/rsiservice.cpp: RSI(remote shogi protocol)を処理するための通信用
+	クラスを追加しました。(CommandIOから改名しました)
+
 2014-10-27  - Ver 2.4.7.18
 
 	* src/commandpacket.cpp: コマンド用のクラスを修正し、いくつかのコマンド
