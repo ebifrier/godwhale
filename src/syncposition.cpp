@@ -14,7 +14,7 @@ SyncPosition::SyncPosition()
 }
 
 /**
- * @brief 指し手を１手進めます。
+ * @brief 局面をルート局面に戻し、bonaの初期化を行います。
  */
 void SyncPosition::initialize()
 {
@@ -28,6 +28,23 @@ void SyncPosition::initialize()
 
     ptree->nsuc_check[0] = 0;
     ptree->nsuc_check[1] = checked ? 1 : 0;
+}
+
+void SyncPosition::initialize(min_posi_t const & posi)
+{
+}
+
+/**
+ * @brief ルートの指し手を１手進めます。
+ */
+void SyncPosition::makeRootMove(Move move)
+{
+    tree_t * restrict ptree = g_ptree;
+
+    rewind();
+
+    make_move_root(ptree, move, flag_time);
+    initialize();
 }
 
 /**

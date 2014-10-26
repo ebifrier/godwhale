@@ -35,7 +35,6 @@ public:
      */
     int get(int sq) const
     {
-        ScopedLock lock(m_guard);
         return m_asquare[sq];
     }
 
@@ -52,7 +51,6 @@ public:
      */
     void set(int sq, int piece)
     {
-        ScopedLock lock(m_guard);
         m_asquare[sq] = (char)piece;
     }
 
@@ -77,7 +75,6 @@ public:
      */
     int getTurn() const
     {
-        ScopedLock lock(m_guard);
         return m_turn;
     }
 
@@ -86,7 +83,6 @@ public:
      */
     void setTurn(int turn)
     {
-        ScopedLock lock(m_guard);
         m_turn = turn;
     }
 
@@ -104,8 +100,8 @@ public:
     bool isValidMove(Move move) const;
     bool isInitial() const;
 
-    int makeMove(Move move);
-    int unmakeMove();
+    bool makeMove(Move move);
+    bool unmakeMove();
 
     void print(std::ostream &os) const;
 
@@ -114,14 +110,12 @@ private:
                     int ifrom, int is_promote) const;
     void printHand(std::ostream &os, unsigned int hand,
                    const std::string &prefix) const;
-    void printHand0(std::ostream &os, int n, std::string const & prefix,
-                    std::string const & str) const;
+    void printHand0(std::ostream &os, int n, std::string const & str) const;
 
 private:
-    mutable Mutex m_guard;
     unsigned int m_hand[2];
     int m_turn;
-    int m_asquare[nsquare];
+    std::vector<int> m_asquare;
 
     std::vector<Move> m_moveList;
 };

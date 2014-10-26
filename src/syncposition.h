@@ -35,10 +35,13 @@ public:
         return m_checksList[ply];
     }
 
+    void initialize();
+    void initialize(min_posi_t const & posi);
+
+    void makeRootMove(Move move);
     void makeMove(Move move);
     void unmakeMove();
 
-    void initialize();
     void rewind();
     void resetFromRoot(const std::vector<Move> & pv);
 

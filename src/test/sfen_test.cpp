@@ -101,7 +101,7 @@ static void boardAndMoveTest(std::string const & boardSfen,
     ASSERT_EQ(moveSfenList.size(), moveList.size());
 
     BOOST_FOREACH(auto m, moveList) {
-        ASSERT_EQ(0, position1.makeMove(m));
+        ASSERT_TRUE(position1.makeMove(m));
     }
 
     // 出力したSFEN形式の指し手が同じかどうかの確認もします。

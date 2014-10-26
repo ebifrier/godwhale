@@ -13,62 +13,53 @@ const unsigned int Position::HandTable[] =
 };
 
 Position::Position(bool init/*=true*/)
-    : m_turn(black)
+    : m_turn(black), m_asquare(nsquare)
 {
     memset(m_hand, 0, sizeof(m_hand));
 
     if (init) {
         // m_asquareÇ∆min_posi_t.asquareÇÕå^Ç™à·Ç§ÅB
-        std::copy_n(min_posi_no_handicap.asquare, (int)nsquare, m_asquare);
-    }
-    else {
-        std::memset(m_asquare, 0, sizeof(m_asquare));
+        std::copy_n(min_posi_no_handicap.asquare, (int)nsquare, m_asquare.begin());
     }
 }
 
 Position::Position(Position const & other)
 {
-    ScopedLock lock(other.m_guard);
-
     m_hand[black] = other.m_hand[black];
     m_hand[white] = other.m_hand[white];
     m_turn = other.m_turn;
+    m_asquare = other.m_asquare;
     m_moveList = other.m_moveList;
-    std::copy_n(other.m_asquare, (int)nsquare, m_asquare);
 }
 
 Position::Position(Position && other)
     : m_turn(other.m_turn)
 {
-    ScopedLock lock(other.m_guard);
-
     m_hand[black] = other.m_hand[black];
     m_hand[white] = other.m_hand[white];
     m_turn = other.m_turn;
-    m_moveList = std::move(other.m_moveList); // Ç±Ç±ÇæÇØà·Ç§
-    std::copy_n(other.m_asquare, (int)nsquare, m_asquare);
+    m_asquare = std::move(other.m_asquare); // Ç±Ç±ÇæÇØà·Ç§
+    m_moveList = std::move(other.m_moveList);
 }
 
 Position::Position(min_posi_t const & posi)
-    : m_turn(posi.hand_white)
+    : m_turn(posi.turn_to_move)
 {
     m_hand[black] = posi.hand_black;
     m_hand[white] = posi.hand_white;
 
-    std::copy_n(posi.asquare, (int)nsquare, m_asquare);
+    std::copy_n(posi.asquare, (int)nsquare, m_asquare.begin());
 }
 
 Position &Position::operator =(Position const & other)
 {
     if (this != &other)
     {
-        ScopedLock lock(other.m_guard);
-
         m_hand[black] = other.m_hand[black];
         m_hand[white] = other.m_hand[white];
         m_turn = other.m_turn;
+        m_asquare = other.m_asquare;
         m_moveList = other.m_moveList;
-        std::copy_n(other.m_asquare, (int)nsquare, m_asquare);
     }
 
     return *this;
@@ -78,13 +69,11 @@ Position &Position::operator =(Position && other)
 {
     if (this != &other)
     {
-        ScopedLock lock(other.m_guard);
-
         m_hand[black] = other.m_hand[black];
         m_hand[white] = other.m_hand[white];
         m_turn = other.m_turn;
-        m_moveList = std::move(other.m_moveList); // Ç±Ç±ÇæÇØà·Ç§
-        std::copy_n(other.m_asquare, (int)nsquare, m_asquare);
+        m_asquare = std::move(other.m_asquare); // Ç±Ç±ÇæÇØà·Ç§
+        m_moveList = std::move(other.m_moveList);
     }
 
     return *this;
@@ -95,7 +84,7 @@ Position &Position::operator =(min_posi_t const & posi)
     m_hand[black] = posi.hand_black;
     m_hand[white] = posi.hand_white;
     m_turn = posi.hand_white;
-    std::copy_n(posi.asquare, (int)nsquare, m_asquare);
+    std::copy_n(posi.asquare, (int)nsquare, m_asquare.begin());
 
     m_moveList.clear();
     return *this;
@@ -109,7 +98,8 @@ bool operator==(Position const & lhs, Position const & rhs)
         return false;
     }
 
-    if (memcmp(lhs.m_asquare, rhs.m_asquare, sizeof(lhs.m_asquare)) != 0) {
+    if (!std::equal(lhs.m_asquare.begin(), lhs.m_asquare.end(),
+                    rhs.m_asquare.begin())) {
         return false;
     }
 
@@ -147,13 +137,13 @@ void Position::setHand(int turn, int piece, int count)
     int hand = m_hand[turn];
 
     switch (piece) {
-    case pawn:   hand&=~IsHandPawn(~0);   hand|=(flag_hand_pawn   * count); break;
-    case knight: hand&=~IsHandKnight(~0); hand|=(flag_hand_knight * count); break;
-    case lance:  hand&=~IsHandLance(~0);  hand|=(flag_hand_lance  * count); break;
-    case silver: hand&=~IsHandSilver(~0); hand|=(flag_hand_silver * count); break;
-    case gold:   hand&=~IsHandGold(~0);   hand|=(flag_hand_gold   * count); break;
-    case bishop: hand&=~IsHandBishop(~0); hand|=(flag_hand_bishop * count); break;
-    case rook:   hand&=~IsHandRook(~0);   hand|=(flag_hand_rook   * count); break;
+    case pawn:   hand&=~IsHandPawn(~0);   hand|=(flag_hand_pawn  *count); break;
+    case knight: hand&=~IsHandKnight(~0); hand|=(flag_hand_knight*count); break;
+    case lance:  hand&=~IsHandLance(~0);  hand|=(flag_hand_lance *count); break;
+    case silver: hand&=~IsHandSilver(~0); hand|=(flag_hand_silver*count); break;
+    case gold:   hand&=~IsHandGold(~0);   hand|=(flag_hand_gold  *count); break;
+    case bishop: hand&=~IsHandBishop(~0); hand|=(flag_hand_bishop*count); break;
+    case rook:   hand&=~IsHandRook(~0);   hand|=(flag_hand_rook  *count); break;
     default:     unreachable(); break;
     }
 
@@ -165,7 +155,6 @@ void Position::setHand(int turn, int piece, int count)
  */
 bool Position::isValidMove(Move move) const
 {
-    ScopedLock lock(m_guard);
     int from = move.getFrom();
     int to   = move.getTo();
 
@@ -181,13 +170,13 @@ bool Position::isValidMove(Move move) const
 
         unsigned int u = m_hand[m_turn];
         switch (move.getDrop()) {
-        case pawn:    if (IsHandPawn(u))   { return true; } break;
-        case lance:   if (IsHandLance(u))  { return true; } break;
-        case knight:  if (IsHandKnight(u)) { return true; } break;
-        case silver:  if (IsHandSilver(u)) { return true; } break;
-        case gold:    if (IsHandGold(u))   { return true; } break;
-        case bishop:  if (IsHandBishop(u)) { return true; } break;
-        case rook:    if (IsHandRook(u))   { return true; } break;
+        case pawn:   if (IsHandPawn(u))   { return true; } break;
+        case lance:  if (IsHandLance(u))  { return true; } break;
+        case knight: if (IsHandKnight(u)) { return true; } break;
+        case silver: if (IsHandSilver(u)) { return true; } break;
+        case gold:   if (IsHandGold(u))   { return true; } break;
+        case bishop: if (IsHandBishop(u)) { return true; } break;
+        case rook:   if (IsHandRook(u))   { return true; } break;
         default:  unreachable(); break;
         }
 
@@ -216,8 +205,6 @@ bool Position::isValidMove(Move move) const
  */
 bool Position::isInitial() const
 {
-    ScopedLock lock(m_guard);
-
     if (m_turn != black || !m_moveList.empty()) {
         return false;
     }
@@ -234,17 +221,19 @@ bool Position::isInitial() const
     return true;
 }
 
-int Position::makeMove(Move move)
+/**
+ * @brief éwÇµéËÇàÍÇ¬êiÇﬂÇ‹Ç∑ÅB
+ */
+bool Position::makeMove(Move move)
 {
-    ScopedLock lock(m_guard);
     int sign = (m_turn == black ? +1 : -1);
 
     if (move.getCapture() == king) {
         LOG_ERROR() << move << " " << move.getCapture() << " is invalid.";
-        return -1;
+        return false;
     }
     if (move == MOVE_NA || !isValidMove(move)) {
-        return -1;
+        return false;
     }
 
     if (move.isDrop()) {
@@ -277,14 +266,17 @@ int Position::makeMove(Move move)
 
     m_turn = Flip(m_turn);
     m_moveList.push_back(move);
-    return 0;
+    return true;
 }
 
-int Position::unmakeMove()
+/**
+ * @brief éwÇµéËÇàÍÇ¬ñﬂÇµÇ‹Ç∑ÅB
+ */
+bool Position::unmakeMove()
 {
-    ScopedLock lock(m_guard);
+    assert(!m_moveList.empty());
     if (m_moveList.empty()) {
-        return -1;
+        return false;
     }
 
     // éËî‘ÇÕêÊÇ…ÉtÉäÉbÉvÇµÇ‹Ç∑ÅB
@@ -319,21 +311,35 @@ int Position::unmakeMove()
     }
 
     m_moveList.pop_back();
-    return 0;
+    return true;
 }
 
+static std::string s_bigNumberText[] =
+{
+    "ÇO", "ÇP", "ÇQ", "ÇR", "ÇS",
+    "ÇT", "ÇU", "ÇV", "ÇW", "ÇX",
+};
+
+static std::string s_kanjiNumberText[] =
+{
+    "óÎ", "àÍ", "ìÒ", "éO", "él",
+    "å‹", "òZ", "éµ", "î™", "ã„",
+};
+
+/**
+ * @brief ã«ñ ÇèoóÕÇµÇ‹Ç∑ÅB
+ */
 void Position::print(std::ostream &os) const
 {
-    ScopedLock lock(m_guard);
     const Move move      = (m_moveList.empty() ? MOVE_NA : m_moveList.back());
     const int ito        = move.getTo();
     const int ifrom      = move.getFrom();
     const int is_promote = move.isPromote();
 
-    os << "'    9   8   7   6   5   4   3   2   1" << std::endl;
+    os << "'   ÇX  ÇW  ÇV  ÇU  ÇT  ÇS  ÇR  ÇQ  ÇP" << std::endl;
 
     for (int irank = rank1; irank <= rank9; ++irank) {
-        os << "P" << irank + 1 << " |";
+        os << s_kanjiNumberText[irank + 1] << " |";
         
         for (int ifile = file1; ifile <= file9; ++ifile) {
             int sq = irank * nfile + ifile;
@@ -345,10 +351,13 @@ void Position::print(std::ostream &os) const
         os << std::endl;
     }
 
-    printHand(os, m_hand[black], "P+");
-    printHand(os, m_hand[white], "P-");
+    printHand(os, m_hand[black], "êÊéË: ");
+    printHand(os, m_hand[white], "å„éË: ");
 }
 
+/**
+ * @brief ãÓÇàÍÇ¬èoóÕÇµÇ‹Ç∑ÅB
+ */
 void Position::printPiece(std::ostream &os, int piece, int sq, int ito,
                           int ifrom, int is_promote) const
 {
@@ -361,25 +370,37 @@ void Position::printPiece(std::ostream &os, int piece, int sq, int ito,
     }
 }
 
+/**
+ * @brief éùÇøãÓÇèoóÕÇµÇ‹Ç∑ÅB
+ */
 void Position::printHand(std::ostream &os, unsigned int hand,
                          const std::string &prefix) const
 {
-    printHand0(os, (int)I2HandPawn(hand),   prefix, "00FU");
-    printHand0(os, (int)I2HandLance(hand),  prefix, "00KY");
-    printHand0(os, (int)I2HandKnight(hand), prefix, "00KE");
-    printHand0(os, (int)I2HandSilver(hand), prefix, "00GI");
-    printHand0(os, (int)I2HandGold(hand),   prefix, "00KI");
-    printHand0(os, (int)I2HandBishop(hand), prefix, "00KA");
-    printHand0(os, (int)I2HandRook(hand),   prefix, "00HI");
+    if (hand != 0) {
+        os << prefix;
+    }
+
+    printHand0(os, (int)I2HandPawn(hand),   "ï‡");
+    printHand0(os, (int)I2HandLance(hand),  "çÅ");
+    printHand0(os, (int)I2HandKnight(hand), "åj");
+    printHand0(os, (int)I2HandSilver(hand), "ã‚");
+    printHand0(os, (int)I2HandGold(hand),   "ã‡");
+    printHand0(os, (int)I2HandBishop(hand), "äp");
+    printHand0(os, (int)I2HandRook(hand),   "îÚ");
 }
 
-void Position::printHand0(std::ostream &os, int n, const std::string &prefix,
-                          const std::string &str) const
+/**
+ * @brief éùÇøãÓÇÇPÇ¬ÇæÇØèoóÕÇµÇ‹Ç∑ÅB
+ */
+void Position::printHand0(std::ostream &os, int n, const std::string &str) const
 {
     if (n > 0) {
-        os << prefix;
-        for (int i = 0; i < n; ++i) { os << str; }
-        os << std::endl;
+        if (n >= 10) {
+            os << s_bigNumberText[n / 10];
+            n %= 10;
+        }
+        os << s_bigNumberText[n];
+        os << str;
     }
 }
 

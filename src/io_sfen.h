@@ -31,7 +31,7 @@ inline std::vector<Move> sfenToMoveList(Position && position,
             return result;
         }
             
-        if (position.makeMove(move) != 0) {
+        if (!position.makeMove(move)) {
             return result;
         }
 
