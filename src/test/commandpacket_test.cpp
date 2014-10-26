@@ -20,7 +20,7 @@ TEST (CommandPacketTest, setPositionTest)
 
     ASSERT_EQ(10, command->getPositionId());
     ASSERT_EQ(Position(), command->getPosition());
-    ASSERT_EQ(commandStr, command->toRsi());
+    ASSERT_EQ(commandStr, command->toRSI());
 
     //
     sfen = "l8/4+R4/1L2pgn2/1Ps1k2S1/P2p1SP2/LlP2b2p/ppNGP4/2S6/2KG5 w RBG6P2n2p 1";
@@ -29,7 +29,7 @@ TEST (CommandPacketTest, setPositionTest)
 
     ASSERT_EQ(0, command->getPositionId());
     ASSERT_EQ(sfenToPosition(sfen), command->getPosition());
-    ASSERT_EQ(commandStr, command->toRsi());
+    ASSERT_EQ(commandStr, command->toRSI());
 
     //
     std::string moves =
@@ -53,7 +53,7 @@ TEST (CommandPacketTest, setPositionTest)
 
     ASSERT_EQ(0, command->getPositionId());
     ASSERT_EQ(sfenToPosition(sfen0), command->getPosition());
-    ASSERT_EQ(commandStr, command->toRsi());
+    ASSERT_EQ(commandStr, command->toRSI());
 }
 
 TEST (CommandPacketTest, setPositionErrorTest)

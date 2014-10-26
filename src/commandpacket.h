@@ -9,8 +9,10 @@ namespace godwhale {
 /**
  * @brief コマンド識別子です。
  *
- * コマンドとはサーバーからクライアントに送られる
- * インストラクションです。
+ * コマンドとは
+ * 1, サーバーからクライアントに送られた
+ * 2, stdinから受信された
+ * 命令インストラクションです。
  */
 enum CommandType
 {
@@ -19,9 +21,21 @@ enum CommandType
      */
     COMMAND_NONE,
     /**
+     * @brief サーバーにログイン処理を依頼します。
+     */
+    COMMAND_LOGIN,
+    /**
+     * @brief ログイン処理の結果をもらいます。
+     */
+    COMMAND_LOGINRESULT,
+    /**
      * @brief ルート局面を設定します。
      */
     COMMAND_SETPOSITION,
+    /**
+     * @brief ルート局面から指し手を一つ進めます。
+     */
+    COMMAND_MAKEROOTMOVE,
     /**
      * @brief PVを設定します。
      */
@@ -44,28 +58,6 @@ enum CommandType
      * @brief クライアントを終了させます。
      */
     COMMAND_QUIT,
-};
-
-/**
- * @brief 返答コマンドの識別子です。
- *
- * 返答コマンドとはクライアントからサーバーに送られる
- * インストラクションです。
- */
-enum ReplyType
-{
-    /**
-     * @brief 特になし。
-     */
-    REPLY_NONE,
-    /**
-     * @brief α値の更新の可能性があるとき、探索時間の調整などに使います。
-     */
-    REPLY_RETRYED,
-    /**
-     * @brief α値の更新が行われたときに使います。
-     */
-    REPLY_VALUEUPDATED,
 };
 
 /**
@@ -109,6 +101,14 @@ public:
     }
 
     /**
+     * @brief 更新前の局面IDを取得します。
+     */
+    int getOldPositionId() const
+    {
+        return m_oldPositionId;
+    }
+
+    /**
      * @brief 反復深化の探索深さを取得します。
      */
     int getIterationDepth() const
@@ -141,6 +141,14 @@ public:
     }
 
     /**
+     * @brief 指し手を取得します。
+     */
+    Move getMove() const
+    {
+        return m_move;
+    }
+
+    /**
      * @brief 指し手のリスト(手の一覧やＰＶなど)を取得します。
      */
     std::vector<Move> const &getMoveList() const
@@ -148,41 +156,99 @@ public:
         return m_moveList;
     }
 
+public:
+    /* for Login */
+
+    /**
+     * @brief 接続先のサーバーアドレスを取得します。
+     */
+    std::string getServerAddress() const
+    {
+        return m_serverAddress;
+    }
+
+    /**
+     * @brief 接続先のサーバーポートを取得します。
+     */
+    std::string getServerPort() const
+    {
+        return m_serverPort;
+    }
+
+    /**
+     * @brief ログインＩＤを取得します。
+     */
+    std::string getLoginId() const
+    {
+        return m_loginId;
+    }
+
+    /**
+     * @brief ログイン結果を取得します。
+     */
+    /*int getLoginResult() const
+    {
+        return m_loginResult;
+    }*/
+
+public:
     int getPriority() const;
 
     static shared_ptr<CommandPacket> parse(std::string const & rsi);
-    std::string toRsi() const;
+    std::string toRSI() const;
 
 private:
     static bool isToken(std::string const & str, std::string const & target);
 
+    // login
+    static shared_ptr<CommandPacket> parse_Login(std::string const & rsi,
+                                                 Tokenizer & tokens);
+    std::string toRSI_Login() const;
+
+    // loginresult
+    /*static shared_ptr<CommandPacket> parse_Login(std::string const & rsi,
+                                                 Tokenizer & tokens);
+    std::string toRSI_Login() const;*/
+
     // setposition
     static shared_ptr<CommandPacket> parse_SetPosition(std::string const & rsi,
                                                        Tokenizer & tokens);
-    std::string toRsi_SetPosition() const;
+    std::string toRSI_SetPosition() const;
+
+    // makerootmove
+    static shared_ptr<CommandPacket> parse_MakeRootMove(std::string const & rsi,
+                                                        Tokenizer & tokens);
+    std::string toRSI_MakeRootMove() const;
 
     // setmovelist
     static shared_ptr<CommandPacket> parse_SetMoveList(std::string const & rsi,
                                                        Tokenizer & tokens);
-    std::string toRsi_SetMoveList() const;
+    std::string toRSI_SetMoveList() const;
 
     // stop
     static shared_ptr<CommandPacket> parse_Stop(std::string const & rsi,
                                                 Tokenizer & tokens);
-    std::string toRsi_Stop() const;
+    std::string toRSI_Stop() const;
 
     // quit
     static shared_ptr<CommandPacket> parse_Quit(std::string const & rsi,
                                                 Tokenizer & tokens);
-    std::string toRsi_Quit() const;
+    std::string toRSI_Quit() const;
 
 private:
     CommandType m_type;
 
     int m_positionId;
+    int m_oldPositionId;
     int m_iterationDepth;
     int m_plyDepth;
     Position m_position;
+
+    std::string m_serverAddress;
+    std::string m_serverPort;
+    std::string m_loginId;
+
+    Move m_move;
     std::vector<Move> m_moveList;
 };
 

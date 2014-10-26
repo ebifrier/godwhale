@@ -36,7 +36,9 @@ int CommandPacket::getPriority() const
         return 100;
 
     // 通常のコマンドはそのままの順で
+    case COMMAND_LOGIN:
     case COMMAND_SETPOSITION:
+    case COMMAND_MAKEROOTMOVE:
     case COMMAND_SETPV:
     case COMMAND_SETMOVELIST:
     case COMMAND_VERIFY:
@@ -71,8 +73,17 @@ shared_ptr<CommandPacket> CommandPacket::parse(std::string const & rsi)
     Tokenizer tokens(rsi, ms_separator);
     std::string token = *tokens.begin();
 
-    if (isToken(token, "setposition")) {
+    if (isToken(token, "login")) {
+        return parse_Login(rsi, tokens);
+    }
+    else if (isToken(token, "setposition")) {
         return parse_SetPosition(rsi, tokens);
+    }
+    else if (isToken(token, "makerootmove")) {
+        return parse_MakeRootMove(rsi, tokens);
+    }
+    else if (isToken(token, "setmovelist")) {
+        return parse_SetMoveList(rsi, tokens);
     }
     else if (isToken(token, "stop")) {
         return parse_Stop(rsi, tokens);
@@ -87,22 +98,58 @@ shared_ptr<CommandPacket> CommandPacket::parse(std::string const & rsi)
 /**
  * @brief コマンドをRSI(remote shogi interface)に変換します。
  */
-std::string CommandPacket::toRsi() const
+std::string CommandPacket::toRSI() const
 {
     assert(m_type != COMMAND_NONE);
 
     switch (m_type) {
+    case COMMAND_LOGIN:
+        return toRSI_Login();
     case COMMAND_SETPOSITION:
-        return toRsi_SetPosition();
+        return toRSI_SetPosition();
+    case COMMAND_MAKEROOTMOVE:
+        return toRSI_MakeRootMove();
+    case COMMAND_SETMOVELIST:
+        return toRSI_SetMoveList();
     case COMMAND_STOP:
-        return toRsi_Stop();
+        return toRSI_Stop();
     case COMMAND_QUIT:
-        return toRsi_Quit();
+        return toRSI_Quit();
     }
 
     unreachable();
     return std::string();
 }
+
+
+#pragma region Login
+/**
+ * @brief loginコマンドをパースします。
+ *
+ * login <address> <port> <login_id> <nthreads>
+ */
+shared_ptr<CommandPacket> CommandPacket::parse_Login(std::string const & rsi,
+                                                     Tokenizer & tokens)
+{
+    shared_ptr<CommandPacket> result(new CommandPacket(COMMAND_LOGIN));
+    Tokenizer::iterator begin = ++tokens.begin();
+
+    result->m_serverAddress = *begin++;
+    result->m_serverPort = *begin++;
+    result->m_loginId = *begin++;
+    return result;
+}
+
+/**
+ * @brief loginコマンドをRSIに変換します。
+ */
+std::string CommandPacket::toRSI_Login() const
+{
+    return (F("login %1% %2% %3%")
+        % m_serverAddress % m_serverPort % m_loginId)
+        .str();
+}
+#pragma endregion
 
 
 #pragma region SetPosition
@@ -145,7 +192,7 @@ shared_ptr<CommandPacket> CommandPacket::parse_SetPosition(std::string const & r
     for (; begin != tokens.end(); ++begin) {
         Move move = sfenToMove(result->m_position, *begin);
 
-        if (result->m_position.makeMove(move) != 0) {
+        if (!result->m_position.makeMove(move)) {
             LOG_ERROR() << result->m_position;
             LOG_ERROR() << *begin << ": 指し手が正しくありません。";
             throw new ParseException(F("%1%: 指し手が正しくありません。") % *begin);
@@ -158,7 +205,7 @@ shared_ptr<CommandPacket> CommandPacket::parse_SetPosition(std::string const & r
 /**
  * @brief setpositionコマンドをRSIに変換します。
  */
-std::string CommandPacket::toRsi_SetPosition() const
+std::string CommandPacket::toRSI_SetPosition() const
 {
     Position position = m_position;
     std::vector<Move> moves = position.getMoveList();
@@ -188,6 +235,40 @@ std::string CommandPacket::toRsi_SetPosition() const
 
     return (F("setposition %1%%2%%3%")
         % m_positionId % posStr % movesStr)
+        .str();
+}
+#pragma endregion
+
+
+#pragma region MakeRootMove
+/**
+ * @brief makerootmoveコマンドをパースします。
+ *
+ * makerootmove <position_id> <old_position_id> <move>
+ */
+shared_ptr<CommandPacket> CommandPacket::parse_MakeRootMove(std::string const & rsi,
+                                                            Tokenizer & tokens)
+{
+    shared_ptr<CommandPacket> result(new CommandPacket(COMMAND_MAKEROOTMOVE));
+    Tokenizer::iterator begin = ++tokens.begin(); // 最初のトークンは飛ばします。
+
+    result->m_positionId = lexical_cast<int>(*begin++);
+    result->m_oldPositionId = lexical_cast<int>(*begin++);
+
+    // 与えられたpositionIdなどから局面を検索します。
+    Position position;
+
+    result->m_move = sfenToMove(position, *begin++);
+    return result;
+}
+
+/**
+ * @brief makerootmoveコマンドをRSIに変換します。
+ */
+std::string CommandPacket::toRSI_MakeRootMove() const
+{
+    return (F("makerootmove %1% %2% %3%")
+        % m_positionId % m_oldPositionId % moveToSfen(m_move))
         .str();
 }
 #pragma endregion
@@ -229,7 +310,7 @@ shared_ptr<CommandPacket> CommandPacket::parse_SetMoveList(std::string const & r
 /**
  * @brief setmovelistコマンドをRSIに変換します。
  */
-std::string CommandPacket::toRsi_SetMoveList() const
+std::string CommandPacket::toRSI_SetMoveList() const
 {
     std::string movesStr;
     BOOST_FOREACH(Move move, m_moveList) {
@@ -257,7 +338,7 @@ shared_ptr<CommandPacket> CommandPacket::parse_Stop(std::string const & rsi,
 /**
  * @brief stopコマンドをRSIに変換します。
  */
-std::string CommandPacket::toRsi_Stop() const
+std::string CommandPacket::toRSI_Stop() const
 {
     return "stop";
 }
@@ -277,7 +358,7 @@ shared_ptr<CommandPacket> CommandPacket::parse_Quit(std::string const & rsi,
 /**
  * @brief quitコマンドをRSIに変換します。
  */
-std::string CommandPacket::toRsi_Quit() const
+std::string CommandPacket::toRSI_Quit() const
 {
     return "quit";
 }
