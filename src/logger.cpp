@@ -63,9 +63,30 @@ std::string getLogFuncName(const std::string &funcname)
 }
 
 /**
+ * @brief ログの出力レベル名を取得します。
+ */
+std::string getSeverityName(SeverityLevel severity)
+{
+    switch (severity) {
+    case Debug:
+        return "DEBUG";
+    case Notification:
+        return "NOTIFICATION";
+    case Warning:
+        return "WARNING";
+    case Error:
+        return "ERROR";
+    case Critical:
+        return "CRITICAL";
+    }
+
+    return "UNKNOWN";
+}
+
+/**
  * @brief ログファイル名にはタイムスタンプを使います。
  */
-static std::string GetLogName()
+static std::string getLogName()
 {
     time_facet *f = new time_facet("%Y%m%d_%H%M%S.log");
 
@@ -88,7 +109,7 @@ struct empty_deleter
 /**
  * @brief 対局開始毎にログファイルの初期化を行います。
  */
-void InitializeLog()
+void initializeLog()
 {
     typedef sinks::text_ostream_backend text_backend;
     auto backend = make_shared<text_backend>();
@@ -99,7 +120,12 @@ void InitializeLog()
     backend->add_stream(os);
 
     // ファイル出力
-    auto logpath = "server.log";
+    auto logpath =
+#if defined(GODWHALE_SERVER)
+        "server.log";
+#else
+        "client.log";
+#endif
     auto fs = shared_ptr<std::ostream>(new std::ofstream(logpath, std::ios::app));
     backend->add_stream(fs);
     
@@ -110,9 +136,9 @@ void InitializeLog()
         % expressions::format_date_time<ptime>
             ("TimeStamp", "%Y-%m-%d %H:%M:%S")
         % expressions::attr<std::string>("SrcFile")
-        % expressions::attr<int>("RecordLine")
+        % expressions::attr<std::string>("RecordLine")
         % expressions::attr<std::string>("CurrentFunction")
-        % Severity
+        % expressions::attr<std::string>("SeverityName")
         % expressions::message);
 
     core::get()->remove_all_sinks();

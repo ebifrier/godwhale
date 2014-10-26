@@ -21,8 +21,9 @@ BOOST_LOG_GLOBAL_LOGGER(Logger, boost::log::sources::severity_logger_mt<Severity
 #define LOG(severity)                                                   \
     BOOST_LOG_SEV(::godwhale::Logger::get(), severity)            \
         << boost::log::add_value("SrcFile", ::godwhale::getLogFileName(__FILE__))   \
-        << boost::log::add_value("RecordLine", __LINE__)                \
-        << boost::log::add_value("CurrentFunction", ::godwhale::getLogFuncName(__FUNCTION__))
+        << boost::log::add_value("RecordLine", toString(__LINE__))                \
+        << boost::log::add_value("CurrentFunction", ::godwhale::getLogFuncName(__FUNCTION__)) \
+        << boost::log::add_value("SeverityName", ::godwhale::getSeverityName(severity))
 
 #define LOG_DEBUG()        LOG(::godwhale::Debug)
 #define LOG_NOTIFICATION() LOG(::godwhale::Notification)
@@ -31,9 +32,10 @@ BOOST_LOG_GLOBAL_LOGGER(Logger, boost::log::sources::severity_logger_mt<Severity
 #define LOG_CRITICAL()     LOG(::godwhale::Critical)
 
 /// ƒƒO‚ð‰Šú‰»‚µ‚Ü‚·B
-extern void InitializeLog();
-extern std::string getLogFileName(const std::string &filepath);
-extern std::string getLogFuncName(const std::string &funcname);
+extern void initializeLog();
+extern std::string getLogFileName(std::string const & filepath);
+extern std::string getLogFuncName(std::string const & funcname);
+extern std::string getSeverityName(SeverityLevel severity);
 
 } // namespace godwhale
 
