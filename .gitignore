@@ -13,3 +13,4 @@ build/visualc10/ipch/
 *.opensdf
 *.userprefs
 utility/Bonako/Bonako/dist/Bonako_*.zip
+build/visualc10/client/log/

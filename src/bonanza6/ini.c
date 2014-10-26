@@ -358,8 +358,11 @@ ini( tree_t * restrict ptree )
   if ( dfpn_ini_hash() < 0 ) { return -1; }
 #endif
 
+  // クライアントは定跡ファイルを使いません。
+#if ! defined(GODWHALE_CLIENT)
   if ( book_on() < 0 ) { out_warning( "%s", str_error );}
   else                 { Out( "%s found\n", str_book );}
+#endif
 
   if ( get_elapsed( &time_turn_start ) < 0 ) { return -1; }
 

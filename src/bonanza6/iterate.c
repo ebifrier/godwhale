@@ -26,11 +26,7 @@ iterate( tree_t * restrict ptree )
   int i, length;
 
   /* probe the opening book */
-  if ( pf_book != NULL
-#if defined(USI) || defined(MNJ_LAN)
-       && moves_ignore[0] == MOVE_NA
-#endif
-       && ! rep_book_prob( ptree ) )
+  if ( pf_book != NULL && ! rep_book_prob( ptree ) )
     {
       int is_book_hit, i;
       unsigned int elapsed;
@@ -56,10 +52,6 @@ iterate( tree_t * restrict ptree )
                   ptree->hist_tried[i] /= 256U;
                 }
             }
-          /*MnjOut( "pid=%d move=%s n=0 v=0e final%s\n",
-                  mnj_posi_id, str_CSA_move(ptree->pv[1].a[1]),
-                  ( mnj_depth_stable == INT_MAX ) ? "" : " stable" );*/
-
 
 #if defined(USI)
           if ( usi_mode != usi_off )
@@ -67,7 +59,7 @@ iterate( tree_t * restrict ptree )
               char str_usi[6];
               csa2usi( ptree, str_CSA_move(ptree->pv[1].a[1]), str_usi );
               USIOut( "info depth 1 score cp 0 nodes 0 pv %s\n", str_usi );
-            }                      
+            }
 #endif
 
           game_status |= flag_quit_ponder;
@@ -85,8 +77,8 @@ iterate( tree_t * restrict ptree )
     {
       ptree->pv[0].a[i] = last_pv.a[i];
     }
-  last_root_value = (last_pv.a[1] != MOVE_NA) ? last_root_value :
-    (!root_turn ? -score_bound : score_bound);
+  last_root_value = (last_pv.a[1] != MOVE_NA) ? value :
+    (root_turn == black ? -score_bound : score_bound);
 
   right_answer_made = 0;
   if ( ( game_status & flag_problem ) )
