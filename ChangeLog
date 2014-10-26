@@ -1,3 +1,9 @@
+2014-10-27  - Ver 2.4.7.21
+
+	* src/server/serverclient.cpp: ファイル名が分かりにくくなるため、
+	client.cppからserverclient.cppに変更しました。
+	* src/server/*: コンパイルが通るようにいくつかのファイルを修正しました。
+
 2014-10-27  - Ver 2.4.7.20
 
 	* src/client/*: クライアント用のファイルをいくつか追加しました。

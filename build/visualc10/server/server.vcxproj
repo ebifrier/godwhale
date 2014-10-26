@@ -11,7 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\commandio.cpp" />
     <ClCompile Include="..\..\..\src\commandpacket.cpp" />
     <ClCompile Include="..\..\..\src\io_csa.cpp" />
     <ClCompile Include="..\..\..\src\movenode.cpp" />
@@ -150,15 +149,15 @@
     <ClCompile Include="..\..\..\src\precomp.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\replypacket.cpp" />
+    <ClCompile Include="..\..\..\src\rsiservice.cpp" />
     <ClCompile Include="..\..\..\src\server\bonanza_if.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precomp.h</PrecompiledHeaderFile>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\server\client.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precomp.h</PrecompiledHeaderFile>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\server\rootsearch.cpp" />
-    <ClCompile Include="..\..\..\src\server\server_main.cpp" />
+    <ClCompile Include="..\..\..\src\server\main_server.cpp" />
+    <ClCompile Include="..\..\..\src\server\serverclient.cpp" />
     <ClCompile Include="..\..\..\src\server\usi.cpp" />
     <ClCompile Include="..\..\..\src\server\server.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precomp.h</PrecompiledHeaderFile>
@@ -176,7 +175,6 @@
     <ClCompile Include="..\..\..\src\util.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\commandio.h" />
     <ClInclude Include="..\..\..\src\io_csa.h" />
     <ClInclude Include="..\..\..\src\exceptions.h" />
     <ClInclude Include="..\..\..\src\movenode.h" />
@@ -190,8 +188,10 @@
     <ClInclude Include="..\..\..\src\logger.h" />
     <ClInclude Include="..\..\..\src\move.h" />
     <ClInclude Include="..\..\..\src\precomp.h" />
-    <ClInclude Include="..\..\..\src\server\client.h" />
+    <ClInclude Include="..\..\..\src\replypacket.h" />
+    <ClInclude Include="..\..\..\src\rsiservice.h" />
     <ClInclude Include="..\..\..\src\server\rootsearch.h" />
+    <ClInclude Include="..\..\..\src\server\serverclient.h" />
     <ClInclude Include="..\..\..\src\server\usi.h" />
     <ClInclude Include="..\..\..\src\server\server.h" />
     <ClInclude Include="..\..\..\src\io_sfen.h" />
@@ -241,7 +241,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_SCL_SECURE_NO_WARNINGS;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;CSA_LAN;NO_LOGGING;BITBOARD64;USE_FAST_BIN;GODWHALE_SERVER;USE_GTEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;MINIMUM;TLP;USI;HAVE_SSE2;HAVE_SSE4;CSASHOGI;CSA_LAN;NO_LOGGING;BITBOARD64;USE_FAST_BIN;GODWHALE_SERVER;USE_GTEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>precomp.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>/Zm148 %(AdditionalOptions)</AdditionalOptions>
@@ -265,7 +265,7 @@
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
       <PrecompiledHeaderFile>precomp.h</PrecompiledHeaderFile>
       <AdditionalOptions>-Zm200 %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_SCL_SECURE_NO_WARNINGS;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;CSA_LAN;NO_LOGGING;BITBOARD64;USE_FAST_BIN;GODWHALE_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;MINIMUM;TLP;HAVE_SSE2;HAVE_SSE4;CSASHOGI;CSA_LAN;NO_LOGGING;BITBOARD64;USE_FAST_BIN;GODWHALE_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)..\..\src;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>

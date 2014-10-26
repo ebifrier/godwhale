@@ -4,9 +4,6 @@
     <ClCompile Include="..\..\..\src\server\bonanza_if.cpp">
       <Filter>server</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\server\client.cpp">
-      <Filter>server</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\server\server.cpp">
       <Filter>server</Filter>
     </ClCompile>
@@ -152,7 +149,6 @@
     <ClCompile Include="..\..\..\src\position.cpp" />
     <ClCompile Include="..\..\..\src\io_csa.cpp" />
     <ClCompile Include="..\..\..\src\io_sfen.cpp" />
-    <ClCompile Include="..\..\..\src\commandio.cpp" />
     <ClCompile Include="..\..\..\src\server\usi.cpp">
       <Filter>server</Filter>
     </ClCompile>
@@ -160,20 +156,22 @@
     <ClCompile Include="..\..\..\src\test\sfen_test.cpp">
       <Filter>test</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\server\server_main.cpp">
-      <Filter>server</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\server\rootsearch.cpp">
       <Filter>server</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\stdinc.cpp" />
     <ClCompile Include="..\..\..\src\syncposition.cpp" />
     <ClCompile Include="..\..\..\src\commandpacket.cpp" />
+    <ClCompile Include="..\..\..\src\server\main_server.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\rsiservice.cpp" />
+    <ClCompile Include="..\..\..\src\replypacket.cpp" />
+    <ClCompile Include="..\..\..\src\server\serverclient.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\server\client.h">
-      <Filter>server</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\server\server.h">
       <Filter>server</Filter>
     </ClInclude>
@@ -200,7 +198,6 @@
     <ClInclude Include="..\..\..\src\exceptions.h" />
     <ClInclude Include="..\..\..\src\io_csa.h" />
     <ClInclude Include="..\..\..\src\io_sfen.h" />
-    <ClInclude Include="..\..\..\src\commandio.h" />
     <ClInclude Include="..\..\..\src\server\usi.h">
       <Filter>server</Filter>
     </ClInclude>
@@ -209,6 +206,11 @@
       <Filter>server</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\syncposition.h" />
+    <ClInclude Include="..\..\..\src\rsiservice.h" />
+    <ClInclude Include="..\..\..\src\replypacket.h" />
+    <ClInclude Include="..\..\..\src\server\serverclient.h">
+      <Filter>server</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="server">

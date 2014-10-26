@@ -2,7 +2,7 @@
 #include "stdinc.h"
 #include "move.h"
 #include "server.h"
-#include "client.h"
+#include "serverclient.h"
 
 /*
  * Serverクラスの中でも特に指し手生成に関わる部分のみを扱っています。
@@ -16,7 +16,7 @@ using namespace boost;
 extern bool IsThinkEnd(tree_t *restrict ptree, unsigned int turnTimeMS);
 
 #define FOREACH_CLIENT(VAR) \
-    auto BOOST_PP_CAT(temp, __LINE__) = std::move(GetClientList());  \
+    auto BOOST_PP_CAT(temp, __LINE__) = std::move(getClientList());  \
     BOOST_FOREACH(auto VAR, BOOST_PP_CAT(temp, __LINE__))
 
 void Server::InitGame()
@@ -24,7 +24,7 @@ void Server::InitGame()
     LOG(Notification) << "Init Game";
 
     FOREACH_CLIENT(client) {
-        client->InitGame();
+        //client->InitGame();
     }
 
     m_board = Position();
@@ -40,7 +40,7 @@ void Server::QuitGame()
     m_currentValue = 0;
 
     FOREACH_CLIENT(client) {
-        client->SendCommand("idle", false);
+        //client->SendCommand("idle", false);
     }
 
     LOG(Notification) << "Quit Game";
@@ -49,7 +49,7 @@ void Server::QuitGame()
 void Server::ResetPosition(const min_posi_t *posi)
 {
     FOREACH_CLIENT(client) {
-        client->ResetPosition(posi);
+        //client->ResetPosition(posi);
     }
 
     m_gid = 0;
@@ -67,7 +67,7 @@ void Server::MakeRootMove(Move move)
     LOG(Notification) << m_board;
 
     FOREACH_CLIENT(client) {
-        client->MakeRootMove(move, m_gid);
+        //client->MakeRootMove(move, m_gid);
     }
 
     m_turnTimer.start();
@@ -83,7 +83,7 @@ void Server::UnmakeRootMove()
 
 void Server::AdjustTimeHook(int turn)
 {
-    auto sec = turn ? sec_w_total : sec_b_total;
+    /*auto sec = turn ? sec_w_total : sec_b_total;
     auto fmt = F("info %1% %2%") % (turn ? "wt" : "bt") % sec;
     auto str = fmt.str();
 
@@ -91,11 +91,12 @@ void Server::AdjustTimeHook(int turn)
         client->SendCommand(str, false);
     }
 
-    LOG(Notification) << "All client send: " << str;
+    LOG(Notification) << "All client send: " << str;*/
 }
 
 int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvseq)
 {
+#if 0
     LOG(Notification) << std::endl << std::endl;
     LOG(Notification) << "------------------ Begin Iterate.";
     LOG(Notification) << "thinking: " << ((game_status & flag_thinking) != 0);
@@ -164,8 +165,8 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
                 m_currentValue = score.GetValue() *
                                  (root_turn == client_turn ? +1 : -1);
 
-                SendPV(clientList, m_currentValue, score.GetNodes(),
-                       score.GetPVSeq());
+                //SendPV(clientList, m_currentValue, score.GetNodes(),
+                //       score.GetPVSeq());
             }
 
             // これで時間がリセットされます。
@@ -187,6 +188,7 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
     }
 
     *value = 0;
+#endif
     return 0;
 }
 

@@ -39,20 +39,20 @@ int main(int argc, char *argv[])
     usi_mode = usi_on;
 #endif
 
-    InitializeLog();
+    g_ptree = ptree;
+
+    initializeLog();
 
     // これより前のサーバーインスタンスへのアクセスは禁止です。
-    Server::Initialize();
+    Server::initialize();
 
-    if (ini(ptree) < 0)
-    {
+    if (ini(ptree) < 0) {
         LOG_ERROR() << "failed ini(). (" << str_error << ")";
         return EXIT_SUCCESS;
     }
 
-    g_ptree = ptree;
-    RootSearchData data;
-    generateRootMove(&data);
+    SearchResult data;
+    //generateRootMove(&data);
 
     for ( ; ; ) {
         iret = main_child(ptree);
