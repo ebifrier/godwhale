@@ -26,6 +26,13 @@ typedef boost::asio::ip::tcp tcp;
 typedef boost::recursive_mutex Mutex;
 typedef boost::recursive_mutex::scoped_lock ScopedLock;
 
+enum
+{
+    PROCE_OK = 0,
+    PROCE_ABORT = 1,
+    PROCE_CONTINUE = 2,
+};
+
 extern tree_t * g_ptree;
 extern unsigned int state_node;
 

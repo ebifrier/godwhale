@@ -9,34 +9,34 @@ using namespace godwhale::server;
 
 void CONV init_game_hook()
 {
-    InitializeLog();
+    //initializeLog();
 
-    Server::GetInstance()->InitGame();
+    Server::get()->InitGame();
 }
 
 void CONV quit_game_hook()
 {
-    Server::GetInstance()->QuitGame();
+    Server::get()->QuitGame();
 }
 
 void CONV reset_position_hook(const min_posi_t *posi)
 {
-    Server::GetInstance()->ResetPosition(posi);
+    Server::get()->ResetPosition(posi);
 }
 
 void CONV make_move_root_hook(move_t move)
 {
-    Server::GetInstance()->MakeRootMove(move);
+    Server::get()->MakeRootMove(move);
 }
 
 void CONV unmake_move_root_hook()
 {
-    Server::GetInstance()->UnmakeRootMove();
+    Server::get()->UnmakeRootMove();
 }
 
 void CONV adjust_time_hook(int turn)
 {
-    Server::GetInstance()->AdjustTimeHook(turn);
+    Server::get()->AdjustTimeHook(turn);
 }
 
 int CONV server_iterate(tree_t *restrict ptree, int *value,
@@ -46,7 +46,7 @@ int CONV server_iterate(tree_t *restrict ptree, int *value,
     int status;
 
     // Žè”Ô–ˆ‚ÌŽw‚µŽè‚ÌŒˆ’è‚ðs‚¢‚Ü‚·B
-    status = Server::GetInstance()->Iterate(ptree, value, seq);
+    status = Server::get()->Iterate(ptree, value, seq);
 
     std::copy(seq.begin(), seq.end(), pvseq);
 

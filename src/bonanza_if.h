@@ -1,7 +1,5 @@
 
 /* bonanza‘¤‚©‚çQÆ‚·‚éŠÖ”/•Ï”‚Í‚·‚×‚Ä extern "C" ‚ÅéŒ¾‚µ‚Ü‚·B*/
-#include "bonanza6/shogi.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -52,7 +52,7 @@ Move csaToMove(Position const & position, std::string const & csa)
         ifrom_file = 9 - ifrom_file;
         ifrom_rank = ifrom_rank - 1;
         ifrom      = ifrom_rank * 9 + ifrom_file;
-        if (abs(position.get(ifrom)) + promote == ipiece) {
+        if (abs(position[ifrom]) + promote == ipiece) {
             ipiece    -= promote;
             is_promote = true;
         }
@@ -60,7 +60,7 @@ Move csaToMove(Position const & position, std::string const & csa)
             is_promote = false;
         }
 
-        return Move::create(ifrom, ito, ipiece, abs(position.get(ito)), is_promote);
+        return Move::create(ifrom, ito, ipiece, abs(position[ito]), is_promote);
     }
 }
 
