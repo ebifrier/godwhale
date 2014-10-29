@@ -4,20 +4,90 @@
 #include <assert.h>
 #include "shogi.h"
 
+static HANDLE trans_table_handle = INVALID_HANDLE_VALUE;
+
 static int CONV eval_supe( unsigned int hand_current, unsigned int hand_hash,
                            int turn_current, int turn_hash,
                            int * restrict pvalue_hash,
                            int * restrict ptype_hash );
 
+#if 0 || !defined(GODWHALE_SERVER) && !defined(GODWHALE_CLIENT)
+#  define hash_memory_alloc memory_alloc
+#  define hash_memory_free  memory_free
+#  define flush_hash_memory (void)
+#else
+static void * CONV
+hash_memory_alloc( size_t nbytes )
+{
+  DWORD size_low  = (DWORD)( trans_table_memory_size );
+  DWORD size_high = (DWORD)( trans_table_memory_size >> 32 );
+  HANDLE handle;
+  void * shmem;
+
+  // 共有メモリの場合はハッシュサイズの指定は無視します。
+  (void)nbytes;
+  assert( trans_table_handle == INVALID_HANDLE_VALUE );
+
+  handle = CreateFileMappingA( INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
+                               size_high, size_low, trans_table_memory_name );
+  if ( handle == INVALID_HANDLE_VALUE )
+    {
+      str_error = str_out_of_memory;
+      return NULL;
+    }
+
+  shmem = MapViewOfFile( handle, FILE_MAP_ALL_ACCESS,
+                         0, 0, (SIZE_T)trans_table_memory_size );
+  if ( shmem == NULL )
+    {
+      CloseHandle( handle );
+      str_error = str_out_of_memory;
+      return NULL;
+    }
+
+  trans_table_handle = handle;
+  return shmem;
+}
+
+static void CONV
+hash_memory_free( void * p )
+{
+  if ( p != NULL )
+    {
+      UnmapViewOfFile( p );
+    }
+
+  if ( trans_table_handle != INVALID_HANDLE_VALUE )
+    {
+      CloseHandle( trans_table_handle );
+      trans_table_handle = INVALID_HANDLE_VALUE;
+    }
+}
+
+static void CONV
+flush_hash_memory( volatile void * start_address, size_t size )
+{
+  FlushViewOfFile( (void *)start_address, size );
+}
+#endif
+
+
 int CONV
-ini_trans_table( void )
+ini_trans_table( int log2_table_size )
 {
   size_t size;
   unsigned int ntrans_table;
 
+  fin_trans_table();
+
+  // log2_table_sizeが0以上の場合は、その値を使います。
+  // そうでなければ以前と同じ値となります。
+  if ( log2_table_size > 0 )
+    log2_ntrans_table = log2_table_size;
+
   ntrans_table = 1U << log2_ntrans_table;
   size         = sizeof( trans_table_t ) * ntrans_table + 15U;
-  ptrans_table_orig = memory_alloc( size );
+  ptrans_table_orig = hash_memory_alloc( size );
   if ( ptrans_table_orig == NULL ) { return -1; }
   ptrans_table = (trans_table_t *)( ((ptrdiff_t)ptrans_table_orig+15)
                                     & ~(ptrdiff_t)15U );
@@ -25,7 +95,21 @@ ini_trans_table( void )
   Out( "Trans. Table Entries = %dK (%dMB)\n",
        ( ntrans_table * 3U ) / 1024U, size / (1024U * 1024U ) );
 
+#if defined(GODWHALE_CLIENT)
+  // クライアントの場合は初期化しません。
+  // すでにサーバー側で初期化されているため。
+  return 1;
+#else
   return clear_trans_table();
+#endif
+}
+
+
+void CONV
+fin_trans_table( void )
+{
+  hash_memory_free( (void *)ptrans_table_orig );
+  ptrans_table_orig = NULL;
 }
 
 
@@ -138,6 +222,8 @@ hash_store( const tree_t * restrict ptree, int ply, int depth, int turn,
     ptrans_table[index].always[slot].word1 = word1;
     ptrans_table[index].always[slot].word2 = word2;
   }
+
+  flush_hash_memory( &ptrans_table[index], sizeof(trans_entry_t) );
 }
 
 
@@ -198,6 +284,8 @@ hash_store_pv( const tree_t * restrict ptree, unsigned int move, int turn )
       ptrans_table[index].prefer.word2 = word2;
     }
   }
+
+  flush_hash_memory( &ptrans_table[index], sizeof(trans_entry_t) );
 }
 
 
@@ -683,6 +771,8 @@ clear_trans_table( void )
       ptrans_table[i].always[1].word1 = 0;
       ptrans_table[i].always[1].word2 = 0;
     }
+
+  flush_hash_memory( ptrans_table, 0 );
 
   if ( get_elapsed( &elapsed_end ) < 0 ) { return -1; }
   Out( " done (%ss)\n", str_time_symple( elapsed_end - elapsed_start ) );

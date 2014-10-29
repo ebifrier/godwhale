@@ -24,7 +24,7 @@ ini_game( tree_t * restrict ptree, const min_posi_t *pmin_posi, int flag,
     {
       inaniwa_flag = 0;
       ehash_clear();
-      iret = ini_trans_table();
+      iret = ini_trans_table( -1 );
       if ( iret < 0 ) { return iret; }
     }
 #endif

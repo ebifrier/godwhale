@@ -915,6 +915,10 @@ extern unsigned char ansuc_check_save[NUM_UNMAKE];
 extern SHARE trans_table_t *ptrans_table;
 extern trans_table_t *ptrans_table_orig;
 extern int log2_ntrans_table;
+#if defined(GODWHALE_SERVER) || defined(GODWHALE_CLIENT)
+extern uint64_t trans_table_memory_size;
+extern char trans_table_memory_name[ 256 ]; // ‹¤—Lƒƒ‚ƒŠ‚Ì‹¤—L–¼
+#endif
 
 extern int depth_limit;
 
@@ -1181,7 +1185,8 @@ int CONV eval_max_score( const tree_t * restrict ptree, unsigned int move,
 int CONV estimate_score_diff( const tree_t * restrict ptree, unsigned int move,
                               int turn );
 int CONV eval_material( const tree_t * restrict ptree );
-int CONV ini_trans_table( void );
+int CONV ini_trans_table( int log2_table_size );
+void CONV fin_trans_table( void );
 int CONV is_hand_eq_supe( unsigned int u, unsigned int uref );
 int CONV is_move_valid( tree_t * restrict ptree, unsigned int move, int turn );
 int CONV iterate( tree_t * restrict ptree );

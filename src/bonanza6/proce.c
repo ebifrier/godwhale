@@ -1514,9 +1514,9 @@ static int CONV cmd_hash( char **lasts )
   
   AbortDifficultCommand;
   
-  log2_ntrans_table = (int)l;
-  memory_free( (void *)ptrans_table_orig );
-  return ini_trans_table();
+  //log2_ntrans_table = (int)l;
+  //memory_free( (void *)ptrans_table_orig );
+  return ini_trans_table( (int)l );
 }
 
 
@@ -2161,7 +2161,7 @@ static int CONV cmd_learn( tree_t * restrict ptree, char **lasts )
 
   log2_ntrans_table = 12;
 
-  memory_free( (void *)ptrans_table_orig );
+  //memory_free( (void *)ptrans_table_orig );
 
   iret = ini_trans_table();
   if ( iret < 0 ) { return iret; }

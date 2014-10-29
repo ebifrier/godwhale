@@ -350,7 +350,7 @@ ini( tree_t * restrict ptree )
   OutCsaShogi( "%s\n", str_myname );
   Out( "%s\n", str_myname );
 
-  if ( ini_trans_table() < 0 ) { return -1; }
+  if ( ini_trans_table( -1 ) < 0 ) { return -1; }
 
 #if defined(DFPN)
   dfpn_sckt      = SCKT_NULL;
@@ -389,7 +389,8 @@ fin( void )
   int i;
 #endif
 
-  memory_free( (void *)ptrans_table_orig );
+  //memory_free( (void *)ptrans_table_orig );
+  fin_trans_table();
 
 #if defined(TLP) || defined(DFPN_CLIENT)
   if ( lock_free( &io_lock ) < 0 ) { return -1; }

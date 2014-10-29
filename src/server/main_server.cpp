@@ -41,10 +41,13 @@ int main(int argc, char *argv[])
 
     g_ptree = ptree;
 
+    trans_table_memory_size = (uint64_t)1 * 1024 * 1024 * 1024;
+    strcpy(trans_table_memory_name, "trans_table_memory");
+
     initializeLog();
 
     // これより前のサーバーインスタンスへのアクセスは禁止です。
-    Server::initialize();
+    Server::initialize(argc, argv);
 
     if (ini(ptree) < 0) {
         LOG_ERROR() << "failed ini(). (" << str_error << ")";

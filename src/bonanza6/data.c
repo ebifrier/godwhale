@@ -121,6 +121,10 @@ int root_nfail_high;
 int root_nfail_low;
 int trans_table_age;
 int log2_ntrans_table;
+#if defined(GODWHALE_SERVER) || defined(GODWHALE_CLIENT)
+uint64_t trans_table_memory_size;
+char trans_table_memory_name[ 256 ];
+#endif
 int last_root_value;
 int iteration_depth;
 int depth_limit;

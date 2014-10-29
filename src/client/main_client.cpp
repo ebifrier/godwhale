@@ -22,6 +22,9 @@ int main(int argc, char *argv[])
 
     g_ptree = ptree;
 
+    trans_table_memory_size = (uint64_t)1 * 1024 * 1024 * 1024;
+    strcpy(trans_table_memory_name, "trans_table_memory");
+
     initializeLog();
 
     if (ini(g_ptree) < 0) {
