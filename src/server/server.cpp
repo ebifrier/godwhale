@@ -1,6 +1,5 @@
 #include "precomp.h"
 #include "stdinc.h"
-
 #include "server.h"
 #include "serverclient.h"
 #include "commandpacket.h"
@@ -8,7 +7,6 @@
 namespace godwhale {
 namespace server {
 
-using namespace boost;
 typedef boost::asio::ip::tcp tcp;
 
 shared_ptr<Server> Server::ms_instance;
@@ -16,7 +14,7 @@ shared_ptr<Server> Server::ms_instance;
 /**
  * サーバーのシングルトンインスタンスを初期化します。
  */
-void Server::initialize()
+void Server::initialize(int argc, char * argv[])
 {
     ms_instance.reset(new Server());
 
@@ -24,17 +22,16 @@ void Server::initialize()
 }
 
 Server::Server()
-    : m_isAlive(true), m_acceptor(m_service), m_gid(0), m_isPlaying(false)
-    , m_currentValue(0)
+    : m_acceptor(m_service), m_isAlive(true), m_currentValue(0)
 {
     m_acceptor.open(tcp::v4());
-    asio::socket_base::reuse_address option(true);
+    boost::asio::socket_base::reuse_address option(true);
     m_acceptor.set_option(option);
-
-    LOG_NOTIFICATION() << "server port=" << 4082;
 
     m_acceptor.bind(tcp::endpoint(tcp::v4(), 4082));
     m_acceptor.listen(100);
+
+    LOG_NOTIFICATION() << "server port=" << 4082;
 }
 
 Server::~Server()
@@ -42,28 +39,40 @@ Server::~Server()
     m_isAlive = false;
 
     // 例外が出ないよう、念のためerrorを使っています。
-    system::error_code error;
+    boost::system::error_code error;
     m_acceptor.cancel(error);
     m_acceptor.close(error);
 
-    if (m_thread != NULL) {
-        m_thread->join();
-        m_thread.reset();
+    if (m_iterateThread != nullptr) {
+        m_iterateThread->join();
+        m_iterateThread.reset();
+    }
+
+    if (m_serviceThread != nullptr) {
+        m_serviceThread->join();
+        m_serviceThread.reset();
     }
 }
 
 /**
- * @brief IOスレッドを開始します。
+ * @brief いくつかのスレッドを開始します。
  */
 void Server::startThread()
 {
-    if (m_thread != nullptr) {
-        return;
+    if (m_serviceThread != nullptr) {
+        throw std::logic_error("m_serviceThreadはすでに初期化されています。");
+    }
+
+    if (m_iterateThread != nullptr) {
+        throw std::logic_error("m_iterateThreadはすでに初期化されています。");
     }
 
     // IO関係の処理を開始します。
-    m_thread.reset(new thread(&Server::serviceThreadMain, this));
-    beginAccept();
+    m_serviceThread.reset(new boost::thread(&Server::serviceThreadMain, this));
+    startAccept();
+
+    // 思考用のスレッドを開始します。
+    m_iterateThread.reset(new boost::thread(&Server::iterateThreadMain, this));
 }
 
 /**
@@ -73,12 +82,12 @@ void Server::serviceThreadMain()
 {
     while (m_isAlive) {
         try {
-            system::error_code error;
+            boost::system::error_code error;
 
             // 処理した量が０であれば、少しウェイトを入れます。
             auto count = m_service.poll_one(error);
             if (count == 0) {
-                this_thread::sleep(posix_time::milliseconds(20));
+                boost::this_thread::sleep(boost::posix_time::milliseconds(20));
             }
 
             m_service.reset();
@@ -89,7 +98,10 @@ void Server::serviceThreadMain()
     }
 }
 
-void Server::beginAccept()
+/**
+ * @brief クライアントの受信処理を開始します。
+ */
+void Server::startAccept()
 {
     if (!m_isAlive) return;
 
@@ -99,9 +111,9 @@ void Server::beginAccept()
 
         m_acceptor.async_accept(*socket,
             bind(&Server::handleAccept, shared_from_this(),
-                 socket, asio::placeholders::error));
+                 socket, boost::asio::placeholders::error));
     }
-    catch (std::exception ex)
+    catch (std::exception & ex)
     {
         LOG_ERROR() << "acceptの開始処理に失敗しました。(" << ex.what() << ")";
         m_isAlive = false;
@@ -113,8 +125,11 @@ void Server::beginAccept()
     }
 }
 
+/**
+ * @brief クライアントの受信後に呼ばれます。
+ */
 void Server::handleAccept(shared_ptr<tcp::socket> socket,
-                          const system::error_code &error)
+                          boost::system::error_code const & error)
 {
     if (error) {
         LOG_ERROR() << "acceptに失敗しました。(" << error.message() << ")";
@@ -131,40 +146,7 @@ void Server::handleAccept(shared_ptr<tcp::socket> socket,
         LOG_NOTIFICATION() << "クライアントをAcceptしました。";
     }
 
-    beginAccept();
-}
-
-struct Compare
-{
-    bool operator()(weak_ptr<ServerClient> x, weak_ptr<ServerClient> y) const
-    {
-        auto px = x.lock();
-        auto py = y.lock();
-
-        if (px == NULL) {
-            return false;
-        }
-        else if (py == NULL) {
-            return true;
-        }
-        else {
-            return (px->getThreadCount() > py->getThreadCount());
-        }
-    }
-};
-
-/**
- * @brief クライアントがログインしたときに呼ばれます。
- */
-void Server::clientLogined(shared_ptr<ServerClient> client)
-{
-    ScopedLock locker(m_guard);
-
-    m_clientList.push_back(client);
-
-    // 性能順にソートします。
-    //std::stable_sort(m_clientList.begin(), m_clientList.end(), Compare());
-    m_clientList.sort(Compare());
+    startAccept();
 }
 
 /**
@@ -190,7 +172,72 @@ std::vector<shared_ptr<ServerClient>> Server::getClientList()
         }
     }
 
-    return std::move(result);
+    return result;
+}
+
+/**
+ * @brief 指定のIDを持つクライアントにコマンドを送信します。
+ */
+void Server::sendCommand(int clientId, shared_ptr<CommandPacket> command)
+{
+    if (command == nullptr) {
+        throw std::invalid_argument("command");
+    }
+
+    auto & client = m_clientList[clientId];
+    client->sendCommand(command, true);
+}
+
+/**
+ * @brief すべてのクライアントにコマンドを送信します。
+ */
+void Server::sendCommandAll(shared_ptr<CommandPacket> command)
+{
+    if (command == nullptr) {
+        throw std::invalid_argument("command");
+    }
+
+    FOREACH_CLIENT (client) {
+        client->sendCommand(command, true);
+    }
+}
+
+/**
+ * @brief 応答コマンドを追加します。
+ */
+void Server::addReply(shared_ptr<ReplyPacket> reply)
+{
+    if (reply == nullptr) {
+        throw std::invalid_argument("reply");
+    }
+
+    LOCK (m_replyGuard) {
+        m_replyList.push_back(reply);
+    }
+}
+
+/**
+ * @brief 応答コマンドを削除します。
+ */
+void Server::removeReply(shared_ptr<ReplyPacket> reply)
+{
+    LOCK (m_replyGuard) {
+        m_replyList.remove(reply);
+    }
+}
+
+/**
+ * @brief 次に処理する応答コマンドを取得します。
+ */
+shared_ptr<ReplyPacket> Server::getNextReply() const
+{
+    LOCK (m_replyGuard) {
+        if (m_replyList.empty()) {
+            return shared_ptr<ReplyPacket>();
+        }
+
+        return m_replyList.front();
+    }
 }
 
 } // namespace server

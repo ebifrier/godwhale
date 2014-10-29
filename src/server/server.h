@@ -10,6 +10,10 @@ namespace server {
 
 class Client;
 
+#define FOREACH_CLIENT(VAR) \
+    auto BOOST_PP_CAT(temp, __LINE__) = getClientList();  \
+    BOOST_FOREACH(auto VAR, BOOST_PP_CAT(temp, __LINE__))
+
 /**
  * @brief 大合神クジラちゃんのサーバークラスです。
  */
@@ -19,7 +23,7 @@ public:
     /**
      * @brief 初期化処理を行います。
      */
-    static void initialize();
+    static void initialize(int argc, char * argv[]);
 
     /**
      * @brief シングルトンインスタンスを取得します。
@@ -33,28 +37,23 @@ public:
     ~Server();
 
     /**
-     * @brief 現局面を取得します。
-     */
-    const Position &GetBoard() const {
-        return m_board;
-    }
-
-    /**
      * @brief 現在の局面IDを取得します。
      */
-    int GetGid() const {
-        return m_gid;
+    int getPositionId() const {
+        return m_positionId;
     }
 
     /**
-     * @brief 現在、対局中かどうかを取得します。
+     * @brief 現局面を取得します。
      */
-    bool IsPlaying() const {
-        return m_isPlaying;
+    Position const &getPosition() const {
+        return m_position;
     }
 
-    void clientLogined(shared_ptr<ServerClient> client);
     std::vector<shared_ptr<ServerClient>> getClientList();
+    void sendCommand(int clientId, shared_ptr<CommandPacket> command);
+    void sendCommandAll(shared_ptr<CommandPacket> command);
+    void addReply(shared_ptr<ReplyPacket> reply);
     
     void InitGame();
     void QuitGame();
@@ -72,24 +71,34 @@ private:
     explicit Server();
 
     void startThread();
+    void iterateThreadMain();
     void serviceThreadMain();
 
-    void beginAccept();
+    void startAccept();
     void handleAccept(shared_ptr<tcp::socket> socket,
-                      const boost::system::error_code &error);
+                      boost::system::error_code const & error);
+
+private:
+    void removeReply(shared_ptr<ReplyPacket> reply);
+    shared_ptr<ReplyPacket> getNextReply() const;
+
+private:
+    /* server_root.cpp */
 
 private:
     mutable Mutex m_guard;
     boost::asio::io_service m_service;
-    shared_ptr<boost::thread> m_thread;
+    boost::asio::ip::tcp::acceptor m_acceptor;
+    shared_ptr<boost::thread> m_serviceThread;
 
     volatile bool m_isAlive;
-    boost::asio::ip::tcp::acceptor m_acceptor;
+    std::vector<shared_ptr<ServerClient>> m_clientList;
+    boost::atomic<int> m_positionId;
+    Position m_position;
+    shared_ptr<boost::thread> m_iterateThread;
 
-    std::list<shared_ptr<ServerClient>> m_clientList;
-    Position m_board;
-    boost::atomic<int> m_gid;
-    bool m_isPlaying;
+    mutable Mutex m_replyGuard;
+    std::list<shared_ptr<ReplyPacket>> m_replyList;
 
     boost::timer::cpu_timer m_turnTimer;
     boost::timer::cpu_timer m_sendTimer;

@@ -15,10 +15,6 @@ using namespace boost;
 
 extern bool IsThinkEnd(tree_t *restrict ptree, unsigned int turnTimeMS);
 
-#define FOREACH_CLIENT(VAR) \
-    auto BOOST_PP_CAT(temp, __LINE__) = std::move(getClientList());  \
-    BOOST_FOREACH(auto VAR, BOOST_PP_CAT(temp, __LINE__))
-
 void Server::InitGame()
 {
     LOG(Notification) << "Init Game";
@@ -27,16 +23,12 @@ void Server::InitGame()
         //client->InitGame();
     }
 
-    m_board = Position();
-    m_gid = 0;
-    m_isPlaying = true;
     m_currentValue = 0;
     m_turnTimer.start();
 }
 
 void Server::QuitGame()
 {
-    m_isPlaying = false;
     m_currentValue = 0;
 
     FOREACH_CLIENT(client) {
@@ -52,19 +44,19 @@ void Server::ResetPosition(const min_posi_t *posi)
         //client->ResetPosition(posi);
     }
 
-    m_gid = 0;
-    m_board = *posi;
+    m_positionId = 0;
+    m_position = *posi;
     m_currentValue = 0;
     m_turnTimer.start();
 }
 
 void Server::MakeRootMove(Move move)
 {
-    m_board.makeMove(move);
-    m_gid += 10;
+    m_position.makeMove(move);
+    m_positionId += 10;
 
     LOG(Notification) << "root move: " << move;
-    LOG(Notification) << m_board;
+    LOG(Notification) << m_position;
 
     FOREACH_CLIENT(client) {
         //client->MakeRootMove(move, m_gid);
@@ -75,8 +67,8 @@ void Server::MakeRootMove(Move move)
 
 void Server::UnmakeRootMove()
 {
-    m_board.unmakeMove();
-    m_gid += 10; // 局面を戻した場合も、IDは進めます。
+    m_position.unmakeMove();
+    m_positionId += 10; // 局面を戻した場合も、IDは進めます。
 
     LOG(Notification) << "root unmove";
 }
@@ -94,15 +86,26 @@ void Server::AdjustTimeHook(int turn)
     LOG(Notification) << "All client send: " << str;*/
 }
 
+void Server::iterateThreadMain()
+{
+    while (m_isAlive) {
+        shared_ptr<ReplyPacket> reply = getNextReply();
+        if (reply != nullptr) {
+            //proce(reply);
+            break;
+        }
+    }
+}
+
 int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvseq)
 {
-#if 0
     LOG(Notification) << std::endl << std::endl;
     LOG(Notification) << "------------------ Begin Iterate.";
     LOG(Notification) << "thinking: " << ((game_status & flag_thinking) != 0);
     LOG(Notification) << "puzzling: " << ((game_status & flag_puzzling) != 0);
     LOG(Notification) << "pondering: " << ((game_status & flag_pondering) != 0);
 
+#if 0
     timer::cpu_timer sendTimer;
     for ( ; ; ) {
         auto clientList = GetClientList();

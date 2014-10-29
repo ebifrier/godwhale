@@ -14,3 +14,5 @@ build/visualc10/ipch/
 *.userprefs
 utility/Bonako/Bonako/dist/Bonako_*.zip
 build/visualc10/client/log/
+build/visualc10/server/log/
+build/visualc10/Release/

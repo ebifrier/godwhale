@@ -1,3 +1,9 @@
+2014-10-30  - Ver 2.4.7.27
+
+	* src/server/server.cpp: 思考用のスレッドやコマンドなどの送受信メソッド
+	を追加しました。
+	* src/server/server_move.cpp: コンパイルが通るように修正しました。
+
 2014-10-30  - Ver 2.4.7.26
 
 	* src/client/client_proce.cpp: コマンドの処理用メソッドを追加しました。

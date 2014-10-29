@@ -1,5 +1,6 @@
 #include "precomp.h"
 #include "stdinc.h"
+#include "commandpacket.h"
 #include "replypacket.h"
 #include "server.h"
 #include "serverclient.h"
@@ -56,6 +57,8 @@ void ServerClient::close()
 void ServerClient::onDisconnected()
 {
     LOG_NOTIFICATION() << "ServerClient[" << m_loginId << "] is disconnected.";
+
+    m_isAlive = false;
 }
 
 /**
@@ -63,6 +66,10 @@ void ServerClient::onDisconnected()
  */
 void ServerClient::sendCommand(shared_ptr<CommandPacket> command, bool isOutLog/*= true*/)
 {
+    if (command == nullptr) {
+        throw std::invalid_argument("command");
+    }
+
     std::string rsi = command->toRSI();
     if (rsi.empty()) {
         LOG_ERROR() << F("command type %1%: toRSIに失敗しました。")
@@ -72,6 +79,9 @@ void ServerClient::sendCommand(shared_ptr<CommandPacket> command, bool isOutLog/
     m_rsiService->sendRSI(rsi, isOutLog);
 }
 
+/**
+ * @brief 応答コマンドのRSI受信時に呼ばれます。
+ */
 void ServerClient::onRSIReceived(std::string const & rsi)
 {
     auto reply = ReplyPacket::parse(rsi);
@@ -80,9 +90,7 @@ void ServerClient::onRSIReceived(std::string const & rsi)
         return;
     }
 
-
-
-    //addCommand(command);
+    m_server->addReply(reply);
 }
 
 } // namespace server

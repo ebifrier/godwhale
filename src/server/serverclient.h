@@ -1,10 +1,13 @@
-#ifndef GODWHALE_SERVER_CLIENT_H
-#define GODWHALE_SERVER_CLIENT_H
+#ifndef GODWHALE_SERVER_SERVERCLIENT_H
+#define GODWHALE_SERVER_SERVERCLIENT_H
 
-#include "commandpacket.h"
 #include "rsiservice.h"
 
 namespace godwhale {
+
+class CommandPacket;
+class ReplyPacket;
+
 namespace server {
 
 class Server;
@@ -56,15 +59,16 @@ public:
         return m_sendPV;
     }    
 
-    void close();
     void initialize(shared_ptr<tcp::socket> socket);
+    void close();
+
     void sendCommand(shared_ptr<CommandPacket> command, bool isOutLog = true);
 
 private:
     virtual void onRSIReceived(std::string const & rsi);
     virtual void onDisconnected();
 
-    int handleCommand(const std::string &command);
+    int proceReply(shared_ptr<ReplyPacket> reply);
 
 private:
     shared_ptr<Server> m_server;
