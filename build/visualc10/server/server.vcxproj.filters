@@ -152,7 +152,6 @@
     <ClCompile Include="..\..\..\src\server\usi.cpp">
       <Filter>server</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\movenode.cpp" />
     <ClCompile Include="..\..\..\src\test\sfen_test.cpp">
       <Filter>test</Filter>
     </ClCompile>
@@ -168,6 +167,24 @@
     <ClCompile Include="..\..\..\src\rsiservice.cpp" />
     <ClCompile Include="..\..\..\src\replypacket.cpp" />
     <ClCompile Include="..\..\..\src\server\serverclient.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\server\searchresult.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\server\movenodebranch.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\server\movenodetree.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\server\iterativemovenodetree.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\server\movenode.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\server\movenodelist.cpp">
       <Filter>server</Filter>
     </ClCompile>
   </ItemGroup>
@@ -201,14 +218,28 @@
     <ClInclude Include="..\..\..\src\server\usi.h">
       <Filter>server</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\movenode.h" />
-    <ClInclude Include="..\..\..\src\server\rootsearch.h">
-      <Filter>server</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\syncposition.h" />
     <ClInclude Include="..\..\..\src\rsiservice.h" />
     <ClInclude Include="..\..\..\src\replypacket.h" />
     <ClInclude Include="..\..\..\src\server\serverclient.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\server\searchresult.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\server\movenodebranch.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\server\movenodetree.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\server\iterativemovenodetree.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\server\movenode.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\server\movenodelist.h">
       <Filter>server</Filter>
     </ClInclude>
   </ItemGroup>

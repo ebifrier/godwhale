@@ -135,7 +135,6 @@
     <ClCompile Include="..\..\..\src\move.cpp" />
     <ClCompile Include="..\..\..\src\position.cpp" />
     <ClCompile Include="..\..\..\src\util.cpp" />
-    <ClCompile Include="..\..\..\src\movenode.cpp" />
     <ClCompile Include="..\..\..\src\client\client.cpp">
       <Filter>client</Filter>
     </ClCompile>
@@ -185,7 +184,6 @@
     <ClInclude Include="..\..\..\src\position.h" />
     <ClInclude Include="..\..\..\src\util.h" />
     <ClInclude Include="..\..\..\src\exceptions.h" />
-    <ClInclude Include="..\..\..\src\movenode.h" />
     <ClInclude Include="..\..\..\src\client\client.h">
       <Filter>client</Filter>
     </ClInclude>
