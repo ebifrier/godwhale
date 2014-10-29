@@ -108,13 +108,15 @@ public:
         return m_nodes;
     }
 
-    void connect(std::string const & address, std::string const & port);
-    void close();
+    Position getPositionFromId(int id) const;
+    void setPositionWithId(Position const & position, int id);
 
-    void login(std::string const & loginId);
+    void close();
     void sendReply(shared_ptr<ReplyPacket> reply, bool isOutLog = true);
 
+    void addCommand(shared_ptr<CommandPacket> command);
     void addCommandFromRSI(std::string const & rsi);
+
     int mainloop();
 
 private:
@@ -127,19 +129,22 @@ private:
     virtual void onDisconnected();
     virtual void onRSIReceived(std::string const & command);
 
-    void addCommand(shared_ptr<CommandPacket> command);
     void removeCommand(shared_ptr<CommandPacket> command);
-    shared_ptr<CommandPacket> getNextCommand();
+    shared_ptr<CommandPacket> getNextCommand() const;
 
 private:
     /* client_mainloop.cpp */
 
 private:
     /* client_proce.cpp */
+    void connect(std::string const & address, std::string const & port);
+    void login(std::string const & loginId);
+
     int proce(bool nested);
     int proce_Login(shared_ptr<CommandPacket> command);
     int proce_SetPosition(shared_ptr<CommandPacket> command);
-    int proce_MakeRootMove(shared_ptr<CommandPacket> command);
+    int proce_MakeMoveRoot(shared_ptr<CommandPacket> command);
+    int proce_SetMoveList(shared_ptr<CommandPacket> command);
 
 private:
     boost::asio::io_service m_service;
@@ -148,6 +153,9 @@ private:
     shared_ptr<boost::thread> m_serviceThread;
     volatile bool m_isAlive;
 
+    mutable Mutex m_positionGuard;
+    std::map<int, Position> m_positionMap;
+
     mutable Mutex m_commandGuard;
     std::list<shared_ptr<CommandPacket>> m_commandList;
 
@@ -155,9 +163,7 @@ private:
     std::string m_loginId;
     int m_nthreads;
 
-    int m_positionId;
-    Position m_position; ///< ルート局面です。
-
+    int m_positionId; // 現在の局面IDです。
     long m_nodes;
 };
 

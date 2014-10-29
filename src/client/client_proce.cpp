@@ -24,7 +24,7 @@ int Client::proce(bool searching)
         if (searching) {
             if (type == COMMAND_LOGIN ||
                 type == COMMAND_SETPOSITION  ||
-                type == COMMAND_MAKEROOTMOVE ||
+                type == COMMAND_MAKEMOVEROOT ||
                 type == COMMAND_STOP ||
                 type == COMMAND_QUIT) {
                 return PROCE_ABORT;
@@ -40,8 +40,11 @@ int Client::proce(bool searching)
         case COMMAND_SETPOSITION:
             status = proce_SetPosition(command);
             break;
-        case COMMAND_MAKEROOTMOVE:
-            status = proce_MakeRootMove(command);
+        case COMMAND_MAKEMOVEROOT:
+            status = proce_MakeMoveRoot(command);
+            break;
+        case COMMAND_SETMOVELIST:
+            status = proce_SetMoveList(command);
             break;
         }
     }
@@ -49,6 +52,63 @@ int Client::proce(bool searching)
     return (status == PROCE_CONTINUE ? PROCE_OK : status);
 }
 
+/**
+ * @brief サーバーに接続に行きます。
+ */
+void Client::connect(std::string const & address, std::string const & port)
+{
+    if (m_rsiService->isOpened()) {
+        throw std::logic_error("すでに接続しています。");
+    }
+
+    tcp::resolver resolver(m_service);
+    tcp::resolver::query query(address, port);
+    shared_ptr<tcp::socket> socket(new tcp::socket(m_service));
+    
+    LOG_NOTIFICATION() << "begin to connect server";
+
+    while (true) {
+        tcp::resolver::iterator endpointIt = resolver.resolve(query);
+        tcp::resolver::iterator end;
+
+        boost::system::error_code error = boost::asio::error::host_not_found;
+        while (error && endpointIt != end) {
+            socket->close();
+            socket->connect(*endpointIt++, error);
+            if (!error) break;
+        }
+
+        if (!error) break;
+
+        LOG_NOTIFICATION() << "connect retry .";
+        boost::this_thread::sleep(boost::posix_time::seconds(10));
+    }
+
+    LOG_NOTIFICATION() << "connected !";
+
+    m_rsiService->startReceive(socket);
+    m_logined = false;
+}
+
+/**
+ * @brief サーバーに接続に行きます。
+ */
+void Client::login(std::string const & loginId)
+{
+    if (loginId.empty()) {
+    }
+
+    // ログイン用のリプライコマンドをサーバーに送ります。
+    //shared_ptr<ReplyPacket> reply; // = ReplyPacket::parse("login name 2");
+    
+    m_rsiService->sendRSI("login name 2");
+}
+
+/**
+ * @brief loginコマンドを処理します。
+ *
+ * login <address> <port> <login_name> <nthreads>
+ */
 int Client::proce_Login(shared_ptr<CommandPacket> command)
 {
     LOG_NOTIFICATION() << "handle login";
@@ -58,39 +118,86 @@ int Client::proce_Login(shared_ptr<CommandPacket> command)
         return PROCE_ABORT;
     }
 
+    // サーバーに接続します。
     std::string address = command->getServerAddress();
     std::string port = command->getServerPort();
     connect(address, port);
-    login(command->getLoginId());
+
+    // ログイン処理を行います。
+    std::string loginName = command->getLoginName();
+    login(loginName);
 
     return PROCE_ABORT;
 }
 
+/**
+ * @brief setpositionコマンドを処理します。
+ *
+ * setposition <position_id> <address> <port> <login_id> <nthreads>
+ */
 int Client::proce_SetPosition(shared_ptr<CommandPacket> command)
 {
     LOG_NOTIFICATION() << "handle setposition";
 
-    m_positionId = command->getPositionId();
-    m_position = command->getPosition();
+    Position const &position = command->getPosition();
+    int positionId = command->getPositionId();
 
-    // bonaの局面を与えられた局面に設定します。
+    // 現局面を設定します。
+    //SyncPosition::initialize(position);
+
+    // 後処理
+    setPositionWithId(position, positionId);
+    m_positionId = positionId;
 
     return PROCE_CONTINUE;
 }
 
-int Client::proce_MakeRootMove(shared_ptr<CommandPacket> command)
+/**
+ * @brief setmovelistコマンドを処理します。
+ *
+ * makerootmove <position_id> <old_position_id> <move>
+ */
+int Client::proce_MakeMoveRoot(shared_ptr<CommandPacket> command)
 {
-    LOG_NOTIFICATION() << "handle makerootmove";
+    LOG_NOTIFICATION() << "handle makemoveroot";
 
     if (m_positionId != command->getOldPositionId()) {
-        LOG_ERROR() << "makerootmove: position_idが一致しません。";
+        LOG_ERROR() << "makemoveroot: position_idが一致しません。";
         return PROCE_CONTINUE;
     }
 
-    SyncPosition::get()->makeMove(command->getMove());
+    int positionId = command->getPositionId();
+    Move move = command->getMove();
 
-    m_positionId = command->getPositionId();
+    // 一度ルート局面に戻します。
+    SyncPosition::get()->rewind();
+
+    // ルート局面を一手進めます。
+    if (!SyncPosition::get()->makeMoveRoot(move)) {
+        LOG_ERROR() << "makemoveroot: " << move << ": 指し手を指すことができません。";
+        return PROCE_CONTINUE;
+    }
+
+    // 後処理
+    setPositionWithId(command->getPosition(), positionId);
+    m_positionId = positionId;
+
     return PROCE_CONTINUE;
+}
+
+/**
+ * @brief setmovelistコマンドを処理します。
+ *
+ * setmovelist <position_id> <itd> <pld> <move1> ... <moven>
+ */
+int Client::proce_SetMoveList(shared_ptr<CommandPacket> command)
+{
+    LOG_NOTIFICATION() << "handle setmovelist";
+
+    if (m_positionId != command->getPositionId()) {
+        LOG_ERROR() << "setmovelist: position_idが一致しません。";
+        return PROCE_CONTINUE;
+    }
 }
 
 } // namespace client

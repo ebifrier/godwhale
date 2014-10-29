@@ -66,7 +66,7 @@ void Client::serviceThreadMain()
 
             m_service.reset();
         }
-        catch (std::exception & ex) {
+        catch (std::exception ex) {
             LOG_ERROR() << "ClientのIOスレッドで例外が発生しました。" << ex.what();
         }
     }
@@ -86,63 +86,38 @@ void Client::close()
 }
 
 /**
+ * @brief IDから関連付けられた局面を取得します。
+ */
+Position Client::getPositionFromId(int id) const
+{
+    LOCK (m_positionGuard) {
+        auto it = m_positionMap.find(id);
+        if (it == m_positionMap.end()) {
+            return Position(false);
+        }
+
+        return it->second;
+    }
+}
+
+/**
+ * @brief IDに関連付けられた局面を設定します。
+ */
+void Client::setPositionWithId(Position const & position, int id)
+{
+    LOCK (m_positionGuard) {
+        m_positionMap[id] = position;
+    }
+}
+
+/**
  * @brief コネクションの切断時に呼ばれます。
  */
 void Client::onDisconnected()
 {
     LOG_NOTIFICATION() << "Client[" << m_loginId << "] is disconnected.";
-}
 
-/**
- * @brief サーバーに接続に行きます。
- */
-void Client::connect(std::string const & address, std::string const & port)
-{
-    if (m_rsiService->isOpened()) {
-        throw std::logic_error("すでに接続しています。");
-    }
-
-    tcp::resolver resolver(m_service);
-    tcp::resolver::query query(address, port);
-    shared_ptr<tcp::socket> socket(new tcp::socket(m_service));
-    
-    LOG_NOTIFICATION() << "begin to connect server";
-
-    while (true) {
-        tcp::resolver::iterator endpointIt = resolver.resolve(query);
-        tcp::resolver::iterator end;
-
-        boost::system::error_code error = boost::asio::error::host_not_found;
-        while (error && endpointIt != end) {
-            socket->close();
-            socket->connect(*endpointIt++, error);
-            if (!error) break;
-        }
-
-        if (!error) break;
-
-        LOG_NOTIFICATION() << "connect retry .";
-        boost::this_thread::sleep(boost::posix_time::seconds(10));
-    }
-
-    LOG_NOTIFICATION() << "connected !";
-
-    m_rsiService->startReceive(socket);
-    m_logined = false;
-}
-
-/**
- * @brief サーバーに接続に行きます。
- */
-void Client::login(std::string const & loginId)
-{
-    if (loginId.empty()) {
-    }
-
-    // ログイン用のリプライコマンドをサーバーに送ります。
-    //shared_ptr<ReplyPacket> reply; // = ReplyPacket::parse("login name 2");
-    
-    m_rsiService->sendRSI("login name 2");
+    m_isAlive = false;
 }
 
 /**
@@ -167,22 +142,12 @@ void Client::addCommandFromRSI(std::string const & rsi)
     addCommand(command);
 }
 
-/**
- * @brief コマンドをサーバーに送信します。
- */
-void Client::sendReply(shared_ptr<ReplyPacket> reply, bool isOutLog/*=true*/)
-{
-    std::string rsi = reply->toRSI();
-    if (rsi.empty()) {
-        LOG_ERROR() << F("reply type %1%: toRSIに失敗しました。")
-            % reply->getType();
-    }
-
-    m_rsiService->sendRSI(rsi, isOutLog);
-}
-
 void Client::addCommand(shared_ptr<CommandPacket> command)
 {
+    if (command == nullptr) {
+        throw std::invalid_argument("command");
+    }
+
     LOCK (m_commandGuard) {
         auto it = m_commandList.begin();
 
@@ -204,7 +169,7 @@ void Client::removeCommand(shared_ptr<CommandPacket> command)
     }
 }
 
-shared_ptr<CommandPacket> Client::getNextCommand()
+shared_ptr<CommandPacket> Client::getNextCommand() const
 {
     LOCK (m_commandGuard) {
         if (m_commandList.empty()) {
@@ -213,6 +178,20 @@ shared_ptr<CommandPacket> Client::getNextCommand()
 
         return m_commandList.front();
     }
+}
+
+/**
+ * @brief コマンドをサーバーに送信します。
+ */
+void Client::sendReply(shared_ptr<ReplyPacket> reply, bool isOutLog/*=true*/)
+{
+    std::string rsi = reply->toRSI();
+    if (rsi.empty()) {
+        LOG_ERROR() << F("reply type %1%: toRSIに失敗しました。")
+            % reply->getType();
+    }
+
+    m_rsiService->sendRSI(rsi, isOutLog);
 }
 
 } // namespace client
