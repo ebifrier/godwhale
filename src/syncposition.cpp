@@ -22,6 +22,88 @@ void SyncPosition::initialize()
 
     rewind();
 
+    // bonanzaの探索用データも初期化します。
+    initBonanza(ptree);
+}
+
+/**
+ * @brief 局面を指定の局面に設定し、bonaの初期化を行います。
+ */
+void SyncPosition::initialize(min_posi_t const & posi)
+{
+    tree_t * restrict ptree = g_ptree;
+
+    // bonanzaの探索用データも初期化します。
+    initBonanza(ptree);
+}
+
+/**
+ * @brief 探索のための初期化処理を行います。
+ */
+void SyncPosition::initBonanza(tree_t * restrict ptree)
+{
+    ptree->node_searched         =  0;
+    ptree->null_pruning_done     =  0;
+    ptree->null_pruning_tried    =  0;
+    ptree->check_extension_done  =  0;
+    ptree->recap_extension_done  =  0;
+    ptree->onerp_extension_done  =  0;
+    ptree->nfour_fold_rep        =  0;
+    ptree->nperpetual_check      =  0;
+    ptree->nsuperior_rep         =  0;
+    ptree->nrep_tried            =  0;
+    ptree->neval_called          =  0;
+    ptree->nquies_called         =  0;
+    ptree->ntrans_always_hit     =  0;
+    ptree->ntrans_prefer_hit     =  0;
+    ptree->ntrans_probe          =  0;
+    ptree->ntrans_exact          =  0;
+    ptree->ntrans_lower          =  0;
+    ptree->ntrans_upper          =  0;
+    ptree->ntrans_superior_hit   =  0;
+    ptree->ntrans_inferior_hit   =  0;
+    ptree->fail_high             =  0;
+    ptree->fail_high_first       =  0;
+    ptree->current_move[0]       =  0;
+    ptree->save_eval[0]          =  INT_MAX;
+    ptree->save_eval[1]          =  INT_MAX;
+    ptree->pv[0].a[0]            =  0;
+    ptree->pv[0].a[1]            =  0;
+    ptree->pv[0].depth           =  0;
+    ptree->pv[0].length          =  0;
+    ptree->nsuc_check[0]         =  0;
+    ptree->nsuc_check[1]         =  InCheck(root_turn) ? 1 : 0;
+    ptree->move_last[0]          =  ptree->amove;
+    ptree->move_last[1]          =  ptree->amove;
+    iteration_depth              =  0;
+    easy_value                   =  0;
+    easy_abs                     =  0;
+    root_abort                   =  0;
+    root_nmove                   =  0;
+    root_value                   = -score_bound;
+    root_alpha                   = -score_bound;
+    root_beta                    =  score_bound;
+    root_index                   =  0;
+    root_move_list[0].status     = flag_first;
+    node_last_check              =  0;
+    time_last_check              =  time_start;
+    game_status                 &= ~( flag_move_now /*| flag_suspend*/
+                                    | flag_quit_ponder | flag_search_error );
+
+#if defined(TLP)
+    ptree->tlp_abort             = 0;
+    tlp_nsplit                   = 0;
+    tlp_nabort                   = 0;
+    tlp_nslot                    = 0;
+#endif
+
+    for (int ply = 0; ply < PLY_MAX; ply++) {
+        ptree->amove_killer[ply].no1 =
+        ptree->amove_killer[ply].no2 = 0U;
+        ptree->killers[ply].no1 =
+        ptree->killers[ply].no2 = 0x0U;
+    }
+
     // 初期局面の王手チェック
     bool checked = (InCheck(root_turn) != 0);
     m_checksList[0] = checked; // インデックスは0で開始
@@ -30,21 +112,34 @@ void SyncPosition::initialize()
     ptree->nsuc_check[1] = checked ? 1 : 0;
 }
 
-void SyncPosition::initialize(min_posi_t const & posi)
+/**
+ * @brief 今の局面に対応するPositionクラスを取得します。
+ */
+Position SyncPosition::getPosition() const
 {
+    tree_t * restrict ptree = g_ptree;
+
+    min_posi_t mposi;
+    memcpy(mposi.asquare, ptree->posi.asquare, sizeof(mposi.asquare));
+    mposi.hand_black = ptree->posi.hand_black;
+    mposi.hand_white = ptree->posi.hand_white;
+    mposi.turn_to_move = root_turn;
+
+    return Position(mposi);
 }
 
 /**
  * @brief ルートの指し手を１手進めます。
  */
-void SyncPosition::makeRootMove(Move move)
+bool SyncPosition::makeMoveRoot(Move move)
 {
     tree_t * restrict ptree = g_ptree;
 
-    rewind();
+    int status = make_move_root(ptree, move, flag_time);
 
-    make_move_root(ptree, move, flag_time);
     initialize();
+
+    return (status >= 0);
 }
 
 /**

@@ -201,6 +201,27 @@ bool Position::isValidMove(Move move) const
 }
 
 /**
+ * @brief ‹ó‚Ì‹Ç–Ê‚©‚Ç‚¤‚©’²‚×‚Ü‚·B
+ */
+bool Position::isEmpty() const
+{
+    if (!m_moveList.empty()) {
+        return false;
+    }
+
+    if (m_hand[0] != 0 || m_hand[1] != 0) {
+        return false;
+    }
+
+    if (!std::all_of(boost::begin(m_asquare), boost::end(m_asquare),
+                     [](int x){ return x==0; })) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * @brief ‰Šú‹Ç–Ê‚©‚Ç‚¤‚©’²‚×‚Ü‚·B
  */
 bool Position::isInitial() const

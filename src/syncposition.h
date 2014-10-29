@@ -3,6 +3,7 @@
 #define GODWHALE_SYNCPOSITION_H
 
 #include "move.h"
+#include "position.h"
 
 namespace godwhale {
 
@@ -38,7 +39,9 @@ public:
     void initialize();
     void initialize(min_posi_t const & posi);
 
-    void makeRootMove(Move move);
+    Position getPosition() const;
+
+    bool makeMoveRoot(Move move);
     void makeMove(Move move);
     void unmakeMove();
 
@@ -47,6 +50,9 @@ public:
 
     void extendPV();
     void getMoveList(Move exclude, bool firstMoveOnly, std::vector<Move> * result);
+
+private:
+    void initBonanza(tree_t * restrict ptree);
 
 private:
     static shared_ptr<SyncPosition> ms_instance;
