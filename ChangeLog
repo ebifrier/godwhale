@@ -1,7 +1,14 @@
+2014-10-30  - Ver 2.4.7.29
+
+	* src/server/searchresult.cpp: Bonanzaの探索結果を保存するためのクラス
+	を追加しました。
+	* src/commandpacket.cpp: クライアントの探索を開始するstartコマンドを追
+	加し、makerootmoveをmakemoverootに改名しました。
+
 2014-10-30  - Ver 2.4.7.28
 
-	* src/bonanza6/hash.c: ハッシュメモリをプロセス間共有メモリで確保するよ
-	うにしたバージョンを作成しました。
+	* src/bonanza6/*: ハッシュメモリをプロセス間共有メモリで確保するように
+	したバージョンを作成しました。
 
 2014-10-30  - Ver 2.4.7.27
 

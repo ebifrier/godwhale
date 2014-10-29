@@ -21,7 +21,7 @@ enum CommandType
      */
     COMMAND_NONE,
     /**
-     * @brief サーバーにログイン処理を依頼します。
+     * @brief (stdin only)サーバーにログイン処理を依頼します。
      */
     COMMAND_LOGIN,
     /**
@@ -35,7 +35,7 @@ enum CommandType
     /**
      * @brief ルート局面から指し手を一つ進めます。
      */
-    COMMAND_MAKEROOTMOVE,
+    COMMAND_MAKEMOVEROOT,
     /**
      * @brief PVを設定します。
      */
@@ -44,8 +44,10 @@ enum CommandType
      * @brief 担当する指し手を設定します。
      */
     COMMAND_SETMOVELIST,
-    /*COMMAND_SHRINK,
-    COMMAND_EXTEND,*/
+    /**
+     * @brief 指定の局面の探索を開始します。
+     */
+    COMMAND_START,
     /**
      * @brief サーバーとクライアントの状態が一致しているか確認します。
      */
@@ -156,6 +158,22 @@ public:
         return m_moveList;
     }
 
+    /**
+     * @brief 探索のα値を取得します。
+     */
+    int getAlpha() const
+    {
+        return m_alpha;
+    }
+
+    /**
+     * @brief 探索のβ値を取得します。
+     */
+    int getBeta() const
+    {
+        return m_beta;
+    }
+
 public:
     /* for Login */
 
@@ -176,11 +194,11 @@ public:
     }
 
     /**
-     * @brief ログインＩＤを取得します。
+     * @brief ログイン名を取得します。
      */
-    std::string getLoginId() const
+    std::string getLoginName() const
     {
-        return m_loginId;
+        return m_loginName;
     }
 
     /**
@@ -193,9 +211,19 @@ public:
 
 public:
     int getPriority() const;
+    std::string toRSI() const;
+
+    //static shared_ptr<CommandPacket> createLogin();
+    static shared_ptr<CommandPacket> createSetMoveList(int positionId,
+                                                       int iterationDepth,
+                                                       int plyDepth,
+                                                       std::vector<Move> const & moves);
+    static shared_ptr<CommandPacket> createStart(int positionId,
+                                                 int iterationDepth,
+                                                 int plyDepth,
+                                                 int alpha, int beta);
 
     static shared_ptr<CommandPacket> parse(std::string const & rsi);
-    std::string toRSI() const;
 
 private:
     static bool isToken(std::string const & str, std::string const & target);
@@ -216,14 +244,19 @@ private:
     std::string toRSI_SetPosition() const;
 
     // makerootmove
-    static shared_ptr<CommandPacket> parse_MakeRootMove(std::string const & rsi,
+    static shared_ptr<CommandPacket> parse_MakeMoveRoot(std::string const & rsi,
                                                         Tokenizer & tokens);
-    std::string toRSI_MakeRootMove() const;
+    std::string toRSI_MakeMoveRoot() const;
 
     // setmovelist
     static shared_ptr<CommandPacket> parse_SetMoveList(std::string const & rsi,
                                                        Tokenizer & tokens);
     std::string toRSI_SetMoveList() const;
+
+    // start
+    static shared_ptr<CommandPacket> parse_Start(std::string const & rsi,
+                                                 Tokenizer & tokens);
+    std::string toRSI_Start() const;
 
     // stop
     static shared_ptr<CommandPacket> parse_Stop(std::string const & rsi,
@@ -244,9 +277,12 @@ private:
     int m_plyDepth;
     Position m_position;
 
+    int m_alpha;
+    int m_beta;
+
     std::string m_serverAddress;
     std::string m_serverPort;
-    std::string m_loginId;
+    std::string m_loginName;
 
     Move m_move;
     std::vector<Move> m_moveList;
