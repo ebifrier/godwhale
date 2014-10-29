@@ -10,9 +10,11 @@
 
 /** オリジナルのロック定義 */
 #define LOCK(obj) \
-    LOCK_IMPL(obj, lock_7D0B4924019B, flag_7D0B4924019B)
+    LOCK_IMPL(obj, BOOST_PP_CAT(lock_, __LINE__), BOOST_PP_CAT(flag_, __LINE__))
 
 #define F(fmt) ::boost::format(fmt)
+
+#define CLIENT_SIZE 4
 
 namespace godwhale {
 
@@ -34,7 +36,6 @@ enum
 };
 
 extern tree_t * g_ptree;
-extern unsigned int state_node;
 
 } // namespace godwhale
 

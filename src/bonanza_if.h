@@ -5,6 +5,7 @@ extern "C" {
 #endif
 
 #if defined(GODWHALE_SERVER)
+extern int CONV detect_signal_server();
 extern void CONV init_game_hook();
 extern void CONV quit_game_hook();
 extern void CONV reset_position_hook(const min_posi_t *posi);

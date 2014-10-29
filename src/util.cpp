@@ -29,37 +29,11 @@ int popCount(int x)
 }
 
 /**
- * @brief bonanzaの探索用変数を初期化します。
+ * @brief 指定の㍉秒だけスリープします。
  */ 
-void initBonanzaSearch(tree_t * restrict ptree)
+void sleep(int milliseconds)
 {
-    ptree->node_searched = 0;
-    ptree->nquies_called = 0;
-    ptree->current_move[0] = 0;
-    ptree->pv[0].a[0] = 0;
-    ptree->pv[0].a[1] = 0;
-    ptree->pv[0].depth = 0;
-    ptree->pv[0].length = 0;
-
-    root_abort = 0;
-    root_alpha = -score_bound;
-    root_beta =   score_bound;
-
-    game_status &= ~(flag_move_now | flag_quit_ponder | flag_search_error);
-
-    ptree->save_eval[0] =
-    ptree->save_eval[1] = INT_MAX;
-
-    for (int ply = 0; ply < PLY_MAX; ++ply) {
-        ptree->amove_killer[ply].no1 =
-        ptree->amove_killer[ply].no2 = 0;
-    }
-
-    ptree->nsuc_check[0] = 0;
-    ptree->nsuc_check[1] = InCheck(root_turn) ? 1 : 0;
-
-    ptree->move_last[0] = ptree->amove;
-    ptree->move_last[1] = ptree->amove;
+    boost::this_thread::sleep(boost::posix_time::milliseconds(milliseconds));
 }
 
 } // namespace godwhale

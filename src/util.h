@@ -22,7 +22,7 @@ inline std::string toString(int number)
 }
 
 extern int popCount(int x);
-extern void initBonanzaSearch();
+extern void sleep(int milliseconds);
 
 } // namespace godwhale
 

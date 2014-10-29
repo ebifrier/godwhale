@@ -7,6 +7,11 @@
 using namespace godwhale;
 using namespace godwhale::server;
 
+int CONV detect_signal_server()
+{
+    return 0;
+}
+
 void CONV init_game_hook()
 {
     //initializeLog();
