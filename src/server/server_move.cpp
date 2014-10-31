@@ -94,11 +94,14 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
 {
     LOG(Notification) << std::endl << std::endl;
     LOG(Notification) << "------------------ Begin Iterate.";
-    LOG(Notification) << "thinking: " << ((game_status & flag_thinking) != 0);
-    LOG(Notification) << "puzzling: " << ((game_status & flag_puzzling) != 0);
-    LOG(Notification) << "pondering: " << ((game_status & flag_pondering) != 0);
+    LOG(Notification) << "  thinking: " << ((game_status & flag_thinking) != 0);
+    LOG(Notification) << "  puzzling: " << ((game_status & flag_puzzling) != 0);
+    LOG(Notification) << " pondering: " << ((game_status & flag_pondering) != 0);
+    LOG(Notification) << "think time: " << sec_limit;
+    LOG(Notification) << "   byoyomi: " << sec_limit_up;
 
     timer::cpu_timer sendTimer;
+    int sentValue = -score_bound-1;
     for ( ; ; ) {
         auto clientList = GetClientList();
         long maxNodes = 0;
@@ -116,7 +119,7 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
             auto client = clientList[i];
             ScopedLock locker(client->GetGuard());
 
-            if (client->GetNodeCount() > 30 * 10000 &&
+            if (client->GetNodeCount() > 3 * 10000 &&
                 !client->HasPlayedMove() &&
                 client->GetMove() != MOVE_NA) {
                 Move move = client->GetMove();
@@ -155,24 +158,24 @@ int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvs
             }
         }
 
-        if (sendTimer.elapsed().wall > 5LL*1000*1000*1000) {
-            if (score.IsValid()) {
-                m_currentValue = score.GetValue() *
-                                 (root_turn == client_turn ? +1 : -1);
+        if (score.IsValid() && sentValue != score.GetValue()) {
+            /*m_currentValue = score.GetValue() *
+                                (root_turn == client_turn ? +1 : -1);*/
 
-                SendPV(clientList, m_currentValue, score.GetNodes(),
-                       score.GetPVSeq());
-            }
+            SendPV(clientList, score.GetValue(), score.GetNodes(),
+                    score.GetPVSeq());
 
             // これで時間がリセットされます。
-            sendTimer.start();
+            //sendTimer.start();
+            sentValue = score.GetValue();
         }
 
         if (score.IsValid() && IsEndIterate(ptree, m_turnTimer)) {
+            LOG(Notification) << "    value: " << score.GetValue();
             LOG(Notification) << "  my move: " << score.GetMove();
             LOG(Notification) << "real move: " << score.GetPVSeq()[0];
 
-            *value = score.GetValue();
+            *value = 0; //score.GetValue();
 
             const auto &tmpseq = score.GetPVSeq();
             pvseq.insert(pvseq.end(), tmpseq.begin(), tmpseq.end());
@@ -194,7 +197,7 @@ bool Server::IsEndIterate(tree_t *restrict ptree, timer::cpu_timer &timer)
 
     if (!(game_status & flag_puzzling)) {
         auto ms = (unsigned int)(timer.elapsed().wall / 1000 / 1000);
-        return IsThinkEnd(ptree, ms); //(ms > 10*1000);
+        return IsThinkEnd(ptree, ms);
     }
 
     return false;

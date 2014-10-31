@@ -8,3 +8,7 @@ utility/Bonako/Bonako/dist/Bonako_*/
 utility/Bonako/Bonako/bin/
 utility/Bonako/Bonako/obj/
 build/visualc10/Debug/
+build/visualc10/client/log/
+build/visualc10/Release/log/
+build/visualc10/ipch/
+build/visualc10/Release/

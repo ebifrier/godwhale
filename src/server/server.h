@@ -118,6 +118,7 @@ public:
 
     void ClientLogined(shared_ptr<Client> client);
     std::vector<shared_ptr<Client> > GetClientList();
+    void WaitClient(int clientSize);
     
     void InitGame();
     void QuitGame();
@@ -146,6 +147,8 @@ private:
                          long nps);
     void SendPV(std::vector<shared_ptr<Client> > &clientList,
                 int value, long nodes, const std::vector<Move> &pvseq);
+
+    bool IsThinkEnd(tree_t *restrict ptree, unsigned int turnTimeMS);
 
 private:
     mutable Mutex m_guard;

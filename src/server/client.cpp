@@ -1,4 +1,5 @@
 #include "precomp.h"
+#include <boost/regex.hpp>
 #include "stdinc.h"
 #include "server.h"
 #include "client.h"

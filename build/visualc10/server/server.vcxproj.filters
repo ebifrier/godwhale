@@ -10,31 +10,13 @@
     <ClCompile Include="..\..\..\src\server\client.cpp">
       <Filter>server</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\server\genmove.cpp">
-      <Filter>server</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\server\logger.cpp">
-      <Filter>server</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\server\main.cpp">
-      <Filter>server</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\server\move.cpp">
-      <Filter>server</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\server\precomp.cpp">
       <Filter>server</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\server\server.cpp">
       <Filter>server</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\server\server_move.cpp">
-      <Filter>server</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\server\thinktime.cpp">
-      <Filter>server</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\server\util.cpp">
       <Filter>server</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\bonanza6\attack.c">
@@ -166,30 +148,28 @@
     <ClCompile Include="..\..\..\src\bonanza6\utility.c">
       <Filter>bonanza6</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\logger.cpp" />
+    <ClCompile Include="..\..\..\src\precomp.cpp" />
+    <ClCompile Include="..\..\..\src\stdinc.cpp" />
+    <ClCompile Include="..\..\..\src\util.cpp" />
+    <ClCompile Include="..\..\..\src\server\move.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\server\server_time.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\server\io_sfen.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\src\server\util.h">
-      <Filter>server</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\server\board.h">
       <Filter>server</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\server\client.h">
       <Filter>server</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\server\logger.h">
-      <Filter>server</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\server\move.h">
-      <Filter>server</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\server\precomp.h">
-      <Filter>server</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\server\server.h">
-      <Filter>server</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\server\stdinc.h">
       <Filter>server</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\bonanza_if.h" />
@@ -204,6 +184,19 @@
     </ClInclude>
     <ClInclude Include="..\..\..\src\bonanza6\shogi.h">
       <Filter>bonanza6</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\logger.h" />
+    <ClInclude Include="..\..\..\src\precomp.h" />
+    <ClInclude Include="..\..\..\src\stdinc.h" />
+    <ClInclude Include="..\..\..\src\util.h" />
+    <ClInclude Include="..\..\..\src\server\move.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\server\io_sfen.h">
+      <Filter>server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\server\exceptions.h">
+      <Filter>server</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

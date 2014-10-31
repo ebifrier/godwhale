@@ -1067,6 +1067,12 @@ usi_posi( tree_t * restrict ptree, char **lasts )
     
   moves_ignore[0] = MOVE_NA;
 
+#if defined(GODWHALE_SERVER)
+  if ( usi_position_hook( ptree, *lasts ) < 0 )
+    {
+      return -1;
+    }
+#else
   token = strtok_r( NULL, str_delimiters, lasts );
   if ( strcmp( token, "startpos" ) )
     {
@@ -1100,6 +1106,7 @@ usi_posi( tree_t * restrict ptree, char **lasts )
         return -1;
       }
   }
+#endif
     
   if ( get_elapsed( &time_turn_start ) < 0 ) { return -1; }
   return 1;
@@ -2486,7 +2493,7 @@ static int CONV cmd_sendpv( char **lasts )
 /* mnj addr port factor stable_depth */
 static int CONV cmd_mnj( char **lasts )
 {
-  char client_str_id[256];
+  //char client_str_id[256];
   char client_str_addr[256];
   const char *str;
   char *ptr;
@@ -2516,7 +2523,7 @@ static int CONV cmd_mnj( char **lasts )
 
   str = strtok_r( NULL, str_delimiters, lasts );
   if ( ! str || ! strcmp( str, "." ) ) { str = "bonanza1"; }
-  strncpy( client_str_id, str, 255 );
+  //strncpy( client_str_id, str, 255 );
   client_str_id[255] = '\0';
 
   str = strtok_r( NULL, str_delimiters, lasts );
@@ -2549,6 +2556,8 @@ static int CONV cmd_mnj( char **lasts )
 
   resign_threshold  = 65535;
   game_status      |= ( flag_noponder | flag_noprompt );
+
+  printf("mnj connect %s %d\n", client_str_addr, (int)client_port);
 
   sckt_mnj = sckt_connect( client_str_addr, (int)client_port );
   if ( sckt_mnj == SCKT_NULL ) { return -2; }

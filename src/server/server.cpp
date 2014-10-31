@@ -1,6 +1,6 @@
 #include "precomp.h"
 #include "stdinc.h"
-
+#include "io_sfen.h"
 #include "server.h"
 #include "client.h"
 
@@ -72,7 +72,7 @@ void Server::ServiceThreadMain()
                 this_thread::sleep(posix_time::milliseconds(20));
             }
 
-            UpdateInfo();
+            //UpdateInfo();
             m_service.reset();
         }
         catch (...) {
@@ -168,6 +168,16 @@ std::vector<shared_ptr<Client> > Server::GetClientList()
     return std::move(result);
 }
 
+void Server::WaitClient(int clientSize)
+{
+    LOG(Notification) << "waiting clients... " << clientSize;
+
+    while (clientSize > (int)m_clientList.size()) {
+        LOG(Notification) << ".";
+        sleep(2000);
+    }
+}
+
 void Server::BeginAccept()
 {
     if (!m_isAlive) return;
@@ -241,9 +251,9 @@ void Server::SendPV(std::vector<shared_ptr<Client> > &clientList,
     std::transform(
         pvseq.begin(), pvseq.end(),
         std::back_inserter(v),
-        [](Move _) { return _.String(); });
+        [](Move _) { return moveToSfen(_); });
 
-    auto fmt = format("info %1% %2% n=%3%")
+    /*auto fmt = format("info %1% %2% n=%3%")
         % ((double)value / 100.0)
         % algorithm::join(v, " ")
         % nodes;
@@ -253,7 +263,13 @@ void Server::SendPV(std::vector<shared_ptr<Client> > &clientList,
         if (client->IsSendPV()) {
             client->SendCommand(command, false);
         }
-    }
+    }*/
+
+    auto fmt = F("info nodes %1% score cp %2% string dummy")
+               % nodes % value;
+    std::string command = fmt.str();
+
+    USIOut( "%s\n", command.c_str());
 
     LOG(Notification) << "Send PV: " << command;
 }

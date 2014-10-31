@@ -5,6 +5,11 @@
 namespace godwhale {
 namespace server {
 
+inline int SQ(int file, int rank)
+{
+    return ((rank-1) * 9 + (9-file));
+}
+
 /**
  * @brief 指し手を扱うためのクラスです。
  */
@@ -69,10 +74,38 @@ public:
     }
 
     /**
+     * @brief 指し手の移動先（駒打ちの場合は打つ場所）の筋を取得します。
+     */
+    int GetToFile() const {
+        return (9 - (GetTo() % 9));
+    }
+
+    /**
+     * @brief 指し手の移動先（駒打ちの場合は打つ場所）の段を取得します。
+     */
+    int GetToRank() const {
+        return ((GetTo() / 9) + 1);
+    }
+
+    /**
      * @brief 指し手の移動元を取得します。駒打ちの場合は無効です。
      */
     int GetFrom() const {
         return I2From(m_move);
+    }
+
+    /**
+     * @brief 指し手の移動元の筋を取得します。
+     */
+    int GetFromFile() const {
+        return (9 - (GetFrom() % 9));
+    }
+
+    /**
+     * @brief 指し手の移動元の段を取得します。
+     */
+    int GetFromRank() const {
+        return ((GetFrom() / 9) + 1);
     }
 
     /**

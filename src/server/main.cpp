@@ -2,8 +2,12 @@
 #include "precomp.h"
 #include "stdinc.h"
 #include "server.h"
+#include "bonanza_if.h"
 
+using namespace godwhale;
 using namespace godwhale::server;
+
+#define CLIENT_SIZE 4
 
 static int main_child( tree_t * restrict ptree );
 
@@ -22,7 +26,7 @@ int main(int argc, char *argv[])
     usi_mode = usi_on;
 #endif
 
-    InitializeLog();
+    initializeLog();
 
     // これより前のサーバーインスタンスへのアクセスは禁止です。
     Server::Initialize();
@@ -32,6 +36,8 @@ int main(int argc, char *argv[])
         LOG(Error) << "failed ini(). (" << str_error << ")";
         return EXIT_SUCCESS;
     }
+    
+    Server::GetInstance()->WaitClient(CLIENT_SIZE);
 
     for ( ; ; ) {
         iret = main_child(ptree);

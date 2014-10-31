@@ -85,7 +85,7 @@ iterate( tree_t * restrict ptree )
     {
       ptree->pv[0].a[i] = last_pv.a[i];
     }
-  last_root_value = (last_pv.a[1] != MOVE_NA) ? last_root_value :
+  last_root_value = (last_pv.a[1] != MOVE_NA) ? value :
     (!root_turn ? -score_bound : score_bound);
 
   right_answer_made = 0;

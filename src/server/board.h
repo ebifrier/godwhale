@@ -21,12 +21,18 @@ const unsigned int HandTable[] =
 class Board
 {
 public:
-    explicit Board();
-    explicit Board(const Board &other);
+    explicit Board(bool init = true);
+    Board(const Board &other);
     explicit Board(const min_posi_t &posi);
 
     Board &operator =(const Board &other);
     Board &operator =(const min_posi_t &posi);
+
+    friend bool operator==(Board const & lhs, Board const & rhs);
+    friend bool operator!=(Board const & lhs, Board const & rhs)
+    {
+        return !(lhs == rhs);
+    }
 
     /**
      * @brief sq‚É‹î‚ğİ’è‚µ‚Ü‚·B
@@ -49,6 +55,20 @@ public:
      */
     int operator[](int sq) const {
         return Get(sq);
+    }
+
+    /**
+     * @brief è”Ô‚ğæ“¾‚µ‚Ü‚·B
+     */
+    int GetTurn() const {
+        return m_turn;
+    }
+
+    /**
+     * @brief è”Ô‚ğİ’è‚µ‚Ü‚·B
+     */
+    void SetTurn(int turn) {
+        m_turn = turn;
     }
 
     /**
@@ -83,6 +103,10 @@ public:
 
         return result;
     }
+
+    min_posi_t getMinPosi() const;
+    int GetHand(int turn, int piece) const;
+    void SetHand(int turn, int piece, int count);
 
     bool IsValidMove(Move move) const;
     int DoMove(Move move);

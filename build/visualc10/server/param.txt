@@ -1,8 +1,10 @@
-
 #tlp num 1
 book narrow
+sendpv on
+#resign 25000
 
-limit time 0 3 -1
+limit time 15 10 -1
 
 #connect wdoor.c.u-tokyo.ac.jp 4081 TestWhale4 floodgate-900-0,mytrip 1
-connect godwhale.noip.me 4081 TestWhale5 test-99999-99999 10
+#connect godwhale.noip.me 4081 TestWhale5 test-99999-99999 10
+connect 101.110.31.31 4081 TestWhale5 test-99999-99999 10

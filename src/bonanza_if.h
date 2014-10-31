@@ -15,6 +15,7 @@ extern void CONV unmake_move_root_hook();
 extern void CONV adjust_time_hook(int turn);
 extern int CONV server_iterate(tree_t *restrict ptree, int *value,
                                move_t *pvseq, int *pvseq_length);
+extern int CONV usi_position_hook(tree_t *restrict ptree, const char *command);
 #endif
 
 #ifdef __cplusplus

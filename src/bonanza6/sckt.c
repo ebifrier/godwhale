@@ -129,7 +129,7 @@ client_next_game( tree_t * restrict ptree, const char *str_addr, int iport )
   client_turn   = my_turn;
   client_ngame += 1;
 
-#if defined(CSA_LAN)
+#if defined(GODWHALE_SERVER)
   init_game_hook();
 #endif
 

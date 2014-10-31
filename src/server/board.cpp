@@ -5,11 +5,16 @@
 namespace godwhale {
 namespace server {
 
-Board::Board()
+Board::Board(bool init/*= true*/)
     : m_handBlack(0), m_handWhite(0), m_turn(black)
 {
-    // m_asquareとmin_posi_t.asquareは型が違う。
-    std::copy_n(min_posi_no_handicap.asquare, (int)nsquare, m_asquare);
+    if (init) {
+        // m_asquareとmin_posi_t.asquareは型が違う。
+        std::copy_n(min_posi_no_handicap.asquare, (int)nsquare, m_asquare);
+    }
+    else {
+        memset(m_asquare, 0, sizeof(m_asquare));
+    }
 }
 
 Board::Board(const Board &other)
@@ -51,6 +56,74 @@ Board &Board::operator =(const min_posi_t &posi)
 
     m_moveList.clear();
     return *this;
+}
+
+bool operator==(Board const & lhs, Board const & rhs)
+{
+    if (lhs.m_handBlack != rhs.m_handBlack ||
+        lhs.m_handWhite != rhs.m_handWhite ||
+        lhs.m_turn != rhs.m_turn) {
+        return false;
+    }
+
+    if (!std::equal(boost::begin(lhs.m_asquare), boost::end(lhs.m_asquare),
+                    rhs.m_asquare)) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief min_posi_tオブジェクトに変換します。
+ */
+min_posi_t Board::getMinPosi() const
+{
+    min_posi_t posi;
+
+    posi.hand_black = m_handBlack;
+    posi.hand_white = m_handWhite;
+    posi.turn_to_move = m_turn;
+    std::copy_n(m_asquare, (int)nsquare, posi.asquare);
+    return posi;
+}
+
+int Board::GetHand(int turn, int piece) const
+{
+    assert(turn == black || turn == white);
+    assert(piece > 0);
+    int hand = (turn == black ? m_handBlack : m_handWhite);
+
+    switch (piece) {
+    case pawn:   return I2HandPawn(hand);
+    case knight: return I2HandKnight(hand);
+    case lance:  return I2HandLance(hand);
+    case silver: return I2HandSilver(hand);
+    case gold:   return I2HandGold(hand);
+    case bishop: return I2HandBishop(hand);
+    case rook:   return I2HandRook(hand);
+    default:     unreachable(); break;
+    }
+}
+
+void Board::SetHand(int turn, int piece, int count)
+{
+    assert(turn == black || turn == white);
+    assert(piece > 0 && count >= 0);
+    int hand = (turn == black ? m_handBlack : m_handWhite);
+
+    switch (piece) {
+    case pawn:   hand&=~IsHandPawn(~0);   hand|=(flag_hand_pawn  *count); break;
+    case knight: hand&=~IsHandKnight(~0); hand|=(flag_hand_knight*count); break;
+    case lance:  hand&=~IsHandLance(~0);  hand|=(flag_hand_lance *count); break;
+    case silver: hand&=~IsHandSilver(~0); hand|=(flag_hand_silver*count); break;
+    case gold:   hand&=~IsHandGold(~0);   hand|=(flag_hand_gold  *count); break;
+    case bishop: hand&=~IsHandBishop(~0); hand|=(flag_hand_bishop*count); break;
+    case rook:   hand&=~IsHandRook(~0);   hand|=(flag_hand_rook  *count); break;
+    default:     unreachable(); break;
+    }
+
+    (turn == black ? m_handBlack : m_handWhite) = hand;
 }
 
 /**
