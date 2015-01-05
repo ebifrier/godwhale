@@ -7,41 +7,61 @@
 using namespace godwhale;
 using namespace godwhale::server;
 
-int CONV detect_signal_server()
+int CONV detect_signals_server()
 {
-    return 0;
+    return Server::get()->detectSignals();
+}
+
+void CONV set_position_hook(min_posi_t const * posi)
+{
+    /*shared_ptr<ServerCommand> scommand(new ServerCommand(SERVERCOMMAND_SETPOSITION));
+    scommand->setPosition(Position(*posi));
+
+    Server::get()->addServerCommand(scommand);*/
+
+    Server::get()->setPosition(Position(*posi));
 }
 
 void CONV init_game_hook()
 {
-    //initializeLog();
+    /*shared_ptr<ServerCommand> scommand(new ServerCommand(SERVERCOMMAND_BEGINGAME));
 
-    Server::get()->InitGame();
+    Server::get()->addServerCommand(scommand);*/
+
+    Server::get()->beginGame();
 }
 
 void CONV quit_game_hook()
 {
-    Server::get()->QuitGame();
-}
+    /*shared_ptr<ServerCommand> scommand(new ServerCommand(SERVERCOMMAND_ENDGAME));
 
-void CONV reset_position_hook(const min_posi_t *posi)
-{
-    Server::get()->ResetPosition(posi);
+    Server::get()->addServerCommand(scommand);*/
+
+    Server::get()->endGame();
 }
 
 void CONV make_move_root_hook(move_t move)
 {
-    Server::get()->MakeRootMove(move);
+    /*shared_ptr<ServerCommand> scommand(new ServerCommand(SERVERCOMMAND_MAKEMOVEROOT));
+    scommand->setMove(move);
+
+    Server::get()->addServerCommand(scommand);*/
+
+    Server::get()->makeMoveRoot(move);
 }
 
 void CONV unmake_move_root_hook()
 {
-    Server::get()->UnmakeRootMove();
+    /*shared_ptr<ServerCommand> scommand(new ServerCommand(SERVERCOMMAND_UNMAKEMOVEROOT));
+
+    Server::get()->addServerCommand(scommand);*/
+
+    Server::get()->unmakeMoveRoot();
 }
 
 void CONV adjust_time_hook(int turn)
 {
-    Server::get()->AdjustTimeHook(turn);
+    //Server::get()->AdjustTimeHook(turn);
 }
 
 int CONV server_iterate(tree_t *restrict ptree, int *value,
@@ -51,7 +71,7 @@ int CONV server_iterate(tree_t *restrict ptree, int *value,
     int status;
 
     // Žè”Ô–ˆ‚ÌŽw‚µŽè‚ÌŒˆ’è‚ðs‚¢‚Ü‚·B
-    status = Server::get()->Iterate(ptree, value, seq);
+    status = Server::get()->iterate(ptree, value, seq);
 
     std::copy(seq.begin(), seq.end(), pvseq);
 

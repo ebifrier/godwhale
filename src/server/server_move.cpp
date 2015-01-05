@@ -1,6 +1,10 @@
 #include "precomp.h"
 #include "stdinc.h"
-#include "move.h"
+#include "commandpacket.h"
+#include "replypacket.h"
+#include "searchresult.h"
+#include "movenodetree.h"
+#include "syncposition.h"
 #include "server.h"
 #include "serverclient.h"
 
@@ -15,183 +19,130 @@ using namespace boost;
 
 extern bool IsThinkEnd(tree_t *restrict ptree, unsigned int turnTimeMS);
 
-void Server::InitGame()
+/**
+ * @brief サーバー用コマンドの処理を行います。
+ */
+int Server::setPosition(Position const & position)
 {
-    LOG(Notification) << "Init Game";
+    LOG_NOTIFICATION() << "set position";
 
-    FOREACH_CLIENT(client) {
-        //client->InitGame();
+    m_positionId += 1;
+    m_position = position;
+    m_currentValue = 0;
+
+    // 局面をクライアントに通知します。
+    for (int ci = 0; ci < CLIENT_SIZE; ++ci) {
+        auto command = CommandPacket::createSetPosition(m_positionId,
+                                                        position);
+        Server::get()->sendCommand(ci, command);
     }
+
+    return PROCE_CONTINUE;
+}
+
+int Server::beginGame()
+{
+    LOG_NOTIFICATION() << "begin game";
 
     m_currentValue = 0;
     m_turnTimer.start();
+
+    return PROCE_CONTINUE;
 }
 
-void Server::QuitGame()
+int Server::endGame()
 {
-    m_currentValue = 0;
-
-    FOREACH_CLIENT(client) {
-        //client->SendCommand("idle", false);
-    }
-
-    LOG(Notification) << "Quit Game";
-}
-
-void Server::ResetPosition(const min_posi_t *posi)
-{
-    FOREACH_CLIENT(client) {
-        //client->ResetPosition(posi);
-    }
+    LOG_NOTIFICATION() << "end game";
 
     m_positionId = 0;
-    m_position = *posi;
     m_currentValue = 0;
-    m_turnTimer.start();
+
+    // 全クライアントを停止します。
+    sendCommandAll(CommandPacket::createStop());
+
+    return PROCE_CONTINUE;
 }
 
-void Server::MakeRootMove(Move move)
+int Server::makeMoveRoot(Move move)
 {
-    m_position.makeMove(move);
-    m_positionId += 10;
+    int oldPositionId = m_positionId;
+    m_positionId += 1;
+
+    SyncPosition::get()->rewind();
+    if (!SyncPosition::get()->makeMoveRoot(m_positionId, move)) {
+        LOG_ERROR() << move << ": makeMoveRootに失敗しました。";
+        LOG_ERROR() << SyncPosition::get()->getPosition();
+        return PROCE_ABORT;
+    }
 
     LOG(Notification) << "root move: " << move;
-    LOG(Notification) << m_position;
+    LOG(Notification) << SyncPosition::get()->getPosition();
 
-    FOREACH_CLIENT(client) {
-        //client->MakeRootMove(move, m_gid);
+    // 局面をクライアントに通知します。
+    for (int ci = 0; ci < CLIENT_SIZE; ++ci) {
+        auto command = CommandPacket::createMakeMoveRoot(m_positionId,
+                                                         oldPositionId,
+                                                         move);
+        Server::get()->sendCommand(ci, command);
     }
 
     m_turnTimer.start();
+
+    return PROCE_CONTINUE;
 }
 
-void Server::UnmakeRootMove()
+int Server::unmakeMoveRoot()
 {
-    m_position.unmakeMove();
-    m_positionId += 10; // 局面を戻した場合も、IDは進めます。
+    LOG_NOTIFICATION() << "root unmove";
 
-    LOG(Notification) << "root unmove";
+    throw std::logic_error("unmakeMoveRoot: 実装されていません。");
 }
 
-void Server::AdjustTimeHook(int turn)
+/**
+ * @brief クライアントが受信した応答コマンドを処理します。
+ */
+int Server::proceClientReply()
 {
-    /*auto sec = turn ? sec_w_total : sec_b_total;
-    auto fmt = F("info %1% %2%") % (turn ? "wt" : "bt") % sec;
-    auto str = fmt.str();
-
-    FOREACH_CLIENT(client) {
-        client->SendCommand(str, false);
+    auto clientList = getClientList();
+    int count = 0;
+    
+    BOOST_FOREACH(auto client, clientList) {
+        // すべての応答コマンドを処理します。
+        while (client->proce() > 0) {
+            count += 1;
+        }
     }
 
-    LOG(Notification) << "All client send: " << str;*/
+    return count;
 }
 
-void Server::iterateThreadMain()
+int Server::iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvseq)
 {
+    LOG_NOTIFICATION() << "";
+    LOG_NOTIFICATION() << "";
+    LOG_NOTIFICATION() << "";
+    LOG_NOTIFICATION() << "------------------ Begin Iterate.";
+    LOG_NOTIFICATION() << "thinking: " << ((game_status & flag_thinking) != 0);
+    LOG_NOTIFICATION() << "puzzling: " << ((game_status & flag_puzzling) != 0);
+    LOG_NOTIFICATION() << "pondering: " << ((game_status & flag_pondering) != 0);
+
+    SearchResult result;
+    generateRootMove(&result);
+
+    // 最左ノードを設定します。
+    m_ntree->initialize(m_positionId, result.getIterationDepth(), result.getPV());
+
+    // 指し手リストを設定します。
+    generateFirstMoves(result);
+
     while (m_isAlive) {
-        shared_ptr<ReplyPacket> reply = getNextReply();
-        if (reply != nullptr) {
-            //proce(reply);
-            break;
+        int count = proceClientReply();
+        if (count == 0) {
+            sleep(200);
+            continue;
         }
     }
-}
 
-int Server::Iterate(tree_t *restrict ptree, int *value, std::vector<move_t> &pvseq)
-{
-    LOG(Notification) << std::endl << std::endl;
-    LOG(Notification) << "------------------ Begin Iterate.";
-    LOG(Notification) << "thinking: " << ((game_status & flag_thinking) != 0);
-    LOG(Notification) << "puzzling: " << ((game_status & flag_puzzling) != 0);
-    LOG(Notification) << "pondering: " << ((game_status & flag_pondering) != 0);
-
-#if 0
-    timer::cpu_timer sendTimer;
-    for ( ; ; ) {
-        auto clientList = GetClientList();
-        long maxNodes = 0;
-        Score score;
-
-        // 有効な指し手を持つＰＣの中から、もっとも多い探索ノード数を調べます。
-        BOOST_FOREACH(auto client, clientList) {
-            if (client->HasMove()) {
-                maxNodes = std::max(maxNodes, client->GetNodeCount());
-            }
-        }
-
-        int size = clientList.size();
-        for (int i = 0; i < size; ++i) {
-            auto client = clientList[i];
-            ScopedLock locker(client->GetGuard());
-
-            if (client->GetNodeCount() > 30 * 10000 &&
-                !client->HasPlayedMove() &&
-                client->GetMove() != MOVE_NA) {
-                Move move = client->GetMove();
-
-                // 先読みの手を決定し、一手実際に進めます。
-                client->SetPlayedMove(move);
-
-                // ignoreを各クライアントに送信
-                // ignoreはほぼすべてのクライアントに送信しますが、
-                // 冗長性を確保するため chunk ごとに１つは送らないものを残します。
-                int chunk = 5;
-                int start = i % chunk;
-                for (int j = start; j < size; ++j) {
-                    auto client2 = clientList[j];
-
-                    if (client2->HasPlayedMove()) {
-                        continue;
-                    }
-
-                    // chunkごとに１つは無視する指し手を送りません。
-                    if ((j % chunk) == start) {
-                        client2->SetPlayedMove(move);
-                    }
-                    else {
-                        client2->AddIgnoreMove(move);
-                    }
-                }
-            }
-
-            // 評価値が高く、ノード数がそこまで低くない手を選びます。
-            // （ノード数の判定ってこれでいいのか…？ｗ）
-            bool flag1 = (client->GetNodeCount() > maxNodes * 0.7 &&
-                          client->GetValue() > score.GetValue());
-            if (client->HasMove() && (!score.IsValid() || flag1)) {
-                score.Set(client);
-            }
-        }
-
-        if (sendTimer.elapsed().wall > 5LL*1000*1000*1000) {
-            if (score.IsValid()) {
-                m_currentValue = score.GetValue() *
-                                 (root_turn == client_turn ? +1 : -1);
-
-                //SendPV(clientList, m_currentValue, score.GetNodes(),
-                //       score.GetPVSeq());
-            }
-
-            // これで時間がリセットされます。
-            sendTimer.start();
-        }
-
-        if (score.IsValid() && IsEndIterate(ptree, m_turnTimer)) {
-            LOG(Notification) << "  my move: " << score.GetMove();
-            LOG(Notification) << "real move: " << score.GetPVSeq()[0];
-
-            *value = score.GetValue();
-
-            const auto &tmpseq = score.GetPVSeq();
-            pvseq.insert(pvseq.end(), tmpseq.begin(), tmpseq.end());
-            return 0;
-        }
-
-        this_thread::yield();
-    }
-
-    *value = 0;
-#endif
     return 0;
 }
 

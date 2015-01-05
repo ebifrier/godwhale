@@ -59,7 +59,7 @@ public:
     bool hasSamePV(int pld, std::vector<Move> const & pv);
     bool isDoneExact(int pld, int srd);
 
-    void initialize(int positionId, std::vector<Move> const & pv);
+    void initialize(int positionId, int iterationDepth, std::vector<Move> const & pv);
     void setMoveList(int pld, std::vector<Move> const & list);
     void start(int startPld, int alpha, int beta);
 

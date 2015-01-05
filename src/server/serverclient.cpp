@@ -18,7 +18,7 @@ ServerClient::~ServerClient()
 {
     close();
 
-    LOG_DEBUG() << "ServerClient[" << m_loginId << "]は閉じられました。";
+    LOG_DEBUG() << "ServerClient[" << m_loginName << "]は閉じられました。";
 }
 
 /**
@@ -56,7 +56,7 @@ void ServerClient::close()
  */
 void ServerClient::onDisconnected()
 {
-    LOG_NOTIFICATION() << "ServerClient[" << m_loginId << "] is disconnected.";
+    LOG_NOTIFICATION() << "ServerClient[" << m_loginName << "] is disconnected.";
 
     m_isAlive = false;
 }
@@ -90,7 +90,81 @@ void ServerClient::onRSIReceived(std::string const & rsi)
         return;
     }
 
-    m_server->addReply(reply);
+    // IOとその処理を分離するため、一度リストに入れます。
+    addReply(reply);
+}
+
+/**
+ * @brief 応答コマンドを追加します。
+ */
+void ServerClient::addReply(shared_ptr<ReplyPacket> reply)
+{
+    if (reply == nullptr) {
+        throw std::invalid_argument("reply");
+    }
+
+    LOCK (m_replyGuard) {
+        m_replyList.push_back(reply);
+    }
+}
+
+/**
+ * @brief 応答コマンドを削除します。
+ */
+void ServerClient::removeReply(shared_ptr<ReplyPacket> reply)
+{
+    LOCK (m_replyGuard) {
+        m_replyList.remove(reply);
+    }
+}
+
+/**
+ * @brief 次に処理する応答コマンドを取得します。
+ */
+shared_ptr<ReplyPacket> ServerClient::getNextReply() const
+{
+    LOCK (m_replyGuard) {
+        if (m_replyList.empty()) {
+            return shared_ptr<ReplyPacket>();
+        }
+
+        return m_replyList.front();
+    }
+}
+
+/**
+ * @brief 応答コマンドを処理します。
+ */
+int ServerClient::proce()
+{
+    auto reply = getNextReply();
+    if (reply == nullptr) {
+        return 0;
+    }
+
+    removeReply(reply);
+
+    switch (reply->getType()) {
+    case REPLY_LOGIN:
+        proce_Login(reply);
+        break;
+    }
+
+    return 1;
+}
+
+/**
+ * @brief login応答を処理します。
+ *
+ * login <name> <thread-num>
+ */
+int ServerClient::proce_Login(shared_ptr<ReplyPacket> reply)
+{
+    LOG_NOTIFICATION() << "handle login";
+
+    m_loginName = reply->getLoginName();
+    m_threadCount = reply->getThreadSize();
+    return 0;
 }
 
 } // namespace server

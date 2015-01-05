@@ -54,7 +54,7 @@ void MoveNodeBranch::setMoveList(std::vector<Move> const & list)
     int i = 0;
 
     // 指し手の分配を行います。
-    while (true) {
+    while (i < (int)list.size()) {
         for (int ci = 0; ci < (int)m_clientNodeLists.size(); ++ci) {
             auto & nodeList = m_clientNodeLists[ci];
 
@@ -63,6 +63,22 @@ void MoveNodeBranch::setMoveList(std::vector<Move> const & list)
             }
             nodeList.addNewMove(list[i++]);
         }
+    }
+
+    // ログ出力
+    int turn = countFlip(root_turn, m_plyDepth);
+    for (int ci = 0; ci < (int)m_clientNodeLists.size(); ++ci) {
+        auto & nodeList = m_clientNodeLists[ci];
+        std::string moveStr;
+
+        BOOST_FOREACH (auto node, nodeList.getList()) {
+            moveStr += node.getMove().str(turn);
+            moveStr += " ";
+        }
+
+        LOG_NOTIFICATION() << F("Client[%1%] move list, itd=%2%, pld=%3%")
+            % ci % m_iterationDepth % m_plyDepth;
+        LOG_NOTIFICATION() << moveStr;
     }
 
     // 分配された指し手をクライアントに通知します。

@@ -2,6 +2,7 @@
 #include "stdinc.h"
 #include "server.h"
 #include "serverclient.h"
+#include "movenodetree.h"
 #include "commandpacket.h"
 
 namespace godwhale {
@@ -22,7 +23,8 @@ void Server::initialize(int argc, char * argv[])
 }
 
 Server::Server()
-    : m_acceptor(m_service), m_isAlive(true), m_currentValue(0)
+    : m_acceptor(m_service), m_isAlive(true), m_positionId(0)
+    , m_ntree(new MoveNodeTree(1)), m_currentValue(0)
 {
     m_acceptor.open(tcp::v4());
     boost::asio::socket_base::reuse_address option(true);
@@ -43,11 +45,6 @@ Server::~Server()
     m_acceptor.cancel(error);
     m_acceptor.close(error);
 
-    if (m_iterateThread != nullptr) {
-        m_iterateThread->join();
-        m_iterateThread.reset();
-    }
-
     if (m_serviceThread != nullptr) {
         m_serviceThread->join();
         m_serviceThread.reset();
@@ -63,16 +60,12 @@ void Server::startThread()
         throw std::logic_error("m_serviceThreadはすでに初期化されています。");
     }
 
-    if (m_iterateThread != nullptr) {
-        throw std::logic_error("m_iterateThreadはすでに初期化されています。");
-    }
-
     // IO関係の処理を開始します。
     m_serviceThread.reset(new boost::thread(&Server::serviceThreadMain, this));
     startAccept();
 
     // 思考用のスレッドを開始します。
-    m_iterateThread.reset(new boost::thread(&Server::iterateThreadMain, this));
+    //m_iterateThread.reset(new boost::thread(&Server::iterateThreadMain, this));
 }
 
 /**
@@ -176,6 +169,16 @@ std::vector<shared_ptr<ServerClient>> Server::getClientList()
 }
 
 /**
+ * @brief クライアントの接続を待ちます。
+ */
+void Server::waitClients()
+{
+    while (m_clientList.size() < CLIENT_SIZE) {
+        sleep(200);
+    }
+}
+
+/**
  * @brief 指定のIDを持つクライアントにコマンドを送信します。
  */
 void Server::sendCommand(int clientId, shared_ptr<CommandPacket> command)
@@ -203,40 +206,40 @@ void Server::sendCommandAll(shared_ptr<CommandPacket> command)
 }
 
 /**
- * @brief 応答コマンドを追加します。
+ * @brief サーバー内コマンドを追加します。
  */
-void Server::addReply(shared_ptr<ReplyPacket> reply)
+void Server::addServerCommand(shared_ptr<ServerCommand> scommand)
 {
-    if (reply == nullptr) {
-        throw std::invalid_argument("reply");
+    if (scommand == nullptr) {
+        throw std::invalid_argument("scommand");
     }
 
-    LOCK (m_replyGuard) {
-        m_replyList.push_back(reply);
-    }
-}
-
-/**
- * @brief 応答コマンドを削除します。
- */
-void Server::removeReply(shared_ptr<ReplyPacket> reply)
-{
-    LOCK (m_replyGuard) {
-        m_replyList.remove(reply);
+    LOCK (m_serverCommandGuard) {
+        m_serverCommandList.push_back(scommand);
     }
 }
 
 /**
- * @brief 次に処理する応答コマンドを取得します。
+ * @brief サーバー内コマンドを削除します。
  */
-shared_ptr<ReplyPacket> Server::getNextReply() const
+void Server::removeServerCommand(shared_ptr<ServerCommand> scommand)
 {
-    LOCK (m_replyGuard) {
-        if (m_replyList.empty()) {
-            return shared_ptr<ReplyPacket>();
+    LOCK (m_serverCommandGuard) {
+        m_serverCommandList.remove(scommand);
+    }
+}
+
+/**
+ * @brief 次に処理するサーバー内コマンドを取得します。
+ */
+shared_ptr<ServerCommand> Server::getNextServerCommand() const
+{
+    LOCK (m_serverCommandGuard) {
+        if (m_serverCommandList.empty()) {
+            return shared_ptr<ServerCommand>();
         }
 
-        return m_replyList.front();
+        return m_serverCommandList.front();
     }
 }
 

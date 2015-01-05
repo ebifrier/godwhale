@@ -14,7 +14,7 @@
 
 #define F(fmt) ::boost::format(fmt)
 
-#define CLIENT_SIZE 4
+#define CLIENT_SIZE 1
 
 namespace godwhale {
 

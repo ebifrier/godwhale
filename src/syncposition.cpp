@@ -7,7 +7,7 @@ namespace godwhale {
 shared_ptr<SyncPosition> SyncPosition::ms_instance(new SyncPosition);
 
 SyncPosition::SyncPosition()
-    : m_moveSize(0)
+    : m_positionId(-1), m_moveSize(0)
 {
     memset(m_moveList, 0, sizeof(m_moveList));
     memset(m_checksList, 0, sizeof(m_checksList));
@@ -26,16 +26,28 @@ void SyncPosition::initialize()
     initBonanza(ptree);
 }
 
+#if 1 || defined(GODWHALE_CLIENT)
 /**
  * @brief 局面を指定の局面に設定し、bonaの初期化を行います。
  */
-void SyncPosition::initialize(min_posi_t const & posi)
+void SyncPosition::reset(int positionId, Position const & position)
 {
     tree_t * restrict ptree = g_ptree;
+    min_posi_t posi;
+
+    rewind();
+
+    // bonanza側の局面も設定します。
+    posi = position.getMinPosi();
+    ini_game(ptree, &posi, 0, NULL, NULL);
+
+    m_positionId = positionId;
+    m_rootPosition = Position(posi);
 
     // bonanzaの探索用データも初期化します。
-    initBonanza(ptree);
+    initialize();
 }
+#endif
 
 /**
  * @brief 探索のための初期化処理を行います。
@@ -131,11 +143,26 @@ Position SyncPosition::getPosition() const
 /**
  * @brief ルートの指し手を１手進めます。
  */
-bool SyncPosition::makeMoveRoot(Move move)
+bool SyncPosition::makeMoveRoot(int positionId, Move move)
 {
     tree_t * restrict ptree = g_ptree;
 
-    int status = make_move_root(ptree, move, flag_time);
+    rewind();
+    m_positionId = positionId;
+
+    if (!m_rootPosition.makeMove(move)) {
+        LOG_ERROR() << move << ": 指し手を正しく指すことができません。";
+        return false;
+    }
+
+    int status = 
+#if defined(GODWHALE_SERVER)
+        // サーバーの場合はbonanza側が勝手にmakemoverootするため
+        // ここでは局面の同期だけ行うようにします。
+        0;
+#else
+        make_move_root(ptree, move, flag_time);
+#endif
 
     initialize();
 
@@ -237,11 +264,11 @@ static int next_root_move(tree_t * restrict ptree)
 /**
  * @brief ある局面で着手可能な指し手をリストアップします。
  */
-void SyncPosition::getMoveList(Move exclude, bool firstMoveOnly,
-                               std::vector<Move> * result)
+std::vector<Move> SyncPosition::getMoveList(Move exclude, bool firstMoveOnly)
 {
     tree_t * restrict ptree = g_ptree; 
     
+    std::vector<Move> result;
     int ply = m_moveSize + 1;
     int turn = countFlip(root_turn, ply-1);
     int i = 0;
@@ -251,21 +278,29 @@ void SyncPosition::getMoveList(Move exclude, bool firstMoveOnly,
     ptree->anext_move[ply].next_phase = next_move_hash;
 
     if (ply == 1) {
-        for (int i = 0; i < root_nmove; ++i) {
+        make_root_move_list(ptree);
+        /*for (int i = 0; i < root_nmove; ++i) {
             root_move_list[i].status = 0;
-        }
+        }*/
     }
- 
+
     while (ply == 1 ? next_root_move(ptree) :
            ptree->nsuc_check[ply] ?
                gen_next_evasion(ptree, ply, turn) :
                gen_next_move(ptree, ply, turn)) {
-        assert(is_move_valid(g_ptree, MOVE_CURR, turn));
+        //assert(is_move_valid(ptree, MOVE_CURR, turn));
+        // たまにエラーが発生するため、一時的に動くようにしています。:TODO
+        if (!is_move_valid(ptree, MOVE_CURR, turn)) {
+            LOG_ERROR() << toString(MOVE_CURR, turn);
+            continue;
+        }
 
         if (MOVE_CURR == exclude) continue;
-        result->push_back(MOVE_CURR);
+        result.push_back(MOVE_CURR);
         //if (firstMoveOnly && result.size() >= 2) break;
     }
+
+    return result;
 }
 
 } // namespace godwhale

@@ -2,7 +2,6 @@
 #ifndef GODWHALE_SYNCPOSITION_H
 #define GODWHALE_SYNCPOSITION_H
 
-#include "move.h"
 #include "position.h"
 
 namespace godwhale {
@@ -25,6 +24,22 @@ public:
     }
 
     /**
+     * @brief 局面IDを取得します。
+     */
+    int getPositionId() const
+    {
+        return m_positionId;
+    }
+
+    /**
+     * @brief 局面IDを取得します。
+     */
+    Position const &getRootPosition() const
+    {
+        return m_rootPosition;
+    }
+
+    /**
      * @brief 指定の局面で王手されているか調べます。
      */
     bool isChecked(int ply)
@@ -37,11 +52,14 @@ public:
     }
 
     void initialize();
-    void initialize(min_posi_t const & posi);
+#if 1 || defined(GODWHALE_CLIENT)
+    void reset(int positionId, Position const & position);
+#endif
 
     Position getPosition() const;
 
-    bool makeMoveRoot(Move move);
+    bool makeMoveRoot(int positionId, Move move);
+
     void makeMove(Move move);
     void unmakeMove();
 
@@ -49,7 +67,7 @@ public:
     void resetFromRoot(const std::vector<Move> & pv);
 
     void extendPV();
-    void getMoveList(Move exclude, bool firstMoveOnly, std::vector<Move> * result);
+    std::vector<Move> getMoveList(Move exclude, bool firstMoveOnly);
 
 private:
     void initBonanza(tree_t * restrict ptree);
@@ -57,6 +75,8 @@ private:
 private:
     static shared_ptr<SyncPosition> ms_instance;
 
+    int m_positionId;
+    Position m_rootPosition;
     Move m_moveList[128];
     bool m_checksList[128+2];
     int m_moveSize;

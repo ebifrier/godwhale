@@ -45,18 +45,24 @@ bool MoveNodeTree::isDoneExact(int pld, int srd)
 /**
  * @brief 局面IDや最左ノードとなるPVを設定します。
  */
-void MoveNodeTree::initialize(int positionId, std::vector<Move> const & pv)
+void MoveNodeTree::initialize(int positionId, int iterationDepth,
+                              std::vector<Move> const & pv)
 {
-    m_nodeBranches.resize(pv.size());
+    //m_nodeBranches.resize(pv.size());
+    m_nodeBranches.clear();
 
     for (int pld = 0; pld < (int)pv.size(); ++pld) {
+        auto branch = MoveNodeBranch(iterationDepth, pld);
+
         // 各深さのブランチを初期化します。
-        m_nodeBranches[pld].initialize(positionId);
+        branch.initialize(positionId);
+        m_nodeBranches.push_back(branch);
     }
 
-    m_positionId   = positionId;
-    m_pvFromRoot   = pv;
-    m_lastPlyDepth = pv.size() - 1;
+    m_positionId     = positionId;
+    m_iterationDepth = iterationDepth;
+    m_pvFromRoot     = pv;
+    m_lastPlyDepth   = pv.size() - 1;
 }
 
 /**

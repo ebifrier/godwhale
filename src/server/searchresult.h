@@ -55,6 +55,14 @@ public:
         return m_pv[ply];
     }
 
+    /**
+     * @brief PV‚ğæ“¾‚µ‚Ü‚·B
+     */
+    std::vector<Move> const & getPV() const
+    {
+        return m_pv;
+    }
+
     void initialize(tree_t * restrict ptree, int iterationDepth, int value);
 
 private:

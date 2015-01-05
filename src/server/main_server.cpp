@@ -2,7 +2,6 @@
 #include "precomp.h"
 #include "stdinc.h"
 #include "server.h"
-#include "rootsearch.h"
 
 #if defined(USE_GTEST)
 #include <gtest/gtest.h>
@@ -49,13 +48,12 @@ int main(int argc, char *argv[])
     // これより前のサーバーインスタンスへのアクセスは禁止です。
     Server::initialize(argc, argv);
 
+    Server::get()->waitClients();
+
     if (ini(ptree) < 0) {
         LOG_ERROR() << "failed ini(). (" << str_error << ")";
         return EXIT_SUCCESS;
     }
-
-    SearchResult data;
-    //generateRootMove(&data);
 
     for ( ; ; ) {
         iret = main_child(ptree);
