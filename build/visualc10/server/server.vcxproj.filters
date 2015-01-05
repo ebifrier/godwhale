@@ -155,9 +155,6 @@
     <ClCompile Include="..\..\..\src\test\sfen_test.cpp">
       <Filter>test</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\server\rootsearch.cpp">
-      <Filter>server</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\stdinc.cpp" />
     <ClCompile Include="..\..\..\src\syncposition.cpp" />
     <ClCompile Include="..\..\..\src\commandpacket.cpp" />
@@ -185,6 +182,9 @@
       <Filter>server</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\server\movenodelist.cpp">
+      <Filter>server</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\server\server_root.cpp">
       <Filter>server</Filter>
     </ClCompile>
   </ItemGroup>
