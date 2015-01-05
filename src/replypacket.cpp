@@ -92,7 +92,7 @@ shared_ptr<ReplyPacket> ReplyPacket::parse_Login(std::string const & rsi,
     shared_ptr<ReplyPacket> result(new ReplyPacket(REPLY_LOGIN));
     Tokenizer::iterator begin = ++tokens.begin();
 
-    result->m_loginId = *begin++;
+    result->m_loginName = *begin++;
     result->m_threadSize = lexical_cast<int>(*begin++);
     return result;
 }
@@ -103,7 +103,7 @@ shared_ptr<ReplyPacket> ReplyPacket::parse_Login(std::string const & rsi,
 std::string ReplyPacket::toRSI_Login() const
 {
     return (F("login %1% %2%")
-        % m_loginId % m_threadSize)
+        % m_loginName % m_threadSize)
         .str();
 }
 #pragma endregion

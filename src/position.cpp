@@ -43,7 +43,7 @@ Position::Position(Position && other)
 }
 
 Position::Position(min_posi_t const & posi)
-    : m_turn(posi.turn_to_move)
+    : m_turn(posi.turn_to_move), m_asquare(nsquare)
 {
     m_hand[black] = posi.hand_black;
     m_hand[white] = posi.hand_white;
@@ -83,7 +83,7 @@ Position &Position::operator =(min_posi_t const & posi)
 {
     m_hand[black] = posi.hand_black;
     m_hand[white] = posi.hand_white;
-    m_turn = posi.hand_white;
+    m_turn = posi.turn_to_move;
     std::copy_n(posi.asquare, (int)nsquare, m_asquare.begin());
 
     m_moveList.clear();
@@ -104,6 +104,20 @@ bool operator==(Position const & lhs, Position const & rhs)
     }
 
     return true;
+}
+
+/**
+ * @brief min_posi_tÉIÉuÉWÉFÉNÉgÇ…ïœä∑ÇµÇ‹Ç∑ÅB
+ */
+min_posi_t Position::getMinPosi() const
+{
+    min_posi_t posi;
+
+    posi.hand_black = m_hand[black];
+    posi.hand_white = m_hand[white];
+    posi.turn_to_move = m_turn;
+    std::copy_n(m_asquare.begin(), (int)nsquare, posi.asquare);
+    return posi;
 }
 
 /**
@@ -374,6 +388,7 @@ void Position::print(std::ostream &os) const
 
     printHand(os, m_hand[black], "êÊéË: ");
     printHand(os, m_hand[white], "å„éË: ");
+    os << "éËî‘: " << (m_turn == black ? "êÊéË" : "å„éË");
 }
 
 /**
@@ -399,15 +414,17 @@ void Position::printHand(std::ostream &os, unsigned int hand,
 {
     if (hand != 0) {
         os << prefix;
-    }
 
-    printHand0(os, (int)I2HandPawn(hand),   "ï‡");
-    printHand0(os, (int)I2HandLance(hand),  "çÅ");
-    printHand0(os, (int)I2HandKnight(hand), "åj");
-    printHand0(os, (int)I2HandSilver(hand), "ã‚");
-    printHand0(os, (int)I2HandGold(hand),   "ã‡");
-    printHand0(os, (int)I2HandBishop(hand), "äp");
-    printHand0(os, (int)I2HandRook(hand),   "îÚ");
+        printHand0(os, (int)I2HandPawn(hand),   "ï‡");
+        printHand0(os, (int)I2HandLance(hand),  "çÅ");
+        printHand0(os, (int)I2HandKnight(hand), "åj");
+        printHand0(os, (int)I2HandSilver(hand), "ã‚");
+        printHand0(os, (int)I2HandGold(hand),   "ã‡");
+        printHand0(os, (int)I2HandBishop(hand), "äp");
+        printHand0(os, (int)I2HandRook(hand),   "îÚ");
+
+        os << std::endl;
+    }
 }
 
 /**

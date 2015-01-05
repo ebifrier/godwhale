@@ -63,9 +63,9 @@ public:
     /**
      * @brief ƒƒOƒCƒ“‚h‚c‚ğæ“¾‚µ‚Ü‚·B
      */
-    std::string getLoginId() const
+    std::string getLoginName() const
     {
-        return m_loginId;
+        return m_loginName;
     }
 
     int getThreadSize() const
@@ -119,7 +119,7 @@ public:
     std::vector<Move> const &getPVList() const
     {
         return m_moveList;
-    }    
+    }
 
 public:
     int getPriority() const;
@@ -138,7 +138,7 @@ private:
 private:
     ReplyType m_type;
 
-    std::string m_loginId;
+    std::string m_loginName;
     int m_threadSize;
 
     int m_positionId;

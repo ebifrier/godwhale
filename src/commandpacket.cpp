@@ -1,6 +1,7 @@
 #include "precomp.h"
 #include "stdinc.h"
 #include "io_sfen.h"
+#include "syncposition.h"
 #include "commandpacket.h"
 
 namespace godwhale {
@@ -154,6 +155,20 @@ std::string CommandPacket::toRSI_Login() const
 
 #pragma region SetPosition
 /**
+ * @brief setpositionコマンドを作成します。
+ */
+shared_ptr<CommandPacket> CommandPacket::createSetPosition(int positionId,
+                                                           Position const & position)
+{
+    shared_ptr<CommandPacket> result(new CommandPacket(COMMAND_SETPOSITION));
+
+    result->m_positionId = positionId;
+    result->m_position = position;
+
+    return result;
+}
+
+/**
  * @brief setpositionコマンドをパースします。
  *
  * setposition <position_id> [sfen <sfen> | startpos] moves <move1> ... <moven>
@@ -162,10 +177,10 @@ std::string CommandPacket::toRSI_Login() const
 shared_ptr<CommandPacket> CommandPacket::parse_SetPosition(std::string const & rsi,
                                                            Tokenizer & tokens)
 {
-    shared_ptr<CommandPacket> result(new CommandPacket(COMMAND_SETPOSITION));
     Tokenizer::iterator begin = ++tokens.begin();
 
-    result->m_positionId = lexical_cast<int>(*begin++);
+    int positionId = lexical_cast<int>(*begin++);
+    Position position(false);
 
     std::string token = *begin++;
     if (token == "sfen") {
@@ -174,15 +189,15 @@ shared_ptr<CommandPacket> CommandPacket::parse_SetPosition(std::string const & r
         sfen += *begin++ + " "; // turn
         sfen += *begin++ + " "; // hand
         sfen += *begin++;       // nmoves
-        result->m_position = sfenToPosition(sfen);
+        position = sfenToPosition(sfen);
     }
     else if (token == "startpos") {
-        result->m_position = Position();
+        position = Position();
     }
 
     // movesはないことがあります。
     if (begin == tokens.end()) {
-        return result;
+        return createSetPosition(positionId, position);
     }
 
     if (*begin++ != "moves") {
@@ -190,16 +205,16 @@ shared_ptr<CommandPacket> CommandPacket::parse_SetPosition(std::string const & r
     }
 
     for (; begin != tokens.end(); ++begin) {
-        Move move = sfenToMove(result->m_position, *begin);
+        Move move = sfenToMove(position, *begin);
 
-        if (!result->m_position.makeMove(move)) {
-            LOG_ERROR() << result->m_position;
+        if (!position.makeMove(move)) {
+            LOG_ERROR() << position;
             LOG_ERROR() << *begin << ": 指し手が正しくありません。";
             throw new ParseException(F("%1%: 指し手が正しくありません。") % *begin);
         }
     }
 
-    return result;
+    return createSetPosition(positionId, position);
 }
 
 /**
@@ -242,6 +257,21 @@ std::string CommandPacket::toRSI_SetPosition() const
 
 #pragma region MakeRootMove
 /**
+ * @brief makemoverootコマンドを作成します。
+ */
+shared_ptr<CommandPacket> CommandPacket::createMakeMoveRoot(int positionId,
+                                                            int oldPositionId,
+                                                            Move move)
+{
+    shared_ptr<CommandPacket> result(new CommandPacket(COMMAND_MAKEMOVEROOT));
+
+    result->m_positionId = positionId;
+    result->m_oldPositionId = oldPositionId;
+    result->m_move = move;
+    return result;
+}
+
+/**
  * @brief makemoverootコマンドをパースします。
  *
  * makemoveroot <position_id> <old_position_id> <move>
@@ -249,17 +279,16 @@ std::string CommandPacket::toRSI_SetPosition() const
 shared_ptr<CommandPacket> CommandPacket::parse_MakeMoveRoot(std::string const & rsi,
                                                             Tokenizer & tokens)
 {
-    shared_ptr<CommandPacket> result(new CommandPacket(COMMAND_MAKEMOVEROOT));
     Tokenizer::iterator begin = ++tokens.begin(); // 最初のトークンは飛ばします。
 
-    result->m_positionId = lexical_cast<int>(*begin++);
-    result->m_oldPositionId = lexical_cast<int>(*begin++);
+    int positionId = lexical_cast<int>(*begin++);
+    int oldPositionId = lexical_cast<int>(*begin++);
 
     // 与えられたpositionIdなどから局面を検索します。
     Position position;
+    Move move = sfenToMove(position, *begin++);
 
-    result->m_move = sfenToMove(position, *begin++);
-    return result;
+    return createMakeMoveRoot(positionId, oldPositionId, move);
 }
 
 /**
@@ -307,8 +336,18 @@ shared_ptr<CommandPacket> CommandPacket::parse_SetMoveList(std::string const & r
     int iterationDepth = lexical_cast<int>(*begin++);
     int plyDepth = lexical_cast<int>(*begin++);
 
+    if (positionId != SyncPosition::get()->getPositionId()) {
+        throw ParseException(F("%1%: 局面IDが一致しません。") % positionId);
+    }
+
     // 与えられたpositionIdなどから局面を検索します。
-    Position position;
+    Position position = SyncPosition::get()->getRootPosition();
+    /*for (int ply = 0; ply < plyDepth; ++ply) {
+        Move move = position.getMoveList()[ply];
+        if (!position.makeMove(move)) {
+            throw ParseException(F("%1%: 指し手を指すことができません。") % move);
+        }
+    }*/
 
     std::vector<Move> moves;
     Tokenizer::iterator end = tokens.end();
@@ -396,12 +435,20 @@ std::string CommandPacket::toRSI_Start() const
 
 #pragma region Stop
 /**
+ * @brief stopコマンドを作成します。
+ */
+shared_ptr<CommandPacket> CommandPacket::createStop()
+{
+    return shared_ptr<CommandPacket>(new CommandPacket(COMMAND_STOP));
+}
+
+/**
  * @brief stopコマンドをパースします。
  */
 shared_ptr<CommandPacket> CommandPacket::parse_Stop(std::string const & rsi,
                                                     Tokenizer & tokens)
 {
-    return shared_ptr<CommandPacket>(new CommandPacket(COMMAND_STOP));
+    return createStop();
 }
 
 /**
@@ -416,12 +463,20 @@ std::string CommandPacket::toRSI_Stop() const
 
 #pragma region Quit
 /**
+ * @brief quitコマンドを作成します。
+ */
+shared_ptr<CommandPacket> CommandPacket::createQuit()
+{
+    return shared_ptr<CommandPacket>(new CommandPacket(COMMAND_QUIT));
+}
+
+/**
  * @brief quitコマンドをパースします。
  */
 shared_ptr<CommandPacket> CommandPacket::parse_Quit(std::string const & rsi,
                                                     Tokenizer & tokens)
 {
-    return shared_ptr<CommandPacket>(new CommandPacket(COMMAND_QUIT));
+    return createQuit();
 }
 
 /**

@@ -128,10 +128,20 @@ void initializeLog()
 #endif
     auto fs = shared_ptr<std::ostream>(new std::ofstream(logpath, std::ios::app));
     backend->add_stream(fs);
+
+    // 通常ログ
+    auto normal = make_shared< sinks::synchronous_sink<text_backend> >(backend);
+    //error->set_filter(Severity >= Warning);
+    normal->set_formatter
+        ( expressions::format("[%1%]: %2%")
+        % expressions::format_date_time<ptime>
+            ("TimeStamp", "%Y-%m-%d %H:%M:%S")
+        % expressions::message);
     
-    auto frontend = make_shared< sinks::synchronous_sink<text_backend> >(backend);
-    //frontend->set_filter(Severity >= Notification);
-    frontend->set_formatter
+    // エラー用出力
+    auto error = make_shared< sinks::synchronous_sink<text_backend> >(backend);
+    error->set_filter(Severity >= Warning);
+    error->set_formatter
         ( expressions::format("[%1%]:%2%(%3%):%4%:%5%: %6%")
         % expressions::format_date_time<ptime>
             ("TimeStamp", "%Y-%m-%d %H:%M:%S")
@@ -142,7 +152,8 @@ void initializeLog()
         % expressions::message);
 
     core::get()->remove_all_sinks();
-    core::get()->add_sink(frontend);
+    core::get()->add_sink(normal);
+    core::get()->add_sink(error);
 }
 
 } // namespace godwhale

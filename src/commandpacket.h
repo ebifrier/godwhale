@@ -214,6 +214,11 @@ public:
     std::string toRSI() const;
 
     //static shared_ptr<CommandPacket> createLogin();
+    static shared_ptr<CommandPacket> createSetPosition(int positionId,
+                                                       Position const & position);
+    static shared_ptr<CommandPacket> createMakeMoveRoot(int positionId,
+                                                        int oldPositionId,
+                                                        Move move);
     static shared_ptr<CommandPacket> createSetMoveList(int positionId,
                                                        int iterationDepth,
                                                        int plyDepth,
@@ -222,6 +227,8 @@ public:
                                                  int iterationDepth,
                                                  int plyDepth,
                                                  int alpha, int beta);
+    static shared_ptr<CommandPacket> createStop();
+    static shared_ptr<CommandPacket> createQuit();
 
     static shared_ptr<CommandPacket> parse(std::string const & rsi);
 

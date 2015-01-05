@@ -94,6 +94,8 @@ public:
         return m_moveList;
     }
 
+    min_posi_t getMinPosi() const;
+
     int getHand(int turn, int piece) const;
     void setHand(int turn, int piece, int count);
 
