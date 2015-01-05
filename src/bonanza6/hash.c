@@ -11,7 +11,7 @@ static int CONV eval_supe( unsigned int hand_current, unsigned int hand_hash,
                            int * restrict pvalue_hash,
                            int * restrict ptype_hash );
 
-#if 0 || !defined(GODWHALE_SERVER) && !defined(GODWHALE_CLIENT)
+#if 1 || !defined(GODWHALE_SERVER) && !defined(GODWHALE_CLIENT)
 #  define hash_memory_alloc memory_alloc
 #  define hash_memory_free  memory_free
 #  define flush_hash_memory (void)

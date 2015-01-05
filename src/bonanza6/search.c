@@ -5,6 +5,10 @@
 #include <assert.h>
 #include "shogi.h"
 
+#if defined(GODWHALE_SERVER) || defined(GODWHALE_CLIENT)
+#include "bonanza_if.h"
+#endif
+
 static void CONV hist_add( tree_t * restrict ptree, int ply );
 static void CONV hist_good( tree_t * restrict ptree, unsigned int move,
                             int ply, int depth, int turn );
@@ -62,7 +66,14 @@ search( tree_t * restrict ptree, int alpha, int beta, int turn, int depth,
 #if defined(TLP)
       if ( ! ptree->tlp_id )
 #endif
-        if ( node_next_signal < ++node_last_check && 0 /*&& detect_signals( ptree )*/ )
+        if ( node_next_signal < ++node_last_check
+#if defined(GODWHALE_SERVER)
+             && detect_signals_server() )
+#elif defined(GODWHALE_CLIENT)
+             )
+#else
+             && detect_signals( ptree ) )
+#endif
           {
             root_abort = 1;
             return 0;
