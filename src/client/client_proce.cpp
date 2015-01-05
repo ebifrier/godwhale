@@ -46,6 +46,9 @@ int Client::proce(bool searching)
         case COMMAND_SETMOVELIST:
             status = proce_SetMoveList(command);
             break;
+        default:
+            unreachable();
+            break;
         }
     }
 
@@ -93,15 +96,16 @@ void Client::connect(std::string const & address, std::string const & port)
 /**
  * @brief サーバーに接続に行きます。
  */
-void Client::login(std::string const & loginId)
+void Client::login(std::string const & loginName)
 {
-    if (loginId.empty()) {
+    if (loginName.empty()) {
     }
 
     // ログイン用のリプライコマンドをサーバーに送ります。
     //shared_ptr<ReplyPacket> reply; // = ReplyPacket::parse("login name 2");
     
-    m_rsiService->sendRSI("login name 2");
+    m_loginName = loginName;
+    m_rsiService->sendRSI("login test 2");
 }
 
 /**
@@ -143,11 +147,14 @@ int Client::proce_SetPosition(shared_ptr<CommandPacket> command)
     int positionId = command->getPositionId();
 
     // 現局面を設定します。
-    //SyncPosition::initialize(position);
+    SyncPosition::get()->reset(positionId, position);
 
     // 後処理
     setPositionWithId(position, positionId);
     m_positionId = positionId;
+
+    LOG_NOTIFICATION() << "position_id=" << positionId;
+    LOG_NOTIFICATION() << position;
 
     return PROCE_CONTINUE;
 }
@@ -169,11 +176,8 @@ int Client::proce_MakeMoveRoot(shared_ptr<CommandPacket> command)
     int positionId = command->getPositionId();
     Move move = command->getMove();
 
-    // 一度ルート局面に戻します。
-    SyncPosition::get()->rewind();
-
     // ルート局面を一手進めます。
-    if (!SyncPosition::get()->makeMoveRoot(move)) {
+    if (!SyncPosition::get()->makeMoveRoot(positionId, move)) {
         LOG_ERROR() << "makemoveroot: " << move << ": 指し手を指すことができません。";
         return PROCE_CONTINUE;
     }

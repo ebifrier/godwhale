@@ -77,11 +77,11 @@ public:
     }
 
     /**
-     * @brief クライアントの識別IDを取得します。
+     * @brief クライアントのログイン名を取得します。
      */
-    std::string const &getLoginId() const
+    std::string const &getLoginName() const
     {
-        return m_loginId;
+        return m_loginName;
     }
 
     /**
@@ -138,9 +138,9 @@ private:
 private:
     /* client_proce.cpp */
     void connect(std::string const & address, std::string const & port);
-    void login(std::string const & loginId);
+    void login(std::string const & loginName);
 
-    int proce(bool nested);
+    int proce(bool searching);
     int proce_Login(shared_ptr<CommandPacket> command);
     int proce_SetPosition(shared_ptr<CommandPacket> command);
     int proce_MakeMoveRoot(shared_ptr<CommandPacket> command);
@@ -160,7 +160,7 @@ private:
     std::list<shared_ptr<CommandPacket>> m_commandList;
 
     bool m_logined;
-    std::string m_loginId;
+    std::string m_loginName;
     int m_nthreads;
 
     int m_positionId; // 現在の局面IDです。

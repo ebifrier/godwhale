@@ -66,7 +66,7 @@ void Client::serviceThreadMain()
 
             m_service.reset();
         }
-        catch (std::exception ex) {
+        catch (std::exception & ex) {
             LOG_ERROR() << "ClientのIOスレッドで例外が発生しました。" << ex.what();
         }
     }
@@ -115,7 +115,7 @@ void Client::setPositionWithId(Position const & position, int id)
  */
 void Client::onDisconnected()
 {
-    LOG_NOTIFICATION() << "Client[" << m_loginId << "] is disconnected.";
+    LOG_NOTIFICATION() << "Client[" << m_loginName << "] is disconnected.";
 
     m_isAlive = false;
 }
