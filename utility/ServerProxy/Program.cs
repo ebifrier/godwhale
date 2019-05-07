@@ -42,7 +42,7 @@ namespace ServerProxy
             int ShogiServerPort = 4081;
 
             // 大合神クジラちゃんのアドレスとポートです。
-            string GodWhaleServerAddress = "54.178.196.154";
+            string GodWhaleServerAddress = "godwhale.ddns.net";
             //string GodWhaleServerAddress = "localhost";
             int GodWhaleServerPort = 4081;
 
